@@ -1,12 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import HeroSection from '@/components/HeroSection';
+import StagesSection from '@/components/StagesSection';
+import Leaderboard from '@/components/Leaderboard';
+import ResourcesSection from '@/components/ResourcesSection';
+import Footer from '@/components/Footer';
 
 const Index = () => {
+  const { toast } = useToast();
+  const [playerName, setPlayerName] = useState<string | null>(null);
+
+  const handleStartGame = (name: string) => {
+    setPlayerName(name);
+    toast({
+      title: `Witaj, ${name}! 🦎`,
+      description: "Twoja misja Data Rangera właśnie się rozpoczęła!",
+    });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <HeroSection onStartGame={handleStartGame} />
+      
+      <StagesSection />
+      
+      <section className="py-16 px-4">
+        <div className="max-w-md mx-auto">
+          <Leaderboard />
+        </div>
+      </section>
+      
+      <ResourcesSection />
+      
+      <Footer />
     </div>
   );
 };
