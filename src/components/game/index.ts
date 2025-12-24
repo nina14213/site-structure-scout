@@ -5,6 +5,7 @@ export { default as Validator } from './Validator';
 export { default as LevelSelection } from './LevelSelection';
 export { default as GameComplete } from './GameComplete';
 export { default as GameLauncher } from './GameLauncher';
+export { default as StartScreen } from './StartScreen';
 export { default as QuizModal } from './QuizModal';
 export { default as TutorialModal } from './TutorialModal';
 export { default as DraggableColumn } from './DraggableColumn';
