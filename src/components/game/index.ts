@@ -1,7 +1,10 @@
 export { default as CoreBuilder } from './CoreBuilder';
 export { default as ExtensionLinker } from './ExtensionLinker';
+export { default as MetaGenerator } from './MetaGenerator';
+export { default as Validator } from './Validator';
 export { default as LevelSelection } from './LevelSelection';
 export { default as GameComplete } from './GameComplete';
+export { default as GameLauncher } from './GameLauncher';
 export { default as QuizModal } from './QuizModal';
 export { default as TutorialModal } from './TutorialModal';
 export { default as DraggableColumn } from './DraggableColumn';
