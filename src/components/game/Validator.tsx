@@ -31,12 +31,12 @@ interface DataRecord {
     decimalLongitude: string;
 }
 
-// Sample data with intentional errors for user to fix
+// Sample data with intentional errors for user to fix - wrong fields are empty so user must fill them
 const initialDataRecords: DataRecord[] = [
     { id: '1', occurrenceID: 'OCC001', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.369327', decimalLongitude: '16.925402' },
-    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '25-05-2025', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Wrong date format
-    { id: '3', occurrenceID: 'OCC001', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Duplicate ID
-    { id: '4', occurrenceID: 'OCC004', eventID: '9999', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Invalid eventID
+    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Empty date - user must enter correct format
+    { id: '3', occurrenceID: '', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Empty ID - user must enter unique ID
+    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Empty eventID - user must select valid one
 ];
 
 const validEventIDs = ['3431', '3432', '3433', '3434'];
@@ -94,8 +94,14 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const validateData = useCallback(() => {
         const errors: Array<{ rowId: string; field: string; message: string }> = [];
         
-        // Check for duplicate IDs
-        const ids = dataRecords.map(r => r.occurrenceID);
+        // Check for empty or duplicate IDs
+        dataRecords.forEach(record => {
+            if (!record.occurrenceID || record.occurrenceID.trim() === '') {
+                errors.push({ rowId: record.id, field: 'occurrenceID', message: 'Brak ID - wpisz unikalny identyfikator' });
+            }
+        });
+        
+        const ids = dataRecords.map(r => r.occurrenceID).filter(id => id && id.trim() !== '');
         const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
         duplicates.forEach(dupId => {
             const record = dataRecords.find(r => r.occurrenceID === dupId);
@@ -106,15 +112,21 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
         // Check date format (ISO 8601: YYYY-MM-DD)
         dataRecords.forEach(record => {
-            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-            if (!dateRegex.test(record.eventDate)) {
-                errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowy format daty (wymagany: YYYY-MM-DD)' });
+            if (!record.eventDate || record.eventDate.trim() === '') {
+                errors.push({ rowId: record.id, field: 'eventDate', message: 'Brak daty - wpisz w formacie YYYY-MM-DD' });
+            } else {
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (!dateRegex.test(record.eventDate)) {
+                    errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowy format daty (wymagany: YYYY-MM-DD)' });
+                }
             }
         });
 
         // Check eventID integrity
         dataRecords.forEach(record => {
-            if (!validEventIDs.includes(record.eventID)) {
+            if (!record.eventID || record.eventID.trim() === '') {
+                errors.push({ rowId: record.id, field: 'eventID', message: 'Brak eventID - wybierz z listy' });
+            } else if (!validEventIDs.includes(record.eventID)) {
                 errors.push({ rowId: record.id, field: 'eventID', message: 'Nieprawidłowy eventID' });
             }
         });
@@ -333,7 +345,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.occurrenceID}
                                                         onChange={(e) => updateRecord(record.id, 'occurrenceID', e.target.value)}
-                                                        className={`${hasError(record.id, 'occurrenceID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}
+                                                        placeholder="Wpisz ID"
+                                                        className={`text-gray-900 dark:text-white ${hasError(record.id, 'occurrenceID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
                                                 <td className="p-2">
@@ -341,8 +354,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         value={record.eventID}
                                                         onValueChange={(val) => updateRecord(record.id, 'eventID', val)}
                                                     >
-                                                        <SelectTrigger className={`${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}>
-                                                            <SelectValue />
+                                                        <SelectTrigger className={`text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}>
+                                                            <SelectValue placeholder="Wybierz" />
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {validEventIDs.map(id => (
@@ -355,7 +368,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.scientificName}
                                                         onChange={(e) => updateRecord(record.id, 'scientificName', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
                                                         readOnly
                                                     />
                                                 </td>
@@ -364,14 +377,14 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         value={record.eventDate}
                                                         onChange={(e) => updateRecord(record.id, 'eventDate', e.target.value)}
                                                         placeholder="YYYY-MM-DD"
-                                                        className={`${hasError(record.id, 'eventDate') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}
+                                                        className={`text-gray-900 dark:text-white ${hasError(record.id, 'eventDate') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
                                                 <td className="p-2">
                                                     <Input
                                                         value={record.decimalLatitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLatitude', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
                                                         readOnly
                                                     />
                                                 </td>
@@ -379,7 +392,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.decimalLongitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLongitude', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
                                                         readOnly
                                                     />
                                                 </td>
