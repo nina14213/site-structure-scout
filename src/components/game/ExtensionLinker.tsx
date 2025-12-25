@@ -147,39 +147,39 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
             
             // Check eventID
             if (!row.eventID) {
-                errors.push({ row: idx + 1, field: 'eventID', message: 'Missing eventID' });
+                errors.push({ row: idx + 1, field: 'eventID', message: 'Brak wartości' });
             } else if (!eventIds.has(row.eventID)) {
-                errors.push({ row: idx + 1, field: 'eventID', message: `eventID "${row.eventID}" doesn't exist in event data` });
+                errors.push({ row: idx + 1, field: 'eventID', message: 'Nieprawidłowy eventID' });
             } else if (row.eventID !== expected.eventID) {
-                errors.push({ row: idx + 1, field: 'eventID', message: `Incorrect eventID - check which event matches this occurrence` });
+                errors.push({ row: idx + 1, field: 'eventID', message: 'Błędna odpowiedź' });
             }
 
             // Check scientificName
             if (!row.scientificName) {
-                errors.push({ row: idx + 1, field: 'scientificName', message: 'Missing scientificName' });
+                errors.push({ row: idx + 1, field: 'scientificName', message: 'Brak wartości' });
             } else if (row.scientificName !== expected.scientificName) {
-                errors.push({ row: idx + 1, field: 'scientificName', message: `Incorrect species - should be "${expected.scientificName}"` });
+                errors.push({ row: idx + 1, field: 'scientificName', message: 'Błędna odpowiedź' });
             }
 
             // Check recordedBy
             if (!row.recordedBy) {
-                errors.push({ row: idx + 1, field: 'recordedBy', message: 'Missing recordedBy' });
+                errors.push({ row: idx + 1, field: 'recordedBy', message: 'Brak wartości' });
             } else if (row.recordedBy !== expected.recordedBy) {
-                errors.push({ row: idx + 1, field: 'recordedBy', message: `Incorrect recorder - should be "${expected.recordedBy}"` });
+                errors.push({ row: idx + 1, field: 'recordedBy', message: 'Błędna odpowiedź' });
             }
 
             // Check organismQuantity
             if (!row.organismQuantity) {
-                errors.push({ row: idx + 1, field: 'organismQuantity', message: 'Missing organismQuantity' });
+                errors.push({ row: idx + 1, field: 'organismQuantity', message: 'Brak wartości' });
             } else if (row.organismQuantity !== expected.organismQuantity) {
-                errors.push({ row: idx + 1, field: 'organismQuantity', message: `Incorrect quantity - should be "${expected.organismQuantity}"` });
+                errors.push({ row: idx + 1, field: 'organismQuantity', message: 'Błędna odpowiedź' });
             }
 
             // Check organismQuantityType
             if (!row.organismQuantityType) {
-                errors.push({ row: idx + 1, field: 'organismQuantityType', message: 'Missing organismQuantityType' });
+                errors.push({ row: idx + 1, field: 'organismQuantityType', message: 'Brak wartości' });
             } else if (row.organismQuantityType !== expected.organismQuantityType) {
-                errors.push({ row: idx + 1, field: 'organismQuantityType', message: `Incorrect type - should be "${expected.organismQuantityType}"` });
+                errors.push({ row: idx + 1, field: 'organismQuantityType', message: 'Błędna odpowiedź' });
             }
         });
 
@@ -191,6 +191,35 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
         }
         return errors;
     }, [occurrenceData, eventIds, playSuccess, playFail]);
+
+    // Clear wrong answers
+    const clearWrongAnswers = useCallback(() => {
+        setOccurrenceData(prev => {
+            return prev.map((row, idx) => {
+                const expected = expectedOccurrenceData[idx];
+                const newRow = { ...row };
+                
+                if (row.eventID && row.eventID !== expected.eventID) {
+                    newRow.eventID = '';
+                }
+                if (row.scientificName && row.scientificName !== expected.scientificName) {
+                    newRow.scientificName = '';
+                }
+                if (row.recordedBy && row.recordedBy !== expected.recordedBy) {
+                    newRow.recordedBy = '';
+                }
+                if (row.organismQuantity && row.organismQuantity !== expected.organismQuantity) {
+                    newRow.organismQuantity = '';
+                }
+                if (row.organismQuantityType && row.organismQuantityType !== expected.organismQuantityType) {
+                    newRow.organismQuantityType = '';
+                }
+                
+                return newRow;
+            });
+        });
+        setValidationStatus({ valid: false, errors: [] });
+    }, []);
 
     // Update occurrence cell value
     const updateOccurrenceCell = useCallback((rowIndex: number, field: string, value: string) => {
@@ -534,14 +563,25 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                         </Button>
 
                         {validationStatus.errors.length > 0 && (
-                            <div className="space-y-2">
-                                <h3 className="font-semibold text-red-600 dark:text-red-400">Errors Found:</h3>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-semibold text-red-600 dark:text-red-400">Znaleziono błędy:</h3>
+                                    <Button
+                                        onClick={clearWrongAnswers}
+                                        variant="outline"
+                                        size="sm"
+                                        className="border-red-400 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-500/10"
+                                    >
+                                        <XCircle className="w-4 h-4 mr-2" />
+                                        Usuń błędne odpowiedzi
+                                    </Button>
+                                </div>
                                 <div className="space-y-1 max-h-48 overflow-y-auto">
                                     {validationStatus.errors.map((err, idx) => (
                                         <Alert key={idx} className="bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30">
                                             <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                                             <AlertDescription className="text-red-800 dark:text-red-300">
-                                                Row {err.row}, {err.field}: {err.message}
+                                                Wiersz {err.row}, {err.field}: {err.message}
                                             </AlertDescription>
                                         </Alert>
                                     ))}
