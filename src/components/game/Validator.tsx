@@ -302,11 +302,13 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         transition={{ duration: 0.5, repeat: isValidating ? Infinity : 0 }}
                     >
                         {allPassed ? (
-                            <img 
-                                src={bossDefeatedIcon} 
-                                alt="Defeated Boss" 
-                                className="w-28 h-28"
-                            />
+                            <motion.span 
+                                className="text-5xl font-bold bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 bg-clip-text text-transparent drop-shadow-lg"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            >
+                                Victory!
+                            </motion.span>
                         ) : (
                             <span className="text-7xl">👹</span>
                         )}
