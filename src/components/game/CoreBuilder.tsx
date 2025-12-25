@@ -15,9 +15,9 @@ import TutorialModal from './TutorialModal';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
 
-// Required DwC terms for Event Core
-const requiredTerms = ['eventID', 'scientificName', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum', 'countryCode', 'eventDate', 'basisOfRecord'];
-const optionalTerms = ['parentEventID', 'eventDate', 'recordedBy', 'organismQuantity', 'organismQuantityType', 'verbatimLocality', 'habitat'];
+// Required DwC terms for Event Core - only eventID is strictly required per DwC-DP
+const requiredTerms = ['eventID'];
+const optionalTerms = ['parentEventID', 'eventDate', 'recordedBy', 'scientificName', 'decimalLatitude', 'decimalLongitude', 'geodeticDatum', 'countryCode', 'basisOfRecord', 'organismQuantity', 'organismQuantityType', 'verbatimLocality', 'habitat'];
 
 interface CoreBuilderProps {
     onComplete?: (score: number, data: unknown) => void;
