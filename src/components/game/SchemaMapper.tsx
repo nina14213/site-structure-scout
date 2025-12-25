@@ -1,0 +1,517 @@
+import React, { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+    ArrowLeft, 
+    Sparkles,
+    FileSpreadsheet,
+    Users,
+    Target,
+    Calendar,
+    Image,
+    Search as SearchIcon,
+    Grid3X3,
+    RotateCcw,
+    Check,
+    X
+} from 'lucide-react';
+import { dwcTerms } from './DwCTerms';
+
+// Darwin Core schema types
+const schemaTypes = [
+    { id: 'agent', name: 'Agent', icon: Users, color: 'bg-pink-600' },
+    { id: 'occurrence', name: 'Occurrence', icon: Target, color: 'bg-rose-600' },
+    { id: 'event', name: 'Event', icon: Grid3X3, color: 'bg-purple-600' },
+    { id: 'survey', name: 'Survey', icon: Calendar, color: 'bg-slate-600' },
+    { id: 'media', name: 'Media', icon: Image, color: 'bg-blue-600' },
+    { id: 'identification', name: 'Identification', icon: SearchIcon, color: 'bg-cyan-600' },
+];
+
+// Schema-specific required terms
+const schemaTerms: Record<string, { required: string[]; optional: string[] }> = {
+    event: {
+        required: ['eventID'],
+        optional: ['parentEventID', 'eventDate', 'eventType', 'samplingProtocol', 'sampleSizeValue', 'sampleSizeUnit', 'eventRemarks', 'fieldNumber', 'fieldNotes', 'verbatimEventDate', 'habitat', 'samplingEffort'],
+    },
+    occurrence: {
+        required: ['occurrenceID', 'basisOfRecord'],
+        optional: ['catalogNumber', 'recordNumber', 'recordedBy', 'individualCount', 'organismQuantity', 'organismQuantityType', 'sex', 'lifeStage', 'reproductiveCondition', 'behavior', 'establishmentMeans', 'degreeOfEstablishment', 'pathway', 'occurrenceStatus', 'occurrenceRemarks'],
+    },
+    agent: {
+        required: ['agentID'],
+        optional: ['agentType', 'agentName', 'agentRole'],
+    },
+    survey: {
+        required: ['surveyID'],
+        optional: ['surveyType', 'surveyTarget', 'surveyMethod'],
+    },
+    media: {
+        required: ['mediaID'],
+        optional: ['mediaType', 'accessURI', 'format', 'license', 'rightsHolder', 'creator'],
+    },
+    identification: {
+        required: ['identificationID'],
+        optional: ['identifiedBy', 'dateIdentified', 'identificationRemarks', 'identificationQualifier', 'typeStatus'],
+    },
+};
+
+interface SchemaMapperProps {
+    columns: string[];
+    data: any[];
+    fileName: string;
+    onBack: () => void;
+    onComplete?: (mappings: Record<string, string>, schema: string) => void;
+}
+
+export default function SchemaMapper({ columns, data, fileName, onBack, onComplete }: SchemaMapperProps) {
+    const [selectedSchema, setSelectedSchema] = useState('event');
+    const [mappings, setMappings] = useState<Record<string, string>>({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+
+    const currentSchema = schemaTerms[selectedSchema];
+    const allTerms = [...currentSchema.required, ...currentSchema.optional];
+
+    // Filter terms by search
+    const filteredRequired = currentSchema.required.filter(term => 
+        term.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const filteredOptional = currentSchema.optional.filter(term => 
+        term.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Get sample values for a column
+    const getSampleValues = useCallback((columnName: string) => {
+        return data.slice(0, 3).map(row => row[columnName]).filter(Boolean).join(', ');
+    }, [data]);
+
+    // Handle drag start
+    const handleDragStart = (e: React.DragEvent, column: string) => {
+        e.dataTransfer.setData('text/plain', column);
+        setDraggedColumn(column);
+    };
+
+    // Handle drop
+    const handleDrop = (e: React.DragEvent, termName: string) => {
+        e.preventDefault();
+        const columnName = e.dataTransfer.getData('text/plain');
+        
+        setMappings(prev => {
+            const newMappings = { ...prev };
+            // Remove previous mapping for this column
+            Object.keys(newMappings).forEach(key => {
+                if (newMappings[key] === columnName) delete newMappings[key];
+            });
+            newMappings[termName] = columnName;
+            return newMappings;
+        });
+        setDraggedColumn(null);
+    };
+
+    // Remove mapping
+    const handleRemoveMapping = (termName: string) => {
+        setMappings(prev => {
+            const newMappings = { ...prev };
+            delete newMappings[termName];
+            return newMappings;
+        });
+    };
+
+    // Reset all mappings
+    const handleReset = () => {
+        setMappings({});
+    };
+
+    // Check if column is mapped
+    const getColumnMapping = (columnName: string) => {
+        return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
+    };
+
+    // Auto-map required fields (basic matching)
+    const handleAutoMap = () => {
+        const newMappings: Record<string, string> = { ...mappings };
+        
+        currentSchema.required.forEach(term => {
+            if (!newMappings[term]) {
+                // Try to find a matching column
+                const matchingColumn = columns.find(col => 
+                    col.toLowerCase().includes(term.toLowerCase()) ||
+                    term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, ''))
+                );
+                if (matchingColumn) {
+                    newMappings[term] = matchingColumn;
+                }
+            }
+        });
+        
+        setMappings(newMappings);
+    };
+
+    // Check if all required fields are mapped
+    const allRequiredMapped = currentSchema.required.every(term => mappings[term]);
+
+    // Handle complete
+    const handleComplete = () => {
+        if (allRequiredMapped) {
+            onComplete?.(mappings, selectedSchema);
+        }
+    };
+
+    const selectedSchemaInfo = schemaTypes.find(s => s.id === selectedSchema);
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 p-4 md:p-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6"
+                >
+                    <div className="flex items-center gap-3 mb-2">
+                        <Button
+                            onClick={onBack}
+                            variant="ghost"
+                            size="sm"
+                            className="text-slate-400 hover:text-white"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                        <Sparkles className="w-8 h-8 text-purple-400" />
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white">
+                                Create Your Own Data Package
+                            </h1>
+                            <p className="text-slate-400">
+                                Upload your data and map to Darwin Core standards
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Schema Selector */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-6"
+                >
+                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                        <CardContent className="pt-6">
+                            <p className="text-sm text-slate-400 mb-4">Select Darwin Core Schema</p>
+                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                                {schemaTypes.map((schema) => {
+                                    const Icon = schema.icon;
+                                    const isSelected = selectedSchema === schema.id;
+                                    return (
+                                        <button
+                                            key={schema.id}
+                                            onClick={() => setSelectedSchema(schema.id)}
+                                            className={`
+                                                flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
+                                                ${isSelected 
+                                                    ? 'border-purple-500 bg-purple-500/20' 
+                                                    : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'}
+                                            `}
+                                        >
+                                            <div className={`p-2 rounded-lg ${schema.color}`}>
+                                                <Icon className="w-5 h-5 text-white" />
+                                            </div>
+                                            <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                                                {schema.name}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+
+                {/* Main Content - Two Columns */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left: Your Columns */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur h-full">
+                            <CardHeader className="border-b border-slate-700">
+                                <CardTitle className="text-white flex items-center justify-between">
+                                    <span className="flex items-center gap-2">
+                                        <FileSpreadsheet className="w-5 h-5 text-slate-400" />
+                                        Your Columns ({columns.length})
+                                    </span>
+                                    <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+                                        {data.length} rows
+                                    </Badge>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-4 max-h-[60vh] overflow-y-auto space-y-2">
+                                {columns.map((column, idx) => {
+                                    const mappedTo = getColumnMapping(column);
+                                    return (
+                                        <motion.div
+                                            key={column}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                        >
+                                            <div
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, column)}
+                                                onDragEnd={() => setDraggedColumn(null)}
+                                                className={`
+                                                    p-4 rounded-xl border-2 cursor-grab active:cursor-grabbing transition-all
+                                                    ${mappedTo 
+                                                        ? 'border-green-500/50 bg-green-500/10' 
+                                                        : 'border-slate-600 bg-slate-800/50 hover:border-purple-500/50'}
+                                                    ${draggedColumn === column ? 'opacity-50 scale-95' : ''}
+                                                `}
+                                            >
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="font-semibold text-white">{column}</span>
+                                                    {mappedTo && (
+                                                        <Badge variant="outline" className="text-green-400 border-green-500/50 text-xs">
+                                                            → {mappedTo}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-slate-500 truncate">
+                                                    np: {getSampleValues(column) || '—'}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    {/* Right: Schema Terms */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur h-full flex flex-col">
+                            <CardHeader className="border-b border-slate-700">
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    {selectedSchemaInfo && (
+                                        <div className={`p-1.5 rounded-lg ${selectedSchemaInfo.color}`}>
+                                            <selectedSchemaInfo.icon className="w-4 h-4 text-white" />
+                                        </div>
+                                    )}
+                                    {selectedSchemaInfo?.name} Schema
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-4 flex-1 flex flex-col">
+                                {/* Search */}
+                                <div className="relative mb-4">
+                                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <Input
+                                        placeholder="Search fields..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                                    />
+                                </div>
+
+                                {/* Tabs */}
+                                <Tabs defaultValue="required" className="flex-1 flex flex-col">
+                                    <TabsList className="w-full bg-slate-700/50 mb-4">
+                                        <TabsTrigger value="required" className="flex-1">
+                                            Required ({currentSchema.required.length})
+                                        </TabsTrigger>
+                                        <TabsTrigger value="optional" className="flex-1">
+                                            Optional ({currentSchema.optional.length})
+                                        </TabsTrigger>
+                                    </TabsList>
+
+                                    <div className="flex-1 max-h-[40vh] overflow-y-auto">
+                                        <TabsContent value="required" className="mt-0 space-y-3">
+                                            {filteredRequired.map(term => (
+                                                <TermDropZone
+                                                    key={term}
+                                                    termName={term}
+                                                    mappedColumn={mappings[term]}
+                                                    isRequired={true}
+                                                    onDrop={handleDrop}
+                                                    onRemove={handleRemoveMapping}
+                                                />
+                                            ))}
+                                        </TabsContent>
+
+                                        <TabsContent value="optional" className="mt-0 space-y-3">
+                                            {filteredOptional.map(term => (
+                                                <TermDropZone
+                                                    key={term}
+                                                    termName={term}
+                                                    mappedColumn={mappings[term]}
+                                                    isRequired={false}
+                                                    onDrop={handleDrop}
+                                                    onRemove={handleRemoveMapping}
+                                                />
+                                            ))}
+                                        </TabsContent>
+                                    </div>
+                                </Tabs>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 mt-4 pt-4 border-t border-slate-700">
+                                    <Button
+                                        onClick={handleAutoMap}
+                                        variant="outline"
+                                        className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                                    >
+                                        Map Required Fields
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="ghost"
+                                        className="text-slate-400 hover:text-white"
+                                    >
+                                        <X className="w-4 h-4 mr-1" />
+                                        Reset
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </div>
+
+                {/* Complete Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-6"
+                >
+                    <Button
+                        onClick={handleComplete}
+                        disabled={!allRequiredMapped}
+                        className={`w-full py-6 text-lg ${
+                            allRequiredMapped
+                                ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700'
+                                : 'bg-slate-700 text-slate-400'
+                        }`}
+                    >
+                        {allRequiredMapped ? (
+                            <span className="flex items-center gap-2">
+                                <Check className="w-5 h-5" />
+                                Continue to Validation
+                            </span>
+                        ) : (
+                            <span>Map all required fields to continue</span>
+                        )}
+                    </Button>
+                </motion.div>
+            </div>
+        </div>
+    );
+}
+
+// Term Drop Zone Component
+interface TermDropZoneProps {
+    termName: string;
+    mappedColumn?: string;
+    isRequired: boolean;
+    onDrop: (e: React.DragEvent, termName: string) => void;
+    onRemove: (termName: string) => void;
+}
+
+function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: TermDropZoneProps) {
+    const [isOver, setIsOver] = useState(false);
+    const term = dwcTerms[termName];
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsOver(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsOver(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsOver(false);
+        onDrop(e, termName);
+    };
+
+    return (
+        <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+                p-4 rounded-xl border-2 transition-all
+                ${isOver ? 'border-purple-500 bg-purple-500/20 scale-[1.02]' : ''}
+                ${mappedColumn 
+                    ? 'border-green-500/50 bg-green-500/10' 
+                    : isRequired 
+                        ? 'border-dashed border-orange-500/50 bg-orange-500/5' 
+                        : 'border-dashed border-slate-600 bg-slate-800/30'}
+            `}
+        >
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="font-mono text-sm font-semibold text-gray-900 dark:text-white">
+                            {termName}
+                        </span>
+                        {isRequired && (
+                            <Badge className="bg-orange-500/80 text-white text-xs">
+                                Wymagane
+                            </Badge>
+                        )}
+                        {term?.category && (
+                            <Badge variant="outline" className="text-cyan-400 border-cyan-500/50 text-xs">
+                                {term.category === 'core' ? 'Core IDs' : term.category}
+                            </Badge>
+                        )}
+                    </div>
+                    <p className="text-xs text-slate-400">
+                        {term?.description || 'Darwin Core term'}
+                    </p>
+                </div>
+                {mappedColumn && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onRemove(termName)}
+                        className="text-slate-400 hover:text-red-400 h-6 px-2"
+                    >
+                        <X className="w-3 h-3" />
+                    </Button>
+                )}
+            </div>
+
+            {mappedColumn ? (
+                <div className="mt-2 pt-2 border-t border-slate-700/50">
+                    <p className="text-sm text-green-400 flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        {mappedColumn}
+                    </p>
+                </div>
+            ) : (
+                <div className="mt-2 pt-2 border-t border-slate-700/50">
+                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                        <Target className="w-3 h-3" />
+                        Przeciągnij kolumnę tutaj
+                    </p>
+                    {term?.example && (
+                        <p className="text-xs text-slate-600 mt-1">
+                            Example: <code className="text-slate-400">{term.example}</code>
+                        </p>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}

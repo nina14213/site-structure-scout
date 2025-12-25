@@ -3,8 +3,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
 import DataImport from '@/components/game/DataImport';
+import SchemaMapper from '@/components/game/SchemaMapper';
 
-type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport';
+type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMapper';
 
 const Index = () => {
   const { toast } = useToast();
@@ -140,8 +141,17 @@ const Index = () => {
       title: "Dane zaimportowane! 📊",
       description: `Wczytano ${data.length} wierszy z pliku ${fileName}`,
     });
-    setCurrentLevel(1);
-    setCurrentScreen('playing');
+    setCurrentScreen('schemaMapper');
+  }, [toast]);
+
+  const handleSchemaMappingComplete = useCallback((mappings: Record<string, string>, schema: string) => {
+    setLevelData(prev => ({ ...prev, schemaMappings: mappings, selectedSchema: schema }));
+    toast({
+      title: "Mapowanie ukończone! ✅",
+      description: `Zmapowano pola do schematu ${schema}`,
+    });
+    // Could go to validation or next step
+    setCurrentScreen('start');
   }, [toast]);
 
   // Render based on current screen
@@ -163,6 +173,21 @@ const Index = () => {
         onImportComplete={handleImportComplete}
       />
     );
+  }
+
+  if (currentScreen === 'schemaMapper') {
+    const importData = levelData.customImport as { data: any[]; columns: string[]; fileName: string } | undefined;
+    if (importData) {
+      return (
+        <SchemaMapper
+          columns={importData.columns}
+          data={importData.data}
+          fileName={importData.fileName}
+          onBack={() => setCurrentScreen('dataImport')}
+          onComplete={handleSchemaMappingComplete}
+        />
+      );
+    }
   }
 
   if (currentScreen === 'playing' && currentLevel !== null) {
