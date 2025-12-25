@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Lightbulb, Timer, Zap, Download } from 'lucide-react';
+import { FileSpreadsheet, CheckCircle, AlertCircle, Lightbulb, Timer, Zap } from 'lucide-react';
 import { sampleEventsCSV, dwcTerms } from './DwCTerms';
 import DraggableColumn from './DraggableColumn';
 import DropZone from './DropZone';
@@ -31,18 +31,6 @@ interface CoreBuilderProps {
 }
 
 export default function CoreBuilder({ onComplete, addScore, playSuccess, playFail, playDrop, playLevelComplete, startLevelTimer }: CoreBuilderProps) {
-    const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
-    const [columns, setColumns] = useState<string[]>([]);
-    const [mappings, setMappings] = useState<Record<string, string>>({});
-    const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
-    const [showQuiz, setShowQuiz] = useState(false);
-    const [showTutorial, setShowTutorial] = useState(true);
-    const [levelScore, setLevelScore] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
-    const [isTimerRunning, setIsTimerRunning] = useState(false);
-    const [showHint, setShowHint] = useState(false);
-    const [mappingErrors, setMappingErrors] = useState<Record<string, string>>({});
-
     const { validateField } = useValidator();
 
     // Parse CSV
@@ -60,35 +48,25 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         return { headers, data };
     }, []);
 
-    // Load sample data
-    const loadSampleData = useCallback(() => {
-        const { headers, data } = parseCSV(sampleEventsCSV);
-        setColumns(headers);
-        setCsvData(data);
-        setIsTimerRunning(true);
+    // Auto-load sample data on mount
+    const { headers: initialColumns, data: initialData } = parseCSV(sampleEventsCSV);
+    
+    const [csvData, setCsvData] = useState<Record<string, string>[]>(initialData);
+    const [columns, setColumns] = useState<string[]>(initialColumns);
+    const [mappings, setMappings] = useState<Record<string, string>>({});
+    const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+    const [showQuiz, setShowQuiz] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(true);
+    const [levelScore, setLevelScore] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+    const [isTimerRunning, setIsTimerRunning] = useState(true);
+    const [showHint, setShowHint] = useState(false);
+    const [mappingErrors, setMappingErrors] = useState<Record<string, string>>({});
+
+    // Start timer on mount
+    useEffect(() => {
         startLevelTimer?.();
-        playSuccess?.();
-    }, [parseCSV, startLevelTimer, playSuccess]);
-
-    // Handle file upload
-    const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const text = event.target?.result;
-            if (typeof text === 'string') {
-                const { headers, data } = parseCSV(text);
-                setColumns(headers);
-                setCsvData(data);
-                setIsTimerRunning(true);
-                startLevelTimer?.();
-                playSuccess?.();
-            }
-        };
-        reader.readAsText(file, 'UTF-8');
-    }, [parseCSV, startLevelTimer, playSuccess]);
+    }, [startLevelTimer]);
 
     // Timer countdown
     useEffect(() => {
@@ -264,35 +242,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                 </motion.div>
 
                 {/* Main Content */}
-                {columns.length === 0 ? (
-                    /* Sample Data Section */
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="max-w-lg mx-auto"
-                    >
-                        <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
-                            <CardHeader>
-                                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Download className="w-5 h-5" />
-                                    Load sample data
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="h-48 flex flex-col items-center justify-center">
-                                    <p className="text-gray-700 dark:text-slate-400 text-center mb-4">
-                                        Load sample data from AMUNATCOLL collection<br />
-                                        <span className="text-sm text-gray-500 dark:text-slate-500">Field observations of invasive species</span>
-                                    </p>
-                                    <Button onClick={loadSampleData} className="bg-yellow-600 hover:bg-yellow-700 text-white dark:bg-yellow-500 dark:hover:bg-yellow-600">
-                                        <FileSpreadsheet className="w-4 h-4 mr-2" />
-                                        Load sample-events.csv
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                ) : (
+                {columns.length > 0 && (
                     /* Mapping Interface - Side by Side */
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Source Columns */}

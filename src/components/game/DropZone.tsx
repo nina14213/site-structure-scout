@@ -73,7 +73,7 @@ export default function DropZone({
                         <div className="flex items-center gap-2 flex-wrap">
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <span className="font-mono text-sm font-semibold text-slate-200 cursor-help">
+                                    <span className="font-mono text-sm font-semibold text-gray-900 dark:text-white cursor-help">
                                         {termName}
                                     </span>
                                 </TooltipTrigger>
