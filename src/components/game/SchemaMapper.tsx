@@ -35,7 +35,7 @@ const schemaTypes = [
 // Source: https://gbif.github.io/dwc-dp/qrg/
 const schemaTerms: Record<string, { required: string[]; optional: string[] }> = {
     event: {
-        // eventID is the only required field for Event table
+        // Only eventID is required for Event table per DwC-DP QRG
         required: ['eventID'],
         optional: [
             'parentEventID', 'preferredEventName', 'eventCategory', 'eventType', 
@@ -52,14 +52,15 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
             'georeferencedBy', 'georeferencedByID', 'georeferencedDate', 'georeferenceProtocol',
             'georeferenceProtocolID', 'georeferenceSources', 'georeferenceRemarks',
             'habitat', 'samplingProtocol', 'samplingEffort', 'sampleSizeValue', 'sampleSizeUnit',
-            'eventRemarks', 'fieldNotes', 'informationWithheld', 'dataGeneralizations'
+            'eventRemarks', 'fieldNotes', 'informationWithheld', 'dataGeneralizations',
+            'basisOfRecord'
         ],
     },
     occurrence: {
-        // occurrenceID and eventID are required; basisOfRecord is highly recommended
-        required: ['occurrenceID', 'eventID', 'basisOfRecord'],
+        // Only occurrenceID is required per DwC-DP QRG; basisOfRecord is recommended but not required
+        required: ['occurrenceID'],
         optional: [
-            'catalogNumber', 'recordNumber', 'recordedBy', 'recordedByID',
+            'eventID', 'basisOfRecord', 'catalogNumber', 'recordNumber', 'recordedBy', 'recordedByID',
             'individualCount', 'organismQuantity', 'organismQuantityType',
             'sex', 'lifeStage', 'reproductiveCondition', 'caste', 'behavior',
             'vitality', 'establishmentMeans', 'degreeOfEstablishment', 'pathway',
@@ -70,35 +71,35 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     organism: {
-        // organismID and eventID are required
-        required: ['organismID', 'eventID'],
+        // Only organismID is required per DwC-DP QRG
+        required: ['organismID'],
         optional: [
-            'organismName', 'organismScope', 'associatedOccurrences', 'associatedOrganisms',
+            'eventID', 'organismName', 'organismScope', 'associatedOccurrences', 'associatedOrganisms',
             'previousIdentifications', 'organismRemarks'
         ],
     },
     material: {
-        // materialEntityID and eventID are required
-        required: ['materialEntityID', 'eventID'],
+        // Only materialEntityID is required per DwC-DP QRG
+        required: ['materialEntityID'],
         optional: [
-            'materialEntityType', 'preparations', 'disposition', 'verbatimLabel',
+            'eventID', 'materialEntityType', 'preparations', 'disposition', 'verbatimLabel',
             'associatedSequences', 'materialEntityRemarks'
         ],
     },
     media: {
-        // mediaID and eventID are required
-        required: ['mediaID', 'eventID'],
+        // Only mediaID is required per DwC-DP QRG
+        required: ['mediaID'],
         optional: [
-            'mediaType', 'accessURI', 'WebStatement', 'format', 'rights',
+            'eventID', 'mediaType', 'accessURI', 'WebStatement', 'format', 'rights',
             'Owner', 'creator', 'CreateDate', 'description', 'caption',
             'associatedOccurrences', 'associatedOrganisms'
         ],
     },
     identification: {
-        // identificationID and eventID are required
-        required: ['identificationID', 'eventID'],
+        // Only identificationID is required per DwC-DP QRG
+        required: ['identificationID'],
         optional: [
-            'verbatimIdentification', 'identifiedBy', 'identifiedByID', 'dateIdentified',
+            'eventID', 'verbatimIdentification', 'identifiedBy', 'identifiedByID', 'dateIdentified',
             'identificationReferences', 'identificationVerificationStatus',
             'identificationRemarks', 'typeStatus', 'taxonID', 'scientificName',
             'scientificNameAuthorship', 'taxonRank', 'kingdom', 'phylum', 'class',
