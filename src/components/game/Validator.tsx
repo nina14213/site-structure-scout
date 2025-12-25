@@ -313,9 +313,6 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                             <span className="text-7xl">👹</span>
                         )}
                     </motion.div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
-                        {allPassed ? 'POKONANY!' : isValidating ? 'Walidacja...' : 'CHAOS VALIDATOR'}
-                    </h2>
                 </motion.div>
 
                 {/* Data Editor */}
