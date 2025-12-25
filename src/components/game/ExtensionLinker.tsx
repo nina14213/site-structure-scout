@@ -19,7 +19,15 @@ const sampleEventData = [
     { eventID: '3434', eventDate: '23.05.2025 15:47', verbatimLocality: 'In the park at Powstańców Wielkopolskich Street, Poznań', decimalLatitude: '52.4037546037329', decimalLongitude: '16.91747009754181', geodeticDatum: 'WGS84', habitat: 'Park' },
 ];
 
-// Sample occurrence data (field notes - with missing values)
+// Valid values that match exactly what's expected for each occurrence row
+const expectedOccurrenceData = [
+    { eventID: '3431', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3432', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3433', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3434', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+];
+
+// Sample occurrence data (field notes - with missing values that player must fill in)
 const initialOccurrenceData = [
     { eventID: '3431', scientificName: 'Ailanthus altissima', recordedBy: '', organismQuantity: '1', organismQuantityType: 'individual' },
     { eventID: '', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '', organismQuantityType: 'individual' },
@@ -70,27 +78,47 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
         return () => clearInterval(timer);
     }, [isTimerRunning, timeLeft]);
 
-    // Validate occurrence data
+    // Validate occurrence data - must match exactly the expected values
     const validateOccurrences = useCallback(() => {
         const errors: Array<{ row: number; field: string; message: string }> = [];
         occurrenceData.forEach((row, idx) => {
+            const expected = expectedOccurrenceData[idx];
+            
+            // Check eventID
             if (!row.eventID) {
                 errors.push({ row: idx + 1, field: 'eventID', message: 'Missing eventID' });
             } else if (!eventIds.has(row.eventID)) {
-                errors.push({ row: idx + 1, field: 'eventID', message: `eventID "${row.eventID}" doesn't exist in event` });
+                errors.push({ row: idx + 1, field: 'eventID', message: `eventID "${row.eventID}" doesn't exist in event data` });
+            } else if (row.eventID !== expected.eventID) {
+                errors.push({ row: idx + 1, field: 'eventID', message: `Incorrect eventID - check which event matches this occurrence` });
             }
 
+            // Check scientificName
             if (!row.scientificName) {
                 errors.push({ row: idx + 1, field: 'scientificName', message: 'Missing scientificName' });
+            } else if (row.scientificName !== expected.scientificName) {
+                errors.push({ row: idx + 1, field: 'scientificName', message: `Incorrect species - should be "${expected.scientificName}"` });
             }
+
+            // Check recordedBy
             if (!row.recordedBy) {
                 errors.push({ row: idx + 1, field: 'recordedBy', message: 'Missing recordedBy' });
+            } else if (row.recordedBy !== expected.recordedBy) {
+                errors.push({ row: idx + 1, field: 'recordedBy', message: `Incorrect recorder - should be "${expected.recordedBy}"` });
             }
+
+            // Check organismQuantity
             if (!row.organismQuantity) {
                 errors.push({ row: idx + 1, field: 'organismQuantity', message: 'Missing organismQuantity' });
+            } else if (row.organismQuantity !== expected.organismQuantity) {
+                errors.push({ row: idx + 1, field: 'organismQuantity', message: `Incorrect quantity - should be "${expected.organismQuantity}"` });
             }
+
+            // Check organismQuantityType
             if (!row.organismQuantityType) {
                 errors.push({ row: idx + 1, field: 'organismQuantityType', message: 'Missing organismQuantityType' });
+            } else if (row.organismQuantityType !== expected.organismQuantityType) {
+                errors.push({ row: idx + 1, field: 'organismQuantityType', message: `Incorrect type - should be "${expected.organismQuantityType}"` });
             }
         });
 
