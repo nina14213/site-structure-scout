@@ -5,7 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, Timer, CheckCircle, XCircle, Loader2, Zap, Trophy } from 'lucide-react';
+import { Shield, Timer, CheckCircle, XCircle, Loader2, Zap, Trophy, Edit, AlertCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import QuizModal from './QuizModal';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
@@ -16,7 +18,28 @@ interface ValidationStep {
     description: string;
     status: 'pending' | 'running' | 'passed' | 'failed';
     message?: string;
+    fieldIndex?: number;
 }
+
+interface DataRecord {
+    id: string;
+    occurrenceID: string;
+    eventID: string;
+    scientificName: string;
+    eventDate: string;
+    decimalLatitude: string;
+    decimalLongitude: string;
+}
+
+// Sample data with intentional errors for user to fix
+const initialDataRecords: DataRecord[] = [
+    { id: '1', occurrenceID: 'OCC001', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.369327', decimalLongitude: '16.925402' },
+    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '25-05-2025', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Wrong date format
+    { id: '3', occurrenceID: 'OCC001', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Duplicate ID
+    { id: '4', occurrenceID: 'OCC004', eventID: '9999', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Invalid eventID
+];
+
+const validEventIDs = ['3431', '3432', '3433', '3434'];
 
 interface ValidatorProps {
     onComplete?: (score: number, data: unknown) => void;
@@ -29,13 +52,14 @@ interface ValidatorProps {
 }
 
 export default function Validator({ onComplete, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer }: ValidatorProps) {
+    const [dataRecords, setDataRecords] = useState<DataRecord[]>(initialDataRecords);
     const [validationSteps, setValidationSteps] = useState<ValidationStep[]>([
-        { id: 'utf8', name: 'UTF-8 Encoding', description: 'Check file encoding', status: 'pending' },
-        { id: 'required', name: 'Required Fields', description: 'Validate required DwC terms', status: 'pending' },
-        { id: 'ids', name: 'Unique IDs', description: 'Check ID uniqueness', status: 'pending' },
-        { id: 'dates', name: 'Date Format', description: 'Validate ISO 8601 dates', status: 'pending' },
-        { id: 'coords', name: 'Coordinates', description: 'Check lat/long values', status: 'pending' },
-        { id: 'integrity', name: 'Referential Integrity', description: 'Verify foreign key links', status: 'pending' },
+        { id: 'utf8', name: 'UTF-8 Encoding', description: 'Sprawdzanie kodowania pliku', status: 'pending' },
+        { id: 'required', name: 'Wymagane pola', description: 'Walidacja wymaganych pól DwC', status: 'pending' },
+        { id: 'ids', name: 'Unikalne ID', description: 'Sprawdzanie unikalności ID', status: 'pending' },
+        { id: 'dates', name: 'Format daty', description: 'Walidacja dat ISO 8601 (YYYY-MM-DD)', status: 'pending' },
+        { id: 'coords', name: 'Współrzędne', description: 'Sprawdzanie wartości lat/long', status: 'pending' },
+        { id: 'integrity', name: 'Integralność', description: 'Weryfikacja kluczy obcych (eventID)', status: 'pending' },
     ]);
     const [isValidating, setIsValidating] = useState(false);
     const [validationComplete, setValidationComplete] = useState(false);
@@ -45,6 +69,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
+    const [showDataEditor, setShowDataEditor] = useState(false);
+    const [errorDetails, setErrorDetails] = useState<Array<{ rowId: string; field: string; message: string }>>([]);
 
     useEffect(() => {
         startLevelTimer?.();
@@ -65,11 +91,47 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         return () => clearInterval(timer);
     }, [isTimerRunning, timeLeft]);
 
+    const validateData = useCallback(() => {
+        const errors: Array<{ rowId: string; field: string; message: string }> = [];
+        
+        // Check for duplicate IDs
+        const ids = dataRecords.map(r => r.occurrenceID);
+        const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
+        duplicates.forEach(dupId => {
+            const record = dataRecords.find(r => r.occurrenceID === dupId);
+            if (record) {
+                errors.push({ rowId: record.id, field: 'occurrenceID', message: 'Duplikat ID' });
+            }
+        });
+
+        // Check date format (ISO 8601: YYYY-MM-DD)
+        dataRecords.forEach(record => {
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(record.eventDate)) {
+                errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowy format daty (wymagany: YYYY-MM-DD)' });
+            }
+        });
+
+        // Check eventID integrity
+        dataRecords.forEach(record => {
+            if (!validEventIDs.includes(record.eventID)) {
+                errors.push({ rowId: record.id, field: 'eventID', message: 'Nieprawidłowy eventID' });
+            }
+        });
+
+        return errors;
+    }, [dataRecords]);
+
     const runValidation = useCallback(async () => {
         setIsValidating(true);
         setValidationComplete(false);
+        setErrorDetails([]);
         let score = 0;
-        let passed = true;
+
+        // Reset all steps to pending
+        setValidationSteps(prev => prev.map(step => ({ ...step, status: 'pending', message: undefined })));
+
+        const errors = validateData();
 
         for (let i = 0; i < validationSteps.length; i++) {
             // Set current step to running
@@ -77,45 +139,73 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                 idx === i ? { ...step, status: 'running' } : step
             ));
 
-            // Simulate validation delay
-            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+            await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 300));
 
-            // Simulate validation result (90% pass rate for demo)
-            const passes = Math.random() > 0.1;
-            
+            let stepPassed = true;
+            let stepMessage = 'Walidacja przeszła pomyślnie';
+
+            // Check specific validation for each step
+            if (validationSteps[i].id === 'ids') {
+                const idErrors = errors.filter(e => e.field === 'occurrenceID');
+                if (idErrors.length > 0) {
+                    stepPassed = false;
+                    stepMessage = `Znaleziono ${idErrors.length} duplikat(ów) ID`;
+                }
+            } else if (validationSteps[i].id === 'dates') {
+                const dateErrors = errors.filter(e => e.field === 'eventDate');
+                if (dateErrors.length > 0) {
+                    stepPassed = false;
+                    stepMessage = `Znaleziono ${dateErrors.length} błąd(ów) formatu daty`;
+                }
+            } else if (validationSteps[i].id === 'integrity') {
+                const integrityErrors = errors.filter(e => e.field === 'eventID');
+                if (integrityErrors.length > 0) {
+                    stepPassed = false;
+                    stepMessage = `Znaleziono ${integrityErrors.length} nieprawidłowy(ch) eventID`;
+                }
+            }
+
             setValidationSteps(prev => prev.map((step, idx) => 
                 idx === i ? { 
                     ...step, 
-                    status: passes ? 'passed' : 'failed',
-                    message: passes ? 'Validation passed' : 'Validation failed - check data'
+                    status: stepPassed ? 'passed' : 'failed',
+                    message: stepMessage
                 } : step
             ));
 
-            if (passes) {
+            if (stepPassed) {
                 score += 50;
                 playSuccess?.();
             } else {
-                passed = false;
                 playFail?.();
             }
         }
 
+        setErrorDetails(errors);
         setLevelScore(score);
         setValidationComplete(true);
-        setAllPassed(passed);
+        setAllPassed(errors.length === 0);
         setIsValidating(false);
 
-        if (passed) {
-            score += 200; // Bonus for perfect validation
+        if (errors.length === 0) {
+            score += 200;
             setLevelScore(score);
+        } else {
+            setShowDataEditor(true);
         }
-    }, [validationSteps.length, playSuccess, playFail]);
+    }, [validationSteps, validateData, playSuccess, playFail]);
+
+    const updateRecord = (id: string, field: keyof DataRecord, value: string) => {
+        setDataRecords(prev => prev.map(record => 
+            record.id === id ? { ...record, [field]: value } : record
+        ));
+    };
 
     const resetValidation = () => {
         setValidationSteps(prev => prev.map(step => ({ ...step, status: 'pending', message: undefined })));
         setValidationComplete(false);
         setAllPassed(false);
-        setLevelScore(0);
+        setErrorDetails([]);
     };
 
     const progress = (validationSteps.filter(s => s.status === 'passed' || s.status === 'failed').length / validationSteps.length) * 100;
@@ -147,9 +237,13 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         }
     };
 
+    const hasError = (rowId: string, field: string) => {
+        return errorDetails.some(e => e.rowId === rowId && e.field === field);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-slate-900 dark:via-red-950 dark:to-slate-900 p-4 md:p-6">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -163,7 +257,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 BOSS: Chaos Validator
                             </h1>
                             <p className="text-gray-600 dark:text-slate-400 mt-1">
-                                Defeat the validator by passing all checks!
+                                Popraw błędy w danych i przejdź walidację!
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -185,7 +279,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-center mb-8"
+                    className="text-center mb-6"
                 >
                     <motion.div
                         animate={{ 
@@ -195,21 +289,128 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         transition={{ duration: 0.5, repeat: isValidating ? Infinity : 0 }}
                         className="inline-block"
                     >
-                        <span className="text-8xl">
+                        <span className="text-6xl">
                             {allPassed ? '😵' : isValidating ? '😈' : '👹'}
                         </span>
                     </motion.div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">
-                        {allPassed ? 'DEFEATED!' : isValidating ? 'Validating...' : 'CHAOS VALIDATOR'}
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
+                        {allPassed ? 'POKONANY!' : isValidating ? 'Walidacja...' : 'CHAOS VALIDATOR'}
                     </h2>
                 </motion.div>
+
+                {/* Data Editor */}
+                {showDataEditor && errorDetails.length > 0 && (
+                    <Card className="mb-6 bg-white/80 border-orange-300 dark:bg-slate-800/50 dark:border-orange-700 backdrop-blur">
+                        <CardHeader>
+                            <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                                <Edit className="w-5 h-5 text-orange-500" />
+                                Edytor danych - Napraw błędy
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Alert className="mb-4 bg-orange-50 border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/30">
+                                <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                <AlertDescription className="text-orange-800 dark:text-orange-300">
+                                    Pola z błędami są zaznaczone na czerwono. Popraw je i uruchom walidację ponownie.
+                                </AlertDescription>
+                            </Alert>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm border-collapse">
+                                    <thead>
+                                        <tr className="border-b-2 border-gray-300 dark:border-slate-600">
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">occurrenceID</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventID</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">scientificName</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventDate</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLatitude</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLongitude</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dataRecords.map((record) => (
+                                            <tr key={record.id} className="border-b border-gray-200 dark:border-slate-700">
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.occurrenceID}
+                                                        onChange={(e) => updateRecord(record.id, 'occurrenceID', e.target.value)}
+                                                        className={`${hasError(record.id, 'occurrenceID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <Select
+                                                        value={record.eventID}
+                                                        onValueChange={(val) => updateRecord(record.id, 'eventID', val)}
+                                                    >
+                                                        <SelectTrigger className={`${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {validEventIDs.map(id => (
+                                                                <SelectItem key={id} value={id}>{id}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </td>
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.scientificName}
+                                                        onChange={(e) => updateRecord(record.id, 'scientificName', e.target.value)}
+                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.eventDate}
+                                                        onChange={(e) => updateRecord(record.id, 'eventDate', e.target.value)}
+                                                        placeholder="YYYY-MM-DD"
+                                                        className={`${hasError(record.id, 'eventDate') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : ''}`}
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.decimalLatitude}
+                                                        onChange={(e) => updateRecord(record.id, 'decimalLatitude', e.target.value)}
+                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.decimalLongitude}
+                                                        onChange={(e) => updateRecord(record.id, 'decimalLongitude', e.target.value)}
+                                                        className="bg-gray-100 dark:bg-slate-700"
+                                                        readOnly
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Error List */}
+                            <div className="mt-4 space-y-2">
+                                <h4 className="font-semibold text-red-600 dark:text-red-400">Znalezione błędy:</h4>
+                                {errorDetails.map((error, idx) => (
+                                    <Alert key={idx} className="bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30 py-2">
+                                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                                        <AlertDescription className="text-red-800 dark:text-red-300 text-sm">
+                                            Wiersz {error.rowId}, pole <strong>{error.field}</strong>: {error.message}
+                                        </AlertDescription>
+                                    </Alert>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Validation Steps */}
                 <Card className="mb-6 bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
                     <CardHeader>
                         <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                             <Zap className="w-5 h-5 text-yellow-500" />
-                            Validation Checks
+                            Kroki walidacji
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -245,9 +446,9 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         </AnimatePresence>
                     </CardContent>
                     <CardFooter className="flex gap-4">
-                        {!validationComplete ? (
+                        {!validationComplete || !allPassed ? (
                             <Button
-                                onClick={runValidation}
+                                onClick={() => { resetValidation(); runValidation(); }}
                                 disabled={isValidating}
                                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                                 size="lg"
@@ -255,31 +456,23 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 {isValidating ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Running Validation...
+                                        Walidacja...
                                     </>
                                 ) : (
                                     <>
                                         <Shield className="w-4 h-4 mr-2" />
-                                        Run GBIF Validation
+                                        {validationComplete ? 'Waliduj ponownie' : 'Uruchom walidację GBIF'}
                                     </>
                                 )}
                             </Button>
-                        ) : allPassed ? (
+                        ) : (
                             <Button
                                 onClick={handleComplete}
                                 className="w-full bg-green-600 hover:bg-green-700 text-white"
                                 size="lg"
                             >
                                 <Trophy className="w-4 h-4 mr-2" />
-                                Claim Victory!
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={resetValidation}
-                                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                                size="lg"
-                            >
-                                Try Again
+                                Zdobądź zwycięstwo!
                             </Button>
                         )}
                     </CardFooter>
@@ -294,7 +487,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         <Alert className="bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30">
                             <Trophy className="w-5 h-5 text-green-600 dark:text-green-400" />
                             <AlertDescription className="text-green-800 dark:text-green-300 text-lg font-semibold">
-                                Congratulations! You defeated the Chaos Validator! 🎉
+                                Gratulacje! Pokonałeś Chaos Validator! 🎉
                             </AlertDescription>
                         </Alert>
                     </motion.div>
