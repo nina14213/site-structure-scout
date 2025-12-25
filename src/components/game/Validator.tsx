@@ -301,9 +301,16 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         }}
                         transition={{ duration: 0.5, repeat: isValidating ? Infinity : 0 }}
                     >
-                        <span className="text-7xl">
-                            {allPassed ? '💀' : '👹'}
-                        </span>
+                        <div className="relative inline-block">
+                            <span className="text-7xl">👹</span>
+                            {allPassed && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-4xl font-bold text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px black, -2px -2px 4px black' }}>
+                                        ✕ ✕
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </motion.div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
                         {allPassed ? 'POKONANY!' : isValidating ? 'Walidacja...' : 'CHAOS VALIDATOR'}
