@@ -5,34 +5,96 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, Database, FileText, Timer, XCircle, Check, Lightbulb } from 'lucide-react';
+import { CheckCircle, AlertCircle, Database, FileText, Timer, XCircle, Check, Lightbulb, BookOpen, Clipboard } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import QuizModal from './QuizModal';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 
-// Sample event data (from field sampling)
-const sampleEventData = [
-    { eventID: '3431', eventDate: '25.10.2025 11:21', verbatimLocality: 'Dębina municipal forest in Poznań, Poland', decimalLatitude: '52.369327', decimalLongitude: '16.925402', geodeticDatum: 'WGS84', habitat: 'Forest near railroad' },
-    { eventID: '3432', eventDate: '23.05.2025 15:47', verbatimLocality: 'Marii Skłodowskiej-Curie Park, Poznań, Poland', decimalLatitude: '52.3935228', decimalLongitude: '16.918701', geodeticDatum: 'WGS84', habitat: 'Park' },
-    { eventID: '3433', eventDate: '25.10.2025 11:21', verbatimLocality: 'In John Paul II Park, opposite the intersection of Krzyżowa and Dolna Wilda Streets, Poznań', decimalLatitude: '52.39006168575653', decimalLongitude: '16.924799750827287', geodeticDatum: 'WGS84', habitat: 'small bush' },
-    { eventID: '3434', eventDate: '23.05.2025 15:47', verbatimLocality: 'In the park at Powstańców Wielkopolskich Street, Poznań', decimalLatitude: '52.4037546037329', decimalLongitude: '16.91747009754181', geodeticDatum: 'WGS84', habitat: 'Park' },
+// Field notes from scientists - contains extra "messy" information
+const fieldNotes = [
+    {
+        scientist: "Dr. Katarzyna Słupecka",
+        date: "25 October 2025",
+        noteId: "KS-2025-001",
+        entries: [
+            {
+                entryNumber: 1,
+                time: "11:21",
+                location: "Dębina municipal forest in Poznań, Poland",
+                coordinates: "52.369327°N, 16.925402°E (WGS84)",
+                weather: "Partly cloudy, 14°C, light wind from SW",
+                habitat: "Forest edge near abandoned railroad tracks, sandy soil",
+                observation: "Found a single mature Tree of Heaven (Ailanthus altissima). Height approximately 8m, DBH ~25cm. Bark grayish-brown with shallow fissures. Strong unpleasant odor from crushed leaves. Signs of root sprouting nearby. Photographed specimen #KS-341.",
+                quantity: "1 individual",
+                eventID: "3431"
+            },
+            {
+                entryNumber: 2,
+                time: "11:21",
+                location: "In John Paul II Park, opposite the intersection of Krzyżowa and Dolna Wilda Streets, Poznań",
+                coordinates: "52.39006°N, 16.92480°E (WGS84)",
+                weather: "Partly cloudy, 15°C",
+                habitat: "Small ornamental bush area, urban park setting",
+                observation: "Single young Ailanthus altissima sapling growing between shrubs. Height ~2m, stem diameter 4cm. Likely spread from nearby mature tree. Compound leaves with 13-25 leaflets observed. Sample collected for herbarium (voucher #KS-343).",
+                quantity: "1 individual",
+                eventID: "3433"
+            }
+        ]
+    },
+    {
+        scientist: "Mgr. Michał Kowalski",
+        date: "23 May 2025",
+        noteId: "MK-2025-047",
+        entries: [
+            {
+                entryNumber: 1,
+                time: "15:47",
+                location: "Marii Skłodowskiej-Curie Park, Poznań, Poland",
+                coordinates: "52.3935°N, 16.9187°E (WGS84)",
+                weather: "Sunny, 22°C, no wind",
+                habitat: "Urban park, near walking path, loamy soil",
+                observation: "Observed one Tree of Heaven (Ailanthus altissima) specimen. Mature tree, estimated height 12m, trunk circumference 95cm (DBH ~30cm). Crown asymmetrical due to neighboring buildings. Distinctive pinnate leaves, 40-60cm long. No flowering observed yet. GPS marked for monitoring.",
+                quantity: "1 individual",
+                eventID: "3432"
+            },
+            {
+                entryNumber: 2,
+                time: "15:47",
+                location: "In the park at Powstańców Wielkopolskich Street, Poznań",
+                coordinates: "52.4038°N, 16.9175°E (WGS84)",
+                weather: "Sunny, 23°C",
+                habitat: "Park lawn area, proximity to old buildings",
+                observation: "Single Ailanthus altissima tree identified. Medium-sized specimen, height ~6m, DBH 15cm. Growing at park edge near fence. Leaves showing typical glandular base on leaflets. Evidence of previous pruning attempts. Noted for invasive species monitoring program.",
+                quantity: "1 individual",
+                eventID: "3434"
+            }
+        ]
+    }
 ];
 
-// Valid values that match exactly what's expected for each occurrence row
+// Expected correct values for validation
 const expectedOccurrenceData = [
     { eventID: '3431', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
-    { eventID: '3432', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3432', scientificName: 'Ailanthus altissima', recordedBy: 'M. Kowalski', organismQuantity: '1', organismQuantityType: 'individual' },
     { eventID: '3433', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
-    { eventID: '3434', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3434', scientificName: 'Ailanthus altissima', recordedBy: 'M. Kowalski', organismQuantity: '1', organismQuantityType: 'individual' },
 ];
 
-// Sample occurrence data (field notes - with missing values that player must fill in)
+// Initial occurrence data with blanks for player to fill
 const initialOccurrenceData = [
-    { eventID: '3431', scientificName: 'Ailanthus altissima', recordedBy: '', organismQuantity: '1', organismQuantityType: 'individual' },
-    { eventID: '', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '', organismQuantityType: 'individual' },
-    { eventID: '3433', scientificName: '', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: '' },
-    { eventID: '3434', scientificName: 'Ailanthus altissima', recordedBy: 'K. Słupecka', organismQuantity: '1', organismQuantityType: 'individual' },
+    { eventID: '3431', scientificName: '', recordedBy: '', organismQuantity: '', organismQuantityType: '' },
+    { eventID: '', scientificName: '', recordedBy: '', organismQuantity: '1', organismQuantityType: '' },
+    { eventID: '3433', scientificName: 'Ailanthus altissima', recordedBy: '', organismQuantity: '', organismQuantityType: 'individual' },
+    { eventID: '', scientificName: '', recordedBy: 'M. Kowalski', organismQuantity: '1', organismQuantityType: '' },
+];
+
+// Event reference table (simplified from field notes)
+const eventReference = [
+    { eventID: '3431', eventDate: '25.10.2025 11:21', locality: 'Dębina municipal forest', recorder: 'K. Słupecka' },
+    { eventID: '3432', eventDate: '23.05.2025 15:47', locality: 'M. Skłodowskiej-Curie Park', recorder: 'M. Kowalski' },
+    { eventID: '3433', eventDate: '25.10.2025 11:21', locality: 'John Paul II Park', recorder: 'K. Słupecka' },
+    { eventID: '3434', eventDate: '23.05.2025 15:47', locality: 'Powstańców Wlkp. Street park', recorder: 'M. Kowalski' },
 ];
 
 interface ExtensionLinkerProps {
@@ -48,7 +110,6 @@ interface ExtensionLinkerProps {
 }
 
 export default function ExtensionLinker({ onComplete, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer }: ExtensionLinkerProps) {
-    const [eventData] = useState(sampleEventData);
     const [occurrenceData, setOccurrenceData] = useState(initialOccurrenceData);
     const [validationStatus, setValidationStatus] = useState<{ valid: boolean; errors: Array<{ row: number; field: string; message: string }> }>({ valid: false, errors: [] });
     const [showQuiz, setShowQuiz] = useState(false);
@@ -57,7 +118,7 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
 
-    const eventIds = new Set(eventData.map(row => row.eventID).filter(Boolean));
+    const eventIds = new Set(eventReference.map(row => row.eventID));
 
     useEffect(() => {
         startLevelTimer?.();
@@ -174,7 +235,7 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
         const finalScore = levelScore + (quizScore * 2);
         addScore?.(finalScore, 'Extension Nexus Complete');
         playLevelComplete?.();
-        onComplete?.(finalScore, { eventData, occurrenceData });
+        onComplete?.(finalScore, { fieldNotes, occurrenceData });
     };
 
     const formatTime = (seconds: number) => {
@@ -222,19 +283,81 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                     </div>
                 </motion.div>
 
-                {/* Event Core Data (read-only) */}
+                {/* Field Notes from Scientists */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    {fieldNotes.map((note, noteIdx) => (
+                        <Card key={noteIdx} className="bg-amber-50/90 border-amber-300 dark:bg-amber-900/20 dark:border-amber-700 backdrop-blur shadow-lg">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-amber-900 dark:text-amber-200 flex items-center gap-2 text-lg">
+                                    <Clipboard className="w-5 h-5" />
+                                    Field Notes: {note.noteId}
+                                </CardTitle>
+                                <div className="text-sm text-amber-700 dark:text-amber-400">
+                                    <span className="font-semibold">{note.scientist}</span> • {note.date}
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {note.entries.map((entry, entryIdx) => (
+                                    <div key={entryIdx} className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-600">
+                                                Event ID: {entry.eventID}
+                                            </Badge>
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">Entry #{entry.entryNumber}</span>
+                                        </div>
+                                        
+                                        <div className="space-y-2 text-sm">
+                                            <div className="grid grid-cols-2 gap-2 text-gray-600 dark:text-gray-400">
+                                                <div><span className="font-medium">Time:</span> {entry.time}</div>
+                                                <div><span className="font-medium">Weather:</span> {entry.weather}</div>
+                                            </div>
+                                            
+                                            <div>
+                                                <span className="font-medium text-gray-700 dark:text-gray-300">Location:</span>
+                                                <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">{entry.location}</p>
+                                            </div>
+                                            
+                                            <div>
+                                                <span className="font-medium text-gray-700 dark:text-gray-300">GPS:</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs ml-1 font-mono">{entry.coordinates}</span>
+                                            </div>
+                                            
+                                            <div>
+                                                <span className="font-medium text-gray-700 dark:text-gray-300">Habitat:</span>
+                                                <span className="text-gray-600 dark:text-gray-400 text-xs ml-1">{entry.habitat}</span>
+                                            </div>
+                                            
+                                            <div className="bg-amber-100/50 dark:bg-amber-900/30 rounded p-2 mt-2">
+                                                <span className="font-medium text-amber-800 dark:text-amber-300">Observation Notes:</span>
+                                                <p className="text-gray-700 dark:text-gray-300 text-xs mt-1 leading-relaxed italic">
+                                                    "{entry.observation}"
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-4 pt-2 border-t border-amber-200 dark:border-amber-800">
+                                                <span className="text-xs"><span className="font-medium">Quantity:</span> {entry.quantity}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Event Reference Table */}
                 <Card className="mb-6 bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
                     <CardHeader>
                         <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                            <FileText className="w-5 h-5" />
-                            Event Core (event.txt) - Read Only
+                            <BookOpen className="w-5 h-5" />
+                            Event Reference (Quick Lookup)
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Alert className="mb-4 bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30">
                             <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             <AlertDescription className="text-blue-800 dark:text-blue-300">
-                                These are the sampling events. Each occurrence must reference a valid eventID.
+                                Use this reference to match eventIDs to locations and recorders from the field notes above.
                             </AlertDescription>
                         </Alert>
                         <div className="overflow-x-auto">
@@ -243,23 +366,17 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                     <tr className="border-b-2 border-gray-300 dark:border-slate-600">
                                         <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventID</th>
                                         <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventDate</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">verbatimLocality</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLatitude</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLongitude</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">geodeticDatum</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">habitat</th>
+                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">Locality</th>
+                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">Recorder</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {eventData.map((row, idx) => (
+                                    {eventReference.map((row, idx) => (
                                         <tr key={idx} className="border-b border-gray-200 dark:border-slate-700">
                                             <td className="p-2 font-mono text-purple-600 dark:text-purple-400">{row.eventID}</td>
                                             <td className="p-2 text-gray-700 dark:text-slate-300">{row.eventDate}</td>
-                                            <td className="p-2 text-gray-700 dark:text-slate-300">{row.verbatimLocality}</td>
-                                            <td className="p-2 font-mono text-gray-700 dark:text-slate-300">{row.decimalLatitude}</td>
-                                            <td className="p-2 font-mono text-gray-700 dark:text-slate-300">{row.decimalLongitude}</td>
-                                            <td className="p-2 text-gray-700 dark:text-slate-300">{row.geodeticDatum}</td>
-                                            <td className="p-2 text-gray-700 dark:text-slate-300">{row.habitat}</td>
+                                            <td className="p-2 text-gray-700 dark:text-slate-300">{row.locality}</td>
+                                            <td className="p-2 text-gray-700 dark:text-slate-300">{row.recorder}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -306,7 +423,7 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                                         <SelectValue placeholder="Select eventID" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {eventData.map(evt => (
+                                                        {eventReference.map(evt => (
                                                             <SelectItem key={evt.eventID} value={evt.eventID}>
                                                                 {evt.eventID}
                                                             </SelectItem>
