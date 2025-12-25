@@ -50,7 +50,7 @@ export default function DropZone({
         if (mappedColumn && isValid) return 'border-green-400 bg-green-900/20';
         if (mappedColumn && !isValid) return 'border-red-400 bg-red-900/20';
         if (isRequired) return 'border-orange-400 bg-orange-900/10 border-dashed';
-        return 'border-slate-600 bg-slate-800/50 border-dashed';
+        return 'border-slate-700/50 bg-slate-800/10 border-dashed';
     };
 
     return (
