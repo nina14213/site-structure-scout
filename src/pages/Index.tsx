@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
+import DataImport from '@/components/game/DataImport';
 
-type GameScreen = 'start' | 'playing' | 'complete';
+type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport';
 
 const Index = () => {
   const { toast } = useToast();
@@ -11,7 +12,7 @@ const Index = () => {
   const [currentLevel, setCurrentLevel] = useState<number | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
-  const [levelData, setLevelData] = useState<Record<number, unknown>>({});
+  const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
 
   const {
     gameState,
@@ -128,6 +129,21 @@ const Index = () => {
   const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
   const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
 
+  // Handle data import
+  const handleDataImport = useCallback(() => {
+    setCurrentScreen('dataImport');
+  }, []);
+
+  const handleImportComplete = useCallback((data: any[], columns: string[], fileName: string) => {
+    setLevelData(prev => ({ ...prev, customImport: { data, columns, fileName } }));
+    toast({
+      title: "Dane zaimportowane! 📊",
+      description: `Wczytano ${data.length} wierszy z pliku ${fileName}`,
+    });
+    setCurrentLevel(1);
+    setCurrentScreen('playing');
+  }, [toast]);
+
   // Render based on current screen
   if (currentScreen === 'complete') {
     return (
@@ -136,6 +152,15 @@ const Index = () => {
         badges={BADGES}
         onRestart={handleRestart}
         playBadgeUnlock={playBadgeUnlock}
+      />
+    );
+  }
+
+  if (currentScreen === 'dataImport') {
+    return (
+      <DataImport
+        onBack={handleBackToMenu}
+        onImportComplete={handleImportComplete}
       />
     );
   }
@@ -154,7 +179,7 @@ const Index = () => {
         playLevelComplete={playLevelComplete}
         startLevelTimer={startLevelTimer}
         saveQuizScore={saveQuizScore}
-        previousLevelData={levelData[currentLevel - 1]}
+        previousLevelData={levelData[currentLevel - 1] || levelData.customImport}
       />
     );
   }
@@ -171,6 +196,7 @@ const Index = () => {
       toggleDarkMode={toggleDarkMode}
       onLevelClick={handleLevelClick}
       isLevelUnlocked={isLevelUnlocked}
+      onDataImport={handleDataImport}
     />
   );
 };
