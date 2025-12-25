@@ -17,7 +17,8 @@ import {
     Grid3X3,
     RotateCcw,
     Check,
-    X
+    X,
+    Download
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 
@@ -209,6 +210,83 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         if (allRequiredMapped) {
             onComplete?.(mappings, selectedSchema);
         }
+    };
+
+    // Download CSV with DwC headers (UTF-8, WGS-84 only)
+    const handleDownloadCSV = () => {
+        // Get all mapped DwC terms as headers
+        const dwcHeaders = Object.keys(mappings);
+        
+        // Check if data uses WGS-84 (look for geodeticDatum column or coordinate_system)
+        const datumMapping = mappings['geodeticDatum'];
+        const hasWGS84Data = data.every(row => {
+            if (datumMapping) {
+                const datum = row[datumMapping]?.toString().toUpperCase();
+                return datum === 'WGS84' || datum === 'WGS 84' || datum === 'EPSG:4326';
+            }
+            // If no datum column mapped, check common column names
+            const coordinateSystemCol = columns.find(col => 
+                col.toLowerCase().includes('coordinate') || 
+                col.toLowerCase().includes('datum') ||
+                col.toLowerCase().includes('system')
+            );
+            if (coordinateSystemCol) {
+                const value = row[coordinateSystemCol]?.toString().toUpperCase();
+                return value === 'WGS84' || value === 'WGS 84' || value === 'EPSG:4326';
+            }
+            return true; // Assume WGS-84 if no datum info
+        });
+
+        if (!hasWGS84Data) {
+            alert('Warning: Some data may not be in WGS-84 format. Only WGS-84 coordinates are included.');
+        }
+
+        // Build CSV content
+        const csvRows: string[] = [];
+        
+        // Add header row with DwC terms
+        csvRows.push(dwcHeaders.join(','));
+        
+        // Add data rows (only WGS-84)
+        data.forEach(row => {
+            // Check if this row is WGS-84
+            const datumCol = datumMapping || columns.find(col => 
+                col.toLowerCase().includes('coordinate') || 
+                col.toLowerCase().includes('datum') ||
+                col.toLowerCase().includes('system')
+            );
+            if (datumCol) {
+                const datum = row[datumCol]?.toString().toUpperCase();
+                if (datum && datum !== 'WGS84' && datum !== 'WGS 84' && datum !== 'EPSG:4326') {
+                    return; // Skip non-WGS84 rows
+                }
+            }
+            
+            const rowValues = dwcHeaders.map(dwcTerm => {
+                const sourceColumn = mappings[dwcTerm];
+                const value = row[sourceColumn] ?? '';
+                // Escape values with commas or quotes
+                const strValue = String(value);
+                if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+                    return `"${strValue.replace(/"/g, '""')}"`;
+                }
+                return strValue;
+            });
+            csvRows.push(rowValues.join(','));
+        });
+
+        // Create and download CSV with UTF-8 BOM
+        const BOM = '\uFEFF';
+        const csvContent = BOM + csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `dwc_${selectedSchema}_${fileName.replace(/\.[^/.]+$/, '')}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const selectedSchemaInfo = schemaTypes.find(s => s.id === selectedSchema);
@@ -435,17 +513,26 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     </motion.div>
                 </div>
 
-                {/* Complete Button */}
+                {/* Action Buttons */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-6"
+                    className="mt-6 flex gap-4"
                 >
+                    <Button
+                        onClick={handleDownloadCSV}
+                        disabled={Object.keys(mappings).length === 0}
+                        variant="outline"
+                        className="py-6 text-lg border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"
+                    >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download CSV (UTF-8, WGS-84)
+                    </Button>
                     <Button
                         onClick={handleComplete}
                         disabled={!allRequiredMapped}
-                        className={`w-full py-6 text-lg ${
+                        className={`flex-1 py-6 text-lg ${
                             allRequiredMapped
                                 ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700'
                                 : 'bg-slate-700 text-slate-400'
