@@ -21,41 +21,90 @@ import {
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 
-// Darwin Core schema types
+// Darwin Core Data Package schema types based on https://gbif.github.io/dwc-dp/qrg/
 const schemaTypes = [
-    { id: 'agent', name: 'Agent', icon: Users, color: 'bg-pink-600' },
-    { id: 'occurrence', name: 'Occurrence', icon: Target, color: 'bg-rose-600' },
     { id: 'event', name: 'Event', icon: Grid3X3, color: 'bg-purple-600' },
-    { id: 'survey', name: 'Survey', icon: Calendar, color: 'bg-slate-600' },
+    { id: 'occurrence', name: 'Occurrence', icon: Target, color: 'bg-rose-600' },
+    { id: 'organism', name: 'Organism', icon: Users, color: 'bg-emerald-600' },
+    { id: 'material', name: 'Material Entity', icon: Calendar, color: 'bg-amber-600' },
     { id: 'media', name: 'Media', icon: Image, color: 'bg-blue-600' },
     { id: 'identification', name: 'Identification', icon: SearchIcon, color: 'bg-cyan-600' },
 ];
 
-// Schema-specific required terms
+// Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
+// Source: https://gbif.github.io/dwc-dp/qrg/
 const schemaTerms: Record<string, { required: string[]; optional: string[] }> = {
     event: {
+        // eventID is the only required field for Event table
         required: ['eventID'],
-        optional: ['parentEventID', 'eventDate', 'eventType', 'samplingProtocol', 'sampleSizeValue', 'sampleSizeUnit', 'eventRemarks', 'fieldNumber', 'fieldNotes', 'verbatimEventDate', 'habitat', 'samplingEffort'],
+        optional: [
+            'parentEventID', 'preferredEventName', 'eventCategory', 'eventType', 
+            'datasetName', 'datasetID', 'fieldNumber', 'eventConductedBy', 'eventConductedByID',
+            'eventDate', 'eventTime', 'startDayOfYear', 'endDayOfYear', 'year', 'month', 'day',
+            'verbatimEventDate', 'verbatimLocality', 'verbatimElevation', 'verbatimDepth',
+            'verbatimCoordinates', 'verbatimLatitude', 'verbatimLongitude', 'verbatimCoordinateSystem',
+            'verbatimSRS', 'higherGeography', 'higherGeographyID', 'continent', 'waterBody',
+            'islandGroup', 'island', 'country', 'countryCode', 'stateProvince', 'county',
+            'municipality', 'locality', 'minimumElevationInMeters', 'maximumElevationInMeters',
+            'minimumDepthInMeters', 'maximumDepthInMeters', 'decimalLatitude', 'decimalLongitude',
+            'geodeticDatum', 'coordinateUncertaintyInMeters', 'coordinatePrecision',
+            'pointRadiusSpatialFit', 'footprintWKT', 'footprintSRS', 'footprintSpatialFit',
+            'georeferencedBy', 'georeferencedByID', 'georeferencedDate', 'georeferenceProtocol',
+            'georeferenceProtocolID', 'georeferenceSources', 'georeferenceRemarks',
+            'habitat', 'samplingProtocol', 'samplingEffort', 'sampleSizeValue', 'sampleSizeUnit',
+            'eventRemarks', 'fieldNotes', 'informationWithheld', 'dataGeneralizations'
+        ],
     },
     occurrence: {
-        required: ['occurrenceID', 'basisOfRecord'],
-        optional: ['catalogNumber', 'recordNumber', 'recordedBy', 'individualCount', 'organismQuantity', 'organismQuantityType', 'sex', 'lifeStage', 'reproductiveCondition', 'behavior', 'establishmentMeans', 'degreeOfEstablishment', 'pathway', 'occurrenceStatus', 'occurrenceRemarks'],
+        // occurrenceID and eventID are required; basisOfRecord is highly recommended
+        required: ['occurrenceID', 'eventID', 'basisOfRecord'],
+        optional: [
+            'catalogNumber', 'recordNumber', 'recordedBy', 'recordedByID',
+            'individualCount', 'organismQuantity', 'organismQuantityType',
+            'sex', 'lifeStage', 'reproductiveCondition', 'caste', 'behavior',
+            'vitality', 'establishmentMeans', 'degreeOfEstablishment', 'pathway',
+            'georeferenceVerificationStatus', 'occurrenceStatus', 'occurrenceRemarks',
+            'associatedMedia', 'associatedOccurrences', 'associatedReferences',
+            'associatedSequences', 'associatedTaxa', 'otherCatalogNumbers',
+            'preparations', 'disposition', 'informationWithheld', 'dataGeneralizations'
+        ],
     },
-    agent: {
-        required: ['agentID'],
-        optional: ['agentType', 'agentName', 'agentRole'],
+    organism: {
+        // organismID and eventID are required
+        required: ['organismID', 'eventID'],
+        optional: [
+            'organismName', 'organismScope', 'associatedOccurrences', 'associatedOrganisms',
+            'previousIdentifications', 'organismRemarks'
+        ],
     },
-    survey: {
-        required: ['surveyID'],
-        optional: ['surveyType', 'surveyTarget', 'surveyMethod'],
+    material: {
+        // materialEntityID and eventID are required
+        required: ['materialEntityID', 'eventID'],
+        optional: [
+            'materialEntityType', 'preparations', 'disposition', 'verbatimLabel',
+            'associatedSequences', 'materialEntityRemarks'
+        ],
     },
     media: {
-        required: ['mediaID'],
-        optional: ['mediaType', 'accessURI', 'format', 'license', 'rightsHolder', 'creator'],
+        // mediaID and eventID are required
+        required: ['mediaID', 'eventID'],
+        optional: [
+            'mediaType', 'accessURI', 'WebStatement', 'format', 'rights',
+            'Owner', 'creator', 'CreateDate', 'description', 'caption',
+            'associatedOccurrences', 'associatedOrganisms'
+        ],
     },
     identification: {
-        required: ['identificationID'],
-        optional: ['identifiedBy', 'dateIdentified', 'identificationRemarks', 'identificationQualifier', 'typeStatus'],
+        // identificationID and eventID are required
+        required: ['identificationID', 'eventID'],
+        optional: [
+            'verbatimIdentification', 'identifiedBy', 'identifiedByID', 'dateIdentified',
+            'identificationReferences', 'identificationVerificationStatus',
+            'identificationRemarks', 'typeStatus', 'taxonID', 'scientificName',
+            'scientificNameAuthorship', 'taxonRank', 'kingdom', 'phylum', 'class',
+            'order', 'family', 'subfamily', 'genus', 'subgenus', 'specificEpithet',
+            'infraspecificEpithet', 'cultivarEpithet', 'vernacularName'
+        ],
     },
 };
 
