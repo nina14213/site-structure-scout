@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import QuizModal from './QuizModal';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
-import bossValidatorIcon from '@/assets/boss-validator.png';
+import bossDefeatedIcon from '@/assets/boss-defeated-x.png';
 
 interface ValidationStep {
     id: string;
@@ -301,16 +301,15 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         }}
                         transition={{ duration: 0.5, repeat: isValidating ? Infinity : 0 }}
                     >
-                        <div className="relative inline-block">
+                        {allPassed ? (
+                            <img 
+                                src={bossDefeatedIcon} 
+                                alt="Defeated Boss" 
+                                className="w-28 h-28"
+                            />
+                        ) : (
                             <span className="text-7xl">👹</span>
-                            {allPassed && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-4xl font-bold text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px black, -2px -2px 4px black' }}>
-                                        ✕ ✕
-                                    </span>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </motion.div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
                         {allPassed ? 'POKONANY!' : isValidating ? 'Walidacja...' : 'CHAOS VALIDATOR'}
