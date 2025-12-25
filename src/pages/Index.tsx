@@ -1,39 +1,177 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import HeroSection from '@/components/HeroSection';
-import StagesSection from '@/components/StagesSection';
-import Leaderboard from '@/components/Leaderboard';
-import ResourcesSection from '@/components/ResourcesSection';
-import Footer from '@/components/Footer';
+import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
+import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
+
+type GameScreen = 'start' | 'playing' | 'complete';
 
 const Index = () => {
   const { toast } = useToast();
-  const [playerName, setPlayerName] = useState<string | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
+  const [currentLevel, setCurrentLevel] = useState<number | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+  const [levelData, setLevelData] = useState<Record<number, unknown>>({});
 
-  const handleStartGame = (name: string) => {
-    setPlayerName(name);
+  const {
+    gameState,
+    leaderboard,
+    startNewGame,
+    addScore,
+    completeLevel,
+    startLevelTimer,
+    saveQuizScore,
+    updateLeaderboard,
+    resetProgress,
+    isLevelUnlocked,
+  } = useGameProgress();
+
+  // Sound effects (simple beeps)
+  const playSound = useCallback((type: 'success' | 'fail' | 'drop' | 'levelComplete' | 'badgeUnlock') => {
+    if (!soundEnabled) return;
+    
+    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    const sounds: Record<string, { freq: number; duration: number; type: OscillatorType }> = {
+      success: { freq: 880, duration: 0.1, type: 'sine' },
+      fail: { freq: 220, duration: 0.2, type: 'square' },
+      drop: { freq: 440, duration: 0.05, type: 'sine' },
+      levelComplete: { freq: 660, duration: 0.3, type: 'triangle' },
+      badgeUnlock: { freq: 1000, duration: 0.4, type: 'sine' },
+    };
+    
+    const sound = sounds[type];
+    oscillator.frequency.value = sound.freq;
+    oscillator.type = sound.type;
+    gainNode.gain.value = 0.1;
+    
+    oscillator.start();
+    setTimeout(() => {
+      oscillator.stop();
+      audioContext.close();
+    }, sound.duration * 1000);
+  }, [soundEnabled]);
+
+  const playSuccess = useCallback(() => playSound('success'), [playSound]);
+  const playFail = useCallback(() => playSound('fail'), [playSound]);
+  const playDrop = useCallback(() => playSound('drop'), [playSound]);
+  const playLevelComplete = useCallback(() => playSound('levelComplete'), [playSound]);
+  const playBadgeUnlock = useCallback(() => playSound('badgeUnlock'), [playSound]);
+
+  // Handle game start
+  const handleStartGame = useCallback((playerName: string) => {
+    startNewGame(playerName);
     toast({
-      title: `Witaj, ${name}! 🦎`,
+      title: `Witaj, ${playerName}! 🦎`,
       description: "Twoja misja Data Rangera właśnie się rozpoczęła!",
     });
-  };
+  }, [startNewGame, toast]);
 
+  // Handle level selection from start screen
+  const handleLevelClick = useCallback((levelId: number) => {
+    if (isLevelUnlocked(levelId) && gameState.playerName) {
+      setCurrentLevel(levelId);
+      setCurrentScreen('playing');
+      startLevelTimer();
+    }
+  }, [isLevelUnlocked, gameState.playerName, startLevelTimer]);
+
+  // Handle level completion
+  const handleLevelComplete = useCallback((score: number, data?: unknown) => {
+    if (currentLevel === null) return;
+
+    // Save level data for next levels
+    if (data) {
+      setLevelData(prev => ({ ...prev, [currentLevel]: data }));
+    }
+
+    completeLevel(currentLevel, score);
+    updateLeaderboard();
+
+    toast({
+      title: `Poziom ${currentLevel} ukończony! 🎉`,
+      description: `Zdobyto ${score} punktów!`,
+    });
+
+    // Check if all levels completed
+    const allCompleted = [...gameState.levelsCompleted, currentLevel].length >= 4;
+    
+    if (allCompleted) {
+      setCurrentScreen('complete');
+    } else {
+      // Go back to start screen to select next level
+      setCurrentScreen('start');
+      setCurrentLevel(null);
+    }
+  }, [currentLevel, completeLevel, updateLeaderboard, toast, gameState.levelsCompleted]);
+
+  // Handle going back to menu
+  const handleBackToMenu = useCallback(() => {
+    setCurrentScreen('start');
+    setCurrentLevel(null);
+  }, []);
+
+  // Handle restart game
+  const handleRestart = useCallback(() => {
+    resetProgress();
+    setCurrentScreen('start');
+    setCurrentLevel(null);
+    setLevelData({});
+  }, [resetProgress]);
+
+  // Toggle functions
+  const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
+  const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
+
+  // Render based on current screen
+  if (currentScreen === 'complete') {
+    return (
+      <GameComplete
+        gameState={gameState}
+        badges={BADGES}
+        onRestart={handleRestart}
+        playBadgeUnlock={playBadgeUnlock}
+      />
+    );
+  }
+
+  if (currentScreen === 'playing' && currentLevel !== null) {
+    return (
+      <GameLauncher
+        levelId={currentLevel}
+        gameState={gameState}
+        onComplete={handleLevelComplete}
+        onClose={handleBackToMenu}
+        addScore={addScore}
+        playSuccess={playSuccess}
+        playFail={playFail}
+        playDrop={playDrop}
+        playLevelComplete={playLevelComplete}
+        startLevelTimer={startLevelTimer}
+        saveQuizScore={saveQuizScore}
+        previousLevelData={levelData[currentLevel - 1]}
+      />
+    );
+  }
+
+  // Start screen
   return (
-    <div className="min-h-screen bg-background">
-      <HeroSection onStartGame={handleStartGame} />
-      
-      <StagesSection />
-      
-      <section className="py-16 px-4">
-        <div className="max-w-md mx-auto">
-          <Leaderboard />
-        </div>
-      </section>
-      
-      <ResourcesSection />
-      
-      <Footer />
-    </div>
+    <StartScreen
+      onStart={handleStartGame}
+      gameState={gameState}
+      leaderboard={leaderboard}
+      soundEnabled={soundEnabled}
+      toggleSound={toggleSound}
+      darkMode={darkMode}
+      toggleDarkMode={toggleDarkMode}
+      onLevelClick={handleLevelClick}
+      isLevelUnlocked={isLevelUnlocked}
+    />
   );
 };
 
