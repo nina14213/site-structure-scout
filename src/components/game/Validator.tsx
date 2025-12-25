@@ -302,7 +302,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         className="inline-block"
                     >
                         <span className="text-6xl">
-                            {allPassed ? '😵' : isValidating ? '😈' : '👹'}
+                            {allPassed ? '💀' : isValidating ? '😈' : '👹'}
                         </span>
                     </motion.div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
