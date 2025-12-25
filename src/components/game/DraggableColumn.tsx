@@ -33,11 +33,11 @@ export default function DraggableColumn({
     const term = mappedTo ? dwcTerms[mappedTo] : null;
 
     const getStatusColor = () => {
-        if (!mappedTo) return 'border-slate-600 bg-slate-800';
-        if (validationStatus === 'valid') return 'border-green-400 bg-green-900/30';
-        if (validationStatus === 'warning') return 'border-yellow-400 bg-yellow-900/30';
-        if (validationStatus === 'error') return 'border-red-400 bg-red-900/30';
-        return 'border-blue-400 bg-blue-900/30';
+        if (!mappedTo) return 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
+        if (validationStatus === 'valid') return 'border-green-400 bg-green-50 dark:bg-green-900/30';
+        if (validationStatus === 'warning') return 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/30';
+        if (validationStatus === 'error') return 'border-red-400 bg-red-50 dark:bg-red-900/30';
+        return 'border-blue-400 bg-blue-50 dark:bg-blue-900/30';
     };
 
     const getStatusIcon = () => {
@@ -82,11 +82,11 @@ export default function DraggableColumn({
                 `}
             >
                 <div className="flex items-center gap-3">
-                    <GripVertical className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <GripVertical className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0" />
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-slate-200 truncate">
+                            <span className="font-medium text-gray-900 dark:text-slate-200 truncate">
                                 {column}
                             </span>
                             {getStatusIcon()}
@@ -132,7 +132,7 @@ export default function DraggableColumn({
                         )}
 
                         {sampleValues.length > 0 && (
-                            <div className="mt-2 text-xs text-slate-400 truncate">
+                            <div className="mt-2 text-xs text-gray-500 dark:text-slate-400 truncate">
                                 <span className="opacity-60">np:</span> {sampleValues.slice(0, 2).join(', ')}
                                 {sampleValues.length > 2 && '...'}
                             </div>

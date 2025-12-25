@@ -310,17 +310,17 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                         </Card>
                     </motion.div>
                 ) : (
-                    /* Mapping Interface */
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    /* Mapping Interface - Side by Side */
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Source Columns */}
                         <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur h-full flex flex-col">
-                            <CardHeader>
-                                <CardTitle className="text-gray-900 dark:text-white flex items-center justify-between">
+                            <CardHeader className="bg-gray-900 dark:bg-slate-900 rounded-t-lg">
+                                <CardTitle className="text-white flex items-center justify-between">
                                     <span className="flex items-center gap-2">
                                         <FileSpreadsheet className="w-5 h-5" />
                                         CSV Columns ({columns.length})
                                     </span>
-                                    <Badge variant="secondary">{csvData.length} rows</Badge>
+                                    <Badge variant="secondary" className="bg-gray-700 text-white">{csvData.length} rows</Badge>
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex-1 max-h-[60vh] overflow-y-auto space-y-2">
@@ -344,13 +344,13 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
 
                         {/* Target Terms */}
                         <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur h-full flex flex-col">
-                            <CardHeader>
-                                <CardTitle className="text-gray-900 dark:text-white flex items-center justify-between">
+                            <CardHeader className="bg-gray-900 dark:bg-slate-900 rounded-t-lg">
+                                <CardTitle className="text-white flex items-center justify-between">
                                     <span className="flex items-center gap-2">
-                                        <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                                        <Zap className="w-5 h-5 text-yellow-400" />
                                         Darwin Core Terms
                                     </span>
-                                    <Button variant="ghost" size="sm" onClick={() => setShowHint(!showHint)} className="text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300">
+                                    <Button variant="ghost" size="sm" onClick={() => setShowHint(!showHint)} className="text-yellow-400 hover:text-yellow-300 hover:bg-gray-800">
                                         <Lightbulb className="w-4 h-4 mr-1" />
                                         Hint
                                     </Button>
