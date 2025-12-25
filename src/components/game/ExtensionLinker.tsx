@@ -14,7 +14,7 @@ import { GameState } from '@/hooks/useGameProgress';
 // Field notes from scientists - contains extra "messy" information
 const fieldNotes = [
     {
-        scientist: "Dr. Katarzyna Słupecka",
+        scientist: "Mgr. Katarzyna Słupecka",
         date: "25 October 2025",
         noteId: "KS-2025-001",
         entries: [
