@@ -265,34 +265,17 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
 
                 {/* Main Content */}
                 {columns.length === 0 ? (
-                    /* Upload Section */
+                    /* Sample Data Section */
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="grid md:grid-cols-2 gap-6"
+                        className="max-w-lg mx-auto"
                     >
                         <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
                             <CardHeader>
                                 <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Upload className="w-5 h-5" />
-                                    Upload CSV file
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl hover:border-yellow-500 dark:hover:border-yellow-500 transition-colors cursor-pointer">
-                                    <FileSpreadsheet className="w-12 h-12 text-gray-400 dark:text-slate-500 mb-3" />
-                                    <span className="text-gray-700 dark:text-slate-400">Click or drag file</span>
-                                    <span className="text-sm text-gray-500 dark:text-slate-500 mt-1">CSV, UTF-8</span>
-                                    <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
-                                </label>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
-                            <CardHeader>
-                                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                                     <Download className="w-5 h-5" />
-                                    Use sample data
+                                    Load sample data
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
