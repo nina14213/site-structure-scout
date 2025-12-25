@@ -511,7 +511,7 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
             <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="font-mono text-sm font-semibold text-gray-900 dark:text-white">
+                        <span className="font-mono text-sm font-semibold text-white">
                             {termName}
                         </span>
                         {isRequired && (
