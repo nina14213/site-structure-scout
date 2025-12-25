@@ -296,6 +296,11 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="Ailanthus altissima">Ailanthus altissima</SelectItem>
+                                                        <SelectItem value="Robinia pseudoacacia">Robinia pseudoacacia</SelectItem>
+                                                        <SelectItem value="Acer negundo">Acer negundo</SelectItem>
+                                                        <SelectItem value="Solidago canadensis">Solidago canadensis</SelectItem>
+                                                        <SelectItem value="Reynoutria japonica">Reynoutria japonica</SelectItem>
+                                                        <SelectItem value="Impatiens glandulifera">Impatiens glandulifera</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </td>
@@ -309,6 +314,10 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="K. Słupecka">K. Słupecka</SelectItem>
+                                                        <SelectItem value="M. Kowalski">M. Kowalski</SelectItem>
+                                                        <SelectItem value="A. Nowak">A. Nowak</SelectItem>
+                                                        <SelectItem value="J. Wiśniewski">J. Wiśniewski</SelectItem>
+                                                        <SelectItem value="P. Zieliński">P. Zieliński</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </td>
@@ -324,6 +333,11 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                                         <SelectItem value="1">1</SelectItem>
                                                         <SelectItem value="2">2</SelectItem>
                                                         <SelectItem value="3">3</SelectItem>
+                                                        <SelectItem value="5">5</SelectItem>
+                                                        <SelectItem value="10">10</SelectItem>
+                                                        <SelectItem value="25">25</SelectItem>
+                                                        <SelectItem value="50">50</SelectItem>
+                                                        <SelectItem value="100">100</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </td>
@@ -337,6 +351,10 @@ export default function ExtensionLinker({ onComplete, addScore, playSuccess, pla
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="individual">individual</SelectItem>
+                                                        <SelectItem value="colony">colony</SelectItem>
+                                                        <SelectItem value="clump">clump</SelectItem>
+                                                        <SelectItem value="patch">patch</SelectItem>
+                                                        <SelectItem value="population">population</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </td>
