@@ -52,6 +52,13 @@ const levels = [
         icon: Shield,
         color: 'from-red-500 to-orange-500',
         description: 'Przejdź walidację GBIF'
+    },
+    {
+        id: 5,
+        name: 'Stwórz swoją Data Package',
+        icon: Database,
+        color: 'from-emerald-500 to-cyan-500',
+        description: 'Importuj własne dane CSV/XLSX'
     }
 ];
 
@@ -65,6 +72,7 @@ interface StartScreenProps {
     toggleDarkMode?: () => void;
     onLevelClick?: (levelId: number) => void;
     isLevelUnlocked?: (levelId: number) => boolean;
+    onDataImport?: () => void;
 }
 
 export default function StartScreen({
@@ -76,7 +84,8 @@ export default function StartScreen({
     darkMode,
     toggleDarkMode,
     onLevelClick,
-    isLevelUnlocked
+    isLevelUnlocked,
+    onDataImport
 }: StartScreenProps) {
     const [playerName, setPlayerName] = useState(gameState?.playerName || '');
     const [showTutorial, setShowTutorial] = useState(false);
@@ -84,6 +93,7 @@ export default function StartScreen({
     const handleStart = () => {
         if (playerName.trim()) {
             onStart(playerName.trim());
+            onLevelClick?.(1); // Go directly to Core Forge
         }
     };
 
@@ -186,7 +196,7 @@ export default function StartScreen({
 
                                 {/* Levels preview */}
                                 <div className="grid grid-cols-2 gap-3 pt-4">
-                                    {levels.map((level, idx) => {
+                                    {levels.filter(l => l.id <= 4).map((level, idx) => {
                                         const unlocked = isLevelUnlocked ? isLevelUnlocked(level.id) : level.id === 1;
                                         const LevelIcon = level.icon;
                                         return (
@@ -214,6 +224,23 @@ export default function StartScreen({
                                         );
                                     })}
                                 </div>
+
+                                {/* Custom Data Package Option */}
+                                <motion.button
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.7 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={onDataImport}
+                                    className="w-full p-4 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/50 hover:border-emerald-400 transition-colors cursor-pointer text-left"
+                                >
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Database className="w-5 h-5 text-emerald-400" />
+                                        <span className="font-semibold text-white">Stwórz swoją Data Package</span>
+                                    </div>
+                                    <p className="text-xs text-slate-300">Importuj własne dane CSV/XLSX i przekształć je w Darwin Core</p>
+                                </motion.button>
                             </CardContent>
                         </Card>
                     </motion.div>
