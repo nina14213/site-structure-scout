@@ -83,7 +83,15 @@ const Index = () => {
     }
   }, [isLevelUnlocked, gameState.playerName, startLevelTimer]);
 
-  // Handle level completion
+  // Level names for toast messages
+  const levelNames: Record<number, string> = {
+    1: 'Core Forge',
+    2: 'Extension Nexus',
+    3: 'Package Seal',
+    4: 'Validate (Final Boss)'
+  };
+
+  // Handle level completion - auto-progress to next stage
   const handleLevelComplete = useCallback((score: number, data?: unknown) => {
     if (currentLevel === null) return;
 
@@ -95,22 +103,25 @@ const Index = () => {
     completeLevel(currentLevel, score);
     updateLeaderboard();
 
-    toast({
-      title: `Poziom ${currentLevel} ukończony! 🎉`,
-      description: `Zdobyto ${score} punktów!`,
-    });
+    const nextLevel = currentLevel + 1;
 
-    // Check if all levels completed
-    const allCompleted = [...gameState.levelsCompleted, currentLevel].length >= 4;
-    
-    if (allCompleted) {
+    // Check if this was the final level (level 4)
+    if (currentLevel >= 4) {
+      toast({
+        title: `${levelNames[currentLevel]} ukończony! 🏆`,
+        description: `Zdobyto ${score} punktów! Wszystkie misje zakończone!`,
+      });
       setCurrentScreen('complete');
     } else {
-      // Go back to start screen to select next level
-      setCurrentScreen('start');
-      setCurrentLevel(null);
+      // Auto-progress to next level
+      toast({
+        title: `${levelNames[currentLevel]} ukończony! 🎉`,
+        description: `Zdobyto ${score} punktów! Przechodzisz do: ${levelNames[nextLevel]}`,
+      });
+      setCurrentLevel(nextLevel);
+      startLevelTimer();
     }
-  }, [currentLevel, completeLevel, updateLeaderboard, toast, gameState.levelsCompleted]);
+  }, [currentLevel, completeLevel, updateLeaderboard, toast, startLevelTimer]);
 
   // Handle going back to menu
   const handleBackToMenu = useCallback(() => {
