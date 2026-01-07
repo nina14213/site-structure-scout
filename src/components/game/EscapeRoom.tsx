@@ -62,10 +62,10 @@ const puzzles: Puzzle[] = [
   {
     id: 3,
     title: "Zagadka Obserwatora",
-    description: "Rozszyfruj zakodowane nazwisko używając szyfru Cezara z przesunięciem 1 (każda litera zamieniona na poprzednią w alfabecie): 'L. Tłvqfdlb'. Kto wykonał obserwację w lesie Dębina?",
-    hint: "Przesunięcie 1 oznacza: L→K, T→S, ł→ł (znaki specjalne bez zmian), v→u, q→p, f→e, d→c, l→k, b→a",
+    description: "Rozszyfruj zakodowane nazwisko używając szyfru Cezara z przesunięciem 1 (każda litera zamieniona na poprzednią w alfabecie): 'K. Lpxbmtlj'. Kto wykonał obserwację?",
+    hint: "Przesunięcie 1 oznacza: K→J, L→K, p→o, x→w, b→a, m→l, t→s, l→k, j→i",
     clue: "Wynik to inicjał imienia + nazwisko w formacie: X. Xxxxxxxx",
-    answer: "K. Słupecka",
+    answer: "J. Kowalski",
     unlocked: false,
     solved: false,
     category: "recordedBy",
