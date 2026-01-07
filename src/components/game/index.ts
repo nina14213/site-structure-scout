@@ -10,4 +10,5 @@ export { default as QuizModal } from './QuizModal';
 export { default as TutorialModal } from './TutorialModal';
 export { default as DraggableColumn } from './DraggableColumn';
 export { default as DropZone } from './DropZone';
+export { default as EscapeRoom } from './EscapeRoom';
 export * from './DwCTerms';

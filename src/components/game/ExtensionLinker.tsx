@@ -16,10 +16,13 @@ import {
   Lightbulb,
   BookOpen,
   Clipboard,
+  Key,
+  Sparkles,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import QuizModal from "./QuizModal";
 import TutorialModal from "./TutorialModal";
+import EscapeRoom from "./EscapeRoom";
 import { GameState } from "@/hooks/useGameProgress";
 
 // Field notes from scientists - contains extra "messy" information
@@ -172,6 +175,7 @@ export default function ExtensionLinker({
   const [levelScore, setLevelScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [showEscapeRoom, setShowEscapeRoom] = useState(false);
 
   const eventIds = new Set(eventReference.map((row) => row.eventID));
 
@@ -329,11 +333,31 @@ export default function ExtensionLinker({
     onComplete?.(finalScore, { fieldNotes, occurrenceData });
   };
 
+  const handleEscapeRoomComplete = (escapeScore: number, data: unknown) => {
+    addScore?.(escapeScore, "Escape Room Complete");
+    playLevelComplete?.();
+    onComplete?.(escapeScore, data);
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Escape Room Mode
+  if (showEscapeRoom) {
+    return (
+      <EscapeRoom
+        onComplete={handleEscapeRoomComplete}
+        onBack={() => setShowEscapeRoom(false)}
+        addScore={addScore}
+        playSuccess={playSuccess}
+        playFail={playFail}
+        playLevelComplete={playLevelComplete}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900 p-4 md:p-6">
@@ -375,6 +399,40 @@ export default function ExtensionLinker({
             <span>{Math.round(progress)}% complete</span>
             <span>{validationStatus.errors.length} errors</span>
           </div>
+        </motion.div>
+
+        {/* Escape Room Banner */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-6"
+        >
+          <button
+            onClick={() => setShowEscapeRoom(true)}
+            className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 via-amber-500 to-purple-600 p-1 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/25"
+          >
+            <div className="relative flex items-center justify-between gap-4 rounded-lg bg-slate-900/90 px-6 py-4 backdrop-blur">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20">
+                  <Key className="h-6 w-6 text-amber-400" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    🔐 ESCAPE ROOM
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Alternatywny tryb: rozwiąż zagadki, aby odblokować sekrety Darwin Core!
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-amber-400 transition-transform group-hover:translate-x-1">
+                <span className="text-sm font-medium">Wejdź</span>
+                <span className="text-xl">→</span>
+              </div>
+            </div>
+            <div className="absolute inset-0 -z-10 animate-pulse bg-gradient-to-r from-purple-600 via-amber-500 to-purple-600 opacity-50 blur-xl" />
+          </button>
         </motion.div>
 
         {/* Field Notes from Scientists */}
