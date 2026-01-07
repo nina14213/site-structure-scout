@@ -267,6 +267,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 <SelectItem value=";" className="text-white hover:bg-slate-700">Średnik (;)</SelectItem>
                                                 <SelectItem value="\t" className="text-white hover:bg-slate-700">Tab</SelectItem>
                                                 <SelectItem value="|" className="text-white hover:bg-slate-700">Pipe (|)</SelectItem>
+                                                <SelectItem value=" " className="text-white hover:bg-slate-700">Spacja ( )</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
