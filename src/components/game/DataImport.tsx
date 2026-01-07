@@ -36,13 +36,19 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const getActualDelimiter = (delim: string): string => {
+        if (delim === '\\t') return '\t';
+        return delim;
+    };
+
     const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
+        const actualDelim = delim === '\\t' ? '\t' : delim;
         const lines = text.split(/\r?\n/).filter(line => line.trim());
         if (lines.length === 0) throw new Error('Plik jest pusty');
         
-        const columns = lines[0].split(delim).map(col => col.trim().replace(/^"|"$/g, ''));
+        const columns = lines[0].split(actualDelim).map(col => col.trim().replace(/^"|"$/g, ''));
         const rows = lines.slice(1, 6).map(line => {
-            const values = line.split(delim).map(val => val.trim().replace(/^"|"$/g, ''));
+            const values = line.split(actualDelim).map(val => val.trim().replace(/^"|"$/g, ''));
             const row: Record<string, string> = {};
             columns.forEach((col, idx) => {
                 row[col] = values[idx] || '';
@@ -160,10 +166,11 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 onImportComplete?.(allRows, columns, file.name);
             } else {
                 const text = await file.text();
+                const actualDelim = delimiter === '\\t' ? '\t' : delimiter;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
-                const columns = lines[0].split(delimiter).map(col => col.trim().replace(/^"|"$/g, ''));
+                const columns = lines[0].split(actualDelim).map(col => col.trim().replace(/^"|"$/g, ''));
                 const allRows = lines.slice(1).map(line => {
-                    const values = line.split(delimiter).map(val => {
+                    const values = line.split(actualDelim).map(val => {
                         let v = val.trim().replace(/^"|"$/g, '');
                         if (decimalSign === ',' && /^\d+,\d+$/.test(v)) {
                             v = v.replace(',', '.');
