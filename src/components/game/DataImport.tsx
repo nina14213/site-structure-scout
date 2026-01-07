@@ -17,8 +17,10 @@ import {
     ArrowLeft, 
     Check,
     AlertCircle,
-    Table
+    Table,
+    FileText
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface DataImportProps {
     onBack: () => void;
@@ -27,13 +29,14 @@ interface DataImportProps {
 
 export default function DataImport({ onBack, onImportComplete }: DataImportProps) {
     const [file, setFile] = useState<File | null>(null);
+    const [fileType, setFileType] = useState<'csv' | 'txt' | 'xlsx' | null>(null);
     const [delimiter, setDelimiter] = useState(',');
     const [decimalSign, setDecimalSign] = useState('.');
     const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const parseCSV = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
+    const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
         const lines = text.split(/\r?\n/).filter(line => line.trim());
         if (lines.length === 0) throw new Error('Plik jest pusty');
         
@@ -50,6 +53,27 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         return { columns, rows };
     }, []);
 
+    const parseXLSX = useCallback(async (file: File): Promise<{ columns: string[]; rows: any[] }> => {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { header: 1 });
+        
+        if (jsonData.length === 0) throw new Error('Arkusz jest pusty');
+        
+        const columns = (jsonData[0] as any[]).map(col => String(col || '').trim());
+        const rows = jsonData.slice(1, 6).map(rowData => {
+            const row: Record<string, string> = {};
+            columns.forEach((col, idx) => {
+                row[col] = String((rowData as any[])[idx] ?? '');
+            });
+            return row;
+        });
+        
+        return { columns, rows };
+    }, []);
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (!selectedFile) return;
@@ -59,22 +83,29 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         setIsLoading(true);
 
         try {
-            const isCSV = selectedFile.name.toLowerCase().endsWith('.csv');
-            const isXLSX = selectedFile.name.toLowerCase().endsWith('.xlsx') || 
-                          selectedFile.name.toLowerCase().endsWith('.xls');
+            const fileName = selectedFile.name.toLowerCase();
+            const isCSV = fileName.endsWith('.csv');
+            const isTXT = fileName.endsWith('.txt');
+            const isXLSX = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
 
-            if (!isCSV && !isXLSX) {
-                throw new Error('Obsługiwane formaty: CSV, XLSX, XLS');
+            if (!isCSV && !isTXT && !isXLSX) {
+                throw new Error('Obsługiwane formaty: CSV, TXT, XLSX, XLS');
             }
 
             if (isCSV) {
+                setFileType('csv');
                 const text = await selectedFile.text();
-                const parsed = parseCSV(text, delimiter);
+                const parsed = parseTextFile(text, delimiter);
                 setPreview(parsed);
-            } else {
-                // For XLSX, we'd need a library like xlsx
-                // For now, show a message
-                setError('Import XLSX wymaga dodatkowej biblioteki. Użyj formatu CSV.');
+            } else if (isTXT) {
+                setFileType('txt');
+                const text = await selectedFile.text();
+                const parsed = parseTextFile(text, delimiter);
+                setPreview(parsed);
+            } else if (isXLSX) {
+                setFileType('xlsx');
+                const parsed = await parseXLSX(selectedFile);
+                setPreview(parsed);
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Błąd podczas wczytywania pliku');
@@ -86,11 +117,11 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
 
     const handleDelimiterChange = async (newDelimiter: string) => {
         setDelimiter(newDelimiter);
-        if (file && file.name.toLowerCase().endsWith('.csv')) {
+        if (file && (fileType === 'csv' || fileType === 'txt')) {
             setIsLoading(true);
             try {
                 const text = await file.text();
-                const parsed = parseCSV(text, newDelimiter);
+                const parsed = parseTextFile(text, newDelimiter);
                 setPreview(parsed);
                 setError(null);
             } catch (err) {
@@ -106,26 +137,48 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         
         setIsLoading(true);
         try {
-            const text = await file.text();
-            const lines = text.split(/\r?\n/).filter(line => line.trim());
-            const columns = lines[0].split(delimiter).map(col => col.trim().replace(/^"|"$/g, ''));
-            const allRows = lines.slice(1).map(line => {
-                const values = line.split(delimiter).map(val => {
-                    let v = val.trim().replace(/^"|"$/g, '');
-                    // Handle decimal sign conversion
-                    if (decimalSign === ',' && /^\d+,\d+$/.test(v)) {
-                        v = v.replace(',', '.');
-                    }
-                    return v;
+            if (fileType === 'xlsx') {
+                const buffer = await file.arrayBuffer();
+                const workbook = XLSX.read(buffer, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { header: 1 });
+                
+                const columns = (jsonData[0] as any[]).map(col => String(col || '').trim());
+                const allRows = jsonData.slice(1).map(rowData => {
+                    const row: Record<string, string> = {};
+                    columns.forEach((col, idx) => {
+                        let v = String((rowData as any[])[idx] ?? '');
+                        if (decimalSign === ',' && /^\d+,\d+$/.test(v)) {
+                            v = v.replace(',', '.');
+                        }
+                        row[col] = v;
+                    });
+                    return row;
                 });
-                const row: Record<string, string> = {};
-                columns.forEach((col, idx) => {
-                    row[col] = values[idx] || '';
-                });
-                return row;
-            });
 
-            onImportComplete?.(allRows, columns, file.name);
+                onImportComplete?.(allRows, columns, file.name);
+            } else {
+                const text = await file.text();
+                const lines = text.split(/\r?\n/).filter(line => line.trim());
+                const columns = lines[0].split(delimiter).map(col => col.trim().replace(/^"|"$/g, ''));
+                const allRows = lines.slice(1).map(line => {
+                    const values = line.split(delimiter).map(val => {
+                        let v = val.trim().replace(/^"|"$/g, '');
+                        if (decimalSign === ',' && /^\d+,\d+$/.test(v)) {
+                            v = v.replace(',', '.');
+                        }
+                        return v;
+                    });
+                    const row: Record<string, string> = {};
+                    columns.forEach((col, idx) => {
+                        row[col] = values[idx] || '';
+                    });
+                    return row;
+                });
+
+                onImportComplete?.(allRows, columns, file.name);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Błąd importu');
         } finally {
@@ -182,26 +235,26 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                             <CardContent className="space-y-6">
                                 {/* File Input */}
                                 <div className="space-y-2">
-                                    <Label className="text-slate-300">Wybierz plik (CSV lub XLSX)</Label>
+                                    <Label className="text-slate-300">Wybierz plik (CSV, TXT lub XLSX)</Label>
                                     <div className="relative">
                                         <Input
                                             type="file"
-                                            accept=".csv,.xlsx,.xls"
+                                            accept=".csv,.txt,.xlsx,.xls"
                                             onChange={handleFileChange}
                                             className="bg-slate-700/50 border-slate-600 text-white file:bg-emerald-600 file:text-white file:border-0 file:mr-4 file:px-4 file:py-2 file:rounded-lg hover:file:bg-emerald-700"
                                         />
                                     </div>
                                     {file && (
                                         <p className="text-sm text-emerald-400 flex items-center gap-1">
-                                            <FileSpreadsheet className="w-4 h-4" />
+                                            {fileType === 'xlsx' ? <FileSpreadsheet className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                                             {file.name}
                                         </p>
                                     )}
                                 </div>
 
-                                {/* CSV Options */}
-                                <div className="p-4 rounded-lg bg-slate-700/30 border border-slate-600/50 space-y-4">
-                                    <h4 className="text-sm font-medium text-slate-300">Opcje CSV</h4>
+                                {/* CSV/TXT Options */}
+                                <div className={`p-4 rounded-lg bg-slate-700/30 border border-slate-600/50 space-y-4 ${fileType === 'xlsx' ? 'opacity-50' : ''}`}>
+                                    <h4 className="text-sm font-medium text-slate-300">Opcje CSV/TXT {fileType === 'xlsx' && '(niedostępne dla XLSX)'}</h4>
                                     
                                     <div className="space-y-2">
                                         <Label className="text-slate-400 text-sm">Separator kolumn</Label>
