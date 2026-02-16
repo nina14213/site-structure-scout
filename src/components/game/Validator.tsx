@@ -29,23 +29,19 @@ interface DataRecord {
     eventDate: string;
     decimalLatitude: string;
     decimalLongitude: string;
+    locality: string;
 }
 
 // Sample data with intentional errors for user to fix
 const initialDataRecords: DataRecord[] = [
-    { id: '1', occurrenceID: 'OCC001', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.369327', decimalLongitude: '16.925402' },
-    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Empty date
-    { id: '3', occurrenceID: '', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Empty occurrenceID
-    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Empty eventID
-    { id: '5', occurrenceID: 'OCC005', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '25/10/2025', decimalLatitude: '52.4102', decimalLongitude: '16.9301' }, // Wrong date format (DD/MM/YYYY)
-    { id: '6', occurrenceID: 'OCC004', eventID: '3434', scientificName: 'Ailanthus altissima', eventDate: '2025-06-14', decimalLatitude: '52.3877', decimalLongitude: '16.9450' }, // Duplicate occurrenceID (OCC004)
-    { id: '7', occurrenceID: 'OCC007', eventID: '9999', scientificName: 'Ailanthus altissima', eventDate: '2025-07-03', decimalLatitude: '52.4215', decimalLongitude: '16.8998' }, // Invalid eventID (not in list)
-    { id: '8', occurrenceID: 'OCC008', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '2025-08-19', decimalLatitude: '152.390', decimalLongitude: '16.9120' }, // Invalid latitude (>90)
-    { id: '9', occurrenceID: 'OCC009', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-09-01', decimalLatitude: '52.3950', decimalLongitude: '-200.5' }, // Invalid longitude (<-180)
-    { id: '10', occurrenceID: 'OCC010', eventID: '3434', scientificName: 'Ailanthus altissima', eventDate: '2025-13-01', decimalLatitude: '52.4001', decimalLongitude: '16.9333' }, // Invalid date (month 13)
+    { id: '1', occurrenceID: 'OCC001', eventID: 'EVT-001', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.4082', decimalLongitude: '16.9344', locality: 'Park Sołacki, Poznań' },
+    { id: '2', occurrenceID: 'OCC002', eventID: 'EVT-002', scientificName: 'Bożodrzew gruczołkowaty', eventDate: '25/10/2025', decimalLatitude: '52.3935', decimalLongitude: '-16.9187', locality: 'ul. Libelta, Poznań' }, // Wrong date format + negative longitude (should be positive for Poznań)
+    { id: '3', occurrenceID: '', eventID: 'EVT-003', scientificName: 'Quercus robur', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' }, // Empty occurrenceID
+    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Dąb szypułkowy', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID
+    { id: '5', occurrenceID: 'OCC001', eventID: 'EVT-005', scientificName: 'Robinia pseudoacacia', eventDate: '2025-13-01', decimalLatitude: '52.3877', decimalLongitude: '16.9450', locality: 'Stary Rynek, Poznań' }, // Duplicate occurrenceID (OCC001) + invalid month 13
 ];
 
-const validEventIDs = ['3431', '3432', '3433', '3434'];
+const validEventIDs = ['EVT-001', 'EVT-002', 'EVT-003', 'EVT-004', 'EVT-005', 'EVT-006', 'EVT-007', 'EVT-008'];
 
 interface ValidatorProps {
     onComplete?: (score: number, data: unknown) => void;
@@ -144,13 +140,23 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
             }
         });
 
-        // Check eventID integrity
+        // Check eventID integrity and uniqueness
         dataRecords.forEach(record => {
             if (!record.eventID || record.eventID.trim() === '') {
                 errors.push({ rowId: record.id, field: 'eventID', message: 'Brak eventID - wybierz z listy' });
             } else if (!validEventIDs.includes(record.eventID)) {
                 errors.push({ rowId: record.id, field: 'eventID', message: 'Nieprawidłowy eventID' });
             }
+        });
+        // Check eventID uniqueness
+        const eventIds = dataRecords.map(r => r.eventID).filter(id => id && id.trim() !== '');
+        const dupEventIds = eventIds.filter((id, idx) => eventIds.indexOf(id) !== idx);
+        dupEventIds.forEach(dupId => {
+            dataRecords.filter(r => r.eventID === dupId).forEach(record => {
+                if (!errors.some(e => e.rowId === record.id && e.field === 'eventID')) {
+                    errors.push({ rowId: record.id, field: 'eventID', message: 'Duplikat eventID - każdy rekord musi mieć unikalny eventID' });
+                }
+            });
         });
 
         return errors;
@@ -358,12 +364,13 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 <table className="w-full text-sm border-collapse">
                                     <thead>
                                         <tr className="border-b-2 border-gray-300 dark:border-slate-600">
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">occurrenceID</th>
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventID</th>
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">scientificName</th>
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">eventDate</th>
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLatitude</th>
-                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white">decimalLongitude</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">occurrenceID</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">eventID</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">scientificName</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">eventDate</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">decimalLatitude</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">decimalLongitude</th>
+                                            <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">locality</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -422,6 +429,13 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         onChange={(e) => updateRecord(record.id, 'decimalLongitude', e.target.value)}
                                                         placeholder="[-180, 180]"
                                                         className={`text-gray-900 dark:text-white ${hasError(record.id, 'decimalLongitude') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <Input
+                                                        value={record.locality}
+                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white text-xs"
+                                                        readOnly
                                                     />
                                                 </td>
                                             </tr>
