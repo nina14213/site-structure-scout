@@ -1,4 +1,4 @@
-import { Cpu, Link, Package, Shield } from 'lucide-react';
+import { Cpu, Link, Package, Shield, Search } from 'lucide-react';
 import StageCard from './StageCard';
 
 const StagesSection = () => {
@@ -30,6 +30,13 @@ const StagesSection = () => {
       description: 'Przejdź finałową walidację GBIF i udowodnij swoje umiejętności!',
       icon: Shield,
       variant: 'orange' as const,
+    },
+    {
+      number: 5,
+      title: 'Species Matcher',
+      description: 'Dopasuj nazwy gatunków do oficjalnej taksonomii GBIF Backbone.',
+      icon: Search,
+      variant: 'green' as const,
     },
   ];
 

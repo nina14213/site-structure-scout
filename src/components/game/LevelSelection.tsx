@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Database, Package, Shield, Lock, CheckCircle } from 'lucide-react';
+import { Zap, Database, Package, Shield, Lock, CheckCircle, Search } from 'lucide-react';
 import { GameState } from '@/hooks/useGameProgress';
 
 interface LevelSelectionProps {
@@ -44,6 +44,14 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
             icon: Shield,
             gradient: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600',
             darkGradient: 'dark:from-red-600 dark:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700'
+        },
+        {
+            id: 5,
+            title: 'Species Matcher',
+            description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
+            icon: Search,
+            gradient: 'from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600',
+            darkGradient: 'dark:from-emerald-600 dark:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700'
         }
     ];
 
@@ -78,7 +86,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
                     </Card>
                     <Card className="bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
                         <CardContent className="pt-6 text-center">
-                            <div className="text-3xl font-bold text-gray-900 dark:text-white">{gameState?.levelsCompleted?.length || 0}/4</div>
+                            <div className="text-3xl font-bold text-gray-900 dark:text-white">{gameState?.levelsCompleted?.length || 0}/5</div>
                             <div className="text-sm text-gray-600 dark:text-slate-400">Poziomy</div>
                         </CardContent>
                     </Card>

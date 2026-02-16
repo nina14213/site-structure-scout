@@ -13,6 +13,7 @@ import {
     Link as LinkIcon,
     Package,
     Shield,
+    Search,
     Volume2,
     VolumeX,
     Sun,
@@ -55,6 +56,13 @@ const levels = [
     },
     {
         id: 5,
+        name: 'Species Matcher',
+        icon: Search,
+        color: 'from-emerald-500 to-teal-500',
+        description: 'Dopasuj nazwy do GBIF Backbone'
+    },
+    {
+        id: 6,
         name: 'Stwórz swoją Data Package',
         icon: Database,
         color: 'from-emerald-500 to-cyan-500',
@@ -196,7 +204,7 @@ export default function StartScreen({
 
                                 {/* Levels preview */}
                                 <div className="grid grid-cols-2 gap-3 pt-4">
-                                    {levels.filter(l => l.id <= 4).map((level, idx) => {
+                                    {levels.filter(l => l.id <= 5).map((level, idx) => {
                                         const unlocked = isLevelUnlocked ? isLevelUnlocked(level.id) : level.id === 1;
                                         const LevelIcon = level.icon;
                                         return (

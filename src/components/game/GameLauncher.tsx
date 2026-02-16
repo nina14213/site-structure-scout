@@ -6,6 +6,7 @@ import CoreBuilder from '@/components/game/CoreBuilder';
 import ExtensionLinker from '@/components/game/ExtensionLinker';
 import MetaGenerator from '@/components/game/MetaGenerator';
 import Validator from '@/components/game/Validator';
+import SpeciesMatcher from '@/components/game/SpeciesMatcher';
 import { GameState } from '@/hooks/useGameProgress';
 
 interface GameLauncherProps {
@@ -67,6 +68,12 @@ export default function GameLauncher({
             description: 'Przeprowadź walidację danych wg standardu GBIF',
             color: 'from-red-500 to-orange-500',
             component: Validator
+        },
+        5: {
+            title: 'Species Matcher',
+            description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
+            color: 'from-emerald-500 to-teal-500',
+            component: SpeciesMatcher
         }
     };
 

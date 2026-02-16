@@ -159,6 +159,44 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
             correctIndex: 2,
             explanation: "Pole 'license' zawiera URI licencji (np. CC0, CC-BY), na której udostępniane są dane."
         }
+    ],
+    5: [
+        {
+            id: 13,
+            question: "Co to jest GBIF Backbone Taxonomy?",
+            options: [
+                "Baza danych muzealnych okazów",
+                "Hierarchiczna klasyfikacja łącząca wszystkie nazwy gatunków w GBIF",
+                "System zarządzania kolekcjami",
+                "Format pliku do eksportu danych"
+            ],
+            correctIndex: 1,
+            explanation: "GBIF Backbone Taxonomy to ujednolicona hierarchiczna klasyfikacja łącząca ponad 2 miliony nazw gatunków z różnych źródeł."
+        },
+        {
+            id: 14,
+            question: "Co to jest synonim taksonomiczny?",
+            options: [
+                "Nazwa potoczna gatunku",
+                "Nazwa naukowa uznana za równoznaczną z inną, akceptowaną nazwą",
+                "Błąd w pisowni nazwy naukowej",
+                "Nazwa gatunku w innym języku"
+            ],
+            correctIndex: 1,
+            explanation: "Synonim taksonomiczny to nazwa, która odnosi się do tego samego taksonu co inna, akceptowana nazwa — np. Hirundo urbica to synonim Delichon urbicum."
+        },
+        {
+            id: 15,
+            question: "Jaki rank taksonomiczny jest najniższy w standardowej hierarchii?",
+            options: [
+                "Family (rodzina)",
+                "Genus (rodzaj)",
+                "Species (gatunek)",
+                "Order (rząd)"
+            ],
+            correctIndex: 2,
+            explanation: "Species (gatunek) to najniższy podstawowy rank w standardowej hierarchii taksonomicznej (Kingdom > Phylum > Class > Order > Family > Genus > Species)."
+        }
     ]
 };
 
