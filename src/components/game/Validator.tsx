@@ -35,9 +35,9 @@ interface DataRecord {
 // Sample data with intentional errors for user to fix
 const initialDataRecords: DataRecord[] = [
     { id: '1', occurrenceID: 'OCC001', eventID: 'EVT-001', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.4082', decimalLongitude: '16.9344', locality: 'Park Sołacki, Poznań' },
-    { id: '2', occurrenceID: 'OCC002', eventID: 'EVT-002', scientificName: 'Bożodrzew gruczołkowaty', eventDate: '25/10/2025', decimalLatitude: '52.3935', decimalLongitude: '-16.9187', locality: 'ul. Libelta, Poznań' }, // Wrong date format + negative longitude (should be positive for Poznań)
+    { id: '2', occurrenceID: 'OCC002', eventID: 'EVT-002', scientificName: 'Ailanthus altissima', eventDate: '25/10/2025', decimalLatitude: '52.3935', decimalLongitude: '-16.9187', locality: 'ul. Libelta, Poznań' }, // Wrong date format + negative longitude (should be positive for Poznań)
     { id: '3', occurrenceID: '', eventID: 'EVT-003', scientificName: 'Quercus robur', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' }, // Empty occurrenceID
-    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Dąb szypułkowy', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID
+    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Quercus robur', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID
     { id: '5', occurrenceID: 'OCC001', eventID: 'EVT-005', scientificName: 'Robinia pseudoacacia', eventDate: '2025-13-01', decimalLatitude: '52.3877', decimalLongitude: '16.9450', locality: 'Stary Rynek, Poznań' }, // Duplicate occurrenceID (OCC001) + invalid month 13
 ];
 
