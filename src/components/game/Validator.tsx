@@ -509,7 +509,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
                 {showTutorial && (
                     <TutorialModal
-                        levelNumber={4}
+                        levelNumber={5}
                         isOpen={showTutorial}
                         onClose={() => setShowTutorial(false)}
                     />
