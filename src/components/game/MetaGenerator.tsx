@@ -240,10 +240,10 @@ ${fieldsXml}
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
                                 <Package className="w-8 h-8 text-teal-400" />
-                                Mission 3: Package Seal
+                                Misja 3: Pakowanie Danych
                             </h1>
                             <p className="text-slate-400 mt-1">
-                                Generate meta.xml and datapackage.json, compress DwC Data Package
+                                Wygeneruj meta.xml i datapackage.json, skompresuj DwC Data Package
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -261,8 +261,8 @@ ${fieldsXml}
 
                     <Progress value={progress} className="h-3 bg-slate-700" />
                     <div className="flex justify-between text-sm mt-2 text-slate-400">
-                        <span>{Math.round(progress)}% complete</span>
-                        <span>{(generatedFiles.meta ? 1 : 0) + (generatedFiles.datapackage ? 1 : 0)}/2 files</span>
+                        <span>{Math.round(progress)}% ukończono</span>
+                        <span>{(generatedFiles.meta ? 1 : 0) + (generatedFiles.datapackage ? 1 : 0)}/2 pliki</span>
                     </div>
                 </motion.div>
 
@@ -272,20 +272,20 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileText className="w-5 h-5" />
-                                Project Note
+                                Opis Projektu
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div className="prose prose-sm prose-invert max-w-none">
-                                <h3 className="text-lg font-semibold text-white mb-2">Invasive species – Ailanthus altissima in Poznań</h3>
+                                <h3 className="text-lg font-semibold text-white mb-2">Gatunek inwazyjny – Ailanthus altissima w Poznaniu</h3>
                                 <p className="text-slate-300 text-sm leading-relaxed">
-                                    This is a collection of information gathered on the invasive species <em>Ailanthus altissima</em> (tree-of-heaven) in Poznań using the mobile application AMUnatcoll.
+                                    Zbiór informacji o inwazyjnym gatunku <em>Ailanthus altissima</em> (bożodrzew gruczołkowaty) w Poznaniu, zebranych za pomocą aplikacji mobilnej AMUnatcoll.
                                 </p>
                                 <p className="text-slate-300 text-sm leading-relaxed">
-                                    <em>Ailanthus altissima</em> is an alien invasive tree species originating from Southeast Asia, fast-growing (up to 20-30 m in height) and producing numerous root suckers as well as seeds.
+                                    <em>Ailanthus altissima</em> to obcy gatunek inwazyjny drzewa pochodzący z Azji Południowo-Wschodniej, szybko rosnący (do 20-30 m wysokości), produkujący liczne odrosty korzeniowe i nasiona.
                                 </p>
                                 <p className="text-slate-300 text-sm leading-relaxed">
-                                    In Poland and the EU, it is recognized as highly invasive, banned from cultivation since 2011, with an obligation to remove it.
+                                    W Polsce i UE jest uznawany za wysoce inwazyjny, zakazany do uprawy od 2011 roku, z obowiązkiem usuwania.
                                 </p>
                             </div>
                         </CardContent>
@@ -296,12 +296,12 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileCode className="w-5 h-5" />
-                                Dataset Metadata
+                                Metadane Zbioru
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="title" className="text-slate-300">Dataset Title</Label>
+                                <Label htmlFor="title" className="text-slate-300">Tytuł zbioru danych</Label>
                                 <Input
                                     id="title"
                                     value={metadata.title}
@@ -310,7 +310,7 @@ ${fieldsXml}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description" className="text-slate-300">Description</Label>
+                                <Label htmlFor="description" className="text-slate-300">Opis</Label>
                                 <Textarea
                                     id="description"
                                     value={metadata.description}
@@ -321,7 +321,7 @@ ${fieldsXml}
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="creator" className="text-slate-300">Author</Label>
+                                    <Label htmlFor="creator" className="text-slate-300">Autor</Label>
                                     <Input
                                         id="creator"
                                         value={metadata.creator}
@@ -330,13 +330,13 @@ ${fieldsXml}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="license" className="text-slate-300">License</Label>
+                                    <Label htmlFor="license" className="text-slate-300">Licencja</Label>
                                     <Select
                                         value={metadata.license}
                                         onValueChange={(value) => setMetadata(prev => ({ ...prev, license: value }))}
                                     >
                                         <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
-                                            <SelectValue placeholder="Select license" />
+                                            <SelectValue placeholder="Wybierz licencję" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="CC0 1.0">CC0 1.0 (Public Domain)</SelectItem>
@@ -474,7 +474,7 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileArchive className="w-5 h-5" />
-                                Archive Status
+                                Status Archiwum
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -483,14 +483,14 @@ ${fieldsXml}
                                     <Package className="w-6 h-6 text-teal-400" />
                                     <div>
                                         <p className="text-sm text-slate-400">meta.xml</p>
-                                        <p className="font-semibold text-white">{generatedFiles.meta ? '✓ Ready' : 'Generate'}</p>
+                                        <p className="font-semibold text-white">{generatedFiles.meta ? '✓ Gotowy' : 'Generuj'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-700/50">
                                     <FileCode className="w-6 h-6 text-purple-400" />
                                     <div>
                                         <p className="text-sm text-slate-400">datapackage.json</p>
-                                        <p className="font-semibold text-white">{generatedFiles.datapackage ? '✓ Ready' : 'Generate'}</p>
+                                        <p className="font-semibold text-white">{generatedFiles.datapackage ? '✓ Gotowy' : 'Generuj'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -503,7 +503,7 @@ ${fieldsXml}
                                 size="lg"
                             >
                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                {canComplete ? 'Complete Level' : 'Generate Files'}
+                                {canComplete ? 'Ukończ poziom' : 'Wygeneruj pliki'}
                             </Button>
                         </CardFooter>
                     </Card>
