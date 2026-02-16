@@ -125,44 +125,6 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
     4: [
         {
             id: 10,
-            question: "Co to jest Darwin Core Archive (DwC-A)?",
-            options: [
-                "Archiwum historyczne Darwina",
-                "Standardowy format pakowania danych biodiversity",
-                "Program komputerowy",
-                "Muzeum przyrodnicze"
-            ],
-            correctIndex: 1,
-            explanation: "DwC-A to standardowy format ZIP zawierający pliki CSV z danymi i metadane opisujące strukturę."
-        },
-        {
-            id: 11,
-            question: "Co oznacza pole 'taxonRank'?",
-            options: [
-                "Pozycja taksonu w rankingu popularności",
-                "Ranga taksonomiczna (np. gatunek, rodzaj, rodzina)",
-                "Numer katalogowy taksonu",
-                "Ocena jakości identyfikacji"
-            ],
-            correctIndex: 1,
-            explanation: "taxonRank określa rangę taksonomiczną, np. 'species', 'genus', 'family'."
-        },
-        {
-            id: 12,
-            question: "Jakie pole opisuje typ licencji danych w Darwin Core?",
-            options: [
-                "dataLicense",
-                "rights",
-                "license",
-                "copyrightHolder"
-            ],
-            correctIndex: 2,
-            explanation: "Pole 'license' zawiera URI licencji (np. CC0, CC-BY), na której udostępniane są dane."
-        }
-    ],
-    5: [
-        {
-            id: 13,
             question: "Co to jest GBIF Backbone Taxonomy?",
             options: [
                 "Baza danych muzealnych okazów",
@@ -174,7 +136,7 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
             explanation: "GBIF Backbone Taxonomy to ujednolicona hierarchiczna klasyfikacja łącząca ponad 2 miliony nazw gatunków z różnych źródeł."
         },
         {
-            id: 14,
+            id: 11,
             question: "Co to jest synonim taksonomiczny?",
             options: [
                 "Nazwa potoczna gatunku",
@@ -186,7 +148,7 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
             explanation: "Synonim taksonomiczny to nazwa, która odnosi się do tego samego taksonu co inna, akceptowana nazwa — np. Hirundo urbica to synonim Delichon urbicum."
         },
         {
-            id: 15,
+            id: 12,
             question: "Jaka kategoria taksonomiczna jest najniższa w standardowej hierarchii?",
             options: [
                 "Family (rodzina)",
@@ -195,7 +157,45 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
                 "Order (rząd)"
             ],
             correctIndex: 2,
-            explanation: "Species (gatunek) to najniższy podstawowy rank w standardowej hierarchii taksonomicznej (Kingdom > Phylum > Class > Order > Family > Genus > Species)."
+            explanation: "Species (gatunek) to najniższa podstawowa kategoria w standardowej hierarchii taksonomicznej (Kingdom > Phylum > Class > Order > Family > Genus > Species)."
+        }
+    ],
+    5: [
+        {
+            id: 13,
+            question: "Co to jest Darwin Core Archive (DwC-A)?",
+            options: [
+                "Archiwum historyczne Darwina",
+                "Standardowy format pakowania danych biodiversity",
+                "Program komputerowy",
+                "Muzeum przyrodnicze"
+            ],
+            correctIndex: 1,
+            explanation: "DwC-A to standardowy format ZIP zawierający pliki CSV z danymi i metadane opisujące strukturę."
+        },
+        {
+            id: 14,
+            question: "Co oznacza pole 'taxonRank'?",
+            options: [
+                "Pozycja taksonu w rankingu popularności",
+                "Ranga taksonomiczna (np. gatunek, rodzaj, rodzina)",
+                "Numer katalogowy taksonu",
+                "Ocena jakości identyfikacji"
+            ],
+            correctIndex: 1,
+            explanation: "taxonRank określa rangę taksonomiczną, np. 'species', 'genus', 'family'."
+        },
+        {
+            id: 15,
+            question: "Jakie pole opisuje typ licencji danych w Darwin Core?",
+            options: [
+                "dataLicense",
+                "rights",
+                "license",
+                "copyrightHolder"
+            ],
+            correctIndex: 2,
+            explanation: "Pole 'license' zawiera URI licencji (np. CC0, CC-BY), na której udostępniane są dane."
         }
     ]
 };

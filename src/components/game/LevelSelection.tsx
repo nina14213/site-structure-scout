@@ -39,19 +39,19 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 4,
-            title: 'BOSS: Chaos Validator',
-            description: 'Przeprowadź walidację danych wg standardu GBIF',
-            icon: Shield,
-            gradient: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600',
-            darkGradient: 'dark:from-red-600 dark:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700'
-        },
-        {
-            id: 5,
             title: 'Species Matcher',
             description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
             icon: Search,
             gradient: 'from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600',
             darkGradient: 'dark:from-emerald-600 dark:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700'
+        },
+        {
+            id: 5,
+            title: 'BOSS: Chaos Validator',
+            description: 'Przeprowadź walidację danych wg standardu GBIF',
+            icon: Shield,
+            gradient: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600',
+            darkGradient: 'dark:from-red-600 dark:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700'
         }
     ];
 

@@ -49,17 +49,17 @@ const levels = [
     },
     {
         id: 4,
-        name: 'BOSS: Validate',
-        icon: Shield,
-        color: 'from-red-500 to-orange-500',
-        description: 'Przejdź walidację GBIF'
-    },
-    {
-        id: 5,
         name: 'Species Matcher',
         icon: Search,
         color: 'from-emerald-500 to-teal-500',
         description: 'Dopasuj nazwy do GBIF Backbone'
+    },
+    {
+        id: 5,
+        name: 'BOSS: Validate',
+        icon: Shield,
+        color: 'from-red-500 to-orange-500',
+        description: 'Finałowa walidacja GBIF'
     },
     {
         id: 6,
