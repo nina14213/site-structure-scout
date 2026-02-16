@@ -725,7 +725,7 @@ export default function EscapeRoom({
                 <Card className="mt-3 bg-amber-950/30 border-amber-800/40 backdrop-blur rounded-xl overflow-hidden">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-amber-200 text-sm flex items-center gap-2">
-                      📋 Notatki Terenowe — Ailanthus altissima (Łódź, 2025)
+                      📋 Notatki Terenowe — Ailanthus altissima (Poznań, 2025)
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
