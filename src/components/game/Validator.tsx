@@ -360,8 +360,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                     Pola z błędami są zaznaczone na czerwono. Popraw je i uruchom walidację ponownie.
                                 </AlertDescription>
                             </Alert>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm border-collapse">
+                            <div className="overflow-x-auto max-h-[400px] overflow-y-auto border border-gray-200 dark:border-slate-600 rounded-lg">
+                                <table className="w-full text-sm border-collapse min-w-[900px]">
                                     <thead>
                                         <tr className="border-b-2 border-gray-300 dark:border-slate-600">
                                             <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">occurrenceID</th>
