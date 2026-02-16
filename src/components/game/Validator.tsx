@@ -357,7 +357,9 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                             <Alert className="mb-4 bg-orange-50 border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/30">
                                 <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                 <AlertDescription className="text-orange-800 dark:text-orange-300">
-                                    Pola z błędami są zaznaczone na czerwono. Popraw je i uruchom walidację ponownie.
+                                    {errorDetails.length > 0
+                                        ? 'Pola z błędami są zaznaczone na czerwono. Popraw je i uruchom walidację ponownie.'
+                                        : 'Przejrzyj dane i popraw błędy przed uruchomieniem walidacji. Puste pola i nieprawidłowe wartości zostaną wykryte.'}
                                 </AlertDescription>
                             </Alert>
                             <div className="overflow-x-auto max-h-[400px] overflow-y-auto border border-gray-200 dark:border-slate-600 rounded-lg">
