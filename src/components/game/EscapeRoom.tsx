@@ -61,6 +61,28 @@ const puzzles: Puzzle[] = [
   },
   {
     id: 3,
+    title: "Zagadka Współrzędnych",
+    description: "📍 Obserwacja w Parku M. Skłodowskiej-Curie została wykonana pod współrzędnymi 51.7461°N, 19.4536°E. W standardzie Darwin Core pole 'decimalLatitude' przechowuje szerokość geograficzną. Jaka jest wartość decimalLatitude tej obserwacji? (podaj z 4 miejscami po przecinku)",
+    hint: "Szerokość geograficzna (latitude) to wartość N/S. Szukaj liczby przy oznaczeniu °N.",
+    clue: "Odpowiedź to liczba z 4 miejscami po przecinku, zaczynająca się od 51...",
+    answer: "51.7461",
+    unlocked: false,
+    solved: false,
+    category: "eventID",
+  },
+  {
+    id: 4,
+    title: "Zagadka Daty",
+    description: "📅 Obserwacja w Lesie Dębina odbyła się 25 października 2025 roku. W standardzie Darwin Core daty zapisuje się w formacie ISO 8601. Jak prawidłowo zapisać tę datę w polu 'eventDate'?",
+    hint: "Format ISO 8601 to: RRRR-MM-DD, gdzie RRRR to rok, MM to miesiąc, DD to dzień.",
+    clue: "Odpowiedź ma format: 2025-XX-XX. Październik to miesiąc numer 10.",
+    answer: "2025-10-25",
+    unlocked: false,
+    solved: false,
+    category: "eventID",
+  },
+  {
+    id: 5,
     title: "Zagadka Obserwatora",
     description: "Rozszyfruj zakodowane nazwisko używając szyfru Cezara z przesunięciem 1 (każda litera zamieniona na poprzednią w alfabecie): 'K. Lpxbmtlj'. Kto wykonał obserwację?",
     hint: "Przesunięcie 1 oznacza: K→J, L→K, p→o, x→w, b→a, m→l, t→s, l→k, j→i",
@@ -71,7 +93,18 @@ const puzzles: Puzzle[] = [
     category: "recordedBy",
   },
   {
-    id: 4,
+    id: 6,
+    title: "Zagadka Hemisfer",
+    description: "🧭 Obserwacja w Parku Jana Pawła II ma współrzędne 51.7523°N, 19.4287°E. W polu 'decimalLongitude' zapisujemy długość geograficzną. Podaj wartość decimalLongitude (z 4 miejscami po przecinku).",
+    hint: "Długość geograficzna (longitude) to wartość E/W. Szukaj liczby przy oznaczeniu °E.",
+    clue: "Odpowiedź to liczba zaczynająca się od 19...",
+    answer: "19.4287",
+    unlocked: false,
+    solved: false,
+    category: "eventID",
+  },
+  {
+    id: 7,
     title: "Zagadka Ilości",
     description: "Przejrzyj wszystkie notatki terenowe. Przy każdej obserwacji Ailanthus altissima w polu 'Quantity' podano liczbę osobników. Jaka wartość pojawia się we WSZYSTKICH wpisach?",
     hint: "Sprawdź wpisy: Las Dębina, Park M. Skłodowskiej-Curie, Park Jana Pawła II, Park ul. Powstańców Wlkp.",
@@ -80,6 +113,17 @@ const puzzles: Puzzle[] = [
     unlocked: false,
     solved: false,
     category: "quantity",
+  },
+  {
+    id: 8,
+    title: "Zagadka Geodezyjna",
+    description: "🌍 Wszystkie obserwacje wykonano w Polsce. W standardzie Darwin Core pole 'geodeticDatum' określa układ odniesienia współrzędnych. Jaki jest najczęściej stosowany globalny układ odniesienia GPS? (podaj skrót)",
+    hint: "To światowy system geodezyjny używany przez odbiorniki GPS na całym świecie, ustanowiony w 1984 roku.",
+    clue: "Skrót składa się z 5 znaków: 3 litery + 2 cyfry.",
+    answer: "WGS84",
+    unlocked: false,
+    solved: false,
+    category: "eventID",
   },
 ];
 
@@ -454,18 +498,22 @@ export default function EscapeRoom({
               <div className="bg-slate-800/50 p-3 rounded-lg">
                 <p className="text-amber-300 font-medium">Event 3431 - Las Dębina</p>
                 <p className="text-slate-400">K. Słupecka, 25.10.2025, 1 osobnik</p>
+                <p className="text-slate-500 text-xs">📍 51.7389°N, 19.4612°E</p>
               </div>
               <div className="bg-slate-800/50 p-3 rounded-lg">
                 <p className="text-amber-300 font-medium">Event 3432 - Park M. Skłodowskiej-Curie</p>
                 <p className="text-slate-400">M. Kowalski, 23.05.2025, 1 osobnik</p>
+                <p className="text-slate-500 text-xs">📍 51.7461°N, 19.4536°E</p>
               </div>
               <div className="bg-slate-800/50 p-3 rounded-lg">
                 <p className="text-amber-300 font-medium">Event 3433 - Park Jana Pawła II</p>
                 <p className="text-slate-400">K. Słupecka, 25.10.2025, 1 osobnik</p>
+                <p className="text-slate-500 text-xs">📍 51.7523°N, 19.4287°E</p>
               </div>
               <div className="bg-slate-800/50 p-3 rounded-lg">
                 <p className="text-amber-300 font-medium">Event 3434 - Park ul. Powstańców Wlkp.</p>
                 <p className="text-slate-400">M. Kowalski, 23.05.2025, 1 osobnik</p>
+                <p className="text-slate-500 text-xs">📍 51.7502°N, 19.4401°E</p>
               </div>
             </div>
           </CardContent>
