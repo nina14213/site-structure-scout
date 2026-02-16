@@ -21,6 +21,16 @@ import {
   ArrowRight,
   RotateCcw,
   Sparkles,
+  MapPin,
+  Calendar,
+  User,
+  Hash,
+  Globe,
+  Search,
+  Compass,
+  Star,
+  Zap,
+  Shield,
 } from "lucide-react";
 import { GameState } from "@/hooks/useGameProgress";
 
@@ -33,8 +43,30 @@ interface Puzzle {
   answer: string;
   unlocked: boolean;
   solved: boolean;
-  category: "eventID" | "scientificName" | "recordedBy" | "quantity";
+  category: "eventID" | "scientificName" | "recordedBy" | "quantity" | "coordinates" | "date" | "geodetic";
+  difficulty: 1 | 2 | 3;
+  icon: string;
 }
+
+const categoryConfig: Record<string, { color: string; bgColor: string; borderColor: string; glowColor: string; label: string }> = {
+  eventID: { color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", glowColor: "shadow-amber-500/20", label: "Identyfikacja" },
+  scientificName: { color: "text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/30", glowColor: "shadow-emerald-500/20", label: "Taksonomia" },
+  recordedBy: { color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", glowColor: "shadow-blue-500/20", label: "Obserwator" },
+  quantity: { color: "text-pink-400", bgColor: "bg-pink-500/10", borderColor: "border-pink-500/30", glowColor: "shadow-pink-500/20", label: "Zliczanie" },
+  coordinates: { color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/30", glowColor: "shadow-cyan-500/20", label: "Współrzędne" },
+  date: { color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/30", glowColor: "shadow-violet-500/20", label: "Data" },
+  geodetic: { color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", glowColor: "shadow-orange-500/20", label: "Geodezja" },
+};
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  eventID: <Hash className="w-5 h-5" />,
+  scientificName: <Search className="w-5 h-5" />,
+  recordedBy: <User className="w-5 h-5" />,
+  quantity: <Star className="w-5 h-5" />,
+  coordinates: <MapPin className="w-5 h-5" />,
+  date: <Calendar className="w-5 h-5" />,
+  geodetic: <Globe className="w-5 h-5" />,
+};
 
 const puzzles: Puzzle[] = [
   {
@@ -47,6 +79,8 @@ const puzzles: Puzzle[] = [
     unlocked: true,
     solved: false,
     category: "eventID",
+    difficulty: 1,
+    icon: "🔍",
   },
   {
     id: 2,
@@ -58,6 +92,8 @@ const puzzles: Puzzle[] = [
     unlocked: false,
     solved: false,
     category: "scientificName",
+    difficulty: 3,
+    icon: "🧬",
   },
   {
     id: 3,
@@ -68,7 +104,9 @@ const puzzles: Puzzle[] = [
     answer: "51.7461",
     unlocked: false,
     solved: false,
-    category: "eventID",
+    category: "coordinates",
+    difficulty: 2,
+    icon: "📍",
   },
   {
     id: 4,
@@ -79,7 +117,9 @@ const puzzles: Puzzle[] = [
     answer: "2025-10-25",
     unlocked: false,
     solved: false,
-    category: "eventID",
+    category: "date",
+    difficulty: 1,
+    icon: "📅",
   },
   {
     id: 5,
@@ -91,6 +131,8 @@ const puzzles: Puzzle[] = [
     unlocked: false,
     solved: false,
     category: "recordedBy",
+    difficulty: 2,
+    icon: "🕵️",
   },
   {
     id: 6,
@@ -101,7 +143,9 @@ const puzzles: Puzzle[] = [
     answer: "19.4287",
     unlocked: false,
     solved: false,
-    category: "eventID",
+    category: "coordinates",
+    difficulty: 2,
+    icon: "🧭",
   },
   {
     id: 7,
@@ -113,6 +157,8 @@ const puzzles: Puzzle[] = [
     unlocked: false,
     solved: false,
     category: "quantity",
+    difficulty: 1,
+    icon: "🔢",
   },
   {
     id: 8,
@@ -123,9 +169,26 @@ const puzzles: Puzzle[] = [
     answer: "WGS84",
     unlocked: false,
     solved: false,
-    category: "eventID",
+    category: "geodetic",
+    difficulty: 3,
+    icon: "🌍",
   },
 ];
+
+// Floating particle component
+const FloatingParticle = ({ delay, duration, x, y, size }: { delay: number; duration: number; x: string; y: string; size: number }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{
+      opacity: [0, 0.6, 0],
+      scale: [0, 1, 0],
+      y: [0, -60, -120],
+    }}
+    transition={{ duration, delay, repeat: Infinity, ease: "easeOut" }}
+    className="absolute rounded-full bg-amber-400/30 blur-sm pointer-events-none"
+    style={{ left: x, top: y, width: size, height: size }}
+  />
+);
 
 interface EscapeRoomProps {
   onComplete?: (score: number, data: unknown) => void;
@@ -157,6 +220,7 @@ export default function EscapeRoom({
   const [score, setScore] = useState(0);
   const [showUnlockAnimation, setShowUnlockAnimation] = useState(false);
   const [unlockedPuzzleId, setUnlockedPuzzleId] = useState<number | null>(null);
+  const [showFieldNotes, setShowFieldNotes] = useState(false);
 
   // Timer
   useEffect(() => {
@@ -201,7 +265,6 @@ export default function EscapeRoom({
 
       const allSolved = puzzleState.filter((p) => p.solved).length === puzzleState.length - 1;
       
-      // Delay progression to show unlock animation
       setTimeout(() => {
         setShowUnlockAnimation(false);
         setUnlockedPuzzleId(null);
@@ -248,30 +311,69 @@ export default function EscapeRoom({
     onComplete?.(score, { mode: "escapeRoom", puzzlesSolved: solvedCount });
   };
 
+  const DifficultyStars = ({ level }: { level: number }) => (
+    <div className="flex gap-0.5">
+      {[1, 2, 3].map((i) => (
+        <Star
+          key={i}
+          className={`w-3 h-3 ${i <= level ? "text-amber-400 fill-amber-400" : "text-slate-600"}`}
+        />
+      ))}
+    </div>
+  );
+
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-slate-900 to-purple-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-slate-900 to-purple-900 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Celebration particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 0, x: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              y: [0, -200 - Math.random() * 300],
+              x: [0, (Math.random() - 0.5) * 400],
+            }}
+            transition={{ duration: 2 + Math.random() * 2, delay: Math.random() * 2, repeat: Infinity }}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: 4 + Math.random() * 8,
+              height: 4 + Math.random() * 8,
+              left: `${Math.random() * 100}%`,
+              bottom: 0,
+              background: ['#fbbf24', '#34d399', '#a78bfa', '#f472b6', '#22d3ee'][Math.floor(Math.random() * 5)],
+            }}
+          />
+        ))}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="text-center"
+          className="text-center z-10"
         >
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             className="inline-block mb-6"
           >
-            <Trophy className="w-24 h-24 text-yellow-400" />
+            <Trophy className="w-24 h-24 text-yellow-400 drop-shadow-[0_0_30px_rgba(250,204,21,0.5)]" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-white mb-4">🎉 Escape Room Ukończony!</h1>
+          <h1 className="text-4xl font-bold text-white mb-4 font-display">🎉 Escape Room Ukończony!</h1>
           <p className="text-emerald-300 text-xl mb-2">Rozwiązałeś wszystkie zagadki!</p>
-          <p className="text-white text-3xl font-mono mb-8">{score} punktów</p>
+          <motion.p
+            initial={{ scale: 0.5 }}
+            animate={{ scale: [0.5, 1.2, 1] }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-white text-5xl font-mono font-bold mb-8 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]"
+          >
+            {score} pts
+          </motion.p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={handleComplete} size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={handleComplete} size="lg" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30">
               <CheckCircle className="w-5 h-5 mr-2" />
               Zakończ Misję
             </Button>
-            <Button onClick={handleReset} variant="outline" size="lg">
+            <Button onClick={handleReset} variant="outline" size="lg" className="border-slate-500 hover:border-white">
               <RotateCcw className="w-5 h-5 mr-2" />
               Zagraj Ponownie
             </Button>
@@ -282,124 +384,204 @@ export default function EscapeRoom({
   }
 
   const currentPuzzleData = puzzleState[currentPuzzle];
+  const catConfig = categoryConfig[currentPuzzleData.category];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 p-4 md:p-6 relative overflow-hidden">
+      {/* Animated background particles */}
+      {[...Array(12)].map((_, i) => (
+        <FloatingParticle
+          key={i}
+          delay={i * 1.5}
+          duration={4 + Math.random() * 3}
+          x={`${10 + Math.random() * 80}%`}
+          y={`${30 + Math.random() * 60}%`}
+          size={3 + Math.random() * 5}
+        />
+      ))}
+
+      {/* Subtle grid overlay */}
+      <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <Key className="w-8 h-8 text-amber-400" />
+              <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 font-display">
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Key className="w-8 h-8 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                </motion.div>
                 🔐 Escape Room Danych
               </h1>
               <p className="text-slate-400 mt-1">
                 Rozwiąż zagadki, aby odblokować sekrety Darwin Core
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button onClick={onBack} variant="ghost" className="text-slate-400 hover:text-white">
                 ← Powrót
               </Button>
-              <div
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+              <motion.div
+                animate={timeLeft < 60 ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.5, repeat: Infinity }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
                   timeLeft < 60
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-slate-800 text-slate-300"
+                    ? "bg-red-500/20 text-red-400 border-red-500/50"
+                    : timeLeft < 180
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    : "bg-slate-800/80 text-slate-300 border-slate-600"
                 }`}
               >
                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? "animate-pulse" : ""}`} />
-                <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+                <span className="font-mono text-lg font-bold">{formatTime(timeLeft)}</span>
+              </motion.div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span className="font-mono text-lg font-bold text-amber-400">{score}</span>
               </div>
-              <Badge variant="outline" className="text-lg px-4 py-2 border-amber-500 text-amber-400">
-                {score} pts
-              </Badge>
             </div>
           </div>
 
-          <Progress value={progress} className="h-3 bg-slate-700" />
+          {/* Progress bar with glow */}
+          <div className="relative">
+            <Progress value={progress} className="h-3 bg-slate-700/50" />
+            {progress > 0 && (
+              <motion.div
+                className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-amber-500 to-emerald-500"
+                style={{ width: `${progress}%` }}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            )}
+          </div>
           <div className="flex justify-between text-sm mt-2 text-slate-400">
-            <span>{solvedCount}/{puzzleState.length} zagadek rozwiązanych</span>
-            <span>{attempts} prób w tej zagadce</span>
+            <span className="flex items-center gap-1">
+              <Shield className="w-3 h-3" />
+              {solvedCount}/{puzzleState.length} zagadek rozwiązanych
+            </span>
+            <span>{attempts > 0 ? `${attempts} prób w tej zagadce` : "Gotowy na rozwiązanie!"}</span>
           </div>
         </motion.div>
 
-        {/* Puzzle Progress */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {puzzleState.map((puzzle, idx) => (
-            <motion.button
-              key={puzzle.id}
-              onClick={() => puzzle.unlocked && !puzzle.solved && setCurrentPuzzle(idx)}
-              disabled={!puzzle.unlocked || puzzle.solved}
-              whileHover={puzzle.unlocked && !puzzle.solved ? { scale: 1.05 } : {}}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all min-w-fit ${
-                puzzle.solved
-                  ? "bg-emerald-500/20 border border-emerald-500 text-emerald-400"
-                  : puzzle.unlocked
-                  ? idx === currentPuzzle
-                    ? "bg-amber-500/20 border-2 border-amber-500 text-amber-400"
-                    : "bg-slate-800 border border-slate-600 text-slate-300 hover:border-amber-500/50"
-                  : "bg-slate-800/50 border border-slate-700 text-slate-600"
-              }`}
-            >
-              {puzzle.solved ? (
-                <Unlock className="w-4 h-4" />
-              ) : puzzle.unlocked ? (
-                <Key className="w-4 h-4" />
-              ) : (
-                <Lock className="w-4 h-4" />
-              )}
-              <span className="text-sm font-medium">Zagadka {puzzle.id}</span>
-            </motion.button>
-          ))}
+        {/* Puzzle Progress — visual timeline */}
+        <div className="flex gap-1.5 mb-6 overflow-x-auto pb-2">
+          {puzzleState.map((puzzle, idx) => {
+            const pCat = categoryConfig[puzzle.category];
+            return (
+              <motion.button
+                key={puzzle.id}
+                onClick={() => puzzle.unlocked && !puzzle.solved && setCurrentPuzzle(idx)}
+                disabled={!puzzle.unlocked || puzzle.solved}
+                whileHover={puzzle.unlocked && !puzzle.solved ? { scale: 1.08, y: -2 } : {}}
+                whileTap={puzzle.unlocked && !puzzle.solved ? { scale: 0.95 } : {}}
+                className={`relative flex flex-col items-center gap-1 px-3 py-2.5 rounded-xl transition-all min-w-[72px] ${
+                  puzzle.solved
+                    ? "bg-emerald-500/20 border-2 border-emerald-500/60"
+                    : puzzle.unlocked
+                    ? idx === currentPuzzle
+                      ? `${pCat.bgColor} border-2 ${pCat.borderColor} shadow-lg ${pCat.glowColor}`
+                      : "bg-slate-800/60 border border-slate-600 hover:border-amber-500/50"
+                    : "bg-slate-800/30 border border-slate-700/50"
+                }`}
+              >
+                <span className="text-lg">
+                  {puzzle.solved ? "✅" : puzzle.unlocked ? puzzle.icon : "🔒"}
+                </span>
+                <span className={`text-[10px] font-bold ${
+                  puzzle.solved ? "text-emerald-400" : puzzle.unlocked ? pCat.color : "text-slate-600"
+                }`}>
+                  {puzzle.id}
+                </span>
+                {/* Connector line */}
+                {idx < puzzleState.length - 1 && (
+                  <div className={`absolute -right-1 top-1/2 w-1.5 h-0.5 ${
+                    puzzle.solved ? "bg-emerald-500" : "bg-slate-700"
+                  }`} />
+                )}
+              </motion.button>
+            );
+          })}
         </div>
 
         {/* Current Puzzle */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPuzzle}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: 50, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -50, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
           >
-            <Card className={`bg-slate-800/80 border-slate-700 backdrop-blur ${shake ? "animate-shake" : ""}`}>
-              <CardHeader>
+            <Card className={`bg-slate-800/80 border-slate-700 backdrop-blur-lg overflow-hidden ${shake ? "animate-shake" : ""}`}>
+              {/* Colored top accent bar */}
+              <div className={`h-1 w-full bg-gradient-to-r ${
+                currentPuzzleData.category === "eventID" ? "from-amber-500 to-yellow-400" :
+                currentPuzzleData.category === "scientificName" ? "from-emerald-500 to-green-400" :
+                currentPuzzleData.category === "recordedBy" ? "from-blue-500 to-cyan-400" :
+                currentPuzzleData.category === "quantity" ? "from-pink-500 to-rose-400" :
+                currentPuzzleData.category === "coordinates" ? "from-cyan-500 to-teal-400" :
+                currentPuzzleData.category === "date" ? "from-violet-500 to-purple-400" :
+                "from-orange-500 to-amber-400"
+              }`} />
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-amber-400" />
-                    {currentPuzzleData.title}
+                    <span className="text-2xl">{currentPuzzleData.icon}</span>
+                    <div>
+                      <div className="text-lg">{currentPuzzleData.title}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <DifficultyStars level={currentPuzzleData.difficulty} />
+                        <span className="text-xs text-slate-500">
+                          {currentPuzzleData.difficulty === 1 ? "Łatwe" : currentPuzzleData.difficulty === 2 ? "Średnie" : "Trudne"}
+                        </span>
+                      </div>
+                    </div>
                   </CardTitle>
-                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500">
-                    {currentPuzzleData.category}
+                  <Badge className={`${catConfig.bgColor} ${catConfig.color} ${catConfig.borderColor} border flex items-center gap-1.5`}>
+                    {categoryIcons[currentPuzzleData.category]}
+                    {catConfig.label}
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-5">
                 {/* Puzzle Description */}
-                <div className="bg-slate-900/50 rounded-lg p-6 border border-slate-600">
-                  <p className="text-slate-200 text-lg leading-relaxed">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className={`rounded-xl p-5 border ${catConfig.borderColor} ${catConfig.bgColor}`}
+                >
+                  <p className="text-slate-200 text-base leading-relaxed">
                     {currentPuzzleData.description}
                   </p>
-                </div>
+                </motion.div>
 
                 {/* Hint & Clue Buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <Button
                     onClick={() => setShowHint(!showHint)}
                     variant="outline"
-                    className={`flex-1 ${showHint ? "border-yellow-500 text-yellow-400" : "border-slate-600 text-slate-400"}`}
+                    size="sm"
+                    className={`flex-1 rounded-xl transition-all ${showHint ? "border-yellow-500 text-yellow-400 bg-yellow-500/10" : "border-slate-600 text-slate-400 hover:border-yellow-500/50"}`}
                   >
                     {showHint ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                    {showHint ? "Ukryj Podpowiedź" : "Pokaż Podpowiedź"} (-25 pts)
+                    {showHint ? "Ukryj" : "Podpowiedź"} 
+                    <span className="ml-1 text-xs opacity-60">-25</span>
                   </Button>
                   <Button
                     onClick={() => setShowClue(!showClue)}
                     variant="outline"
-                    className={`flex-1 ${showClue ? "border-amber-500 text-amber-400" : "border-slate-600 text-slate-400"}`}
+                    size="sm"
+                    className={`flex-1 rounded-xl transition-all ${showClue ? "border-amber-500 text-amber-400 bg-amber-500/10" : "border-slate-600 text-slate-400 hover:border-amber-500/50"}`}
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    {showClue ? "Ukryj Wskazówkę" : "Pokaż Wskazówkę"} (-25 pts)
+                    {showClue ? "Ukryj" : "Wskazówka"}
+                    <span className="ml-1 text-xs opacity-60">-25</span>
                   </Button>
                 </div>
 
@@ -411,7 +593,7 @@ export default function EscapeRoom({
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                     >
-                      <Alert className="bg-yellow-500/10 border-yellow-500/30">
+                      <Alert className="bg-yellow-500/10 border-yellow-500/30 rounded-xl">
                         <Lightbulb className="w-4 h-4 text-yellow-400" />
                         <AlertDescription className="text-yellow-300">
                           {currentPuzzleData.hint}
@@ -429,7 +611,7 @@ export default function EscapeRoom({
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                     >
-                      <Alert className="bg-amber-500/10 border-amber-500/30">
+                      <Alert className="bg-amber-500/10 border-amber-500/30 rounded-xl">
                         <Key className="w-4 h-4 text-amber-400" />
                         <AlertDescription className="text-amber-300">
                           {currentPuzzleData.clue}
@@ -440,21 +622,35 @@ export default function EscapeRoom({
                 </AnimatePresence>
 
                 {/* Answer Input */}
-                <div className="space-y-4">
-                  <label className="text-slate-300 font-medium">Twoja odpowiedź:</label>
-                  <div className="flex gap-4">
-                    <Input
-                      value={userAnswer}
-                      onChange={(e) => setUserAnswer(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                      placeholder="Wpisz rozwiązanie..."
-                      className="flex-1 h-12 bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 text-lg"
-                    />
+                <div className="space-y-3">
+                  <label className="text-slate-300 font-medium flex items-center gap-2">
+                    <ArrowRight className="w-4 h-4 text-amber-400" />
+                    Twoja odpowiedź:
+                  </label>
+                  <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <Input
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                        placeholder="Wpisz rozwiązanie..."
+                        className="h-12 bg-slate-900/80 border-slate-600 text-white placeholder:text-slate-500 text-lg rounded-xl pr-12 focus:border-amber-500 focus:ring-amber-500/20"
+                      />
+                      {userAnswer && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          <Sparkles className="w-4 h-4 text-amber-400/50" />
+                        </motion.div>
+                      )}
+                    </div>
                     <Button
                       onClick={handleSubmit}
                       disabled={!userAnswer.trim()}
                       size="lg"
-                      className="bg-amber-600 hover:bg-amber-700 px-8"
+                      className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 rounded-xl px-8 shadow-lg shadow-amber-500/20 disabled:opacity-30"
                     >
                       <ArrowRight className="w-5 h-5" />
                     </Button>
@@ -462,62 +658,115 @@ export default function EscapeRoom({
                 </div>
 
                 {/* Attempts Warning */}
-                {attempts >= 3 && (
-                  <Alert className="bg-red-500/10 border-red-500/30">
-                    <Skull className="w-4 h-4 text-red-400" />
-                    <AlertDescription className="text-red-300">
-                      Już {attempts} nieudanych prób! Rozważ użycie podpowiedzi.
-                    </AlertDescription>
-                  </Alert>
-                )}
+                <AnimatePresence>
+                  {attempts >= 3 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <Alert className="bg-red-500/10 border-red-500/30 rounded-xl">
+                        <Skull className="w-4 h-4 text-red-400" />
+                        <AlertDescription className="text-red-300">
+                          Już {attempts} nieudanych prób! Rozważ użycie podpowiedzi. 💀
+                        </AlertDescription>
+                      </Alert>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </CardContent>
-              <CardFooter className="flex justify-between items-center border-t border-slate-700 pt-4">
-                <span className="text-slate-400 text-sm">
+              <CardFooter className="flex justify-between items-center border-t border-slate-700/50 pt-4">
+                <span className="text-slate-500 text-xs">
                   Każda błędna próba: -10 pts
                 </span>
-                <div className="flex items-center gap-2 text-slate-400">
-                  <span>Potencjalne punkty:</span>
-                  <span className="font-mono text-amber-400">
-                    {Math.max(10, 100 - (showHint ? 25 : 0) - (showClue ? 25 : 0) - attempts * 10)}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 text-xs">Potencjalne:</span>
+                  <motion.span
+                    key={`${showHint}-${showClue}-${attempts}`}
+                    initial={{ scale: 1.3, color: "#f59e0b" }}
+                    animate={{ scale: 1, color: "#d4d4d8" }}
+                    className="font-mono font-bold text-sm"
+                  >
+                    {Math.max(10, 100 - (showHint ? 25 : 0) - (showClue ? 25 : 0) - attempts * 10)} pts
+                  </motion.span>
                 </div>
               </CardFooter>
             </Card>
           </motion.div>
         </AnimatePresence>
 
-        {/* Field Notes Reference */}
-        <Card className="mt-6 bg-amber-900/20 border-amber-700 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="text-amber-200 text-sm flex items-center gap-2">
-              📋 Notatki Terenowe (Podręczna Ściąga)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-slate-800/50 p-3 rounded-lg">
-                <p className="text-amber-300 font-medium">Event 3431 - Las Dębina</p>
-                <p className="text-slate-400">K. Słupecka, 25.10.2025, 1 osobnik</p>
-                <p className="text-slate-500 text-xs">📍 51.7389°N, 19.4612°E</p>
-              </div>
-              <div className="bg-slate-800/50 p-3 rounded-lg">
-                <p className="text-amber-300 font-medium">Event 3432 - Park M. Skłodowskiej-Curie</p>
-                <p className="text-slate-400">M. Kowalski, 23.05.2025, 1 osobnik</p>
-                <p className="text-slate-500 text-xs">📍 51.7461°N, 19.4536°E</p>
-              </div>
-              <div className="bg-slate-800/50 p-3 rounded-lg">
-                <p className="text-amber-300 font-medium">Event 3433 - Park Jana Pawła II</p>
-                <p className="text-slate-400">K. Słupecka, 25.10.2025, 1 osobnik</p>
-                <p className="text-slate-500 text-xs">📍 51.7523°N, 19.4287°E</p>
-              </div>
-              <div className="bg-slate-800/50 p-3 rounded-lg">
-                <p className="text-amber-300 font-medium">Event 3434 - Park ul. Powstańców Wlkp.</p>
-                <p className="text-slate-400">M. Kowalski, 23.05.2025, 1 osobnik</p>
-                <p className="text-slate-500 text-xs">📍 51.7502°N, 19.4401°E</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Field Notes Toggle */}
+        <motion.div className="mt-6" layout>
+          <Button
+            onClick={() => setShowFieldNotes(!showFieldNotes)}
+            variant="outline"
+            className="w-full border-amber-700/50 bg-amber-900/10 text-amber-300 hover:bg-amber-900/30 hover:border-amber-600 rounded-xl"
+          >
+            <span className="mr-2">📋</span>
+            Notatki Terenowe
+            <motion.span
+              animate={{ rotate: showFieldNotes ? 180 : 0 }}
+              className="ml-2"
+            >
+              ▼
+            </motion.span>
+          </Button>
+
+          <AnimatePresence>
+            {showFieldNotes && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="mt-3 bg-amber-950/30 border-amber-800/40 backdrop-blur rounded-xl overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-amber-200 text-sm flex items-center gap-2">
+                      📋 Notatki Terenowe — Ailanthus altissima (Łódź, 2025)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {[
+                        { id: "3431", name: "Las Dębina", observer: "K. Słupecka", date: "25.10.2025", coords: "51.7389°N, 19.4612°E" },
+                        { id: "3432", name: "Park M. Skłodowskiej-Curie", observer: "M. Kowalski", date: "23.05.2025", coords: "51.7461°N, 19.4536°E" },
+                        { id: "3433", name: "Park Jana Pawła II", observer: "K. Słupecka", date: "25.10.2025", coords: "51.7523°N, 19.4287°E" },
+                        { id: "3434", name: "Park ul. Powstańców Wlkp.", observer: "M. Kowalski", date: "23.05.2025", coords: "51.7502°N, 19.4401°E" },
+                      ].map((note) => (
+                        <motion.div
+                          key={note.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-slate-800/60 p-3 rounded-lg border border-amber-800/20 hover:border-amber-600/40 transition-colors group"
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-amber-300 font-bold flex items-center gap-1.5">
+                              <Hash className="w-3 h-3 opacity-60" />
+                              {note.id}
+                            </p>
+                            <span className="text-slate-500 text-xs">1 osobnik</span>
+                          </div>
+                          <p className="text-slate-300 font-medium text-xs mb-1">{note.name}</p>
+                          <div className="flex items-center gap-3 text-xs text-slate-500">
+                            <span className="flex items-center gap-1">
+                              <User className="w-3 h-3" /> {note.observer}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" /> {note.date}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 text-[10px] mt-1 flex items-center gap-1 group-hover:text-cyan-400/60 transition-colors">
+                            <MapPin className="w-3 h-3" /> {note.coords}
+                          </p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Unlock Animation Overlay */}
@@ -527,10 +776,9 @@ export default function EscapeRoom({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md"
           >
             <div className="flex flex-col items-center">
-              {/* Lock icon that transforms to unlocked */}
               <motion.div
                 initial={{ scale: 1, rotate: 0 }}
                 animate={{
@@ -540,7 +788,7 @@ export default function EscapeRoom({
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="relative"
               >
-                {/* Glow ring */}
+                {/* Glow rings */}
                 <motion.div
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: [0.5, 2.5], opacity: [0.8, 0] }}
@@ -561,7 +809,7 @@ export default function EscapeRoom({
                   animate={{ opacity: 0 }}
                   transition={{ duration: 0.3, delay: 0.5 }}
                 >
-                  <Lock className="w-20 h-20 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]" />
+                  <Lock className="w-20 h-20 text-amber-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.6)]" />
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -569,24 +817,29 @@ export default function EscapeRoom({
                   transition={{ duration: 0.3, delay: 0.5 }}
                   className="absolute inset-0"
                 >
-                  <Unlock className="w-20 h-20 text-emerald-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.6)]" />
+                  <Unlock className="w-20 h-20 text-emerald-400 drop-shadow-[0_0_30px_rgba(52,211,153,0.6)]" />
                 </motion.div>
               </motion.div>
 
               {/* Sparks */}
-              {[...Array(8)].map((_, i) => (
+              {[...Array(12)].map((_, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
                   animate={{
                     opacity: [0, 1, 0],
-                    x: Math.cos((i * Math.PI * 2) / 8) * 80,
-                    y: Math.sin((i * Math.PI * 2) / 8) * 80,
-                    scale: [0, 1, 0],
+                    x: Math.cos((i * Math.PI * 2) / 12) * 100,
+                    y: Math.sin((i * Math.PI * 2) / 12) * 100,
+                    scale: [0, 1.5, 0],
                   }}
-                  transition={{ duration: 0.8, delay: 0.5 + i * 0.05 }}
-                  className="absolute w-2 h-2 rounded-full bg-amber-400"
-                  style={{ top: '50%', left: '50%' }}
+                  transition={{ duration: 0.8, delay: 0.5 + i * 0.04 }}
+                  className="absolute rounded-full"
+                  style={{
+                    top: '50%', left: '50%',
+                    width: 4 + Math.random() * 4,
+                    height: 4 + Math.random() * 4,
+                    background: i % 2 === 0 ? '#fbbf24' : '#34d399',
+                  }}
                 />
               ))}
 
@@ -595,7 +848,7 @@ export default function EscapeRoom({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
-                className="mt-8 text-2xl font-bold text-emerald-300"
+                className="mt-8 text-2xl font-bold text-emerald-300 font-display"
               >
                 🔓 Zamek odblokowany!
               </motion.p>
