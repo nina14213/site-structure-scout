@@ -256,10 +256,9 @@ export function useGameProgress() {
     }, []);
 
     // Check if level is unlocked
-    const isLevelUnlocked = useCallback((levelNumber: number) => {
-        if (levelNumber === 1) return true;
-        return gameState.levelsCompleted.includes(levelNumber - 1);
-    }, [gameState.levelsCompleted]);
+    const isLevelUnlocked = useCallback((_levelNumber: number) => {
+        return true;
+    }, []);
 
     // Get progress percentage
     const getProgressPercentage = useCallback(() => {
