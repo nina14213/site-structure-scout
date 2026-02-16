@@ -124,7 +124,7 @@ const puzzles: Puzzle[] = [
   {
     id: 5,
     title: "Zagadka Obserwatora",
-    description: "Rozszyfruj zakodowane nazwisko używając szyfru Cezara z przesunięciem 1 (każda litera zamieniona na poprzednią w alfabecie): 'K. Lpxbmtlj'. Kto wykonał obserwację?",
+    description: "Rozszyfruj zakodowane nazwisko używając szyfru Cezara z przesunięciem 1 (każda litera zamieniona na poprzednią w alfabecie): 'K. Lpxbmtlj'. Kto wykonał obserwację? Uwaga: tego nazwiska nie znajdziesz w notatkach terenowych!",
     hint: "Przesunięcie 1 oznacza: K→J, L→K, p→o, x→w, b→a, m→l, t→s, l→k, j→i",
     clue: "Wynik to inicjał imienia + nazwisko w formacie: X. Xxxxxxxx",
     answer: "J. Kowalski",
