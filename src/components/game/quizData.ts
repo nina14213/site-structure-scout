@@ -187,7 +187,7 @@ export const quizQuestionsByLevel: Record<number, QuizQuestion[]> = {
         },
         {
             id: 15,
-            question: "Jaki rank taksonomiczny jest najniższy w standardowej hierarchii?",
+            question: "Jaka kategoria taksonomiczna jest najniższa w standardowej hierarchii?",
             options: [
                 "Family (rodzina)",
                 "Genus (rodzaj)",
