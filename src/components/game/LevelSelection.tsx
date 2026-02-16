@@ -15,7 +15,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
     const levels = [
         {
             id: 1,
-            title: 'Core Forge',
+            title: 'Kuźnia Rdzenia',
             description: 'Mapuj kolumny CSV na termy Darwin Core',
             icon: Zap,
             gradient: 'from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600',
@@ -23,7 +23,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 2,
-            title: 'Extension Nexus',
+            title: 'Nexus Rozszerzeń',
             description: 'Połącz extensions i sprawdź integralność danych',
             icon: Database,
             gradient: 'from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600',
@@ -31,7 +31,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 3,
-            title: 'Package Seal',
+            title: 'Pieczęć Pakietu',
             description: 'Generuj meta.xml i datapackage.json',
             icon: Package,
             gradient: 'from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600',
@@ -39,7 +39,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 4,
-            title: 'Species Matcher',
+            title: 'Łowca Gatunków',
             description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
             icon: Search,
             gradient: 'from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600',
@@ -47,7 +47,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 5,
-            title: 'BOSS: Chaos Validator',
+            title: 'BOSS: Walidacja',
             description: 'Przeprowadź walidację danych wg standardu GBIF',
             icon: Shield,
             gradient: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600',
