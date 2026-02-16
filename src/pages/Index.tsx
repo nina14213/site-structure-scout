@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
@@ -17,6 +17,7 @@ const Index = () => {
   const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
   const [quizLevel, setQuizLevel] = useState<number | null>(null);
   const [pendingScore, setPendingScore] = useState<number>(0);
+  const transitioning = useRef(false);
 
   const {
     gameState,
@@ -96,7 +97,8 @@ const Index = () => {
 
   // Handle level completion - auto-progress to next stage
   const handleLevelComplete = useCallback((score: number, data?: unknown) => {
-    if (currentLevel === null) return;
+    if (currentLevel === null || transitioning.current) return;
+    transitioning.current = true;
 
     if (data) {
       setLevelData(prev => ({ ...prev, [currentLevel]: data }));
@@ -117,6 +119,7 @@ const Index = () => {
 
   const handleQuizClose = useCallback(() => {
     if (quizLevel === null) return;
+    transitioning.current = false;
     const nextLevel = quizLevel + 1;
 
     if (quizLevel >= 4) {
