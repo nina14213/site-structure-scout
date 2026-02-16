@@ -237,9 +237,12 @@ export default function EscapeRoom({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const normalizeAnswer = (str: string) =>
+    str.trim().toLowerCase().replace(/\s+/g, ' ').replace(/\.\s*/g, '. ').replace(/\s*\.\s*/g, '. ').trimEnd();
+
   const handleSubmit = useCallback(() => {
     const puzzle = puzzleState[currentPuzzle];
-    const isCorrect = userAnswer.trim().toLowerCase() === puzzle.answer.toLowerCase();
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(puzzle.answer);
 
     if (isCorrect) {
       playSuccess?.();
