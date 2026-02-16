@@ -10,6 +10,7 @@ import { FileSpreadsheet, CheckCircle, AlertCircle, Lightbulb, Timer, Zap } from
 import { sampleEventsCSV, dwcTerms } from './DwCTerms';
 import DraggableColumn from './DraggableColumn';
 import DropZone from './DropZone';
+import TutorialModal from './TutorialModal';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
 
