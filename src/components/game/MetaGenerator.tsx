@@ -20,7 +20,6 @@ import {
     Timer,
     FileText
 } from 'lucide-react';
-import QuizModal from './QuizModal';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 
@@ -58,7 +57,6 @@ export default function MetaGenerator({
     const [metaXml, setMetaXml] = useState('');
     const [datapackageJson, setDatapackageJson] = useState('');
     const [showPreview, setShowPreview] = useState(false);
-    const [showQuiz, setShowQuiz] = useState(false);
     const [showTutorial, setShowTutorial] = useState(true);
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300);
@@ -200,11 +198,7 @@ ${fieldsXml}
             playFail?.();
             return;
         }
-        setShowQuiz(true);
-    };
-
-    const handleQuizComplete = (quizScore: number) => {
-        const finalScore = levelScore + (quizScore * 2);
+        const finalScore = levelScore;
         addScore?.(finalScore, 'Package Seal Complete');
         playLevelComplete?.();
         onComplete?.(finalScore, {
@@ -213,6 +207,7 @@ ${fieldsXml}
             datapackageJson,
             coreData
         });
+    };
     };
 
     // Download XML
@@ -516,12 +511,6 @@ ${fieldsXml}
                 </motion.div>
 
                 {/* Modals */}
-                {showQuiz && (
-                    <QuizModal
-                        onComplete={handleQuizComplete}
-                        onClose={() => setShowQuiz(false)}
-                    />
-                )}
 
                 {showTutorial && (
                     <TutorialModal

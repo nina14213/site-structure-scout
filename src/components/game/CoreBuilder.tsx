@@ -10,8 +10,6 @@ import { FileSpreadsheet, CheckCircle, AlertCircle, Lightbulb, Timer, Zap } from
 import { sampleEventsCSV, dwcTerms } from './DwCTerms';
 import DraggableColumn from './DraggableColumn';
 import DropZone from './DropZone';
-import QuizModal from './QuizModal';
-import TutorialModal from './TutorialModal';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
 
@@ -55,7 +53,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
     const [columns, setColumns] = useState<string[]>(initialColumns);
     const [mappings, setMappings] = useState<Record<string, string>>({});
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
-    const [showQuiz, setShowQuiz] = useState(false);
     const [showTutorial, setShowTutorial] = useState(true);
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
@@ -189,11 +186,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
             playFail?.();
             return;
         }
-        setShowQuiz(true);
-    };
-
-    const handleQuizComplete = (quizScore: number) => {
-        const finalScore = levelScore + (quizScore * 2);
+        const finalScore = levelScore;
         addScore?.(finalScore, 'Core Forge Complete!');
         playLevelComplete?.();
         onComplete?.(finalScore, { mappings, csvData, columns });
@@ -386,17 +379,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                     onClose={() => setShowTutorial(false)}
                 />
 
-                {/* Quiz Modal */}
-                {showQuiz && (
-                    <QuizModal
-                        levelNumber={1}
-                        isOpen={showQuiz}
-                        onClose={() => setShowQuiz(false)}
-                        onComplete={handleQuizComplete}
-                        playSuccess={playSuccess}
-                        playFail={playFail}
-                    />
-                )}
             </div>
         </div>
     );
