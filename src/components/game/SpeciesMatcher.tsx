@@ -227,6 +227,33 @@ export default function SpeciesMatcher({
           </div>
           <p className="text-xs text-slate-400 mb-2">{roundDescs[round]}</p>
           <Progress value={(completedEntries / totalEntries) * 100} className="h-2 bg-slate-700" />
+
+          {/* GBIF hint box */}
+          <details className="mt-3 group">
+            <summary className="text-xs text-emerald-400/80 cursor-pointer hover:text-emerald-300 transition-colors flex items-center gap-1">
+              <Search className="w-3 h-3" />
+              💡 Jak znaleźć te dane w GBIF?
+            </summary>
+            <div className="mt-2 p-3 rounded-lg bg-slate-800/60 border border-emerald-500/20 text-xs text-slate-300 space-y-1.5">
+              <p>
+                <strong className="text-emerald-400">1.</strong> Wejdź na{' '}
+                <a href="https://www.gbif.org/tools/species-lookup" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline hover:text-cyan-300">
+                  GBIF Species Lookup
+                </a>{' '}
+                — wklej listę nazw i sprawdź dopasowania do Backbone Taxonomy.
+              </p>
+              <p>
+                <strong className="text-emerald-400">2.</strong> Użyj{' '}
+                <a href="https://www.gbif.org/species/search" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline hover:text-cyan-300">
+                  GBIF Species Search
+                </a>{' '}
+                — wpisz nazwę gatunku, aby zobaczyć jego status (accepted/synonym), królestwo i pełną hierarchię.
+              </p>
+              <p>
+                <strong className="text-emerald-400">3.</strong> Sprawdź kolumnę <em className="text-amber-400">taxonomicStatus</em> — wartość „ACCEPTED" oznacza aktualną nazwę, „SYNONYM" to synonim przekierowujący do akceptowanej nazwy.
+              </p>
+            </div>
+          </details>
         </motion.div>
 
         {/* Species Card */}
