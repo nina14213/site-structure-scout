@@ -46,31 +46,31 @@ export default function GameLauncher({
         component: React.ComponentType<any>;
     }> = {
         1: {
-            title: 'Core Forge',
+            title: 'Kuźnia Rdzenia',
             description: 'Mapuj swoje dane na standard Darwin Core Data Package',
             color: 'from-yellow-500 to-orange-500',
             component: CoreBuilder
         },
         2: {
-            title: 'Extension Nexus',
+            title: 'Nexus Rozszerzeń',
             description: 'Połącz extensions i sprawdź integralność danych',
             color: 'from-purple-500 to-indigo-500',
             component: ExtensionLinker
         },
         3: {
-            title: 'Package Seal',
+            title: 'Pieczęć Pakietu',
             description: 'Generuj meta.xml i datapackage.json',
             color: 'from-teal-500 to-cyan-500',
             component: MetaGenerator
         },
         4: {
-            title: 'Species Matcher',
+            title: 'Łowca Gatunków',
             description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
             color: 'from-emerald-500 to-teal-500',
             component: SpeciesMatcher
         },
         5: {
-            title: 'BOSS: Validate',
+            title: 'BOSS: Walidacja',
             description: 'Przeprowadź walidację danych wg standardu GBIF',
             color: 'from-red-500 to-orange-500',
             component: Validator

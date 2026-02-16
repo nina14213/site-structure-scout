@@ -89,11 +89,11 @@ const Index = () => {
 
   // Level names for toast messages
   const levelNames: Record<number, string> = {
-    1: 'Core Forge',
-    2: 'Extension Nexus',
-    3: 'Package Seal',
-    4: 'Species Matcher',
-    5: 'BOSS: Validate (Final Boss)'
+    1: 'Kuźnia Rdzenia',
+    2: 'Nexus Rozszerzeń',
+    3: 'Pieczęć Pakietu',
+    4: 'Łowca Gatunków',
+    5: 'BOSS: Walidacja'
   };
 
   // Handle level completion - auto-progress to next stage

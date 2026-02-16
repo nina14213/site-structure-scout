@@ -16,7 +16,7 @@ interface Tutorial {
 
 const tutorials: Record<number, Tutorial> = {
     1: {
-        title: "Core Forge - Mapowanie CSV",
+        title: "Kuźnia Rdzenia - Mapowanie CSV",
         emoji: "⚡",
         objective: "Zmapuj wszystkie wymagane kolumny CSV na termy Darwin Core",
         steps: [
@@ -34,7 +34,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność"
     },
     2: {
-        title: "Extension Nexus - Łączenie Danych",
+        title: "Nexus Rozszerzeń - Łączenie Danych",
         emoji: "🔗",
         objective: "Połącz pliki extension z core i sprawdź referential integrity",
         steps: [
@@ -52,7 +52,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity"
     },
     3: {
-        title: "Package Seal - Generowanie Metadanych",
+        title: "Pieczęć Pakietu - Generowanie Metadanych",
         emoji: "📦",
         objective: "Wygeneruj meta.xml i datapackage.json dla Darwin Core Archive",
         steps: [
@@ -70,7 +70,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+150 pkt za meta.xml, +150 pkt za datapackage.json, +bonus za czas"
     },
     4: {
-        title: "Species Matcher - Taxonomic Laboratory",
+        title: "Łowca Gatunków - Laboratorium Taksonomiczne",
         emoji: "🧬",
         objective: "Dopasuj nazwy gatunków do oficjalnej taksonomii GBIF Backbone. Wykrywaj literówki, synonimy i przypisuj królestwa!",
         steps: [
@@ -87,7 +87,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd"
     },
     5: {
-        title: "BOSS: GBIF Validator",
+        title: "BOSS: Walidacja GBIF",
         emoji: "👹",
         objective: "Pokonaj Chaos Validator - przejdź walidację GBIF bez błędów",
         steps: [
