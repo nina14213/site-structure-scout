@@ -36,8 +36,8 @@ interface DataRecord {
 const initialDataRecords: DataRecord[] = [
     { id: '1', occurrenceID: 'OCC001', eventID: 'EVT-001', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.4082', decimalLongitude: '16.9344', locality: 'Park Sołacki, Poznań' },
     { id: '2', occurrenceID: 'OCC002', eventID: 'EVT-002', scientificName: 'Ailanthus altissima', eventDate: '25/10/2025', decimalLatitude: '52.3935', decimalLongitude: '-16.9187', locality: 'ul. Libelta, Poznań' }, // Wrong date format + negative longitude (should be positive for Poznań)
-    { id: '3', occurrenceID: '', eventID: 'EVT-003', scientificName: 'Quercus robur', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' }, // Empty occurrenceID
-    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Quercus robur', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID
+    { id: '3', occurrenceID: '', eventID: 'EVT-003', scientificName: 'Dąb szypułkowy', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' }, // Empty occurrenceID + Polish name (should be Quercus robur)
+    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Robinia akacjowa', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID + Polish name (should be Robinia pseudoacacia)
     { id: '5', occurrenceID: 'OCC001', eventID: 'EVT-005', scientificName: 'Robinia pseudoacacia', eventDate: '2025-13-01', decimalLatitude: '52.3877', decimalLongitude: '16.9450', locality: 'Stary Rynek, Poznań' }, // Duplicate occurrenceID (OCC001) + invalid month 13
 ];
 
@@ -95,6 +95,16 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const validateData = useCallback(() => {
         const errors: Array<{ rowId: string; field: string; message: string }> = [];
         
+        // Check scientificName - must be Latin (no Polish diacritics)
+        const polishChars = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;
+        dataRecords.forEach(record => {
+            if (!record.scientificName || record.scientificName.trim() === '') {
+                errors.push({ rowId: record.id, field: 'scientificName', message: 'Brak nazwy naukowej' });
+            } else if (polishChars.test(record.scientificName)) {
+                errors.push({ rowId: record.id, field: 'scientificName', message: 'Nazwa musi być łacińska (scientificName) — użyj nazwy naukowej zamiast polskiej' });
+            }
+        });
+
         // Check for empty or duplicate IDs
         dataRecords.forEach(record => {
             if (!record.occurrenceID || record.occurrenceID.trim() === '') {
@@ -185,7 +195,13 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
             let stepMessage = 'Walidacja przeszła pomyślnie';
 
             // Check specific validation for each step
-            if (validationSteps[i].id === 'ids') {
+            if (validationSteps[i].id === 'required') {
+                const reqErrors = errors.filter(e => e.field === 'scientificName');
+                if (reqErrors.length > 0) {
+                    stepPassed = false;
+                    stepMessage = `Znaleziono ${reqErrors.length} błąd(ów) nazwy naukowej`;
+                }
+            } else if (validationSteps[i].id === 'ids') {
                 const idErrors = errors.filter(e => e.field === 'occurrenceID');
                 if (idErrors.length > 0) {
                     stepPassed = false;
@@ -401,12 +417,12 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         </SelectContent>
                                                     </Select>
                                                 </td>
-                                                <td className="p-2">
+                                                <td className="p-2 min-w-[180px]">
                                                     <Input
                                                         value={record.scientificName}
                                                         onChange={(e) => updateRecord(record.id, 'scientificName', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
-                                                        readOnly
+                                                        placeholder="Nazwa łacińska"
+                                                        className={`text-gray-900 dark:text-white italic ${hasError(record.id, 'scientificName') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
                                                 <td className="p-2">
