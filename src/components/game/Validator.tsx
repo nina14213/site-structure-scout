@@ -384,12 +384,12 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         className={`text-gray-900 dark:text-white ${hasError(record.id, 'occurrenceID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
-                                                <td className="p-2">
+                                                <td className="p-2 min-w-[160px]">
                                                     <Select
                                                         value={record.eventID}
                                                         onValueChange={(val) => updateRecord(record.id, 'eventID', val)}
                                                     >
-                                                        <SelectTrigger className={`text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}>
+                                                        <SelectTrigger className={`w-full text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}>
                                                             <SelectValue placeholder="Wybierz" />
                                                         </SelectTrigger>
                                                         <SelectContent>
