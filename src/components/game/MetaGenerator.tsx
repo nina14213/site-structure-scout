@@ -280,6 +280,8 @@ ${fieldsXml}
                                 <h3 className="text-lg font-semibold text-white mb-2">Gatunek inwazyjny – Ailanthus altissima w Poznaniu</h3>
                                 <p className="text-slate-300 text-sm leading-relaxed">
                                     Zbiór informacji o inwazyjnym gatunku <em>Ailanthus altissima</em> (bożodrzew gruczołkowaty) w Poznaniu, zebranych za pomocą aplikacji mobilnej AMUnatcoll.
+                                    <br />
+                                    Dane o rozmieszczeniu gatunku zebrali uczestnicy projektu „Mobilizacja społeczeństwa na rzecz ochrony bioróżnorodności – lokalne aktywności i globalne efekty: ścieżka edukacyjna wśród bożodrzewu gruczołowatego, gatunku drzewa inwazyjnego w Poznaniu". Podczas spaceru dowiedzieli się jak rozpoznać i mapować wystepownaie gatunku w aplikacji mobilnej, a zespół naukowców z Laboratorium Biologicznych Informacji Przestrzennych (Wydział Biologii, UAM) wspiera ten projekt citizen science.
                                 </p>
                                 <p className="text-slate-300 text-sm leading-relaxed">
                                     <em>Ailanthus altissima</em> to obcy gatunek inwazyjny drzewa pochodzący z Azji Południowo-Wschodniej, szybko rosnący (do 20-30 m wysokości), produkujący liczne odrosty korzeniowe i nasiona.
