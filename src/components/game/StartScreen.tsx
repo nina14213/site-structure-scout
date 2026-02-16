@@ -28,21 +28,21 @@ import { GameState, LeaderboardEntry } from '@/hooks/useGameProgress';
 const levels = [
     {
         id: 1,
-        name: 'Kuźnia Rdzenia',
+        name: 'Mapowanie Kolumn',
         icon: Zap,
         color: 'from-yellow-500 to-orange-500',
         description: 'Mapuj kolumny CSV na termy Darwin Core'
     },
     {
         id: 2,
-        name: 'Nexus Rozszerzeń',
+        name: 'Łączenie Rozszerzeń',
         icon: LinkIcon,
         color: 'from-purple-500 to-indigo-500',
         description: 'Połącz extensions i sprawdź integralność'
     },
     {
         id: 3,
-        name: 'Pieczęć Pakietu',
+        name: 'Pakowanie Danych',
         icon: Package,
         color: 'from-teal-500 to-cyan-500',
         description: 'Generuj meta.xml i datapackage.json'
