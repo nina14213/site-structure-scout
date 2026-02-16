@@ -31,12 +31,18 @@ interface DataRecord {
     decimalLongitude: string;
 }
 
-// Sample data with intentional errors for user to fix - wrong fields are empty so user must fill them
+// Sample data with intentional errors for user to fix
 const initialDataRecords: DataRecord[] = [
     { id: '1', occurrenceID: 'OCC001', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.369327', decimalLongitude: '16.925402' },
-    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Empty date - user must enter correct format
-    { id: '3', occurrenceID: '', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Empty ID - user must enter unique ID
-    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Empty eventID - user must select valid one
+    { id: '2', occurrenceID: 'OCC002', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '', decimalLatitude: '52.3935', decimalLongitude: '16.9187' }, // Empty date
+    { id: '3', occurrenceID: '', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.39006', decimalLongitude: '16.92480' }, // Empty occurrenceID
+    { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Ailanthus altissima', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175' }, // Empty eventID
+    { id: '5', occurrenceID: 'OCC005', eventID: '3431', scientificName: 'Ailanthus altissima', eventDate: '25/10/2025', decimalLatitude: '52.4102', decimalLongitude: '16.9301' }, // Wrong date format (DD/MM/YYYY)
+    { id: '6', occurrenceID: 'OCC004', eventID: '3434', scientificName: 'Ailanthus altissima', eventDate: '2025-06-14', decimalLatitude: '52.3877', decimalLongitude: '16.9450' }, // Duplicate occurrenceID (OCC004)
+    { id: '7', occurrenceID: 'OCC007', eventID: '9999', scientificName: 'Ailanthus altissima', eventDate: '2025-07-03', decimalLatitude: '52.4215', decimalLongitude: '16.8998' }, // Invalid eventID (not in list)
+    { id: '8', occurrenceID: 'OCC008', eventID: '3432', scientificName: 'Ailanthus altissima', eventDate: '2025-08-19', decimalLatitude: '152.390', decimalLongitude: '16.9120' }, // Invalid latitude (>90)
+    { id: '9', occurrenceID: 'OCC009', eventID: '3433', scientificName: 'Ailanthus altissima', eventDate: '2025-09-01', decimalLatitude: '52.3950', decimalLongitude: '-200.5' }, // Invalid longitude (<-180)
+    { id: '10', occurrenceID: 'OCC010', eventID: '3434', scientificName: 'Ailanthus altissima', eventDate: '2025-13-01', decimalLatitude: '52.4001', decimalLongitude: '16.9333' }, // Invalid date (month 13)
 ];
 
 const validEventIDs = ['3431', '3432', '3433', '3434'];
@@ -109,7 +115,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
             }
         });
 
-        // Check date format (ISO 8601: YYYY-MM-DD)
+        // Check date format (ISO 8601: YYYY-MM-DD) and valid values
         dataRecords.forEach(record => {
             if (!record.eventDate || record.eventDate.trim() === '') {
                 errors.push({ rowId: record.id, field: 'eventDate', message: 'Brak daty - wpisz w formacie YYYY-MM-DD' });
@@ -117,7 +123,24 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
                 if (!dateRegex.test(record.eventDate)) {
                     errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowy format daty (wymagany: YYYY-MM-DD)' });
+                } else {
+                    const [y, m, d] = record.eventDate.split('-').map(Number);
+                    if (m < 1 || m > 12 || d < 1 || d > 31) {
+                        errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowa wartość daty (miesiąc/dzień poza zakresem)' });
+                    }
                 }
+            }
+        });
+
+        // Check coordinates range
+        dataRecords.forEach(record => {
+            const lat = parseFloat(record.decimalLatitude);
+            const lon = parseFloat(record.decimalLongitude);
+            if (isNaN(lat) || lat < -90 || lat > 90) {
+                errors.push({ rowId: record.id, field: 'decimalLatitude', message: `Szerokość ${record.decimalLatitude} poza zakresem [-90, 90]` });
+            }
+            if (isNaN(lon) || lon < -180 || lon > 180) {
+                errors.push({ rowId: record.id, field: 'decimalLongitude', message: `Długość ${record.decimalLongitude} poza zakresem [-180, 180]` });
             }
         });
 
@@ -167,6 +190,12 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                 if (dateErrors.length > 0) {
                     stepPassed = false;
                     stepMessage = `Znaleziono ${dateErrors.length} błąd(ów) formatu daty`;
+                }
+            } else if (validationSteps[i].id === 'coords') {
+                const coordErrors = errors.filter(e => e.field === 'decimalLatitude' || e.field === 'decimalLongitude');
+                if (coordErrors.length > 0) {
+                    stepPassed = false;
+                    stepMessage = `Znaleziono ${coordErrors.length} błąd(ów) współrzędnych`;
                 }
             } else if (validationSteps[i].id === 'integrity') {
                 const integrityErrors = errors.filter(e => e.field === 'eventID');
@@ -383,16 +412,16 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.decimalLatitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLatitude', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
-                                                        readOnly
+                                                        placeholder="[-90, 90]"
+                                                        className={`text-gray-900 dark:text-white ${hasError(record.id, 'decimalLatitude') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
                                                 <td className="p-2">
                                                     <Input
                                                         value={record.decimalLongitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLongitude', e.target.value)}
-                                                        className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
-                                                        readOnly
+                                                        placeholder="[-180, 180]"
+                                                        className={`text-gray-900 dark:text-white ${hasError(record.id, 'decimalLongitude') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
                                             </tr>
