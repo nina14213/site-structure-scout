@@ -16,7 +16,7 @@ interface Tutorial {
 
 const tutorials: Record<number, Tutorial> = {
     1: {
-        title: "Kuźnia Rdzenia - Mapowanie CSV",
+        title: "Mapowanie Kolumn - Mapowanie CSV",
         emoji: "⚡",
         objective: "Zmapuj wszystkie wymagane kolumny CSV na termy Darwin Core",
         steps: [
@@ -34,7 +34,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność"
     },
     2: {
-        title: "Nexus Rozszerzeń - Łączenie Danych",
+        title: "Łączenie Rozszerzeń - Łączenie Danych",
         emoji: "🔗",
         objective: "Połącz pliki extension z core i sprawdź referential integrity",
         steps: [
@@ -52,7 +52,7 @@ const tutorials: Record<number, Tutorial> = {
         scoring: "+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity"
     },
     3: {
-        title: "Pieczęć Pakietu - Generowanie Metadanych",
+        title: "Pakowanie Danych - Generowanie Metadanych",
         emoji: "📦",
         objective: "Wygeneruj meta.xml i datapackage.json dla Darwin Core Archive",
         steps: [

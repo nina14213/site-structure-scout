@@ -5,21 +5,21 @@ const StagesSection = () => {
   const stages = [
     {
       number: 1,
-      title: 'Kuźnia Rdzenia',
+      title: 'Mapowanie Kolumn',
       description: 'Mapuj kolumny CSV na termy Darwin Core i zbuduj solidny fundament danych.',
       icon: Cpu,
       variant: 'green' as const,
     },
     {
       number: 2,
-      title: 'Nexus Rozszerzeń',
+      title: 'Łączenie Rozszerzeń',
       description: 'Połącz extensions i sprawdź integralność połączeń między danymi.',
       icon: Link,
       variant: 'cyan' as const,
     },
     {
       number: 3,
-      title: 'Pieczęć Pakietu',
+      title: 'Pakowanie Danych',
       description: 'Generuj meta.xml i datapackage.json aby zapieczętować pakiet danych.',
       icon: Package,
       variant: 'purple' as const,

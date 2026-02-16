@@ -89,9 +89,9 @@ const Index = () => {
 
   // Level names for toast messages
   const levelNames: Record<number, string> = {
-    1: 'Kuźnia Rdzenia',
-    2: 'Nexus Rozszerzeń',
-    3: 'Pieczęć Pakietu',
+    1: 'Mapowanie Kolumn',
+    2: 'Łączenie Rozszerzeń',
+    3: 'Pakowanie Danych',
     4: 'Łowca Gatunków',
     5: 'BOSS: Walidacja'
   };

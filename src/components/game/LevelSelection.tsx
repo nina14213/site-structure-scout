@@ -15,7 +15,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
     const levels = [
         {
             id: 1,
-            title: 'Kuźnia Rdzenia',
+            title: 'Mapowanie Kolumn',
             description: 'Mapuj kolumny CSV na termy Darwin Core',
             icon: Zap,
             gradient: 'from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600',
@@ -23,7 +23,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 2,
-            title: 'Nexus Rozszerzeń',
+            title: 'Łączenie Rozszerzeń',
             description: 'Połącz extensions i sprawdź integralność danych',
             icon: Database,
             gradient: 'from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600',
@@ -31,7 +31,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
         },
         {
             id: 3,
-            title: 'Pieczęć Pakietu',
+            title: 'Pakowanie Danych',
             description: 'Generuj meta.xml i datapackage.json',
             icon: Package,
             gradient: 'from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600',

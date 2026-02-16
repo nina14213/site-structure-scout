@@ -46,19 +46,19 @@ export default function GameLauncher({
         component: React.ComponentType<any>;
     }> = {
         1: {
-            title: 'Kuźnia Rdzenia',
+            title: 'Mapowanie Kolumn',
             description: 'Mapuj swoje dane na standard Darwin Core Data Package',
             color: 'from-yellow-500 to-orange-500',
             component: CoreBuilder
         },
         2: {
-            title: 'Nexus Rozszerzeń',
+            title: 'Łączenie Rozszerzeń',
             description: 'Połącz extensions i sprawdź integralność danych',
             color: 'from-purple-500 to-indigo-500',
             component: ExtensionLinker
         },
         3: {
-            title: 'Pieczęć Pakietu',
+            title: 'Pakowanie Danych',
             description: 'Generuj meta.xml i datapackage.json',
             color: 'from-teal-500 to-cyan-500',
             component: MetaGenerator
