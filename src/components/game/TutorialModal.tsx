@@ -86,6 +86,23 @@ const tutorials: Record<number, Tutorial> = {
             "⚠️ Błędy krytyczne (czerwone ✗) blokują publikację"
         ],
         scoring: "+50 pkt za każdy krok walidacji, +200 bonus za perfekcyjne przejście"
+    },
+    5: {
+        title: "Species Matcher - Taxonomic Laboratory",
+        emoji: "🧬",
+        objective: "Dopasuj nazwy gatunków do oficjalnej taksonomii GBIF Backbone. Wykrywaj literówki, synonimy i przypisuj królestwa!",
+        steps: [
+            "1. Runda 1: Popraw literówki w nazwach naukowych",
+            "2. Runda 2: Rozpoznaj synonimy i znajdź akceptowane nazwy",
+            "3. Runda 3: Przypisz poprawne królestwo (Kingdom) do gatunków",
+            "4. Uważaj na pułapki — niektóre nazwy są poprawne!"
+        ],
+        tips: [
+            "🧬 GBIF Backbone Taxonomy łączy ponad 2 mln nazw gatunków",
+            "🔍 Synonimy to stare nazwy uznane za równoznaczne z nowymi",
+            "⚠️ Nie każda nazwa zawiera błąd — niektóre są poprawne!"
+        ],
+        scoring: "+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd"
     }
 };
 

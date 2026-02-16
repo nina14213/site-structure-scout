@@ -92,7 +92,8 @@ const Index = () => {
     1: 'Core Forge',
     2: 'Extension Nexus',
     3: 'Package Seal',
-    4: 'Validate (Final Boss)'
+    4: 'Validate (Final Boss)',
+    5: 'Species Matcher'
   };
 
   // Handle level completion - auto-progress to next stage
@@ -122,7 +123,7 @@ const Index = () => {
     transitioning.current = false;
     const nextLevel = quizLevel + 1;
 
-    if (quizLevel >= 4) {
+    if (quizLevel >= 5) {
       toast({
         title: `${levelNames[quizLevel]} ukończony! 🏆`,
         description: `Wszystkie misje zakończone!`,

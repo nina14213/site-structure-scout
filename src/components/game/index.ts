@@ -11,4 +11,5 @@ export { default as TutorialModal } from './TutorialModal';
 export { default as DraggableColumn } from './DraggableColumn';
 export { default as DropZone } from './DropZone';
 export { default as EscapeRoom } from './EscapeRoom';
+export { default as SpeciesMatcher } from './SpeciesMatcher';
 export * from './DwCTerms';
