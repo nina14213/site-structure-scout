@@ -208,7 +208,6 @@ ${fieldsXml}
             coreData
         });
     };
-    };
 
     // Download XML
     const downloadArchive = useCallback(() => {
