@@ -107,10 +107,12 @@ export default function EscapeRoom({
   const [showHint, setShowHint] = useState(false);
   const [showClue, setShowClue] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minut
+  const [timeLeft, setTimeLeft] = useState(600);
   const [isComplete, setIsComplete] = useState(false);
   const [shake, setShake] = useState(false);
   const [score, setScore] = useState(0);
+  const [showUnlockAnimation, setShowUnlockAnimation] = useState(false);
+  const [unlockedPuzzleId, setUnlockedPuzzleId] = useState<number | null>(null);
 
   // Timer
   useEffect(() => {
@@ -134,7 +136,6 @@ export default function EscapeRoom({
     if (isCorrect) {
       playSuccess?.();
       
-      // Oblicz punkty
       let puzzleScore = 100;
       if (showHint) puzzleScore -= 25;
       if (showClue) puzzleScore -= 25;
@@ -142,36 +143,40 @@ export default function EscapeRoom({
       puzzleScore = Math.max(10, puzzleScore);
       
       setScore((prev) => prev + puzzleScore);
+      setUnlockedPuzzleId(currentPuzzle);
+      setShowUnlockAnimation(true);
 
       setPuzzleState((prev) => {
         const updated = [...prev];
         updated[currentPuzzle] = { ...updated[currentPuzzle], solved: true };
-        
-        // Odblokuj następną zagadkę
         if (currentPuzzle + 1 < updated.length) {
           updated[currentPuzzle + 1] = { ...updated[currentPuzzle + 1], unlocked: true };
         }
-        
         return updated;
       });
 
-      // Sprawdź czy wszystkie rozwiązane
       const allSolved = puzzleState.filter((p) => p.solved).length === puzzleState.length - 1;
-      if (allSolved) {
-        setIsComplete(true);
-        const timeBonus = Math.floor(timeLeft / 10);
-        const finalScore = score + puzzleScore + timeBonus + 200;
-        setScore(finalScore);
-        addScore?.(finalScore, "Escape Room Complete");
-        playLevelComplete?.();
-      } else {
-        // Przejdź do następnej zagadki
-        setCurrentPuzzle((prev) => prev + 1);
-        setUserAnswer("");
-        setShowHint(false);
-        setShowClue(false);
-        setAttempts(0);
-      }
+      
+      // Delay progression to show unlock animation
+      setTimeout(() => {
+        setShowUnlockAnimation(false);
+        setUnlockedPuzzleId(null);
+
+        if (allSolved) {
+          setIsComplete(true);
+          const timeBonus = Math.floor(timeLeft / 10);
+          const finalScore = score + puzzleScore + timeBonus + 200;
+          setScore(finalScore);
+          addScore?.(finalScore, "Escape Room Complete");
+          playLevelComplete?.();
+        } else {
+          setCurrentPuzzle((prev) => prev + 1);
+          setUserAnswer("");
+          setShowHint(false);
+          setShowClue(false);
+          setAttempts(0);
+        }
+      }, 2000);
     } else {
       playFail?.();
       setShake(true);
@@ -466,6 +471,98 @@ export default function EscapeRoom({
           </CardContent>
         </Card>
       </div>
+
+      {/* Unlock Animation Overlay */}
+      <AnimatePresence>
+        {showUnlockAnimation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          >
+            <div className="flex flex-col items-center">
+              {/* Lock icon that transforms to unlocked */}
+              <motion.div
+                initial={{ scale: 1, rotate: 0 }}
+                animate={{
+                  scale: [1, 1.3, 1.1],
+                  rotate: [0, -10, 10, -5, 0],
+                }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="relative"
+              >
+                {/* Glow ring */}
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: [0.5, 2.5], opacity: [0.8, 0] }}
+                  transition={{ duration: 1.2, delay: 0.3 }}
+                  className="absolute inset-0 rounded-full bg-amber-400/30 blur-xl"
+                  style={{ width: 160, height: 160, top: -40, left: -40 }}
+                />
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: [0.5, 3], opacity: [0.5, 0] }}
+                  transition={{ duration: 1.5, delay: 0.5 }}
+                  className="absolute inset-0 rounded-full bg-emerald-400/20 blur-2xl"
+                  style={{ width: 200, height: 200, top: -60, left: -60 }}
+                />
+
+                <motion.div
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 0.3, delay: 0.5 }}
+                >
+                  <Lock className="w-20 h-20 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.5 }}
+                  className="absolute inset-0"
+                >
+                  <Unlock className="w-20 h-20 text-emerald-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.6)]" />
+                </motion.div>
+              </motion.div>
+
+              {/* Sparks */}
+              {[...Array(8)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    x: Math.cos((i * Math.PI * 2) / 8) * 80,
+                    y: Math.sin((i * Math.PI * 2) / 8) * 80,
+                    scale: [0, 1, 0],
+                  }}
+                  transition={{ duration: 0.8, delay: 0.5 + i * 0.05 }}
+                  className="absolute w-2 h-2 rounded-full bg-amber-400"
+                  style={{ top: '50%', left: '50%' }}
+                />
+              ))}
+
+              {/* Text */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="mt-8 text-2xl font-bold text-emerald-300"
+              >
+                🔓 Zamek odblokowany!
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.1 }}
+                className="text-slate-400 mt-2"
+              >
+                Zagadka {(unlockedPuzzleId ?? 0) + 1} rozwiązana!
+              </motion.p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes shake {
