@@ -4,8 +4,9 @@ import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
 import DataImport from '@/components/game/DataImport';
 import SchemaMapper from '@/components/game/SchemaMapper';
+import QuizModal from '@/components/game/QuizModal';
 
-type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMapper';
+type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMapper' | 'quiz';
 
 const Index = () => {
   const { toast } = useToast();
@@ -14,6 +15,8 @@ const Index = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
   const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
+  const [quizLevel, setQuizLevel] = useState<number | null>(null);
+  const [pendingScore, setPendingScore] = useState<number>(0);
 
   const {
     gameState,
@@ -95,33 +98,44 @@ const Index = () => {
   const handleLevelComplete = useCallback((score: number, data?: unknown) => {
     if (currentLevel === null) return;
 
-    // Save level data for next levels
     if (data) {
       setLevelData(prev => ({ ...prev, [currentLevel]: data }));
     }
 
     completeLevel(currentLevel, score);
     updateLeaderboard();
+    setPendingScore(score);
+    setQuizLevel(currentLevel);
+    setCurrentScreen('quiz');
+  }, [currentLevel, completeLevel, updateLeaderboard]);
 
-    const nextLevel = currentLevel + 1;
+  // Handle quiz completion — progress to next level or finish
+  const handleQuizComplete = useCallback((quizScore: number) => {
+    if (quizLevel === null) return;
+    saveQuizScore(quizLevel, quizScore);
+  }, [quizLevel, saveQuizScore]);
 
-    // Check if this was the final level (level 4)
-    if (currentLevel >= 4) {
+  const handleQuizClose = useCallback(() => {
+    if (quizLevel === null) return;
+    const nextLevel = quizLevel + 1;
+
+    if (quizLevel >= 4) {
       toast({
-        title: `${levelNames[currentLevel]} ukończony! 🏆`,
-        description: `Zdobyto ${score} punktów! Wszystkie misje zakończone!`,
+        title: `${levelNames[quizLevel]} ukończony! 🏆`,
+        description: `Wszystkie misje zakończone!`,
       });
       setCurrentScreen('complete');
     } else {
-      // Auto-progress to next level
       toast({
-        title: `${levelNames[currentLevel]} ukończony! 🎉`,
-        description: `Zdobyto ${score} punktów! Przechodzisz do: ${levelNames[nextLevel]}`,
+        title: `${levelNames[quizLevel]} ukończony! 🎉`,
+        description: `Przechodzisz do: ${levelNames[nextLevel]}`,
       });
       setCurrentLevel(nextLevel);
+      setCurrentScreen('playing');
       startLevelTimer();
     }
-  }, [currentLevel, completeLevel, updateLeaderboard, toast, startLevelTimer]);
+    setQuizLevel(null);
+  }, [quizLevel, toast, startLevelTimer]);
 
   // Handle going back to menu
   const handleBackToMenu = useCallback(() => {
@@ -135,6 +149,7 @@ const Index = () => {
     setCurrentScreen('start');
     setCurrentLevel(null);
     setLevelData({});
+    setQuizLevel(null);
   }, [resetProgress]);
 
   // Toggle functions
@@ -199,6 +214,16 @@ const Index = () => {
         />
       );
     }
+  }
+
+  if (currentScreen === 'quiz' && quizLevel !== null) {
+    return (
+      <QuizModal
+        levelNumber={quizLevel}
+        onComplete={handleQuizComplete}
+        onClose={handleQuizClose}
+      />
+    );
   }
 
   if (currentScreen === 'playing' && currentLevel !== null) {
