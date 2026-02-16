@@ -68,7 +68,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
-    const [showDataEditor, setShowDataEditor] = useState(false);
+    const [showDataEditor, setShowDataEditor] = useState(true);
     const [errorDetails, setErrorDetails] = useState<Array<{ rowId: string; field: string; message: string }>>([]);
 
     useEffect(() => {
@@ -309,55 +309,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                     </motion.div>
                 </motion.div>
 
-                {/* Data Preview - always visible */}
-                <Card className="mb-6 bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2 text-base">
-                            <AlertCircle className="w-5 h-5 text-amber-500" />
-                            Podgląd danych — znajdź i napraw błędy
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm border-collapse">
-                                <thead>
-                                    <tr className="border-b-2 border-gray-300 dark:border-slate-600">
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">occurrenceID</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">eventID</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">scientificName</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">eventDate</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">decimalLatitude</th>
-                                        <th className="text-left p-2 font-semibold text-gray-900 dark:text-white text-xs">decimalLongitude</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {dataRecords.map((record) => (
-                                        <tr key={record.id} className="border-b border-gray-200 dark:border-slate-700">
-                                            <td className={`p-2 font-mono text-xs ${!record.occurrenceID ? 'text-red-500 italic' : 'text-gray-900 dark:text-slate-200'}`}>
-                                                {record.occurrenceID || '⚠ brak'}
-                                            </td>
-                                            <td className={`p-2 font-mono text-xs ${!record.eventID ? 'text-red-500 italic' : 'text-gray-900 dark:text-slate-200'}`}>
-                                                {record.eventID || '⚠ brak'}
-                                            </td>
-                                            <td className="p-2 font-mono text-xs text-gray-900 dark:text-slate-200 italic">{record.scientificName}</td>
-                                            <td className={`p-2 font-mono text-xs ${!record.eventDate ? 'text-red-500 italic' : 'text-gray-900 dark:text-slate-200'}`}>
-                                                {record.eventDate || '⚠ brak'}
-                                            </td>
-                                            <td className="p-2 font-mono text-xs text-gray-900 dark:text-slate-200">{record.decimalLatitude}</td>
-                                            <td className="p-2 font-mono text-xs text-gray-900 dark:text-slate-200">{record.decimalLongitude}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                            🔍 Przejrzyj dane powyżej. Pola oznaczone <span className="text-red-500 font-semibold">⚠ brak</span> wymagają uzupełnienia. Uruchom walidację, aby zobaczyć edytor.
-                        </p>
-                    </CardContent>
-                </Card>
-
-                {/* Data Editor */}
-                {showDataEditor && errorDetails.length > 0 && (
+                {/* Data Editor - always visible */}
+                {showDataEditor && (
                     <Card className="mb-6 bg-white/80 border-orange-300 dark:bg-slate-800/50 dark:border-orange-700 backdrop-blur">
                         <CardHeader>
                             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
