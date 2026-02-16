@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight } from 'lucide-react';
+import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight, SkipForward } from 'lucide-react';
 import { quizQuestionsByLevel, shuffleOptions } from './quizData';
 
 interface QuizModalProps {
@@ -94,9 +94,24 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 <span className="font-semibold">Quiz — {levelNames[levelNumber] || `Poziom ${levelNumber}`}</span>
                             </div>
                             {!isFinished && (
-                                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
-                                    {currentQuestion + 1} / {questions.length}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                                        {currentQuestion + 1} / {questions.length}
+                                    </span>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                            setIsFinished(true);
+                                            const finalScore = Math.round((score / questions.length) * 100);
+                                            onComplete?.(finalScore);
+                                        }}
+                                        className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1 h-7 px-2"
+                                    >
+                                        Pomiń
+                                        <SkipForward className="w-3 h-3" />
+                                    </Button>
+                                </div>
                             )}
                         </div>
                         {!isFinished && (
