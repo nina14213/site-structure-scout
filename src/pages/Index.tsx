@@ -92,8 +92,8 @@ const Index = () => {
     1: 'Core Forge',
     2: 'Extension Nexus',
     3: 'Package Seal',
-    4: 'Validate (Final Boss)',
-    5: 'Species Matcher'
+    4: 'Species Matcher',
+    5: 'BOSS: Validate (Final Boss)'
   };
 
   // Handle level completion - auto-progress to next stage

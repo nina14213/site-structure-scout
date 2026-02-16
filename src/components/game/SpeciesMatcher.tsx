@@ -168,7 +168,7 @@ export default function SpeciesMatcher({
       <TutorialModal
         isOpen={true}
         onClose={() => setShowTutorial(false)}
-        levelNumber={5}
+        levelNumber={4}
       />
     );
   }
