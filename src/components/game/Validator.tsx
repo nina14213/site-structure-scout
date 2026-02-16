@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield, Timer, CheckCircle, XCircle, Loader2, Zap, Trophy, Edit, AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import QuizModal from './QuizModal';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 import bossDefeatedIcon from '@/assets/boss-defeated-x.png';
@@ -65,7 +64,6 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const [isValidating, setIsValidating] = useState(false);
     const [validationComplete, setValidationComplete] = useState(false);
     const [allPassed, setAllPassed] = useState(false);
-    const [showQuiz, setShowQuiz] = useState(false);
     const [showTutorial, setShowTutorial] = useState(true);
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300);
@@ -225,11 +223,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
     const handleComplete = () => {
         if (!allPassed) return;
-        setShowQuiz(true);
-    };
-
-    const handleQuizComplete = (quizScore: number) => {
-        const finalScore = levelScore + (quizScore * 2);
+        const finalScore = levelScore;
         addScore?.(finalScore, 'BOSS Defeated!');
         playLevelComplete?.();
         onComplete?.(finalScore, { validationSteps, allPassed });
@@ -512,12 +506,6 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                 )}
 
                 {/* Modals */}
-                {showQuiz && (
-                    <QuizModal
-                        onComplete={handleQuizComplete}
-                        onClose={() => setShowQuiz(false)}
-                    />
-                )}
 
                 {showTutorial && (
                     <TutorialModal

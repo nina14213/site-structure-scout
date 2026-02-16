@@ -20,7 +20,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import QuizModal from "./QuizModal";
 import TutorialModal from "./TutorialModal";
 import EscapeRoom from "./EscapeRoom";
 import { GameState } from "@/hooks/useGameProgress";
@@ -170,7 +169,6 @@ export default function ExtensionLinker({
     valid: boolean;
     errors: Array<{ row: number; field: string; message: string }>;
   }>({ valid: false, errors: [] });
-  const [showQuiz, setShowQuiz] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   const [levelScore, setLevelScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300);
@@ -323,11 +321,7 @@ export default function ExtensionLinker({
       playFail?.();
       return;
     }
-    setShowQuiz(true);
-  };
-
-  const handleQuizComplete = (quizScore: number) => {
-    const finalScore = levelScore + quizScore * 2;
+    const finalScore = levelScore;
     addScore?.(finalScore, "Extension Nexus Complete");
     playLevelComplete?.();
     onComplete?.(finalScore, { fieldNotes, occurrenceData });
@@ -759,7 +753,7 @@ export default function ExtensionLinker({
         </Card>
 
         {/* Modals */}
-        {showQuiz && <QuizModal onComplete={handleQuizComplete} onClose={() => setShowQuiz(false)} />}
+        
 
         {showTutorial && <TutorialModal levelNumber={2} isOpen={showTutorial} onClose={() => setShowTutorial(false)} />}
       </div>
