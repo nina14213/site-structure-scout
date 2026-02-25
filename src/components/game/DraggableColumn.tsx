@@ -4,6 +4,7 @@ import { GripVertical, Check, X, AlertCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { dwcTerms } from './DwCTerms';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface DraggableColumnProps {
     column: string;
@@ -30,7 +31,9 @@ export default function DraggableColumn({
     onDrop,
     sampleValues = []
 }: DraggableColumnProps) {
+    const { t, language } = useLanguage();
     const term = mappedTo ? dwcTerms[mappedTo] : null;
+    const termDescription = term ? (language === 'en' && term.descriptionEN ? term.descriptionEN : term.description) : null;
 
     const getStatusColor = () => {
         if (!mappedTo) return 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
@@ -106,16 +109,11 @@ export default function DraggableColumn({
                                     <div className="space-y-2">
                                         <p className="font-semibold">{mappedTo}</p>
                                         <p className="text-sm text-slate-300">
-                                            {term?.description}
+                                            {termDescription}
                                         </p>
-                                        {term?.descriptionEN && (
-                                            <p className="text-xs text-slate-500 italic">
-                                                EN: {term.descriptionEN}
-                                            </p>
-                                        )}
                                         {term?.example && (
                                             <p className="text-xs">
-                                                <span className="text-slate-500">Przykład:</span>{' '}
+                                                <span className="text-slate-500">{t('common.example')}:</span>{' '}
                                                 <code className="bg-slate-700 text-slate-200 px-1 rounded">
                                                     {term.example}
                                                 </code>
@@ -123,7 +121,7 @@ export default function DraggableColumn({
                                         )}
                                         {term?.required && (
                                             <Badge variant="destructive" className="text-xs">
-                                                Wymagane
+                                                {t('common.required')}
                                             </Badge>
                                         )}
                                     </div>
@@ -133,7 +131,7 @@ export default function DraggableColumn({
 
                         {sampleValues.length > 0 && (
                             <div className="mt-2 text-xs text-gray-500 dark:text-slate-400 truncate">
-                                <span className="opacity-60">np:</span> {sampleValues.slice(0, 2).join(', ')}
+                                <span className="opacity-60">{language === 'en' ? 'e.g.' : 'np'}:</span> {sampleValues.slice(0, 2).join(', ')}
                                 {sampleValues.length > 2 && '...'}
                             </div>
                         )}
