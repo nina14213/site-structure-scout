@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 import bossDefeatedIcon from '@/assets/boss-defeated-x.png';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface ValidationStep {
     id: string;
@@ -54,14 +55,15 @@ interface ValidatorProps {
 }
 
 export default function Validator({ onComplete, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer }: ValidatorProps) {
+    const { t } = useLanguage();
     const [dataRecords, setDataRecords] = useState<DataRecord[]>(initialDataRecords);
     const [validationSteps, setValidationSteps] = useState<ValidationStep[]>([
-        { id: 'utf8', name: 'UTF-8 Encoding', description: 'Sprawdzanie kodowania pliku', status: 'pending' },
-        { id: 'required', name: 'Wymagane pola', description: 'Walidacja wymaganych pól DwC', status: 'pending' },
-        { id: 'ids', name: 'Unikalne ID', description: 'Sprawdzanie unikalności ID', status: 'pending' },
-        { id: 'dates', name: 'Format daty', description: 'Walidacja dat ISO 8601 (YYYY-MM-DD)', status: 'pending' },
-        { id: 'coords', name: 'Współrzędne', description: 'Sprawdzanie wartości lat/long', status: 'pending' },
-        { id: 'integrity', name: 'Integralność', description: 'Weryfikacja kluczy obcych (eventID)', status: 'pending' },
+        { id: 'utf8', name: t('valStep.utf8'), description: t('valStep.utf8Desc'), status: 'pending' },
+        { id: 'required', name: t('valStep.required'), description: t('valStep.requiredDesc'), status: 'pending' },
+        { id: 'ids', name: t('valStep.ids'), description: t('valStep.idsDesc'), status: 'pending' },
+        { id: 'dates', name: t('valStep.dates'), description: t('valStep.datesDesc'), status: 'pending' },
+        { id: 'coords', name: t('valStep.coords'), description: t('valStep.coordsDesc'), status: 'pending' },
+        { id: 'integrity', name: t('valStep.integrity'), description: t('valStep.integrityDesc'), status: 'pending' },
     ]);
     const [isValidating, setIsValidating] = useState(false);
     const [validationComplete, setValidationComplete] = useState(false);
@@ -99,16 +101,16 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         const polishChars = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;
         dataRecords.forEach(record => {
             if (!record.scientificName || record.scientificName.trim() === '') {
-                errors.push({ rowId: record.id, field: 'scientificName', message: 'Brak nazwy naukowej' });
+                errors.push({ rowId: record.id, field: 'scientificName', message: t('val.noScientificName') });
             } else if (polishChars.test(record.scientificName)) {
-                errors.push({ rowId: record.id, field: 'scientificName', message: 'Nazwa musi być łacińska (scientificName) — użyj nazwy naukowej zamiast polskiej' });
+                errors.push({ rowId: record.id, field: 'scientificName', message: t('val.mustBeLatin') });
             }
         });
 
         // Check for empty or duplicate IDs
         dataRecords.forEach(record => {
             if (!record.occurrenceID || record.occurrenceID.trim() === '') {
-                errors.push({ rowId: record.id, field: 'occurrenceID', message: 'Brak ID - wpisz unikalny identyfikator' });
+                errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.noID') });
             }
         });
         
@@ -117,22 +119,22 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         duplicates.forEach(dupId => {
             const record = dataRecords.find(r => r.occurrenceID === dupId);
             if (record) {
-                errors.push({ rowId: record.id, field: 'occurrenceID', message: 'Duplikat ID' });
+                errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.duplicateID') });
             }
         });
 
         // Check date format (ISO 8601: YYYY-MM-DD) and valid values
         dataRecords.forEach(record => {
             if (!record.eventDate || record.eventDate.trim() === '') {
-                errors.push({ rowId: record.id, field: 'eventDate', message: 'Brak daty - wpisz w formacie YYYY-MM-DD' });
+                errors.push({ rowId: record.id, field: 'eventDate', message: t('val.noDate') });
             } else {
                 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
                 if (!dateRegex.test(record.eventDate)) {
-                    errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowy format daty (wymagany: YYYY-MM-DD)' });
+                    errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateFormat') });
                 } else {
                     const [y, m, d] = record.eventDate.split('-').map(Number);
                     if (m < 1 || m > 12 || d < 1 || d > 31) {
-                        errors.push({ rowId: record.id, field: 'eventDate', message: 'Nieprawidłowa wartość daty (miesiąc/dzień poza zakresem)' });
+                        errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateValue') });
                     }
                 }
             }
@@ -143,19 +145,19 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
             const lat = parseFloat(record.decimalLatitude);
             const lon = parseFloat(record.decimalLongitude);
             if (isNaN(lat) || lat < -90 || lat > 90) {
-                errors.push({ rowId: record.id, field: 'decimalLatitude', message: `Szerokość ${record.decimalLatitude} poza zakresem [-90, 90]` });
+                errors.push({ rowId: record.id, field: 'decimalLatitude', message: t('val.latOutOfRange', { value: record.decimalLatitude }) });
             }
             if (isNaN(lon) || lon < -180 || lon > 180) {
-                errors.push({ rowId: record.id, field: 'decimalLongitude', message: `Długość ${record.decimalLongitude} poza zakresem [-180, 180]` });
+                errors.push({ rowId: record.id, field: 'decimalLongitude', message: t('val.lonOutOfRange', { value: record.decimalLongitude }) });
             }
         });
 
         // Check eventID integrity and uniqueness
         dataRecords.forEach(record => {
             if (!record.eventID || record.eventID.trim() === '') {
-                errors.push({ rowId: record.id, field: 'eventID', message: 'Brak eventID - wybierz z listy' });
+                errors.push({ rowId: record.id, field: 'eventID', message: t('val.noEventID') });
             } else if (!validEventIDs.includes(record.eventID)) {
-                errors.push({ rowId: record.id, field: 'eventID', message: 'Nieprawidłowy eventID' });
+                errors.push({ rowId: record.id, field: 'eventID', message: t('val.invalidEventID') });
             }
         });
         // Check eventID uniqueness
@@ -164,7 +166,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         dupEventIds.forEach(dupId => {
             dataRecords.filter(r => r.eventID === dupId).forEach(record => {
                 if (!errors.some(e => e.rowId === record.id && e.field === 'eventID')) {
-                    errors.push({ rowId: record.id, field: 'eventID', message: 'Duplikat eventID - każdy rekord musi mieć unikalny eventID' });
+                    errors.push({ rowId: record.id, field: 'eventID', message: t('val.duplicateEventID') });
                 }
             });
         });
@@ -192,38 +194,38 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
             await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 300));
 
             let stepPassed = true;
-            let stepMessage = 'Walidacja przeszła pomyślnie';
+            let stepMessage = t('val.validationPassed');
 
             // Check specific validation for each step
             if (validationSteps[i].id === 'required') {
                 const reqErrors = errors.filter(e => e.field === 'scientificName');
                 if (reqErrors.length > 0) {
                     stepPassed = false;
-                    stepMessage = `Znaleziono ${reqErrors.length} błąd(ów) nazwy naukowej`;
+                    stepMessage = t('val.scientificNameErrors', { count: reqErrors.length });
                 }
             } else if (validationSteps[i].id === 'ids') {
                 const idErrors = errors.filter(e => e.field === 'occurrenceID');
                 if (idErrors.length > 0) {
                     stepPassed = false;
-                    stepMessage = `Znaleziono ${idErrors.length} duplikat(ów) ID`;
+                    stepMessage = t('val.duplicateIDs', { count: idErrors.length });
                 }
             } else if (validationSteps[i].id === 'dates') {
                 const dateErrors = errors.filter(e => e.field === 'eventDate');
                 if (dateErrors.length > 0) {
                     stepPassed = false;
-                    stepMessage = `Znaleziono ${dateErrors.length} błąd(ów) formatu daty`;
+                    stepMessage = t('val.dateErrors', { count: dateErrors.length });
                 }
             } else if (validationSteps[i].id === 'coords') {
                 const coordErrors = errors.filter(e => e.field === 'decimalLatitude' || e.field === 'decimalLongitude');
                 if (coordErrors.length > 0) {
                     stepPassed = false;
-                    stepMessage = `Znaleziono ${coordErrors.length} błąd(ów) współrzędnych`;
+                    stepMessage = t('val.coordErrors', { count: coordErrors.length });
                 }
             } else if (validationSteps[i].id === 'integrity') {
                 const integrityErrors = errors.filter(e => e.field === 'eventID');
                 if (integrityErrors.length > 0) {
                     stepPassed = false;
-                    stepMessage = `Znaleziono ${integrityErrors.length} nieprawidłowy(ch) eventID`;
+                    stepMessage = t('val.eventIDErrors', { count: integrityErrors.length });
                 }
             }
 
@@ -312,10 +314,10 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                                 <Shield className="w-8 h-8 text-red-500 dark:text-red-400" />
-                                BOSS: Chaos Validator
+                                {t('val.title')}
                             </h1>
                             <p className="text-gray-600 dark:text-slate-400 mt-1">
-                                Popraw błędy w danych i przejdź walidację!
+                                {t('val.subtitle')}
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -366,7 +368,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         <CardHeader>
                             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                                 <Edit className="w-5 h-5 text-orange-500" />
-                                Edytor danych - Napraw błędy
+                                {t('val.dataEditor')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -374,8 +376,8 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                 <AlertDescription className="text-orange-800 dark:text-orange-300">
                                     {errorDetails.length > 0
-                                        ? 'Pola z błędami są zaznaczone na czerwono. Popraw je i uruchom walidację ponownie.'
-                                        : 'Przejrzyj dane i popraw błędy przed uruchomieniem walidacji. Puste pola i nieprawidłowe wartości zostaną wykryte.'}
+                                        ? t('val.errorsMarked')
+                                        : t('val.reviewData')}
                                 </AlertDescription>
                             </Alert>
                             <div className="overflow-x-auto max-h-[400px] overflow-y-auto border border-gray-200 dark:border-slate-600 rounded-lg">
@@ -398,7 +400,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.occurrenceID}
                                                         onChange={(e) => updateRecord(record.id, 'occurrenceID', e.target.value)}
-                                                        placeholder="Wpisz ID"
+                                                        placeholder={t('val.enterID')}
                                                         className={`text-gray-900 dark:text-white ${hasError(record.id, 'occurrenceID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
@@ -408,7 +410,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         onValueChange={(val) => updateRecord(record.id, 'eventID', val)}
                                                     >
                                                         <SelectTrigger className={`w-full text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}>
-                                                            <SelectValue placeholder="Wybierz" />
+                                                            <SelectValue placeholder={t('val.select')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {validEventIDs.map(id => (
@@ -421,7 +423,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                     <Input
                                                         value={record.scientificName}
                                                         onChange={(e) => updateRecord(record.id, 'scientificName', e.target.value)}
-                                                        placeholder="Nazwa łacińska"
+                                                        placeholder={t('val.latinName')}
                                                         className={`text-gray-900 dark:text-white italic ${hasError(record.id, 'scientificName') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
                                                     />
                                                 </td>
@@ -464,12 +466,12 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
                             {/* Error List */}
                             <div className="mt-4 space-y-2">
-                                <h4 className="font-semibold text-red-600 dark:text-red-400">Znalezione błędy:</h4>
+                                <h4 className="font-semibold text-red-600 dark:text-red-400">{t('val.errorsFound')}</h4>
                                 {errorDetails.map((error, idx) => (
                                     <Alert key={idx} className="bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30 py-2">
                                         <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                                         <AlertDescription className="text-red-800 dark:text-red-300 text-sm">
-                                            Wiersz {error.rowId}, pole <strong>{error.field}</strong>: {error.message}
+                                            {t('val.row')} {error.rowId}, {t('val.field')} <strong>{error.field}</strong>: {error.message}
                                         </AlertDescription>
                                     </Alert>
                                 ))}
@@ -483,7 +485,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                     <CardHeader>
                         <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                             <Zap className="w-5 h-5 text-yellow-500" />
-                            Kroki walidacji
+                            {t('val.validationSteps')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -529,12 +531,12 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 {isValidating ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Walidacja...
+                                        {t('val.validating')}
                                     </>
                                 ) : (
                                     <>
                                         <Shield className="w-4 h-4 mr-2" />
-                                        {validationComplete ? 'Waliduj ponownie' : 'Uruchom walidację GBIF'}
+                                        {validationComplete ? t('val.revalidate') : t('val.runValidation')}
                                     </>
                                 )}
                             </Button>
@@ -545,7 +547,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 size="lg"
                             >
                                 <Trophy className="w-4 h-4 mr-2" />
-                                Zdobądź zwycięstwo!
+                                {t('val.victory')}
                             </Button>
                         )}
                     </CardFooter>
@@ -560,7 +562,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                         <Alert className="bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30">
                             <Trophy className="w-5 h-5 text-green-600 dark:text-green-400" />
                             <AlertDescription className="text-green-800 dark:text-green-300 text-lg font-semibold">
-                                Gratulacje! Pokonałeś Chaos Validator! 🎉
+                                {t('val.congrats')}
                             </AlertDescription>
                         </Alert>
                     </motion.div>

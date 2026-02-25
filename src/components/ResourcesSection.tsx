@@ -1,6 +1,9 @@
 import { BookOpen, ExternalLink, HelpCircle } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const ResourcesSection = () => {
+  const { t } = useLanguage();
+
   const resources = [
     { name: 'Darwin Core Terms', url: 'https://dwc.tdwg.org/terms/' },
     { name: 'GBIF IPT', url: 'https://www.gbif.org/ipt' },
@@ -13,7 +16,7 @@ const ResourcesSection = () => {
         <div className="glass-card rounded-2xl p-8">
           <div className="flex items-center gap-3 mb-6">
             <BookOpen className="text-primary" size={28} />
-            <h3 className="font-display text-2xl">Nauka</h3>
+            <h3 className="font-display text-2xl">{t('resources.title')}</h3>
           </div>
           
           <div className="flex flex-wrap gap-4 mb-8">
@@ -35,11 +38,10 @@ const ResourcesSection = () => {
 
           <div className="flex items-center gap-3 mb-4">
             <HelpCircle className="text-secondary" size={24} />
-            <h4 className="font-display text-xl">Jak grać?</h4>
+            <h4 className="font-display text-xl">{t('resources.howToPlay')}</h4>
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            Ucz się standardu GBIF Darwin Core poprzez zabawę! Przejdź przez wszystkie etapy, 
-            mapuj dane, buduj połączenia i zdobywaj punkty. Najlepsi Data Rangerzy trafiają na listę rankingową!
+            {t('resources.description')}
           </p>
         </div>
       </div>

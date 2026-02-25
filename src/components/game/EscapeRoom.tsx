@@ -33,6 +33,7 @@ import {
   Shield,
 } from "lucide-react";
 import { GameState } from "@/hooks/useGameProgress";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface Puzzle {
   id: number;
@@ -208,6 +209,7 @@ export default function EscapeRoom({
   playFail,
   playLevelComplete,
 }: EscapeRoomProps) {
+  const { t } = useLanguage();
   const [puzzleState, setPuzzleState] = useState<Puzzle[]>(puzzles);
   const [currentPuzzle, setCurrentPuzzle] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
@@ -361,8 +363,8 @@ export default function EscapeRoom({
           >
             <Trophy className="w-24 h-24 text-yellow-400 drop-shadow-[0_0_30px_rgba(250,204,21,0.5)]" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-white mb-4 font-display">🎉 Escape Room Ukończony!</h1>
-          <p className="text-emerald-300 text-xl mb-2">Rozwiązałeś wszystkie zagadki!</p>
+          <h1 className="text-4xl font-bold text-white mb-4 font-display">{t('escape.completed')}</h1>
+          <p className="text-emerald-300 text-xl mb-2">{t('escape.allPuzzlesSolved')}</p>
           <motion.p
             initial={{ scale: 0.5 }}
             animate={{ scale: [0.5, 1.2, 1] }}
@@ -374,11 +376,11 @@ export default function EscapeRoom({
           <div className="flex gap-4 justify-center">
             <Button onClick={handleComplete} size="lg" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30">
               <CheckCircle className="w-5 h-5 mr-2" />
-              Zakończ Misję
+              {t('escape.finishMission')}
             </Button>
             <Button onClick={handleReset} variant="outline" size="lg" className="border-slate-500 hover:border-white">
               <RotateCcw className="w-5 h-5 mr-2" />
-              Zagraj Ponownie
+              {t('escape.playAgain')}
             </Button>
           </div>
         </motion.div>
@@ -418,15 +420,15 @@ export default function EscapeRoom({
                 >
                   <Key className="w-8 h-8 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
                 </motion.div>
-                🔐 Escape Room Danych
+                {t('escape.title')}
               </h1>
               <p className="text-slate-400 mt-1">
-                Rozwiąż zagadki, aby odblokować sekrety Darwin Core
+                {t('escape.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Button onClick={onBack} variant="ghost" className="text-slate-400 hover:text-white">
-                ← Powrót
+                {t('escape.back')}
               </Button>
               <motion.div
                 animate={timeLeft < 60 ? { scale: [1, 1.05, 1] } : {}}
@@ -465,9 +467,9 @@ export default function EscapeRoom({
           <div className="flex justify-between text-sm mt-2 text-slate-400">
             <span className="flex items-center gap-1">
               <Shield className="w-3 h-3" />
-              {solvedCount}/{puzzleState.length} zagadek rozwiązanych
+              {solvedCount}/{puzzleState.length} {t('escape.puzzlesSolved')}
             </span>
-            <span>{attempts > 0 ? `${attempts} prób w tej zagadce` : "Gotowy na rozwiązanie!"}</span>
+            <span>{attempts > 0 ? t('escape.attemptsInPuzzle', { count: attempts }) : t('escape.readyToSolve')}</span>
           </div>
         </motion.div>
 
@@ -540,7 +542,7 @@ export default function EscapeRoom({
                       <div className="flex items-center gap-2 mt-1">
                         <DifficultyStars level={currentPuzzleData.difficulty} />
                         <span className="text-xs text-slate-500">
-                          {currentPuzzleData.difficulty === 1 ? "Łatwe" : currentPuzzleData.difficulty === 2 ? "Średnie" : "Trudne"}
+                          {currentPuzzleData.difficulty === 1 ? t('escape.easy') : currentPuzzleData.difficulty === 2 ? t('escape.medium') : t('escape.hard')}
                         </span>
                       </div>
                     </div>
@@ -573,7 +575,7 @@ export default function EscapeRoom({
                     className={`flex-1 rounded-xl transition-all ${showHint ? "border-yellow-500 text-yellow-400 bg-yellow-500/10" : "border-slate-600 text-slate-400 hover:border-yellow-500/50"}`}
                   >
                     {showHint ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                    {showHint ? "Ukryj" : "Podpowiedź"} 
+                    {showHint ? t('escape.hide') : t('escape.hint')}
                     <span className="ml-1 text-xs opacity-60">-25</span>
                   </Button>
                   <Button
@@ -583,7 +585,7 @@ export default function EscapeRoom({
                     className={`flex-1 rounded-xl transition-all ${showClue ? "border-amber-500 text-amber-400 bg-amber-500/10" : "border-slate-600 text-slate-400 hover:border-amber-500/50"}`}
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    {showClue ? "Ukryj" : "Wskazówka"}
+                    {showClue ? t('escape.hide') : t('escape.clue')}
                     <span className="ml-1 text-xs opacity-60">-25</span>
                   </Button>
                 </div>
@@ -628,7 +630,7 @@ export default function EscapeRoom({
                 <div className="space-y-3">
                   <label className="text-slate-300 font-medium flex items-center gap-2">
                     <ArrowRight className="w-4 h-4 text-amber-400" />
-                    Twoja odpowiedź:
+                    {t('escape.yourAnswer')}
                   </label>
                   <div className="flex gap-3">
                     <div className="relative flex-1">
@@ -636,7 +638,7 @@ export default function EscapeRoom({
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                        placeholder="Wpisz rozwiązanie..."
+                        placeholder={t('escape.enterSolution')}
                         className="h-12 bg-slate-900/80 border-slate-600 text-white placeholder:text-slate-500 text-lg rounded-xl pr-12 focus:border-amber-500 focus:ring-amber-500/20"
                       />
                       {userAnswer && (
@@ -670,7 +672,7 @@ export default function EscapeRoom({
                       <Alert className="bg-red-500/10 border-red-500/30 rounded-xl">
                         <Skull className="w-4 h-4 text-red-400" />
                         <AlertDescription className="text-red-300">
-                          Już {attempts} nieudanych prób! Rozważ użycie podpowiedzi. 💀
+                          {t('escape.tooManyAttempts', { count: attempts })}
                         </AlertDescription>
                       </Alert>
                     </motion.div>
@@ -679,10 +681,10 @@ export default function EscapeRoom({
               </CardContent>
               <CardFooter className="flex justify-between items-center border-t border-slate-700/50 pt-4">
                 <span className="text-slate-500 text-xs">
-                  Każda błędna próba: -10 pts
+                  {t('escape.wrongAttemptPenalty')}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500 text-xs">Potencjalne:</span>
+                  <span className="text-slate-500 text-xs">{t('escape.potential')}</span>
                   <motion.span
                     key={`${showHint}-${showClue}-${attempts}`}
                     initial={{ scale: 1.3, color: "#f59e0b" }}
@@ -705,7 +707,7 @@ export default function EscapeRoom({
             className="w-full border-amber-700/50 bg-amber-900/10 text-amber-300 hover:bg-amber-900/30 hover:border-amber-600 rounded-xl"
           >
             <span className="mr-2">📋</span>
-            Notatki Terenowe
+            {t('escape.fieldNotes')}
             <motion.span
               animate={{ rotate: showFieldNotes ? 180 : 0 }}
               className="ml-2"
@@ -747,7 +749,7 @@ export default function EscapeRoom({
                               <Hash className="w-3 h-3 opacity-60" />
                               {note.id}
                             </p>
-                            <span className="text-slate-500 text-xs">1 osobnik</span>
+                            <span className="text-slate-500 text-xs">1 {t('escape.individual')}</span>
                           </div>
                           <p className="text-slate-300 font-medium text-xs mb-1">{note.name}</p>
                           <div className="flex items-center gap-3 text-xs text-slate-500">
