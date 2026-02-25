@@ -5,7 +5,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 @layer base {
+  /* ===== LIGHT THEME (high-contrast for accessibility) ===== */
   :root {
+    --background: 220 15% 96%;
+    --foreground: 220 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 12%;
+
+    --primary: 142 60% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 185 80% 30%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 90%;
+    --muted-foreground: 220 15% 40%;
+
+    --accent: 270 60% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 80%;
+    --input: 220 15% 85%;
+    --ring: 142 60% 35%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens – light */
+    --neon-green: 142 60% 35%;
+    --neon-cyan: 185 80% 30%;
+    --neon-purple: 270 60% 50%;
+    --neon-orange: 25 80% 50%;
+    --dark-base: 220 15% 96%;
+    --dark-surface: 0 0% 100%;
+    --dark-elevated: 220 15% 94%;
+
+    --glow-green: none;
+    --glow-cyan: none;
+    --glow-purple: none;
+
+    --gradient-hero: linear-gradient(135deg, hsl(220 15% 96%) 0%, hsl(0 0% 100%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 15% 96%) 100%);
+    --gradient-neon: linear-gradient(90deg, hsl(142 60% 35%) 0%, hsl(185 80% 30%) 100%);
+  }
+
+  /* ===== DARK THEME (original gaming aesthetic) ===== */
+  .dark {
     --background: 220 20% 8%;
     --foreground: 180 100% 95%;
 
@@ -34,9 +85,6 @@
     --input: 220 20% 15%;
     --ring: 142 76% 50%;
 
-    --radius: 0.75rem;
-
-    /* Custom gaming tokens */
     --neon-green: 142 76% 50%;
     --neon-cyan: 185 100% 50%;
     --neon-purple: 280 100% 65%;
@@ -45,20 +93,13 @@
     --dark-surface: 220 25% 12%;
     --dark-elevated: 220 20% 16%;
 
-    /* Glow effects */
     --glow-green: 0 0 20px hsl(142 76% 50% / 0.5), 0 0 40px hsl(142 76% 50% / 0.3);
     --glow-cyan: 0 0 20px hsl(185 100% 50% / 0.5), 0 0 40px hsl(185 100% 50% / 0.3);
     --glow-purple: 0 0 20px hsl(280 100% 65% / 0.5), 0 0 40px hsl(280 100% 65% / 0.3);
-    
-    /* Gradients */
+
     --gradient-hero: linear-gradient(135deg, hsl(220 25% 12%) 0%, hsl(220 20% 8%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(220 25% 14%) 0%, hsl(220 25% 10%) 100%);
     --gradient-neon: linear-gradient(90deg, hsl(142 76% 50%) 0%, hsl(185 100% 50%) 100%);
-  }
-
-  .dark {
-    --background: 220 20% 8%;
-    --foreground: 180 100% 95%;
   }
 }
 
@@ -69,8 +110,16 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
-    background: radial-gradient(ellipse at top, hsl(220 25% 12%) 0%, hsl(220 20% 6%) 100%);
     min-height: 100vh;
+  }
+
+  .dark body,
+  .dark {
+    background: radial-gradient(ellipse at top, hsl(220 25% 12%) 0%, hsl(220 20% 6%) 100%);
+  }
+
+  :root:not(.dark) body {
+    background: hsl(220 15% 96%);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -107,6 +156,10 @@
     background: linear-gradient(145deg, hsl(220 25% 14% / 0.8) 0%, hsl(220 25% 10% / 0.9) 100%);
     backdrop-filter: blur(10px);
     border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  :not(.dark) .glass-card {
+    background: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(220 15% 96% / 0.95) 100%);
   }
 
   .stage-card {

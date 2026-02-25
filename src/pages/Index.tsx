@@ -15,7 +15,17 @@ const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
   const [currentLevel, setCurrentLevel] = useState<number | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dwc-dark-mode');
+      if (saved === 'false') {
+        document.documentElement.classList.remove('dark');
+        return false;
+      }
+    } catch {}
+    document.documentElement.classList.add('dark');
+    return true;
+  });
   const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
   const [quizLevel, setQuizLevel] = useState<number | null>(null);
   const [pendingScore, setPendingScore] = useState<number>(0);
@@ -160,7 +170,18 @@ const Index = () => {
 
   // Toggle functions
   const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
-  const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      try { localStorage.setItem('dwc-dark-mode', String(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   // Handle data import
   const handleDataImport = useCallback(() => {
