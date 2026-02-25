@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
 import DataImport from '@/components/game/DataImport';
 import SchemaMapper from '@/components/game/SchemaMapper';
@@ -10,6 +11,7 @@ type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMappe
 
 const Index = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
   const [currentLevel, setCurrentLevel] = useState<number | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -73,10 +75,10 @@ const Index = () => {
   const handleStartGame = useCallback((playerName: string) => {
     startNewGame(playerName);
     toast({
-      title: `Witaj, ${playerName}! 🦎`,
-      description: "Twoja misja Data Rangera właśnie się rozpoczęła!",
+      title: t('toast.welcome', { name: playerName }),
+      description: t('toast.welcomeDesc'),
     });
-  }, [startNewGame, toast]);
+  }, [startNewGame, toast, t]);
 
   // Handle level selection from start screen
   const handleLevelClick = useCallback((levelId: number) => {
@@ -89,11 +91,11 @@ const Index = () => {
 
   // Level names for toast messages
   const levelNames: Record<number, string> = {
-    1: 'Mapowanie Kolumn',
-    2: 'Łączenie Rozszerzeń',
-    3: 'Pakowanie Danych',
-    4: 'Łowca Gatunków',
-    5: 'BOSS: Walidacja'
+    1: t('level.1.name'),
+    2: t('level.2.name'),
+    3: t('level.3.name'),
+    4: t('level.4.name'),
+    5: t('level.5.name'),
   };
 
   // Handle level completion - auto-progress to next stage
@@ -125,21 +127,21 @@ const Index = () => {
 
     if (quizLevel >= 5) {
       toast({
-        title: `${levelNames[quizLevel]} ukończony! 🏆`,
-        description: `Wszystkie misje zakończone!`,
+        title: t('toast.allComplete', { level: levelNames[quizLevel] }),
+        description: t('toast.allCompleteDesc'),
       });
       setCurrentScreen('complete');
     } else {
       toast({
-        title: `${levelNames[quizLevel]} ukończony! 🎉`,
-        description: `Przechodzisz do: ${levelNames[nextLevel]}`,
+        title: t('toast.levelComplete', { level: levelNames[quizLevel] }),
+        description: t('toast.nextLevel', { next: levelNames[nextLevel] }),
       });
       setCurrentLevel(nextLevel);
       setCurrentScreen('playing');
       startLevelTimer();
     }
     setQuizLevel(null);
-  }, [quizLevel, toast, startLevelTimer]);
+  }, [quizLevel, toast, startLevelTimer, t]);
 
   // Handle going back to menu
   const handleBackToMenu = useCallback(() => {
@@ -168,21 +170,20 @@ const Index = () => {
   const handleImportComplete = useCallback((data: any[], columns: string[], fileName: string) => {
     setLevelData(prev => ({ ...prev, customImport: { data, columns, fileName } }));
     toast({
-      title: "Dane zaimportowane! 📊",
-      description: `Wczytano ${data.length} wierszy z pliku ${fileName}`,
+      title: t('toast.dataImported'),
+      description: t('toast.dataImportedDesc', { count: String(data.length), file: fileName }),
     });
     setCurrentScreen('schemaMapper');
-  }, [toast]);
+  }, [toast, t]);
 
   const handleSchemaMappingComplete = useCallback((mappings: Record<string, string>, schema: string) => {
     setLevelData(prev => ({ ...prev, schemaMappings: mappings, selectedSchema: schema }));
     toast({
-      title: "Mapowanie ukończone! ✅",
-      description: `Zmapowano pola do schematu ${schema}`,
+      title: t('toast.mappingComplete'),
+      description: t('toast.mappingCompleteDesc', { schema }),
     });
-    // Could go to validation or next step
     setCurrentScreen('start');
-  }, [toast]);
+  }, [toast, t]);
 
   // Render based on current screen
   if (currentScreen === 'complete') {
