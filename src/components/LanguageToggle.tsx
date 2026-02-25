@@ -25,7 +25,7 @@ export default function LanguageToggle({ className = '' }: { className?: string 
         <Button
           variant="ghost"
           size="sm"
-          className={`text-slate-400 hover:text-white gap-1.5 ${className}`}
+          className={`text-muted-foreground hover:text-foreground gap-1.5 ${className}`}
         >
           <span>{current.flag}</span>
           <span className="text-xs font-bold uppercase">{current.value}</span>
