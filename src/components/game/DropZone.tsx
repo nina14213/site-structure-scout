@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { dwcTerms, termCategories } from './DwCTerms';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface DropZoneProps {
     termName: string;
@@ -26,6 +27,7 @@ export default function DropZone({
     category = 'core'
 }: DropZoneProps) {
     const [isOver, setIsOver] = useState(false);
+    const { t, language } = useLanguage();
     const term = dwcTerms[termName];
     const categoryInfo = termCategories[category];
 
@@ -52,6 +54,9 @@ export default function DropZone({
         if (isRequired) return 'border-orange-400 bg-orange-900/10 border-dashed';
         return 'border-slate-700/50 bg-slate-800/10 border-dashed';
     };
+
+    const termDescription = language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
+    const catName = language === 'en' ? (t(`cat.${category}`) !== `cat.${category}` ? t(`cat.${category}`) : categoryInfo?.name) : categoryInfo?.name;
 
     return (
         <TooltipProvider>
@@ -90,20 +95,15 @@ export default function DropZone({
                                                 dwc:{termName}
                                             </a>
                                         </p>
-                                        <p className="text-sm">{term?.description}</p>
-                                        {term?.descriptionEN && (
-                                            <p className="text-xs text-slate-400 italic">
-                                                {term.descriptionEN}
-                                            </p>
-                                        )}
+                                        <p className="text-sm">{termDescription}</p>
                                         {term?.example && (
                                             <code className="block text-xs bg-slate-700 text-slate-200 p-2 rounded">
-                                                Przykład: {term.example}
+                                                {t('common.example')}: {term.example}
                                             </code>
                                         )}
                                         {term?.allowedValues && (
                                             <div className="text-xs">
-                                                <span className="text-slate-500">Dozwolone:</span>
+                                                <span className="text-slate-500">{t('common.allowed')}:</span>
                                                 <div className="flex flex-wrap gap-1 mt-1">
                                                     {term.allowedValues.map(v => (
                                                         <Badge key={v} variant="outline" className="text-xs">
@@ -119,7 +119,7 @@ export default function DropZone({
 
                             {isRequired && (
                                 <Badge variant="destructive" className="text-xs">
-                                    Wymagane
+                                    {t('common.required')}
                                 </Badge>
                             )}
 
@@ -129,14 +129,14 @@ export default function DropZone({
                                     className="text-xs"
                                     style={{ borderColor: categoryInfo.color, color: categoryInfo.color }}
                                 >
-                                    {categoryInfo.name}
+                                    {catName}
                                 </Badge>
                             )}
                         </div>
 
-                        {term?.description && (
+                        {termDescription && (
                             <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                                {term.description}
+                                {termDescription}
                             </p>
                         )}
                     </div>
@@ -159,7 +159,7 @@ export default function DropZone({
                                 onClick={() => onRemove?.(termName)}
                                 className="text-xs h-6 px-2"
                             >
-                                Usuń
+                                {t('common.remove')}
                             </Button>
                         )}
                         {!mappedColumn && isRequired && (
@@ -177,7 +177,7 @@ export default function DropZone({
                             className="mt-2 pt-2 border-t border-slate-700"
                         >
                             <p className="text-xs text-slate-300">
-                                <span className="font-semibold">Mapowanie:</span> {mappedColumn}
+                                <span className="font-semibold">{t('common.mapping')}:</span> {mappedColumn}
                             </p>
                         </motion.div>
                     )}
