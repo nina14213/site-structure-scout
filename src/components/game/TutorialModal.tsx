@@ -4,107 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, Lightbulb, Target, Award } from 'lucide-react';
-
-interface Tutorial {
-    title: string;
-    emoji: string;
-    objective: string;
-    steps: string[];
-    tips: string[];
-    scoring: string;
-}
-
-const tutorials: Record<number, Tutorial> = {
-    1: {
-        title: "Mapowanie Kolumn - Mapowanie CSV",
-        emoji: "⚡",
-        objective: "Zmapuj wszystkie wymagane kolumny CSV na termy Darwin Core",
-        steps: [
-            "1. Wgraj swój CSV lub użyj przykładowych danych",
-            "2. Przeciągnij kolumny z lewej na odpowiednie termy po prawej",
-            "3. Zacznij od wymaganych pól (czerwone obramowanie)",
-            "4. Sprawdź podpowiedzi - najedź na term aby zobaczyć opis",
-            "5. Zmapuj wszystkie wymagane pola aby przejść dalej"
-        ],
-        tips: [
-            "💡 Wymagane pola: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName",
-            "🎯 Każda kolumna może być zmapowana tylko raz",
-            "⏱️ Im szybciej - tym więcej punktów!"
-        ],
-        scoring: "+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność"
-    },
-    2: {
-        title: "Łączenie Rozszerzeń - Łączenie Danych",
-        emoji: "🔗",
-        objective: "Połącz pliki extension z core i sprawdź referential integrity",
-        steps: [
-            "1. Zobacz jakie ID są w core (event.txt)",
-            "2. Kliknij 'Sprawdź Referential Integrity' dla taxon.txt",
-            "3. Kliknij 'Sprawdź Referential Integrity' dla multimedia.txt",
-            "4. Jeśli są błędy - usuń nieprawidłowe rekordy przyciskiem 'Usuń'",
-            "5. Upewnij się że wszystkie extensions są połączone bez błędów"
-        ],
-        tips: [
-            "💡 Taxon extension automatycznie przechodzi (brak foreign key do core)",
-            "🎯 Multimedia musi mieć eventID istniejące w core",
-            "⚠️ Nieprawidłowe ID można usunąć jednym kliknięciem"
-        ],
-        scoring: "+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity"
-    },
-    3: {
-        title: "Pakowanie Danych - Generowanie Metadanych",
-        emoji: "📦",
-        objective: "Wygeneruj meta.xml i datapackage.json dla Darwin Core Archive",
-        steps: [
-            "1. Wypełnij metadane datasetu (tytuł, opis, autor, licencja)",
-            "2. Kliknij 'Generuj meta.xml' - plik opisujący strukturę",
-            "3. Kliknij 'Generuj datapackage.json' - metadane Frictionless",
-            "4. Możesz podejrzeć wygenerowane pliki w zakładkach",
-            "5. Pobierz meta.xml jeśli chcesz zobaczyć plik lokalnie"
-        ],
-        tips: [
-            "💡 meta.xml jest wymagany przez GBIF do publikacji danych",
-            "🎯 datapackage.json to standard Frictionless Data",
-            "📄 Oba pliki automatycznie zawierają strukturę z poprzednich poziomów"
-        ],
-        scoring: "+150 pkt za meta.xml, +150 pkt za datapackage.json, +bonus za czas"
-    },
-    4: {
-        title: "Łowca Gatunków - Laboratorium Taksonomiczne",
-        emoji: "🧬",
-        objective: "Dopasuj nazwy gatunków do oficjalnej taksonomii GBIF Backbone. Wykrywaj literówki, synonimy i przypisuj królestwa!",
-        steps: [
-            "1. Runda 1: Popraw literówki w nazwach naukowych",
-            "2. Runda 2: Rozpoznaj synonimy i znajdź akceptowane nazwy",
-            "3. Runda 3: Przypisz poprawne królestwo (Kingdom) do gatunków",
-            "4. Uważaj na pułapki — niektóre nazwy są poprawne!"
-        ],
-        tips: [
-            "🧬 GBIF Backbone Taxonomy łączy ponad 2 mln nazw gatunków",
-            "🔍 Synonimy to stare nazwy uznane za równoznaczne z nowymi",
-            "⚠️ Nie każda nazwa zawiera błąd — niektóre są poprawne!"
-        ],
-        scoring: "+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd"
-    },
-    5: {
-        title: "BOSS: Walidacja GBIF",
-        emoji: "👹",
-        objective: "Pokonaj Chaos Validator - przejdź walidację GBIF bez błędów",
-        steps: [
-            "1. Kliknij 'Uruchom Walidację GBIF'",
-            "2. Obserwuj 6 kroków walidacji (UTF-8, wymagane pola, ID, formaty, współrzędne, integrity)",
-            "3. Każdy krok musi przejść (zielona ikona ✓)",
-            "4. Jeśli jest błąd - wróć do poprzednich poziomów i napraw dane",
-            "5. Po pomyślnej walidacji - ukończ misję!"
-        ],
-        tips: [
-            "💡 Walidacja symuluje prawdziwy GBIF Data Validator",
-            "🎯 Sprawdza: kodowanie UTF-8, wymagane pola, unikalność ID, formaty dat i współrzędnych",
-            "⚠️ Błędy krytyczne (czerwone ✗) blokują publikację"
-        ],
-        scoring: "+50 pkt za każdy krok walidacji, +200 bonus za perfekcyjne przejście"
-    }
-};
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface TutorialModalProps {
     levelNumber: number;
@@ -113,6 +13,156 @@ interface TutorialModalProps {
 }
 
 export default function TutorialModal({ levelNumber, isOpen, onClose }: TutorialModalProps) {
+    const { t, language } = useLanguage();
+
+    const tutorials: Record<number, {
+        emoji: string;
+        titleKey: string;
+        objectiveKey: string;
+        steps: string[];
+        tips: string[];
+        scoring: string;
+    }> = {
+        1: {
+            emoji: "⚡",
+            titleKey: 'tutorial.1.title',
+            objectiveKey: 'tutorial.1.objective',
+            steps: language === 'pl' ? [
+                "1. Wgraj swój CSV lub użyj przykładowych danych",
+                "2. Przeciągnij kolumny z lewej na odpowiednie termy po prawej",
+                "3. Zacznij od wymaganych pól (czerwone obramowanie)",
+                "4. Sprawdź podpowiedzi - najedź na term aby zobaczyć opis",
+                "5. Zmapuj wszystkie wymagane pola aby przejść dalej"
+            ] : [
+                "1. Upload your CSV or use sample data",
+                "2. Drag columns from the left to the matching terms on the right",
+                "3. Start with required fields (red border)",
+                "4. Check hints - hover over a term to see its description",
+                "5. Map all required fields to proceed"
+            ],
+            tips: language === 'pl' ? [
+                "💡 Wymagane pola: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName",
+                "🎯 Każda kolumna może być zmapowana tylko raz",
+                "⏱️ Im szybciej - tym więcej punktów!"
+            ] : [
+                "💡 Required fields: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName",
+                "🎯 Each column can only be mapped once",
+                "⏱️ The faster you go - the more points!"
+            ],
+            scoring: language === 'pl' ? "+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność" : "+50 pts per correct mapping, +100 bonus for 100% accuracy"
+        },
+        2: {
+            emoji: "🔗",
+            titleKey: 'tutorial.2.title',
+            objectiveKey: 'tutorial.2.objective',
+            steps: language === 'pl' ? [
+                "1. Zobacz jakie ID są w core (event.txt)",
+                "2. Kliknij 'Sprawdź Referential Integrity' dla taxon.txt",
+                "3. Kliknij 'Sprawdź Referential Integrity' dla multimedia.txt",
+                "4. Jeśli są błędy - usuń nieprawidłowe rekordy przyciskiem 'Usuń'",
+                "5. Upewnij się że wszystkie extensions są połączone bez błędów"
+            ] : [
+                "1. Check which IDs are in the core (event.txt)",
+                "2. Click 'Check Referential Integrity' for taxon.txt",
+                "3. Click 'Check Referential Integrity' for multimedia.txt",
+                "4. If there are errors - remove invalid records with the 'Remove' button",
+                "5. Make sure all extensions are linked without errors"
+            ],
+            tips: language === 'pl' ? [
+                "💡 Taxon extension automatycznie przechodzi (brak foreign key do core)",
+                "🎯 Multimedia musi mieć eventID istniejące w core",
+                "⚠️ Nieprawidłowe ID można usunąć jednym kliknięciem"
+            ] : [
+                "💡 Taxon extension passes automatically (no foreign key to core)",
+                "🎯 Multimedia must have an eventID that exists in core",
+                "⚠️ Invalid IDs can be removed with one click"
+            ],
+            scoring: language === 'pl' ? "+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity" : "+100 pts per linked extension, +25 pts for checking integrity"
+        },
+        3: {
+            emoji: "📦",
+            titleKey: 'tutorial.3.title',
+            objectiveKey: 'tutorial.3.objective',
+            steps: language === 'pl' ? [
+                "1. Wypełnij metadane datasetu (tytuł, opis, autor, licencja)",
+                "2. Kliknij 'Generuj meta.xml' - plik opisujący strukturę",
+                "3. Kliknij 'Generuj datapackage.json' - metadane Frictionless",
+                "4. Możesz podejrzeć wygenerowane pliki w zakładkach",
+                "5. Pobierz meta.xml jeśli chcesz zobaczyć plik lokalnie"
+            ] : [
+                "1. Fill in dataset metadata (title, description, author, license)",
+                "2. Click 'Generate meta.xml' - the file describing the structure",
+                "3. Click 'Generate datapackage.json' - Frictionless metadata",
+                "4. You can preview generated files in the tabs",
+                "5. Download meta.xml if you want to see the file locally"
+            ],
+            tips: language === 'pl' ? [
+                "💡 meta.xml jest wymagany przez GBIF do publikacji danych",
+                "🎯 datapackage.json to standard Frictionless Data",
+                "📄 Oba pliki automatycznie zawierają strukturę z poprzednich poziomów"
+            ] : [
+                "💡 meta.xml is required by GBIF for data publication",
+                "🎯 datapackage.json is the Frictionless Data standard",
+                "📄 Both files automatically include the structure from previous levels"
+            ],
+            scoring: language === 'pl' ? "+150 pkt za meta.xml, +150 pkt za datapackage.json, +bonus za czas" : "+150 pts for meta.xml, +150 pts for datapackage.json, +time bonus"
+        },
+        4: {
+            emoji: "🧬",
+            titleKey: 'tutorial.4.title',
+            objectiveKey: 'tutorial.4.objective',
+            steps: language === 'pl' ? [
+                "1. Runda 1: Popraw literówki w nazwach naukowych",
+                "2. Runda 2: Rozpoznaj synonimy i znajdź akceptowane nazwy",
+                "3. Runda 3: Przypisz poprawne królestwo (Kingdom) do gatunków",
+                "4. Uważaj na pułapki — niektóre nazwy są poprawne!"
+            ] : [
+                "1. Round 1: Fix typos in scientific names",
+                "2. Round 2: Identify synonyms and find accepted names",
+                "3. Round 3: Assign the correct kingdom to species",
+                "4. Watch for traps — some names are correct!"
+            ],
+            tips: language === 'pl' ? [
+                "🧬 GBIF Backbone Taxonomy łączy ponad 2 mln nazw gatunków",
+                "🔍 Synonimy to stare nazwy uznane za równoznaczne z nowymi",
+                "⚠️ Nie każda nazwa zawiera błąd — niektóre są poprawne!"
+            ] : [
+                "🧬 GBIF Backbone Taxonomy links over 2M species names",
+                "🔍 Synonyms are old names considered equivalent to new ones",
+                "⚠️ Not every name contains an error — some are correct!"
+            ],
+            scoring: language === 'pl' ? "+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd" : "+20 pts for typo, +30 pts for synonym, +10 pts for kingdom, -5 pts for error"
+        },
+        5: {
+            emoji: "👹",
+            titleKey: 'tutorial.5.title',
+            objectiveKey: 'tutorial.5.objective',
+            steps: language === 'pl' ? [
+                "1. Kliknij 'Uruchom Walidację GBIF'",
+                "2. Obserwuj 6 kroków walidacji (UTF-8, wymagane pola, ID, formaty, współrzędne, integrity)",
+                "3. Każdy krok musi przejść (zielona ikona ✓)",
+                "4. Jeśli jest błąd - wróć do poprzednich poziomów i napraw dane",
+                "5. Po pomyślnej walidacji - ukończ misję!"
+            ] : [
+                "1. Click 'Run GBIF Validation'",
+                "2. Watch 6 validation steps (UTF-8, required fields, IDs, formats, coordinates, integrity)",
+                "3. Each step must pass (green ✓ icon)",
+                "4. If there's an error - go back to previous levels and fix the data",
+                "5. After successful validation - complete the mission!"
+            ],
+            tips: language === 'pl' ? [
+                "💡 Walidacja symuluje prawdziwy GBIF Data Validator",
+                "🎯 Sprawdza: kodowanie UTF-8, wymagane pola, unikalność ID, formaty dat i współrzędnych",
+                "⚠️ Błędy krytyczne (czerwone ✗) blokują publikację"
+            ] : [
+                "💡 Validation simulates the real GBIF Data Validator",
+                "🎯 Checks: UTF-8 encoding, required fields, ID uniqueness, date and coordinate formats",
+                "⚠️ Critical errors (red ✗) block publication"
+            ],
+            scoring: language === 'pl' ? "+50 pkt za każdy krok walidacji, +200 bonus za perfekcyjne przejście" : "+50 pts per validation step, +200 bonus for perfect pass"
+        }
+    };
+
     if (!isOpen || !tutorials[levelNumber]) return null;
 
     const tutorial = tutorials[levelNumber];
@@ -135,87 +185,65 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                     className="bg-white dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 overflow-hidden relative z-[10000] mx-auto"
                     style={{ zIndex: 10000 }}
                 >
-                    {/* Header */}
                     <div className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 p-6 relative">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={onClose}
-                            className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20"
-                        >
+                        <Button variant="ghost" size="icon" onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20">
                             <X className="w-5 h-5" />
                         </Button>
-
                         <div className="flex flex-col items-center gap-4 text-center">
                             <span className="text-6xl">{tutorial.emoji}</span>
                             <div className="flex flex-col items-center">
-                                <Badge className="mb-2 bg-white/20 text-white">
-                                    Poziom {levelNumber}
-                                </Badge>
-                                <h2 className="text-2xl font-bold text-white">
-                                    {tutorial.title}
-                                </h2>
+                                <Badge className="mb-2 bg-white/20 text-white">{t('tutorial.level')} {levelNumber}</Badge>
+                                <h2 className="text-2xl font-bold text-white">{t(tutorial.titleKey)}</h2>
                             </div>
                         </div>
                     </div>
 
-                    {/* Content */}
                     <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto text-center">
-                        {/* Objective */}
                         <Card className="bg-indigo-50 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/30">
                             <CardContent className="pt-4">
                                 <div className="flex flex-col items-center gap-3">
                                     <Target className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                                     <div className="text-center">
-                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Cel misji:</h3>
-                                        <p className="text-gray-700 dark:text-slate-300">{tutorial.objective}</p>
+                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{t('tutorial.missionGoal')}</h3>
+                                        <p className="text-gray-700 dark:text-slate-300">{t(tutorial.objectiveKey)}</p>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Steps */}
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-center gap-2">
-                                📋 Kroki do wykonania:
+                                {t('tutorial.steps')}
                             </h3>
                             <div className="space-y-2">
                                 {tutorial.steps.map((step, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-center justify-center gap-3 p-3 rounded-lg bg-gray-100 border border-gray-200 dark:bg-slate-700/30 dark:border-slate-600/50"
-                                    >
+                                    <div key={idx} className="flex items-center justify-center gap-3 p-3 rounded-lg bg-gray-100 border border-gray-200 dark:bg-slate-700/30 dark:border-slate-600/50">
                                         <span className="text-gray-700 dark:text-slate-300 text-center">{step}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Tips */}
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-center gap-2">
                                 <Lightbulb className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
-                                Wskazówki:
+                                {t('tutorial.tips')}
                             </h3>
                             <div className="space-y-2">
                                 {tutorial.tips.map((tip, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 dark:bg-yellow-500/10 dark:border-yellow-500/30 dark:text-yellow-200 text-sm text-center"
-                                    >
+                                    <div key={idx} className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 dark:bg-yellow-500/10 dark:border-yellow-500/30 dark:text-yellow-200 text-sm text-center">
                                         {tip}
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Scoring */}
                         <Card className="bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30">
                             <CardContent className="pt-4">
                                 <div className="flex flex-col items-center gap-3">
                                     <Award className="w-5 h-5 text-green-600 dark:text-green-400" />
                                     <div className="text-center">
-                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Punktacja:</h3>
+                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{t('tutorial.scoring')}</h3>
                                         <p className="text-gray-700 dark:text-slate-300 text-sm">{tutorial.scoring}</p>
                                     </div>
                                 </div>
@@ -223,14 +251,9 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                         </Card>
                     </div>
 
-                    {/* Footer */}
                     <div className="p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
-                        <Button
-                            onClick={onClose}
-                            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-                            size="lg"
-                        >
-                            Zaczynamy! 🚀
+                        <Button onClick={onClose} className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" size="lg">
+                            {t('tutorial.start')}
                         </Button>
                     </div>
                 </motion.div>

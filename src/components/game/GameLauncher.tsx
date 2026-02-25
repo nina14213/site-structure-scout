@@ -8,6 +8,7 @@ import MetaGenerator from '@/components/game/MetaGenerator';
 import Validator from '@/components/game/Validator';
 import SpeciesMatcher from '@/components/game/SpeciesMatcher';
 import { GameState } from '@/hooks/useGameProgress';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface GameLauncherProps {
     levelId: number;
@@ -26,55 +27,18 @@ interface GameLauncherProps {
 }
 
 export default function GameLauncher({ 
-    levelId, 
-    gameState, 
-    onComplete, 
-    onClose, 
-    addScore, 
-    playSuccess, 
-    playFail, 
-    playDrop, 
-    playLevelComplete, 
-    startLevelTimer, 
-    saveQuizScore, 
-    previousLevelData 
+    levelId, gameState, onComplete, onClose, addScore, playSuccess, playFail, playDrop, playLevelComplete, startLevelTimer, saveQuizScore, previousLevelData 
 }: GameLauncherProps) {
+    const { t } = useLanguage();
+
     const levels: Record<number, {
-        title: string;
-        description: string;
-        color: string;
         component: React.ComponentType<any>;
     }> = {
-        1: {
-            title: 'Mapowanie Kolumn',
-            description: 'Mapuj swoje dane na standard Darwin Core Data Package',
-            color: 'from-yellow-500 to-orange-500',
-            component: CoreBuilder
-        },
-        2: {
-            title: 'Łączenie Rozszerzeń',
-            description: 'Połącz extensions i sprawdź integralność danych',
-            color: 'from-purple-500 to-indigo-500',
-            component: ExtensionLinker
-        },
-        3: {
-            title: 'Pakowanie Danych',
-            description: 'Generuj meta.xml i datapackage.json',
-            color: 'from-teal-500 to-cyan-500',
-            component: MetaGenerator
-        },
-        4: {
-            title: 'Łowca Gatunków',
-            description: 'Dopasuj nazwy gatunków do GBIF Backbone Taxonomy',
-            color: 'from-emerald-500 to-teal-500',
-            component: SpeciesMatcher
-        },
-        5: {
-            title: 'BOSS: Walidacja',
-            description: 'Przeprowadź walidację danych wg standardu GBIF',
-            color: 'from-red-500 to-orange-500',
-            component: Validator
-        }
+        1: { component: CoreBuilder },
+        2: { component: ExtensionLinker },
+        3: { component: MetaGenerator },
+        4: { component: SpeciesMatcher },
+        5: { component: Validator }
     };
 
     const level = levels[levelId];
@@ -87,7 +51,7 @@ export default function GameLauncher({
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Invalid level</h2>
                     <Button onClick={onClose} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to Menu
+                        {t('common.back')}
                     </Button>
                 </div>
             </div>
@@ -96,12 +60,7 @@ export default function GameLauncher({
 
     return (
         <div className="relative">
-            {/* Back Button */}
-            <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="fixed top-4 left-4 z-50"
-            >
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-4 left-4 z-50">
                 <Button
                     onClick={onClose}
                     variant="outline"
@@ -109,11 +68,10 @@ export default function GameLauncher({
                     className="bg-white/90 border-gray-300 text-gray-700 hover:bg-gray-100 dark:bg-slate-800/90 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 backdrop-blur"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Menu
+                    {t('common.menu')}
                 </Button>
             </motion.div>
 
-            {/* Level Component */}
             <LevelComponent
                 onComplete={onComplete}
                 gameState={gameState}

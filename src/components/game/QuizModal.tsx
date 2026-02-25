@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight, SkipForward } from 'lucide-react';
 import { quizQuestionsByLevel, shuffleOptions } from './quizData';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface QuizModalProps {
     onClose?: () => void;
@@ -14,6 +15,7 @@ interface QuizModalProps {
 }
 
 export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: QuizModalProps) {
+    const { t } = useLanguage();
     const questions = useMemo(() => {
         const raw = quizQuestionsByLevel[levelNumber] || quizQuestionsByLevel[1];
         return raw.map(q => {
@@ -91,7 +93,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <HelpCircle className="w-5 h-5" />
-                                <span className="font-semibold">Quiz — {levelNames[levelNumber] || `Poziom ${levelNumber}`}</span>
+                                <span className="font-semibold">{t('quiz.title')} — {levelNames[levelNumber] || `Level ${levelNumber}`}</span>
                             </div>
                             {!isFinished && (
                                 <div className="flex items-center gap-2">
@@ -108,7 +110,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                         }}
                                         className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1 h-7 px-2"
                                     >
-                                        Pomiń
+                                        {t('quiz.skip')}
                                         <SkipForward className="w-3 h-3" />
                                     </Button>
                                 </div>
@@ -168,7 +170,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                         }`}
                                     >
                                         <p className="text-sm text-slate-300">
-                                            <span className="font-semibold text-white">Wyjaśnienie: </span>
+                                            <span className="font-semibold text-white">{t('quiz.explanation')} </span>
                                             {question.explanation}
                                         </p>
                                     </motion.div>
@@ -181,11 +183,11 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 >
                                     {currentQuestion < questions.length - 1 ? (
                                         <>
-                                            Następne pytanie
+                                            {t('quiz.nextQuestion')}
                                             <ArrowRight className="w-4 h-4 ml-2" />
                                         </>
                                     ) : (
-                                        "Zobacz wynik"
+                                        t('quiz.seeResult')
                                     )}
                                 </Button>
                             </>
@@ -197,23 +199,23 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                             >
                                 <Trophy className="w-20 h-20 text-yellow-500 mb-4" />
                                 <h2 className="text-2xl font-bold text-white mb-2">
-                                    Quiz ukończony!
+                                    {t('quiz.completed')}
                                 </h2>
                                 <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">
                                     {score} / {questions.length}
                                 </p>
                                 <p className="text-slate-400 mb-6">
                                     {score === questions.length
-                                        ? "Perfekcyjny wynik! 🎉"
+                                        ? t('quiz.perfect')
                                         : score >= questions.length * 0.7
-                                            ? "Świetna robota!"
-                                            : "Spróbuj ponownie po przejrzeniu materiału."}
+                                            ? t('quiz.great')
+                                            : t('quiz.tryAgain')}
                                 </p>
                                 <Button
                                     onClick={() => onClose?.()}
                                     className="bg-indigo-600 hover:bg-indigo-700"
                                 >
-                                    Kontynuuj
+                                    {t('quiz.continue')}
                                 </Button>
                             </motion.div>
                         )}
