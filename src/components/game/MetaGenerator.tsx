@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface MetaGeneratorProps {
     onComplete?: (score: number, data: unknown) => void;
@@ -47,6 +48,7 @@ export default function MetaGenerator({
     startLevelTimer,
     previousLevelData
 }: MetaGeneratorProps) {
+    const { t } = useLanguage();
     const [metadata, setMetadata] = useState({
         title: '',
         description: '',
@@ -240,10 +242,10 @@ ${fieldsXml}
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
                                 <Package className="w-8 h-8 text-teal-400" />
-                                Misja 3: Pakowanie Danych
+                                {t('meta.title')}
                             </h1>
                             <p className="text-slate-400 mt-1">
-                                Wygeneruj meta.xml i datapackage.json, skompresuj DwC Data Package
+                                {t('meta.subtitle')}
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -261,8 +263,8 @@ ${fieldsXml}
 
                     <Progress value={progress} className="h-3 bg-slate-700" />
                     <div className="flex justify-between text-sm mt-2 text-slate-400">
-                        <span>{Math.round(progress)}% ukończono</span>
-                        <span>{(generatedFiles.meta ? 1 : 0) + (generatedFiles.datapackage ? 1 : 0)}/2 pliki</span>
+                        <span>{Math.round(progress)}% {t('meta.completed')}</span>
+                        <span>{(generatedFiles.meta ? 1 : 0) + (generatedFiles.datapackage ? 1 : 0)}/2 {t('meta.files')}</span>
                     </div>
                 </motion.div>
 
@@ -272,7 +274,7 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileText className="w-5 h-5" />
-                                Opis Projektu
+                                {t('meta.projectDesc')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -298,12 +300,12 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileCode className="w-5 h-5" />
-                                Metadane Zbioru
+                                {t('meta.datasetMeta')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="title" className="text-slate-300">Tytuł zbioru danych</Label>
+                                <Label htmlFor="title" className="text-slate-300">{t('meta.datasetTitle')}</Label>
                                 <Input
                                     id="title"
                                     value={metadata.title}
@@ -312,7 +314,7 @@ ${fieldsXml}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description" className="text-slate-300">Opis</Label>
+                                <Label htmlFor="description" className="text-slate-300">{t('meta.description')}</Label>
                                 <Textarea
                                     id="description"
                                     value={metadata.description}
@@ -323,7 +325,7 @@ ${fieldsXml}
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="creator" className="text-slate-300">Organizacja</Label>
+                                    <Label htmlFor="creator" className="text-slate-300">{t('meta.organization')}</Label>
                                     <Input
                                         id="creator"
                                         value={metadata.creator}
@@ -332,13 +334,13 @@ ${fieldsXml}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="license" className="text-slate-300">Licencja</Label>
+                                    <Label htmlFor="license" className="text-slate-300">{t('meta.license')}</Label>
                                     <Select
                                         value={metadata.license}
                                         onValueChange={(value) => setMetadata(prev => ({ ...prev, license: value }))}
                                     >
                                         <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
-                                            <SelectValue placeholder="Wybierz licencję" />
+                                            <SelectValue placeholder={t('meta.chooseLicense')} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="CC0 1.0">CC0 1.0 (Public Domain)</SelectItem>
@@ -360,7 +362,7 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileCode className="w-5 h-5" />
-                                Generuj Pliki
+                                {t('meta.generateFiles')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -379,7 +381,7 @@ ${fieldsXml}
                                     ) : (
                                         <>
                                             <Code className="w-4 h-4 mr-2" />
-                                            Generuj meta.xml
+                                            {t('meta.generateMeta')}
                                         </>
                                     )}
                                 </Button>
@@ -397,7 +399,7 @@ ${fieldsXml}
                                     ) : (
                                         <>
                                             <FileCode className="w-4 h-4 mr-2" />
-                                            Generuj datapackage.json
+                                            {t('meta.generateDatapackage')}
                                         </>
                                     )}
                                 </Button>
@@ -411,7 +413,7 @@ ${fieldsXml}
                                     disabled={!generatedFiles.meta && !generatedFiles.datapackage}
                                 >
                                     <Eye className="w-4 h-4 mr-2" />
-                                    Podgląd
+                                    {t('meta.preview')}
                                 </Button>
                                 <Button
                                     onClick={downloadArchive}
@@ -420,7 +422,7 @@ ${fieldsXml}
                                     disabled={!generatedFiles.meta}
                                 >
                                     <Download className="w-4 h-4 mr-2" />
-                                    Pobierz meta.xml
+                                    {t('meta.downloadMeta')}
                                 </Button>
                             </div>
                         </CardContent>
@@ -476,7 +478,7 @@ ${fieldsXml}
                         <CardHeader>
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileArchive className="w-5 h-5" />
-                                Status Archiwum
+                                {t('meta.archiveStatus')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -485,14 +487,14 @@ ${fieldsXml}
                                     <Package className="w-6 h-6 text-teal-400" />
                                     <div>
                                         <p className="text-sm text-slate-400">meta.xml</p>
-                                        <p className="font-semibold text-white">{generatedFiles.meta ? '✓ Gotowy' : 'Generuj'}</p>
+                                        <p className="font-semibold text-white">{generatedFiles.meta ? t('meta.ready') : t('meta.generate')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-700/50">
                                     <FileCode className="w-6 h-6 text-purple-400" />
                                     <div>
                                         <p className="text-sm text-slate-400">datapackage.json</p>
-                                        <p className="font-semibold text-white">{generatedFiles.datapackage ? '✓ Gotowy' : 'Generuj'}</p>
+                                        <p className="font-semibold text-white">{generatedFiles.datapackage ? t('meta.ready') : t('meta.generate')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -505,7 +507,7 @@ ${fieldsXml}
                                 size="lg"
                             >
                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                {canComplete ? 'Ukończ poziom' : 'Wygeneruj pliki'}
+                                {canComplete ? t('meta.completeLevel') : t('meta.generateFilesFirst')}
                             </Button>
                         </CardFooter>
                     </Card>

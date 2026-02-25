@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Search, CheckCircle, XCircle, AlertTriangle, Dna, FlaskConical } from 'lucide-react';
 import { GameState } from '@/hooks/useGameProgress';
 import TutorialModal from './TutorialModal';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 // --- Data ---
 
@@ -94,6 +95,7 @@ type Round = 1 | 2 | 3;
 export default function SpeciesMatcher({
   onComplete, gameState, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer,
 }: SpeciesMatcherProps) {
+  const { t } = useLanguage();
   const [showTutorial, setShowTutorial] = useState(true);
   const [round, setRound] = useState<Round>(1);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -104,11 +106,11 @@ export default function SpeciesMatcher({
   const [answers, setAnswers] = useState<Record<number, { chosen: string; correct: boolean }>>({});
 
   const roundData: Record<Round, SpeciesEntry[]> = { 1: round1Data, 2: round2Data, 3: round3Data };
-  const roundTitles: Record<Round, string> = { 1: 'Runda 1: Literówki', 2: 'Runda 2: Synonimy', 3: 'Runda 3: Kingdom Match' };
+  const roundTitles: Record<Round, string> = { 1: t('species.round1'), 2: t('species.round2'), 3: t('species.round3') };
   const roundDescs: Record<Round, string> = {
-    1: 'Znajdź poprawną nazwę naukową',
-    2: 'Rozpoznaj akceptowaną nazwę (nie synonim)',
-    3: 'Przypisz poprawne królestwo (Kingdom)',
+    1: t('species.round1desc'),
+    2: t('species.round2desc'),
+    3: t('species.round3desc'),
   };
 
   const currentData = roundData[round];
@@ -145,7 +147,7 @@ export default function SpeciesMatcher({
         playFail?.();
       }
       setScore(prev => prev + pts);
-      addScore?.(pts, isCorrect ? 'Poprawne dopasowanie' : 'Błędna odpowiedź');
+      addScore?.(pts, isCorrect ? t('species.correctMatch') : t('species.wrongMatch'));
 
       // Auto-advance after delay
       setTimeout(() => {
@@ -183,24 +185,24 @@ export default function SpeciesMatcher({
               <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: 2 }} className="text-5xl mb-2">
                 🧬
               </motion.div>
-              <CardTitle className="text-2xl text-white">Species Matcher — Ukończony!</CardTitle>
+              <CardTitle className="text-2xl text-white">{t('species.completed')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-center">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                  <div className="text-2xl font-bold text-emerald-400">{score}</div>
-                  <div className="text-xs text-slate-400">Punkty</div>
-                </div>
-                <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                  <div className="text-2xl font-bold text-cyan-400">{correctCount}/{totalEntries}</div>
-                  <div className="text-xs text-slate-400">Poprawne</div>
+                   <div className="text-2xl font-bold text-emerald-400">{score}</div>
+                   <div className="text-xs text-slate-400">{t('species.points')}</div>
+                 </div>
+                 <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                   <div className="text-2xl font-bold text-cyan-400">{correctCount}/{totalEntries}</div>
+                   <div className="text-xs text-slate-400">{t('species.correctCount')}</div>
                 </div>
               </div>
               <Button
                 onClick={() => onComplete(Math.max(0, score))}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
               >
-                Zakończ poziom
+                {t('species.finishLevel')}
               </Button>
             </CardContent>
           </Card>
@@ -221,8 +223,8 @@ export default function SpeciesMatcher({
               <FlaskConical className="w-5 h-5 text-emerald-400" />
               <span className="text-sm font-medium text-emerald-400">{roundTitles[round]}</span>
             </div>
-            <Badge variant="outline" className="text-cyan-400 border-cyan-500/50">
-              Wynik: {score}
+             <Badge variant="outline" className="text-cyan-400 border-cyan-500/50">
+               {t('species.score')}: {score}
             </Badge>
           </div>
           <p className="text-xs text-slate-400 mb-2">{roundDescs[round]}</p>
@@ -230,9 +232,9 @@ export default function SpeciesMatcher({
 
           {/* GBIF hint box */}
           <details className="mt-3 group">
-            <summary className="text-xs text-emerald-400/80 cursor-pointer hover:text-emerald-300 transition-colors flex items-center gap-1">
-              <Search className="w-3 h-3" />
-              💡 Jak znaleźć te dane w GBIF?
+             <summary className="text-xs text-emerald-400/80 cursor-pointer hover:text-emerald-300 transition-colors flex items-center gap-1">
+               <Search className="w-3 h-3" />
+               {t('species.howToGBIF')}
             </summary>
             <div className="mt-2 p-3 rounded-lg bg-slate-800/60 border border-emerald-500/20 text-xs text-slate-300 space-y-1.5">
               <p>
@@ -273,14 +275,14 @@ export default function SpeciesMatcher({
                   </div>
                   <div>
                     <CardTitle className="text-lg text-white font-mono italic">{currentEntry.inputName}</CardTitle>
-                    <p className="text-xs text-slate-400">
-                      {round === 3 ? 'Przypisz królestwo' : 'Wybierz poprawną nazwę'}
-                    </p>
+                     <p className="text-xs text-slate-400">
+                       {round === 3 ? t('species.assignKingdom') : t('species.selectCorrect')}
+                     </p>
                   </div>
                   {currentEntry.errorType !== 'correct' && round !== 3 && (
                     <Badge className="ml-auto bg-amber-500/20 text-amber-400 border-amber-500/30">
-                      <AlertTriangle className="w-3 h-3 mr-1" />
-                      {currentEntry.errorType === 'typo' ? 'Literówka' : currentEntry.errorType === 'synonym' ? 'Synonim' : 'Podgatunek'}
+                       <AlertTriangle className="w-3 h-3 mr-1" />
+                       {currentEntry.errorType === 'typo' ? t('species.typo') : currentEntry.errorType === 'synonym' ? t('species.synonym') : t('species.subspecies')}
                     </Badge>
                   )}
                 </div>
@@ -307,14 +309,14 @@ export default function SpeciesMatcher({
                   >
                     {feedback === 'correct' ? (
                       <>
-                        <CheckCircle className="w-5 h-5 text-emerald-400" />
-                        <span className="text-emerald-300 text-sm">Poprawnie!</span>
+                         <CheckCircle className="w-5 h-5 text-emerald-400" />
+                         <span className="text-emerald-300 text-sm">{t('species.correct')}</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="w-5 h-5 text-red-400" />
-                        <span className="text-red-300 text-sm">
-                          Błąd! Poprawna: <span className="font-mono italic">{round === 3 ? currentEntry.kingdom : currentEntry.correctName}</span>
+                         <XCircle className="w-5 h-5 text-red-400" />
+                         <span className="text-red-300 text-sm">
+                           {t('species.wrong')} <span className="font-mono italic">{round === 3 ? currentEntry.kingdom : currentEntry.correctName}</span>
                         </span>
                       </>
                     )}

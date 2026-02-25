@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import TutorialModal from "./TutorialModal";
 import EscapeRoom from "./EscapeRoom";
 import { GameState } from "@/hooks/useGameProgress";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 // Field notes from scientists - contains extra "messy" information
 const fieldNotes = [
@@ -164,6 +165,7 @@ export default function ExtensionLinker({
   playLevelComplete,
   startLevelTimer,
 }: ExtensionLinkerProps) {
+  const { t } = useLanguage();
   const [occurrenceData, setOccurrenceData] = useState(initialOccurrenceData);
   const [validationStatus, setValidationStatus] = useState<{
     valid: boolean;
@@ -362,10 +364,10 @@ export default function ExtensionLinker({
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                 <Database className="w-8 h-8 text-purple-500 dark:text-purple-400" />
-                Mission 2: Extension Nexus
+                {t('ext.title')}
               </h1>
               <p className="text-gray-600 dark:text-slate-400 mt-1">
-                Fill in field notes and match occurrence to event
+                {t('ext.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -411,18 +413,18 @@ export default function ExtensionLinker({
                   <Key className="h-6 w-6 text-amber-400" />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    🔐 ESCAPE ROOM
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                  </h3>
-                  <p className="text-sm text-slate-400">
-                    Alternatywny tryb: rozwiąż zagadki, aby odblokować sekrety Darwin Core!
-                  </p>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                     🔐 {t('ext.escapeRoom')}
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                    </h3>
+                    <p className="text-sm text-slate-400">
+                      {t('ext.escapeRoomDesc')}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-amber-400 transition-transform group-hover:translate-x-1">
-                <span className="text-sm font-medium">Wejdź</span>
-                <span className="text-xl">→</span>
+                <div className="flex items-center gap-2 text-amber-400 transition-transform group-hover:translate-x-1">
+                  <span className="text-sm font-medium">{t('ext.enter')}</span>
+                  <span className="text-xl">→</span>
               </div>
             </div>
             <div className="absolute inset-0 -z-10 animate-pulse bg-gradient-to-r from-purple-600 via-amber-500 to-purple-600 opacity-50 blur-xl" />
@@ -513,14 +515,14 @@ export default function ExtensionLinker({
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
               <BookOpen className="w-5 h-5" />
-              Event Reference (Quick Lookup)
+              {t('ext.eventRef')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Alert className="mb-4 bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30">
               <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-300">
-                Use this reference to match eventIDs to locations and recorders from the field notes above.
+                {t('ext.eventRefHint')}
               </AlertDescription>
             </Alert>
             <div className="overflow-x-auto">
@@ -553,14 +555,14 @@ export default function ExtensionLinker({
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
               <Database className="w-5 h-5" />
-              Occurrence Extension - Fill Missing Data
+              {t('ext.occurrenceTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Alert className="mb-4 bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/30">
               <AlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
               <AlertDescription className="text-yellow-800 dark:text-yellow-300">
-                Complete the missing values in field notes. All fields are required!
+                {t('ext.occurrenceHint')}
               </AlertDescription>
             </Alert>
             <div className="overflow-x-auto">
@@ -700,13 +702,13 @@ export default function ExtensionLinker({
               size="lg"
             >
               <Check className="w-4 h-4 mr-2" />
-              Validate Data
+              {t('ext.validateData')}
             </Button>
 
             {validationStatus.errors.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-red-600 dark:text-red-400">Znaleziono błędy:</h3>
+                  <h3 className="font-semibold text-red-600 dark:text-red-400">{t('ext.errorsFound')}</h3>
                   <Button
                     onClick={clearWrongAnswers}
                     variant="outline"
@@ -714,7 +716,7 @@ export default function ExtensionLinker({
                     className="border-red-400 text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-500/10"
                   >
                     <XCircle className="w-4 h-4 mr-2" />
-                    Usuń błędne odpowiedzi
+                    {t('ext.removeWrong')}
                   </Button>
                 </div>
                 <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -722,7 +724,7 @@ export default function ExtensionLinker({
                     <Alert key={idx} className="bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30">
                       <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                       <AlertDescription className="text-red-800 dark:text-red-300">
-                        Wiersz {err.row}, {err.field}: {err.message}
+                        {t('val.row')} {err.row}, {err.field}: {err.message}
                       </AlertDescription>
                     </Alert>
                   ))}
@@ -734,7 +736,7 @@ export default function ExtensionLinker({
               <Alert className="bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30">
                 <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <AlertDescription className="text-green-800 dark:text-green-300">
-                  All data is valid! Ready to complete the level.
+                  {t('ext.allValid')}
                 </AlertDescription>
               </Alert>
             )}
@@ -747,7 +749,7 @@ export default function ExtensionLinker({
               size="lg"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              {canComplete ? "Complete Level" : "Fix Errors First"}
+              {canComplete ? t('ext.completeLevel') : t('ext.fixFirst')}
             </Button>
           </CardFooter>
         </Card>

@@ -21,6 +21,7 @@ import {
     FileText
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface DataImportProps {
     onBack: () => void;
@@ -28,6 +29,7 @@ interface DataImportProps {
 }
 
 export default function DataImport({ onBack, onImportComplete }: DataImportProps) {
+    const { t } = useLanguage();
     const [file, setFile] = useState<File | null>(null);
     const [fileType, setFileType] = useState<'csv' | 'txt' | 'xlsx' | null>(null);
     const [delimiter, setDelimiter] = useState(',');
@@ -208,7 +210,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                         className="text-slate-400 hover:text-white"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Powrót do menu
+                        {t('import.backToMenu')}
                     </Button>
                 </motion.div>
 
@@ -217,12 +219,12 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-8"
                 >
-                    <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">
-                        Stwórz swoją Data Package
-                    </h1>
-                    <p className="text-slate-400">
-                        Zaimportuj własne dane i przekształć je w Darwin Core Data Package
-                    </p>
+                     <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">
+                         {t('import.title')}
+                     </h1>
+                     <p className="text-slate-400">
+                         {t('import.subtitle')}
+                     </p>
                 </motion.div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -235,14 +237,14 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                         <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
-                                    <Upload className="w-5 h-5 text-emerald-400" />
-                                    Import pliku
+                                     <Upload className="w-5 h-5 text-emerald-400" />
+                                     {t('import.fileImport')}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 {/* File Input */}
                                 <div className="space-y-2">
-                                    <Label className="text-slate-300">Wybierz plik (CSV, TXT lub XLSX)</Label>
+                                    <Label className="text-slate-300">{t('import.selectFile')}</Label>
                                     <div className="relative">
                                         <Input
                                             type="file"
@@ -261,10 +263,10 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
 
                                 {/* CSV/TXT Options */}
                                 <div className={`p-4 rounded-lg bg-slate-700/30 border border-slate-600/50 space-y-4 ${fileType === 'xlsx' ? 'opacity-50' : ''}`}>
-                                    <h4 className="text-sm font-medium text-slate-300">Opcje CSV/TXT {fileType === 'xlsx' && '(niedostępne dla XLSX)'}</h4>
+                                    <h4 className="text-sm font-medium text-slate-300">{t('import.csvOptions')} {fileType === 'xlsx' && t('import.csvNotAvailable')}</h4>
                                     
                                     <div className="space-y-2">
-                                        <Label className="text-slate-400 text-sm">Separator kolumn</Label>
+                                        <Label className="text-slate-400 text-sm">{t('import.columnSeparator')}</Label>
                                         <Select value={delimiter} onValueChange={handleDelimiterChange}>
                                             <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
                                                 <SelectValue />
@@ -280,7 +282,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label className="text-slate-400 text-sm">Znak dziesiętny</Label>
+                                        <Label className="text-slate-400 text-sm">{t('import.decimalSign')}</Label>
                                         <Select value={decimalSign} onValueChange={setDecimalSign}>
                                             <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
                                                 <SelectValue />
@@ -312,12 +314,12 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                                                 className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                                             />
-                                            Przetwarzanie...
+                                            {t('import.processing')}
                                         </span>
                                     ) : (
                                         <span className="flex items-center gap-2">
                                             <Check className="w-4 h-4" />
-                                            Importuj i kontynuuj
+                                            {t('import.importContinue')}
                                         </span>
                                     )}
                                 </Button>
@@ -334,8 +336,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                         <Card className="bg-slate-800/50 border-slate-700 backdrop-blur h-full">
                             <CardHeader>
                                 <CardTitle className="text-white flex items-center gap-2">
-                                    <Table className="w-5 h-5 text-cyan-400" />
-                                    Podgląd danych
+                                     <Table className="w-5 h-5 text-cyan-400" />
+                                     {t('import.dataPreview')}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -370,13 +372,13 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                             </tbody>
                                         </table>
                                         <p className="text-xs text-slate-500 mt-3">
-                                            Pokazano pierwsze 5 wierszy · {preview.columns.length} kolumn
+                                            {t('resources.previewRows', { count: preview.columns.length })}
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                                         <FileSpreadsheet className="w-12 h-12 mb-4 opacity-50" />
-                                        <p>Wybierz plik, aby zobaczyć podgląd</p>
+                                        <p>{t('resources.selectFilePreview')}</p>
                                     </div>
                                 )}
                             </CardContent>

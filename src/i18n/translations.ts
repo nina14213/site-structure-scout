@@ -317,6 +317,37 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.dataRanger': 'Data Ranger Elite',
     'badge.dataRangerDesc': 'Zdobądź ponad 1000 punktów',
 
+    // === HeroSection ===
+    'hero.tagline': 'Zostań Data Rangerem i uratuj dane z kolekcji AMUNATCOLL przed Chaos Validator GBIF!',
+    'hero.startMission': 'Rozpocznij Misję',
+    'hero.startGame': 'Rozpocznij Grę',
+    'hero.namePlaceholder': 'Twoje imię (Data Ranger)',
+
+    // === StagesSection ===
+    'stages.title': 'Etapy Misji',
+    'stages.subtitle': 'Przejdź przez wszystkie etapy, aby stać się prawdziwym Data Rangerem',
+    'stages.1.title': 'Mapowanie Kolumn',
+    'stages.1.desc': 'Mapuj kolumny CSV na termy Darwin Core i zbuduj solidny fundament danych.',
+    'stages.2.title': 'Łączenie Rozszerzeń',
+    'stages.2.desc': 'Połącz extensions i sprawdź integralność połączeń między danymi.',
+    'stages.3.title': 'Pakowanie Danych',
+    'stages.3.desc': 'Generuj meta.xml i datapackage.json aby zapieczętować pakiet danych.',
+    'stages.4.title': 'Łowca Gatunków',
+    'stages.4.desc': 'Dopasuj nazwy gatunków do oficjalnej taksonomii GBIF Backbone.',
+    'stages.5.title': 'BOSS: Walidacja',
+    'stages.5.desc': 'Przejdź finałową walidację GBIF i udowodnij swoje umiejętności!',
+
+    // === Footer ===
+    'footer.project': 'Projekt edukacyjny AMUNATCOLL',
+    'footer.university': 'Adam Mickiewicz University · Ucz się standardu GBIF Darwin Core poprzez zabawę!',
+
+    // === ResourcesSection ===
+    'resources.title': 'Nauka',
+    'resources.howToPlay': 'Jak grać?',
+    'resources.description': 'Ucz się standardu GBIF Darwin Core poprzez zabawę! Przejdź przez wszystkie etapy, mapuj dane, buduj połączenia i zdobywaj punkty. Najlepsi Data Rangerzy trafiają na listę rankingową!',
+    'resources.previewRows': 'Pokazano pierwsze 5 wierszy · {count} kolumn',
+    'resources.selectFilePreview': 'Wybierz plik, aby zobaczyć podgląd',
+
     // === Common ===
     'common.hint': 'Podpowiedź',
     'common.back': 'Powrót',
@@ -642,6 +673,37 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.quizMasterDesc': 'Answer all quiz questions correctly',
     'badge.dataRanger': 'Data Ranger Elite',
     'badge.dataRangerDesc': 'Score over 1000 points',
+
+    // === HeroSection ===
+    'hero.tagline': 'Become a Data Ranger and save the AMUNATCOLL collection data from the GBIF Chaos Validator!',
+    'hero.startMission': 'Start Mission',
+    'hero.startGame': 'Start Game',
+    'hero.namePlaceholder': 'Your name (Data Ranger)',
+
+    // === StagesSection ===
+    'stages.title': 'Mission Stages',
+    'stages.subtitle': 'Complete all stages to become a true Data Ranger',
+    'stages.1.title': 'Column Mapping',
+    'stages.1.desc': 'Map CSV columns to Darwin Core terms and build a solid data foundation.',
+    'stages.2.title': 'Extension Linking',
+    'stages.2.desc': 'Connect extensions and verify data link integrity.',
+    'stages.3.title': 'Data Packaging',
+    'stages.3.desc': 'Generate meta.xml and datapackage.json to seal the data package.',
+    'stages.4.title': 'Species Hunter',
+    'stages.4.desc': 'Match species names to the official GBIF Backbone Taxonomy.',
+    'stages.5.title': 'BOSS: Validation',
+    'stages.5.desc': 'Pass the final GBIF validation and prove your skills!',
+
+    // === Footer ===
+    'footer.project': 'Educational project AMUNATCOLL',
+    'footer.university': 'Adam Mickiewicz University · Learn the GBIF Darwin Core standard through play!',
+
+    // === ResourcesSection ===
+    'resources.title': 'Learning',
+    'resources.howToPlay': 'How to play?',
+    'resources.description': 'Learn the GBIF Darwin Core standard through play! Complete all stages, map data, build connections, and earn points. Top Data Rangers make it to the leaderboard!',
+    'resources.previewRows': 'Showing first 5 rows · {count} columns',
+    'resources.selectFilePreview': 'Select a file to preview',
 
     // === Common ===
     'common.hint': 'Hint',

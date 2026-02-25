@@ -21,6 +21,7 @@ import {
     Download
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 // Darwin Core Data Package schema types based on https://gbif.github.io/dwc-dp/qrg/
 const schemaTypes = [
@@ -119,6 +120,7 @@ interface SchemaMapperProps {
 }
 
 export default function SchemaMapper({ columns, data, fileName, onBack, onComplete }: SchemaMapperProps) {
+    const { t } = useLanguage();
     const [selectedSchema, setSelectedSchema] = useState('event');
     const [mappings, setMappings] = useState<Record<string, string>>({});
     const [searchTerm, setSearchTerm] = useState('');
@@ -312,10 +314,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         <Sparkles className="w-8 h-8 text-purple-400" />
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-white">
-                                Create Your Own Data Package
+                                {t('schema.title')}
                             </h1>
                             <p className="text-slate-400">
-                                Upload your data and map to Darwin Core standards
+                                {t('schema.subtitle')}
                             </p>
                         </div>
                     </div>
@@ -330,7 +332,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 >
                     <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
                         <CardContent className="pt-6">
-                            <p className="text-sm text-slate-400 mb-4">Select Darwin Core Schema</p>
+                            <p className="text-sm text-slate-400 mb-4">{t('schema.selectSchema')}</p>
                             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                                 {schemaTypes.map((schema) => {
                                     const Icon = schema.icon;
@@ -373,10 +375,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 <CardTitle className="text-white flex items-center justify-between">
                                     <span className="flex items-center gap-2">
                                         <FileSpreadsheet className="w-5 h-5 text-slate-400" />
-                                        Your Columns ({columns.length})
+                                        {t('schema.yourColumns')} ({columns.length})
                                     </span>
                                     <Badge variant="secondary" className="bg-slate-700 text-slate-300">
-                                        {data.length} rows
+                                        {data.length} {t('schema.rows')}
                                     </Badge>
                                 </CardTitle>
                             </CardHeader>
@@ -443,7 +445,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 <div className="relative mb-4">
                                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                     <Input
-                                        placeholder="Search fields..."
+                                        placeholder={t('schema.searchFields')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
@@ -454,10 +456,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 <Tabs defaultValue="required" className="flex-1 flex flex-col">
                                     <TabsList className="w-full bg-slate-700/50 mb-4">
                                         <TabsTrigger value="required" className="flex-1">
-                                            Required ({currentSchema.required.length})
+                                            {t('schema.required')} ({currentSchema.required.length})
                                         </TabsTrigger>
                                         <TabsTrigger value="optional" className="flex-1">
-                                            Optional ({currentSchema.optional.length})
+                                            {t('schema.optional')} ({currentSchema.optional.length})
                                         </TabsTrigger>
                                     </TabsList>
 
@@ -497,7 +499,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                         variant="outline"
                                         className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
                                     >
-                                        Map Required Fields
+                                        {t('schema.mapRequired')}
                                     </Button>
                                     <Button
                                         onClick={handleReset}
@@ -505,7 +507,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                         className="text-slate-400 hover:text-white"
                                     >
                                         <X className="w-4 h-4 mr-1" />
-                                        Reset
+                                        {t('schema.reset')}
                                     </Button>
                                 </div>
                             </CardContent>
@@ -527,7 +529,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         className="py-6 text-lg border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"
                     >
                         <Download className="w-5 h-5 mr-2" />
-                        Download CSV (UTF-8, WGS-84)
+                        {t('schema.downloadCSV')}
                     </Button>
                     <Button
                         onClick={handleComplete}
@@ -541,10 +543,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         {allRequiredMapped ? (
                             <span className="flex items-center gap-2">
                                 <Check className="w-5 h-5" />
-                                Continue to Validation
+                                {t('schema.continueValidation')}
                             </span>
                         ) : (
-                            <span>Map all required fields to continue</span>
+                            <span>{t('schema.mapAllRequired')}</span>
                         )}
                     </Button>
                 </motion.div>
@@ -563,6 +565,7 @@ interface TermDropZoneProps {
 }
 
 function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: TermDropZoneProps) {
+    const { t } = useLanguage();
     const [isOver, setIsOver] = useState(false);
     const term = dwcTerms[termName];
 
@@ -604,7 +607,7 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                         </span>
                         {isRequired && (
                             <Badge className="bg-orange-500/80 text-white text-xs">
-                                Wymagane
+                                {t('schema.required')}
                             </Badge>
                         )}
                         {term?.category && (
