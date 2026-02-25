@@ -13,6 +13,7 @@ import DropZone from './DropZone';
 import TutorialModal from './TutorialModal';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 // Required DwC terms for Event Core - only eventID is strictly required per DwC-DP
 const requiredTerms = ['eventID'];
@@ -31,6 +32,7 @@ interface CoreBuilderProps {
 
 export default function CoreBuilder({ onComplete, addScore, playSuccess, playFail, playDrop, playLevelComplete, startLevelTimer }: CoreBuilderProps) {
     const { validateField } = useValidator();
+    const { t } = useLanguage();
 
     // Parse CSV
     const parseCSV = useCallback((text: string) => {
@@ -212,9 +214,9 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                                 <Zap className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
-                                Mission 1: Core Forge
+                                {t('core.title')}
                             </h1>
-                            <p className="text-gray-600 dark:text-slate-400 mt-1">Map CSV columns to Darwin Core terms</p>
+                            <p className="text-gray-600 dark:text-slate-400 mt-1">{t('core.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
@@ -230,8 +232,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                     </div>
                     <Progress value={progress} className="h-3 bg-gray-200 dark:bg-slate-700" />
                     <div className="flex justify-between text-sm mt-2 text-gray-600 dark:text-slate-400">
-                        <span>{Math.round(progress)}% complete</span>
-                        <span>{requiredTerms.filter(t => mappings[t]).length}/{requiredTerms.length} required</span>
+                        <span>{Math.round(progress)}% {t('core.complete')}</span>
+                        <span>{requiredTerms.filter(t => mappings[t]).length}/{requiredTerms.length} {t('core.required')}</span>
                     </div>
                 </motion.div>
 
@@ -279,7 +281,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                     </span>
                                     <Button variant="ghost" size="sm" onClick={() => setShowHint(!showHint)} className="text-yellow-400 hover:text-yellow-300 hover:bg-gray-800">
                                         <Lightbulb className="w-4 h-4 mr-1" />
-                                        Hint
+                                        {t('common.hint')}
                                     </Button>
                                 </CardTitle>
                             </CardHeader>
@@ -294,7 +296,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                             <Alert className="mb-4 bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/30">
                                                 <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                                                 <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-                                                    Drag columns from the left to the appropriate Darwin Core fields. Fields marked <Badge variant="destructive" className="text-xs mx-1">Required</Badge> must be filled to complete the level.
+                                                    {t('core.hintText')} <Badge variant="destructive" className="text-xs mx-1">{t('core.hintRequired')}</Badge> {t('core.hintEnd')}
                                                 </AlertDescription>
                                             </Alert>
                                         </motion.div>
@@ -303,8 +305,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
 
                                 <Tabs defaultValue="required" className="w-full">
                                     <TabsList className="w-full bg-gray-100 dark:bg-slate-700/50 mb-4">
-                                        <TabsTrigger value="required" className="flex-1">Required ({requiredTerms.length})</TabsTrigger>
-                                        <TabsTrigger value="optional" className="flex-1">Optional ({optionalTerms.length})</TabsTrigger>
+                                        <TabsTrigger value="required" className="flex-1">{t('core.requiredTab')} ({requiredTerms.length})</TabsTrigger>
+                                        <TabsTrigger value="optional" className="flex-1">{t('core.optionalTab')} ({optionalTerms.length})</TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="required" className="space-y-3 mt-0">
@@ -363,9 +365,9 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                     }`}
                                 >
                                     {allRequiredMapped ? (
-                                        <><CheckCircle className="w-5 h-5 mr-2" /> Complete Core Forge</>
+                                        <><CheckCircle className="w-5 h-5 mr-2" /> {t('core.completeLevel')}</>
                                     ) : (
-                                        <><AlertCircle className="w-5 h-5 mr-2" /> Fill required fields</>
+                                        <><AlertCircle className="w-5 h-5 mr-2" /> {t('core.mapAllRequired')}</>
                                     )}
                                 </Button>
                             </CardFooter>
