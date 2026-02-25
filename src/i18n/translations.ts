@@ -3,7 +3,7 @@ export type Language = 'pl' | 'en' | 'fr';
 export const translations: Record<Language, Record<string, string>> = {
   pl: {
     // === StartScreen ===
-    'start.tagline': 'Zostań Data Rangerem i uratuj dane z kolekcji AMUNATCOLL przed Chaos Validator GBIF!',
+    'start.tagline': 'Zostań Data Rangerem i uratuj dane przed Chaos Validator GBIF!',
     'start.startMission': 'Rozpocznij Misję',
     'start.startGame': 'Rozpocznij Grę',
     'start.playerNameLabel': 'Twoje imię (Data Ranger)',
@@ -318,7 +318,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.dataRangerDesc': 'Zdobądź ponad 1000 punktów',
 
     // === HeroSection ===
-    'hero.tagline': 'Zostań Data Rangerem i uratuj dane z kolekcji AMUNATCOLL przed Chaos Validator GBIF!',
+    'hero.tagline': 'Zostań Data Rangerem i uratuj dane przed Chaos Validator GBIF!',
     'hero.startMission': 'Rozpocznij Misję',
     'hero.startGame': 'Rozpocznij Grę',
     'hero.namePlaceholder': 'Twoje imię (Data Ranger)',
@@ -371,7 +371,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
   en: {
     // === StartScreen ===
-    'start.tagline': 'Become a Data Ranger and save the AMUNATCOLL collection data from the GBIF Chaos Validator!',
+    'start.tagline': 'Become a Data Ranger and save the data from the GBIF Chaos Validator!',
     'start.startMission': 'Start Mission',
     'start.startGame': 'Start Game',
     'start.playerNameLabel': 'Your name (Data Ranger)',
@@ -686,7 +686,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.dataRangerDesc': 'Score over 1000 points',
 
     // === HeroSection ===
-    'hero.tagline': 'Become a Data Ranger and save the AMUNATCOLL collection data from the GBIF Chaos Validator!',
+    'hero.tagline': 'Become a Data Ranger and save the data from the GBIF Chaos Validator!',
     'hero.startMission': 'Start Mission',
     'hero.startGame': 'Start Game',
     'hero.namePlaceholder': 'Your name (Data Ranger)',
@@ -739,7 +739,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
   fr: {
     // === StartScreen ===
-    'start.tagline': 'Devenez Data Ranger et sauvez les données de la collection AMUNATCOLL du Chaos Validator GBIF !',
+    'start.tagline': 'Devenez Data Ranger et sauvez les données du Chaos Validator GBIF !',
     'start.startMission': 'Démarrer la Mission',
     'start.startGame': 'Lancer le Jeu',
     'start.playerNameLabel': 'Votre nom (Data Ranger)',
@@ -1054,7 +1054,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.dataRangerDesc': 'Obtenez plus de 1000 points',
 
     // === HeroSection ===
-    'hero.tagline': 'Devenez Data Ranger et sauvez les données de la collection AMUNATCOLL du Chaos Validator GBIF !',
+    'hero.tagline': 'Devenez Data Ranger et sauvez les données du Chaos Validator GBIF !',
     'hero.startMission': 'Démarrer la Mission',
     'hero.startGame': 'Lancer le Jeu',
     'hero.namePlaceholder': 'Votre nom (Data Ranger)',
