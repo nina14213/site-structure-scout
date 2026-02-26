@@ -413,7 +413,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                     )}
                                                 </div>
                                                 <p className="text-xs text-slate-500 truncate">
-                                                    np: {getSampleValues(column) || '—'}
+                                                    {t('schema.samplePrefix')} {getSampleValues(column) || '—'}
                                                 </p>
                                             </div>
                                         </motion.div>
@@ -643,11 +643,11 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                 <div className="mt-2 pt-2 border-t border-slate-700/50">
                     <p className="text-xs text-slate-500 flex items-center gap-1">
                         <Target className="w-3 h-3" />
-                        Przeciągnij kolumnę tutaj
+                        {t('schema.dragHere')}
                     </p>
                     {term?.example && (
                         <p className="text-xs text-slate-600 mt-1">
-                            Example: <code className="text-slate-400">{term.example}</code>
+                            {t('schema.examplePrefix')} <code className="text-slate-400">{term.example}</code>
                         </p>
                     )}
                 </div>

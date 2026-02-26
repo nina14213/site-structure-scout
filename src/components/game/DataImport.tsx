@@ -46,7 +46,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
     const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
         const actualDelim = delim === '\\t' ? '\t' : delim;
         const lines = text.split(/\r?\n/).filter(line => line.trim());
-        if (lines.length === 0) throw new Error('Plik jest pusty');
+        if (lines.length === 0) throw new Error(t('import.error.empty'));
         
         const columns = lines[0].split(actualDelim).map(col => col.trim().replace(/^"|"$/g, ''));
         const rows = lines.slice(1, 6).map(line => {
@@ -59,7 +59,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         });
         
         return { columns, rows };
-    }, []);
+    }, [t]);
 
     const parseXLSX = useCallback(async (file: File): Promise<{ columns: string[]; rows: any[] }> => {
         const buffer = await file.arrayBuffer();
@@ -68,7 +68,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { header: 1 });
         
-        if (jsonData.length === 0) throw new Error('Arkusz jest pusty');
+        if (jsonData.length === 0) throw new Error(t('import.error.sheetEmpty'));
         
         const columns = (jsonData[0] as any[]).map(col => String(col || '').trim());
         const rows = jsonData.slice(1, 6).map(rowData => {
@@ -80,7 +80,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         });
         
         return { columns, rows };
-    }, []);
+    }, [t]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -97,7 +97,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
             const isXLSX = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
 
             if (!isCSV && !isTXT && !isXLSX) {
-                throw new Error('Obsługiwane formaty: CSV, TXT, XLSX, XLS');
+                throw new Error(t('import.error.unsupported'));
             }
 
             if (isCSV) {
@@ -116,7 +116,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 setPreview(parsed);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Błąd podczas wczytywania pliku');
+            setError(err instanceof Error ? err.message : t('import.error.readFile'));
             setPreview(null);
         } finally {
             setIsLoading(false);
@@ -133,7 +133,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 setPreview(parsed);
                 setError(null);
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Błąd parsowania');
+                setError(err instanceof Error ? err.message : t('import.error.parse'));
             } finally {
                 setIsLoading(false);
             }
@@ -189,7 +189,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 onImportComplete?.(allRows, columns, file.name);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Błąd importu');
+            setError(err instanceof Error ? err.message : t('import.error.import'));
         } finally {
             setIsLoading(false);
         }
@@ -272,11 +272,11 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent className="bg-slate-800 border-slate-700">
-                                                <SelectItem value="," className="text-white hover:bg-slate-700">Przecinek (,)</SelectItem>
-                                                <SelectItem value=";" className="text-white hover:bg-slate-700">Średnik (;)</SelectItem>
-                                                <SelectItem value="\t" className="text-white hover:bg-slate-700">Tab</SelectItem>
-                                                <SelectItem value="|" className="text-white hover:bg-slate-700">Pipe (|)</SelectItem>
-                                                <SelectItem value=" " className="text-white hover:bg-slate-700">Spacja ( )</SelectItem>
+                                                <SelectItem value="," className="text-white hover:bg-slate-700">{t('import.sep.comma')}</SelectItem>
+                                                <SelectItem value=";" className="text-white hover:bg-slate-700">{t('import.sep.semicolon')}</SelectItem>
+                                                <SelectItem value="\t" className="text-white hover:bg-slate-700">{t('import.sep.tab')}</SelectItem>
+                                                <SelectItem value="|" className="text-white hover:bg-slate-700">{t('import.sep.pipe')}</SelectItem>
+                                                <SelectItem value=" " className="text-white hover:bg-slate-700">{t('import.sep.space')}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -288,8 +288,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent className="bg-slate-800 border-slate-700">
-                                                <SelectItem value="." className="text-white hover:bg-slate-700">Kropka (.)</SelectItem>
-                                                <SelectItem value="," className="text-white hover:bg-slate-700">Przecinek (,)</SelectItem>
+                                                <SelectItem value="." className="text-white hover:bg-slate-700">{t('import.dec.dot')}</SelectItem>
+                                                <SelectItem value="," className="text-white hover:bg-slate-700">{t('import.dec.comma')}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
