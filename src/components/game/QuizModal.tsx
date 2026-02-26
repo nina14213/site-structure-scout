@@ -32,6 +32,14 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
 
     const question = questions[currentQuestion];
 
+    const levelNames: Record<number, string> = {
+        1: 'Core Forge',
+        2: 'Extension Nexus',
+        3: 'Package Seal',
+        4: 'Species Matcher',
+        5: 'BOSS: Chaos Validator',
+    };
+
     const handleAnswer = (index: number) => {
         if (isAnswered) return;
         setSelectedAnswer(index);
@@ -55,24 +63,15 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
 
     const getOptionClass = (index: number) => {
         if (!isAnswered) {
-            return selectedAnswer === index
-                ? "border-indigo-500 bg-indigo-500/20"
-                : "border-slate-600 hover:border-indigo-400 hover:bg-slate-700/50";
+            return 'border-border bg-muted/50 hover:border-indigo-400 hover:bg-indigo-500/10 text-foreground';
         }
         if (index === question.correctIndex) {
-            return "border-emerald-500 bg-emerald-500/20";
+            return 'border-emerald-500 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300';
         }
-        if (index === selectedAnswer && index !== question.correctIndex) {
-            return "border-red-500 bg-red-500/20";
+        if (index === selectedAnswer) {
+            return 'border-red-500 bg-red-500/20 text-red-700 dark:text-red-300';
         }
-        return "border-slate-600 opacity-50";
-    };
-
-    const levelNames: Record<number, string> = {
-        1: 'Core Forge',
-        2: 'Extension Nexus',
-        3: 'Package Seal',
-        4: 'Validate'
+        return 'border-border bg-muted/30 opacity-50 text-muted-foreground';
     };
 
     return (
@@ -81,13 +80,13 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             >
                 <motion.div
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
-                    className="bg-slate-800 rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden"
+                    className="bg-card rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-border"
                 >
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
                         <div className="flex items-center justify-between">
@@ -131,7 +130,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                     <div className="p-6">
                         {!isFinished ? (
                             <>
-                                <h2 className="text-lg font-bold text-white mb-4">
+                                <h2 className="text-lg font-bold text-foreground mb-4">
                                     {question.question}
                                 </h2>
 
@@ -148,12 +147,12 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                             <span className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold shrink-0">
                                                 {String.fromCharCode(65 + index)}
                                             </span>
-                                            <span className="text-slate-200">{option}</span>
+                                            <span>{option}</span>
                                             {isAnswered && index === question.correctIndex && (
-                                                <CheckCircle className="w-5 h-5 text-emerald-400 ml-auto shrink-0" />
+                                                <CheckCircle className="w-5 h-5 text-emerald-500 ml-auto shrink-0" />
                                             )}
                                             {isAnswered && index === selectedAnswer && index !== question.correctIndex && (
-                                                <XCircle className="w-5 h-5 text-red-400 ml-auto shrink-0" />
+                                                <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0" />
                                             )}
                                         </motion.button>
                                     ))}
@@ -169,8 +168,8 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                                 : "bg-amber-500/20 border border-amber-500/50"
                                         }`}
                                     >
-                                        <p className="text-sm text-slate-300">
-                                            <span className="font-semibold text-white">{t('quiz.explanation')} </span>
+                                        <p className="text-sm text-muted-foreground">
+                                            <span className="font-semibold text-foreground">{t('quiz.explanation')} </span>
                                             {question.explanation}
                                         </p>
                                     </motion.div>
@@ -179,7 +178,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 <Button
                                     onClick={handleNext}
                                     disabled={!isAnswered}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white"
                                 >
                                     {currentQuestion < questions.length - 1 ? (
                                         <>
@@ -198,13 +197,13 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 className="flex flex-col items-center justify-center text-center py-4"
                             >
                                 <Trophy className="w-20 h-20 text-yellow-500 mb-4" />
-                                <h2 className="text-2xl font-bold text-white mb-2">
+                                <h2 className="text-2xl font-bold text-foreground mb-2">
                                     {t('quiz.completed')}
                                 </h2>
-                                <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2">
+                                <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 mb-2">
                                     {score} / {questions.length}
                                 </p>
-                                <p className="text-slate-400 mb-6">
+                                <p className="text-muted-foreground mb-6">
                                     {score === questions.length
                                         ? t('quiz.perfect')
                                         : score >= questions.length * 0.7
@@ -213,7 +212,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 </p>
                                 <Button
                                     onClick={() => onClose?.()}
-                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
                                 >
                                     {t('quiz.continue')}
                                 </Button>

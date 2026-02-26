@@ -329,7 +329,7 @@ export default function EscapeRoom({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-slate-900 to-purple-900 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-gray-50 to-purple-50 dark:from-emerald-900 dark:via-slate-900 dark:to-purple-900 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Celebration particles */}
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -363,22 +363,22 @@ export default function EscapeRoom({
           >
             <Trophy className="w-24 h-24 text-yellow-400 drop-shadow-[0_0_30px_rgba(250,204,21,0.5)]" />
           </motion.div>
-          <h1 className="text-4xl font-bold text-white mb-4 font-display">{t('escape.completed')}</h1>
-          <p className="text-emerald-300 text-xl mb-2">{t('escape.allPuzzlesSolved')}</p>
+          <h1 className="text-4xl font-bold text-foreground mb-4 font-display">{t('escape.completed')}</h1>
+          <p className="text-emerald-700 dark:text-emerald-300 text-xl mb-2">{t('escape.allPuzzlesSolved')}</p>
           <motion.p
             initial={{ scale: 0.5 }}
             animate={{ scale: [0.5, 1.2, 1] }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-white text-5xl font-mono font-bold mb-8 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]"
+            className="text-foreground text-5xl font-mono font-bold mb-8 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]"
           >
             {score} pts
           </motion.p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={handleComplete} size="lg" className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30">
+            <Button onClick={handleComplete} size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/30">
               <CheckCircle className="w-5 h-5 mr-2" />
               {t('escape.finishMission')}
             </Button>
-            <Button onClick={handleReset} variant="outline" size="lg" className="border-slate-500 hover:border-white">
+            <Button onClick={handleReset} variant="outline" size="lg" className="border-border hover:border-foreground">
               <RotateCcw className="w-5 h-5 mr-2" />
               {t('escape.playAgain')}
             </Button>
@@ -392,7 +392,7 @@ export default function EscapeRoom({
   const catConfig = categoryConfig[currentPuzzleData.category];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 p-4 md:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-pink-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900 p-4 md:p-6 relative overflow-hidden">
       {/* Animated background particles */}
       {[...Array(12)].map((_, i) => (
         <FloatingParticle
@@ -413,7 +413,7 @@ export default function EscapeRoom({
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3 font-display">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3 font-display">
                 <motion.div
                   animate={{ rotate: [0, -10, 10, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -422,12 +422,12 @@ export default function EscapeRoom({
                 </motion.div>
                 {t('escape.title')}
               </h1>
-              <p className="text-slate-400 mt-1">
+              <p className="text-muted-foreground mt-1">
                 {t('escape.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button onClick={onBack} variant="ghost" className="text-slate-400 hover:text-white">
+              <Button onClick={onBack} variant="ghost" className="text-muted-foreground hover:text-foreground">
                 {t('escape.back')}
               </Button>
               <motion.div
@@ -438,7 +438,7 @@ export default function EscapeRoom({
                     ? "bg-red-500/20 text-red-400 border-red-500/50"
                     : timeLeft < 180
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                    : "bg-slate-800/80 text-slate-300 border-slate-600"
+                    : "bg-muted/80 text-muted-foreground border-border"
                 }`}
               >
                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? "animate-pulse" : ""}`} />
@@ -453,7 +453,7 @@ export default function EscapeRoom({
 
           {/* Progress bar with glow */}
           <div className="relative">
-            <Progress value={progress} className="h-3 bg-slate-700/50" />
+            <Progress value={progress} className="h-3 bg-gray-200 dark:bg-slate-700/50" />
             {progress > 0 && (
               <motion.div
                 className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-amber-500 to-emerald-500"
@@ -464,7 +464,7 @@ export default function EscapeRoom({
               />
             )}
           </div>
-          <div className="flex justify-between text-sm mt-2 text-slate-400">
+          <div className="flex justify-between text-sm mt-2 text-muted-foreground">
             <span className="flex items-center gap-1">
               <Shield className="w-3 h-3" />
               {solvedCount}/{puzzleState.length} {t('escape.puzzlesSolved')}
@@ -490,8 +490,8 @@ export default function EscapeRoom({
                     : puzzle.unlocked
                     ? idx === currentPuzzle
                       ? `${pCat.bgColor} border-2 ${pCat.borderColor} shadow-lg ${pCat.glowColor}`
-                      : "bg-slate-800/60 border border-slate-600 hover:border-amber-500/50"
-                    : "bg-slate-800/30 border border-slate-700/50"
+                      : "bg-muted/60 border border-border hover:border-amber-500/50"
+                    : "bg-muted/30 border border-border/50"
                 }`}
               >
                 <span className="text-lg">
@@ -522,7 +522,7 @@ export default function EscapeRoom({
             exit={{ opacity: 0, x: -50, scale: 0.98 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className={`bg-slate-800/80 border-slate-700 backdrop-blur-lg overflow-hidden ${shake ? "animate-shake" : ""}`}>
+            <Card className={`bg-card/90 border-border backdrop-blur-lg overflow-hidden ${shake ? "animate-shake" : ""}`}>
               {/* Colored top accent bar */}
               <div className={`h-1 w-full bg-gradient-to-r ${
                 currentPuzzleData.category === "eventID" ? "from-amber-500 to-yellow-400" :
@@ -535,13 +535,13 @@ export default function EscapeRoom({
               }`} />
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white flex items-center gap-3">
+                  <CardTitle className="text-foreground flex items-center gap-3">
                     <span className="text-2xl">{currentPuzzleData.icon}</span>
                     <div>
                       <div className="text-lg">{currentPuzzleData.title}</div>
                       <div className="flex items-center gap-2 mt-1">
                         <DifficultyStars level={currentPuzzleData.difficulty} />
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted-foreground">
                           {currentPuzzleData.difficulty === 1 ? t('escape.easy') : currentPuzzleData.difficulty === 2 ? t('escape.medium') : t('escape.hard')}
                         </span>
                       </div>
@@ -561,7 +561,7 @@ export default function EscapeRoom({
                   transition={{ delay: 0.2 }}
                   className={`rounded-xl p-5 border ${catConfig.borderColor} ${catConfig.bgColor}`}
                 >
-                  <p className="text-slate-200 text-base leading-relaxed">
+                  <p className="text-foreground/80 text-base leading-relaxed">
                     {currentPuzzleData.description}
                   </p>
                 </motion.div>
@@ -572,7 +572,7 @@ export default function EscapeRoom({
                     onClick={() => setShowHint(!showHint)}
                     variant="outline"
                     size="sm"
-                    className={`flex-1 rounded-xl transition-all ${showHint ? "border-yellow-500 text-yellow-400 bg-yellow-500/10" : "border-slate-600 text-slate-400 hover:border-yellow-500/50"}`}
+                    className={`flex-1 rounded-xl transition-all ${showHint ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10" : "border-border text-muted-foreground hover:border-yellow-500/50"}`}
                   >
                     {showHint ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                     {showHint ? t('escape.hide') : t('escape.hint')}
@@ -582,7 +582,7 @@ export default function EscapeRoom({
                     onClick={() => setShowClue(!showClue)}
                     variant="outline"
                     size="sm"
-                    className={`flex-1 rounded-xl transition-all ${showClue ? "border-amber-500 text-amber-400 bg-amber-500/10" : "border-slate-600 text-slate-400 hover:border-amber-500/50"}`}
+                    className={`flex-1 rounded-xl transition-all ${showClue ? "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10" : "border-border text-muted-foreground hover:border-amber-500/50"}`}
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
                     {showClue ? t('escape.hide') : t('escape.clue')}
@@ -600,7 +600,7 @@ export default function EscapeRoom({
                     >
                       <Alert className="bg-yellow-500/10 border-yellow-500/30 rounded-xl">
                         <Lightbulb className="w-4 h-4 text-yellow-400" />
-                        <AlertDescription className="text-yellow-300">
+                        <AlertDescription className="text-yellow-700 dark:text-yellow-300">
                           {currentPuzzleData.hint}
                         </AlertDescription>
                       </Alert>
@@ -618,7 +618,7 @@ export default function EscapeRoom({
                     >
                       <Alert className="bg-amber-500/10 border-amber-500/30 rounded-xl">
                         <Key className="w-4 h-4 text-amber-400" />
-                        <AlertDescription className="text-amber-300">
+                        <AlertDescription className="text-amber-700 dark:text-amber-300">
                           {currentPuzzleData.clue}
                         </AlertDescription>
                       </Alert>
@@ -628,7 +628,7 @@ export default function EscapeRoom({
 
                 {/* Answer Input */}
                 <div className="space-y-3">
-                  <label className="text-slate-300 font-medium flex items-center gap-2">
+                  <label className="text-foreground/80 font-medium flex items-center gap-2">
                     <ArrowRight className="w-4 h-4 text-amber-400" />
                     {t('escape.yourAnswer')}
                   </label>
@@ -639,7 +639,7 @@ export default function EscapeRoom({
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                         placeholder={t('escape.enterSolution')}
-                        className="h-12 bg-slate-900/80 border-slate-600 text-white placeholder:text-slate-500 text-lg rounded-xl pr-12 focus:border-amber-500 focus:ring-amber-500/20"
+                        className="h-12 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground text-lg rounded-xl pr-12 focus:border-amber-500 focus:ring-amber-500/20"
                       />
                       {userAnswer && (
                         <motion.div
@@ -671,7 +671,7 @@ export default function EscapeRoom({
                     >
                       <Alert className="bg-red-500/10 border-red-500/30 rounded-xl">
                         <Skull className="w-4 h-4 text-red-400" />
-                        <AlertDescription className="text-red-300">
+                        <AlertDescription className="text-red-700 dark:text-red-300">
                           {t('escape.tooManyAttempts', { count: attempts })}
                         </AlertDescription>
                       </Alert>
@@ -679,12 +679,12 @@ export default function EscapeRoom({
                   )}
                 </AnimatePresence>
               </CardContent>
-              <CardFooter className="flex justify-between items-center border-t border-slate-700/50 pt-4">
-                <span className="text-slate-500 text-xs">
+              <CardFooter className="flex justify-between items-center border-t border-border/50 pt-4">
+                <span className="text-muted-foreground text-xs">
                   {t('escape.wrongAttemptPenalty')}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500 text-xs">{t('escape.potential')}</span>
+                  <span className="text-muted-foreground text-xs">{t('escape.potential')}</span>
                   <motion.span
                     key={`${showHint}-${showClue}-${attempts}`}
                     initial={{ scale: 1.3, color: "#f59e0b" }}
