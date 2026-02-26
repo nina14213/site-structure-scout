@@ -33,7 +33,11 @@ export default function DraggableColumn({
 }: DraggableColumnProps) {
     const { t, language } = useLanguage();
     const term = mappedTo ? dwcTerms[mappedTo] : null;
-    const termDescription = term ? (language === 'en' && term.descriptionEN ? term.descriptionEN : term.description) : null;
+    const termDescription = term
+        ? (language === 'en' && term.descriptionEN ? term.descriptionEN
+            : language === 'de' && term.descriptionDE ? term.descriptionDE
+            : term.description)
+        : null;
 
     const getStatusColor = () => {
         if (!mappedTo) return 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
