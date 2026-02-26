@@ -34,8 +34,9 @@ export default function DraggableColumn({
     const { t, language } = useLanguage();
     const term = mappedTo ? dwcTerms[mappedTo] : null;
     const termDescription = term
-        ? (language === 'en' && term.descriptionEN ? term.descriptionEN
-            : language === 'de' && term.descriptionDE ? term.descriptionDE
+        ? (language === 'de' && term.descriptionDE ? term.descriptionDE
+            : language === 'fr' && term.descriptionFR ? term.descriptionFR
+            : language === 'en' && term.descriptionEN ? term.descriptionEN
             : term.description)
         : null;
 
