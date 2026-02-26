@@ -135,7 +135,7 @@ export default function DraggableColumn({
 
                         {sampleValues.length > 0 && (
                             <div className="mt-2 text-xs text-gray-500 dark:text-slate-400 truncate">
-                                <span className="opacity-60">{language === 'en' ? 'e.g.' : 'np'}:</span> {sampleValues.slice(0, 2).join(', ')}
+                                <span className="opacity-60">{language === 'en' ? 'e.g.' : language === 'de' ? 'z.B.' : language === 'fr' ? 'ex.' : 'np'}:</span> {sampleValues.slice(0, 2).join(', ')}
                                 {sampleValues.length > 2 && '...'}
                             </div>
                         )}
