@@ -17,7 +17,7 @@ const LANGUAGES: { value: Language; label: string; flag: string }[] = [
 
 export default function LanguageToggle({ className = '' }: { className?: string }) {
   const { language, setLanguage } = useLanguage();
-  const current = LANGUAGES.find((l) => l.value === language)!;
+  const current = LANGUAGES.find((l) => l.value === language) ?? LANGUAGES[0];
 
   return (
     <DropdownMenu>
