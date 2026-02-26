@@ -565,9 +565,15 @@ interface TermDropZoneProps {
 }
 
 function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: TermDropZoneProps) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [isOver, setIsOver] = useState(false);
     const term = dwcTerms[termName];
+    const termDescription = term
+        ? (language === 'fr' && term.descriptionFR ? term.descriptionFR
+            : language === 'de' && term.descriptionDE ? term.descriptionDE
+            : language === 'en' && term.descriptionEN ? term.descriptionEN
+            : term.description)
+        : null;
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -617,7 +623,7 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                         )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {term?.description || 'Darwin Core term'}
+                        {termDescription || term?.description || 'Darwin Core term'}
                     </p>
                 </div>
                 {mappedColumn && (
