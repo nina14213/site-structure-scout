@@ -16,7 +16,7 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
     const { t, language } = useLanguage();
 
     const l = language;
-    const pick = <T,>(pl: T, en: T, fr: T): T => l === 'pl' ? pl : l === 'fr' ? fr : en;
+    const pick = <T,>(pl: T, en: T, fr: T, de?: T): T => l === 'pl' ? pl : l === 'fr' ? fr : l === 'de' && de !== undefined ? de : en;
 
     const tutorials: Record<number, {
         emoji: string;
@@ -33,14 +33,16 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
             steps: pick(
                 ["1. Wgraj swój CSV lub użyj przykładowych danych","2. Przeciągnij kolumny z lewej na odpowiednie termy po prawej","3. Zacznij od wymaganych pól (czerwone obramowanie)","4. Sprawdź podpowiedzi - najedź na term aby zobaczyć opis","5. Zmapuj wszystkie wymagane pola aby przejść dalej"],
                 ["1. Upload your CSV or use sample data","2. Drag columns from the left to the matching terms on the right","3. Start with required fields (red border)","4. Check hints - hover over a term to see its description","5. Map all required fields to proceed"],
-                ["1. Chargez votre CSV ou utilisez les données exemple","2. Glissez les colonnes de gauche vers les termes correspondants à droite","3. Commencez par les champs requis (bordure rouge)","4. Consultez les indices — survolez un terme pour voir sa description","5. Mappez tous les champs requis pour continuer"]
+                ["1. Chargez votre CSV ou utilisez les données exemple","2. Glissez les colonnes de gauche vers les termes correspondants à droite","3. Commencez par les champs requis (bordure rouge)","4. Consultez les indices — survolez un terme pour voir sa description","5. Mappez tous les champs requis pour continuer"],
+                ["1. Laden Sie Ihre CSV-Datei hoch oder verwenden Sie Beispieldaten","2. Ziehen Sie Spalten von links auf die passenden Begriffe rechts","3. Beginnen Sie mit den Pflichtfeldern (roter Rahmen)","4. Prüfen Sie Hinweise – fahren Sie über einen Begriff für die Beschreibung","5. Ordnen Sie alle Pflichtfelder zu, um fortzufahren"]
             ),
             tips: pick(
                 ["💡 Wymagane pola: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Każda kolumna może być zmapowana tylko raz","⏱️ Im szybciej - tym więcej punktów!"],
                 ["💡 Required fields: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Each column can only be mapped once","⏱️ The faster you go - the more points!"],
-                ["💡 Champs requis : eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Chaque colonne ne peut être mappée qu'une seule fois","⏱️ Plus vous êtes rapide, plus vous gagnez de points !"]
+                ["💡 Champs requis : eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Chaque colonne ne peut être mappée qu'une seule fois","⏱️ Plus vous êtes rapide, plus vous gagnez de points !"],
+                ["💡 Pflichtfelder: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Jede Spalte kann nur einmal zugeordnet werden","⏱️ Je schneller, desto mehr Punkte!"]
             ),
-            scoring: pick("+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność", "+50 pts per correct mapping, +100 bonus for 100% accuracy", "+50 pts par mappage correct, +100 bonus pour 100% d'exactitude")
+            scoring: pick("+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność", "+50 pts per correct mapping, +100 bonus for 100% accuracy", "+50 pts par mappage correct, +100 bonus pour 100% d'exactitude", "+50 Pkt. pro korrekter Zuordnung, +100 Bonus für 100% Richtigkeit")
         },
         2: {
             emoji: "🔗",
@@ -49,14 +51,16 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
             steps: pick(
                 ["1. Zobacz jakie ID są w core (event.txt)","2. Kliknij 'Sprawdź Referential Integrity' dla taxon.txt","3. Kliknij 'Sprawdź Referential Integrity' dla multimedia.txt","4. Jeśli są błędy - usuń nieprawidłowe rekordy przyciskiem 'Usuń'","5. Upewnij się że wszystkie extensions są połączone bez błędów"],
                 ["1. Check which IDs are in the core (event.txt)","2. Click 'Check Referential Integrity' for taxon.txt","3. Click 'Check Referential Integrity' for multimedia.txt","4. If there are errors - remove invalid records with the 'Remove' button","5. Make sure all extensions are linked without errors"],
-                ["1. Vérifiez quels ID sont dans le core (event.txt)","2. Cliquez sur 'Vérifier l'intégrité référentielle' pour taxon.txt","3. Cliquez sur 'Vérifier l'intégrité référentielle' pour multimedia.txt","4. En cas d'erreurs — supprimez les enregistrements invalides avec le bouton 'Supprimer'","5. Assurez-vous que toutes les extensions sont liées sans erreur"]
+                ["1. Vérifiez quels ID sont dans le core (event.txt)","2. Cliquez sur 'Vérifier l'intégrité référentielle' pour taxon.txt","3. Cliquez sur 'Vérifier l'intégrité référentielle' pour multimedia.txt","4. En cas d'erreurs — supprimez les enregistrements invalides avec le bouton 'Supprimer'","5. Assurez-vous que toutes les extensions sont liées sans erreur"],
+                ["1. Prüfen Sie, welche IDs im Core (event.txt) vorhanden sind","2. Klicken Sie auf 'Referentielle Integrität prüfen' für taxon.txt","3. Klicken Sie auf 'Referentielle Integrität prüfen' für multimedia.txt","4. Bei Fehlern — entfernen Sie ungültige Datensätze mit der Schaltfläche 'Entfernen'","5. Stellen Sie sicher, dass alle Extensions fehlerfrei verknüpft sind"]
             ),
             tips: pick(
                 ["💡 Taxon extension automatycznie przechodzi (brak foreign key do core)","🎯 Multimedia musi mieć eventID istniejące w core","⚠️ Nieprawidłowe ID można usunąć jednym kliknięciem"],
                 ["💡 Taxon extension passes automatically (no foreign key to core)","🎯 Multimedia must have an eventID that exists in core","⚠️ Invalid IDs can be removed with one click"],
-                ["💡 L'extension Taxon passe automatiquement (pas de clé étrangère vers le core)","🎯 Multimedia doit avoir un eventID existant dans le core","⚠️ Les ID invalides peuvent être supprimés en un clic"]
+                ["💡 L'extension Taxon passe automatiquement (pas de clé étrangère vers le core)","🎯 Multimedia doit avoir un eventID existant dans le core","⚠️ Les ID invalides peuvent être supprimés en un clic"],
+                ["💡 Die Taxon-Extension wird automatisch bestanden (kein Fremdschlüssel zum Core)","🎯 Multimedia muss eine eventID haben, die im Core existiert","⚠️ Ungültige IDs können mit einem Klick entfernt werden"]
             ),
-            scoring: pick("+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity", "+100 pts per linked extension, +25 pts for checking integrity", "+100 pts par extension liée, +25 pts pour la vérification d'intégrité")
+            scoring: pick("+100 pkt za każdy połączony extension, +25 pkt za sprawdzenie integrity", "+100 pts per linked extension, +25 pts for checking integrity", "+100 pts par extension liée, +25 pts pour la vérification d'intégrité", "+100 Pkt. pro verknüpfter Extension, +25 Pkt. für Integritätsprüfung")
         },
         3: {
             emoji: "📦",
@@ -65,14 +69,16 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
             steps: pick(
                 ["1. Wypełnij metadane datasetu (tytuł, opis, autor, licencja)","2. Kliknij 'Generuj meta.xml' - plik opisujący strukturę","3. Kliknij 'Generuj datapackage.json' - metadane Frictionless","4. Możesz podejrzeć wygenerowane pliki w zakładkach","5. Pobierz meta.xml jeśli chcesz zobaczyć plik lokalnie"],
                 ["1. Fill in dataset metadata (title, description, author, license)","2. Click 'Generate meta.xml' - the file describing the structure","3. Click 'Generate datapackage.json' - Frictionless metadata","4. You can preview generated files in the tabs","5. Download meta.xml if you want to see the file locally"],
-                ["1. Remplissez les métadonnées du jeu de données (titre, description, auteur, licence)","2. Cliquez sur 'Générer meta.xml' — le fichier décrivant la structure","3. Cliquez sur 'Générer datapackage.json' — métadonnées Frictionless","4. Vous pouvez prévisualiser les fichiers générés dans les onglets","5. Téléchargez meta.xml pour voir le fichier localement"]
+                ["1. Remplissez les métadonnées du jeu de données (titre, description, auteur, licence)","2. Cliquez sur 'Générer meta.xml' — le fichier décrivant la structure","3. Cliquez sur 'Générer datapackage.json' — métadonnées Frictionless","4. Vous pouvez prévisualiser les fichiers générés dans les onglets","5. Téléchargez meta.xml pour voir le fichier localement"],
+                ["1. Füllen Sie die Datensatz-Metadaten aus (Titel, Beschreibung, Autor, Lizenz)","2. Klicken Sie auf 'meta.xml generieren' — die Datei beschreibt die Struktur","3. Klicken Sie auf 'datapackage.json generieren' — Frictionless-Metadaten","4. Sie können die erzeugten Dateien in den Tabs ansehen","5. Laden Sie meta.xml herunter, um die Datei lokal zu sehen"]
             ),
             tips: pick(
                 ["💡 meta.xml jest wymagany przez GBIF do publikacji danych","🎯 datapackage.json to standard Frictionless Data","📄 Oba pliki automatycznie zawierają strukturę z poprzednich poziomów"],
                 ["💡 meta.xml is required by GBIF for data publication","🎯 datapackage.json is the Frictionless Data standard","📄 Both files automatically include the structure from previous levels"],
-                ["💡 meta.xml est requis par GBIF pour la publication des données","🎯 datapackage.json est le standard Frictionless Data","📄 Les deux fichiers incluent automatiquement la structure des niveaux précédents"]
+                ["💡 meta.xml est requis par GBIF pour la publication des données","🎯 datapackage.json est le standard Frictionless Data","📄 Les deux fichiers incluent automatiquement la structure des niveaux précédents"],
+                ["💡 meta.xml wird von GBIF für die Datenpublikation benötigt","🎯 datapackage.json ist der Frictionless Data-Standard","📄 Beide Dateien enthalten automatisch die Struktur der vorherigen Stufen"]
             ),
-            scoring: pick("+150 pkt za meta.xml, +150 pkt za datapackage.json, +bonus za czas", "+150 pts for meta.xml, +150 pts for datapackage.json, +time bonus", "+150 pts pour meta.xml, +150 pts pour datapackage.json, +bonus de temps")
+            scoring: pick("+150 pkt za meta.xml, +150 pkt za datapackage.json, +bonus za czas", "+150 pts for meta.xml, +150 pts for datapackage.json, +time bonus", "+150 pts pour meta.xml, +150 pts pour datapackage.json, +bonus de temps", "+150 Pkt. für meta.xml, +150 Pkt. für datapackage.json, +Zeitbonus")
         },
         4: {
             emoji: "🧬",
@@ -81,14 +87,16 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
             steps: pick(
                 ["1. Runda 1: Popraw literówki w nazwach naukowych","2. Runda 2: Rozpoznaj synonimy i znajdź akceptowane nazwy","3. Runda 3: Przypisz poprawne królestwo (Kingdom) do gatunków","4. Uważaj na pułapki — niektóre nazwy są poprawne!"],
                 ["1. Round 1: Fix typos in scientific names","2. Round 2: Identify synonyms and find accepted names","3. Round 3: Assign the correct kingdom to species","4. Watch for traps — some names are correct!"],
-                ["1. Manche 1 : Corrigez les fautes de frappe dans les noms scientifiques","2. Manche 2 : Identifiez les synonymes et trouvez les noms acceptés","3. Manche 3 : Attribuez le bon règne aux espèces","4. Attention aux pièges — certains noms sont corrects !"]
+                ["1. Manche 1 : Corrigez les fautes de frappe dans les noms scientifiques","2. Manche 2 : Identifiez les synonymes et trouvez les noms acceptés","3. Manche 3 : Attribuez le bon règne aux espèces","4. Attention aux pièges — certains noms sont corrects !"],
+                ["1. Runde 1: Tippfehler in wissenschaftlichen Namen korrigieren","2. Runde 2: Synonyme erkennen und akzeptierte Namen finden","3. Runde 3: Das richtige Reich (Kingdom) den Arten zuordnen","4. Achtung bei Fallen — manche Namen sind korrekt!"]
             ),
             tips: pick(
                 ["🧬 GBIF Backbone Taxonomy łączy ponad 2 mln nazw gatunków","🔍 Synonimy to stare nazwy uznane za równoznaczne z nowymi","⚠️ Nie każda nazwa zawiera błąd — niektóre są poprawne!"],
                 ["🧬 GBIF Backbone Taxonomy links over 2M species names","🔍 Synonyms are old names considered equivalent to new ones","⚠️ Not every name contains an error — some are correct!"],
-                ["🧬 GBIF Backbone Taxonomy relie plus de 2M de noms d'espèces","🔍 Les synonymes sont d'anciens noms considérés comme équivalents","⚠️ Chaque nom ne contient pas forcément d'erreur — certains sont corrects !"]
+                ["🧬 GBIF Backbone Taxonomy relie plus de 2M de noms d'espèces","🔍 Les synonymes sont d'anciens noms considérés comme équivalents","⚠️ Chaque nom ne contient pas forcément d'erreur — certains sont corrects !"],
+                ["🧬 GBIF Backbone Taxonomy verknüpft über 2 Mio. Artennamen","🔍 Synonyme sind alte Namen, die als gleichwertig mit neuen gelten","⚠️ Nicht jeder Name enthält einen Fehler — manche sind korrekt!"]
             ),
-            scoring: pick("+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd", "+20 pts for typo, +30 pts for synonym, +10 pts for kingdom, -5 pts for error", "+20 pts par faute, +30 pts par synonyme, +10 pts par règne, -5 pts par erreur")
+            scoring: pick("+20 pkt za literówkę, +30 pkt za synonim, +10 pkt za królestwo, -5 pkt za błąd", "+20 pts for typo, +30 pts for synonym, +10 pts for kingdom, -5 pts for error", "+20 pts par faute, +30 pts par synonyme, +10 pts par règne, -5 pts par erreur", "+20 Pkt. für Tippfehler, +30 Pkt. für Synonym, +10 Pkt. für Reich, -5 Pkt. für Fehler")
         },
         5: {
             emoji: "👹",
@@ -97,14 +105,16 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
             steps: pick(
                 ["1. Kliknij 'Uruchom Walidację GBIF'","2. Obserwuj 6 kroków walidacji (UTF-8, wymagane pola, ID, formaty, współrzędne, integrity)","3. Każdy krok musi przejść (zielona ikona ✓)","4. Jeśli jest błąd - wróć do poprzednich poziomów i napraw dane","5. Po pomyślnej walidacji - ukończ misję!"],
                 ["1. Click 'Run GBIF Validation'","2. Watch 6 validation steps (UTF-8, required fields, IDs, formats, coordinates, integrity)","3. Each step must pass (green ✓ icon)","4. If there's an error - go back to previous levels and fix the data","5. After successful validation - complete the mission!"],
-                ["1. Cliquez sur 'Lancer la validation GBIF'","2. Observez les 6 étapes de validation (UTF-8, champs requis, ID, formats, coordonnées, intégrité)","3. Chaque étape doit passer (icône verte ✓)","4. En cas d'erreur — retournez aux niveaux précédents pour corriger les données","5. Après une validation réussie — terminez la mission !"]
+                ["1. Cliquez sur 'Lancer la validation GBIF'","2. Observez les 6 étapes de validation (UTF-8, champs requis, ID, formats, coordonnées, intégrité)","3. Chaque étape doit passer (icône verte ✓)","4. En cas d'erreur — retournez aux niveaux précédents pour corriger les données","5. Après une validation réussie — terminez la mission !"],
+                ["1. Klicken Sie auf 'GBIF-Validierung starten'","2. Beobachten Sie 6 Validierungsschritte (UTF-8, Pflichtfelder, IDs, Formate, Koordinaten, Integrität)","3. Jeder Schritt muss bestanden werden (grünes ✓-Symbol)","4. Bei Fehlern — gehen Sie zu vorherigen Stufen zurück und korrigieren Sie die Daten","5. Nach erfolgreicher Validierung — schließen Sie die Mission ab!"]
             ),
             tips: pick(
                 ["💡 Walidacja symuluje prawdziwy GBIF Data Validator","🎯 Sprawdza: kodowanie UTF-8, wymagane pola, unikalność ID, formaty dat i współrzędnych","⚠️ Błędy krytyczne (czerwone ✗) blokują publikację"],
                 ["💡 Validation simulates the real GBIF Data Validator","🎯 Checks: UTF-8 encoding, required fields, ID uniqueness, date and coordinate formats","⚠️ Critical errors (red ✗) block publication"],
-                ["💡 La validation simule le vrai GBIF Data Validator","🎯 Vérifie : encodage UTF-8, champs requis, unicité des ID, formats de dates et coordonnées","⚠️ Les erreurs critiques (✗ rouge) bloquent la publication"]
+                ["💡 La validation simule le vrai GBIF Data Validator","🎯 Vérifie : encodage UTF-8, champs requis, unicité des ID, formats de dates et coordonnées","⚠️ Les erreurs critiques (✗ rouge) bloquent la publication"],
+                ["💡 Die Validierung simuliert den echten GBIF Data Validator","🎯 Prüft: UTF-8-Kodierung, Pflichtfelder, ID-Eindeutigkeit, Datums- und Koordinatenformate","⚠️ Kritische Fehler (rotes ✗) blockieren die Veröffentlichung"]
             ),
-            scoring: pick("+50 pkt za każdy krok walidacji, +200 bonus za perfekcyjne przejście", "+50 pts per validation step, +200 bonus for perfect pass", "+50 pts par étape de validation, +200 bonus pour un passage parfait")
+            scoring: pick("+50 pkt za każdy krok walidacji, +200 bonus za perfekcyjne przejście", "+50 pts per validation step, +200 bonus for perfect pass", "+50 pts par étape de validation, +200 bonus pour un passage parfait", "+50 Pkt. pro Validierungsschritt, +200 Bonus für perfektes Bestehen")
         }
     };
 

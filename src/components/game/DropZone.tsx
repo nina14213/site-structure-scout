@@ -55,7 +55,7 @@ export default function DropZone({
         return 'border-slate-700/50 bg-slate-800/10 border-dashed';
     };
 
-    const termDescription = language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
+    const termDescription = language === 'de' && term?.descriptionDE ? term.descriptionDE : language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
     const catName = language === 'en' ? (t(`cat.${category}`) !== `cat.${category}` ? t(`cat.${category}`) : categoryInfo?.name) : categoryInfo?.name;
 
     return (
