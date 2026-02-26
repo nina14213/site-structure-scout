@@ -230,7 +230,7 @@ ${fieldsXml}
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 p-4 md:p-6">
+        <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 dark:from-slate-900 dark:via-teal-950 dark:to-slate-900 p-4 md:p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -240,29 +240,29 @@ ${fieldsXml}
                 >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                                <Package className="w-8 h-8 text-teal-400" />
+                            <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+                                <Package className="w-8 h-8 text-teal-600 dark:text-teal-400" />
                                 {t('meta.title')}
                             </h1>
-                            <p className="text-slate-400 mt-1">
+                            <p className="text-muted-foreground mt-1">
                                 {t('meta.subtitle')}
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                                timeLeft < 60 ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-300'
+                                timeLeft < 60 ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-muted text-muted-foreground'
                             }`}>
                                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? 'animate-pulse' : ''}`} />
                                 <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
                             </div>
-                            <Badge variant="outline" className="text-lg px-4 py-2 border-teal-500 text-teal-400">
+                            <Badge variant="outline" className="text-lg px-4 py-2 border-teal-500 text-teal-600 dark:text-teal-400">
                                 {levelScore} pts
                             </Badge>
                         </div>
                     </div>
 
-                    <Progress value={progress} className="h-3 bg-slate-700" />
-                    <div className="flex justify-between text-sm mt-2 text-slate-400">
+                    <Progress value={progress} className="h-3 bg-gray-200 dark:bg-slate-700" />
+                    <div className="flex justify-between text-sm mt-2 text-muted-foreground">
                         <span>{Math.round(progress)}% {t('meta.completed')}</span>
                         <span>{(generatedFiles.meta ? 1 : 0) + (generatedFiles.datapackage ? 1 : 0)}/2 {t('meta.files')}</span>
                     </div>
@@ -270,25 +270,25 @@ ${fieldsXml}
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Project Note */}
-                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                    <Card className="bg-card/90 border-border backdrop-blur">
                         <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
+                            <CardTitle className="text-card-foreground flex items-center gap-2">
                                 <FileText className="w-5 h-5" />
                                 {t('meta.projectDesc')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <div className="prose prose-sm prose-invert max-w-none">
-                                <h3 className="text-lg font-semibold text-white mb-2">Gatunek inwazyjny – Ailanthus altissima w Poznaniu</h3>
-                                <p className="text-slate-300 text-sm leading-relaxed">
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <h3 className="text-lg font-semibold text-foreground mb-2">Gatunek inwazyjny – Ailanthus altissima w Poznaniu</h3>
+                                <p className="text-foreground/80 text-sm leading-relaxed">
                                     Zbiór informacji o inwazyjnym gatunku <em>Ailanthus altissima</em> (bożodrzew gruczołkowaty) w Poznaniu, zebranych za pomocą aplikacji mobilnej AMUnatcoll.
                                     <br />
                                     Dane o rozmieszczeniu gatunku zebrali uczestnicy projektu „Mobilizacja społeczeństwa na rzecz ochrony bioróżnorodności – lokalne aktywności i globalne efekty: ścieżka edukacyjna wśród bożodrzewu gruczołowatego, gatunku drzewa inwazyjnego w Poznaniu". Podczas spaceru dowiedzieli się jak rozpoznać i mapować wystepownaie gatunku w aplikacji mobilnej, a zespół naukowców z Laboratorium Biologicznych Informacji Przestrzennych (Wydział Biologii, UAM) wspiera ten projekt citizen science.
                                 </p>
-                                <p className="text-slate-300 text-sm leading-relaxed">
+                                <p className="text-foreground/80 text-sm leading-relaxed">
                                     <em>Ailanthus altissima</em> to obcy gatunek inwazyjny drzewa pochodzący z Azji Południowo-Wschodniej, szybko rosnący (do 20-30 m wysokości), produkujący liczne odrosty korzeniowe i nasiona.
                                 </p>
-                                <p className="text-slate-300 text-sm leading-relaxed">
+                                <p className="text-foreground/80 text-sm leading-relaxed">
                                     W Polsce i UE jest uznawany za wysoce inwazyjny, zakazany do uprawy od 2011 roku, z obowiązkiem usuwania.
                                 </p>
                             </div>
@@ -296,50 +296,50 @@ ${fieldsXml}
                     </Card>
 
                     {/* Metadata Form */}
-                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                    <Card className="bg-card/90 border-border backdrop-blur">
                         <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
+                            <CardTitle className="text-card-foreground flex items-center gap-2">
                                 <FileCode className="w-5 h-5" />
                                 {t('meta.datasetMeta')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="title" className="text-slate-300">{t('meta.datasetTitle')}</Label>
+                                <Label htmlFor="title" className="text-muted-foreground">{t('meta.datasetTitle')}</Label>
                                 <Input
                                     id="title"
                                     value={metadata.title}
                                     onChange={(e) => setMetadata(prev => ({ ...prev, title: e.target.value }))}
-                                    className="bg-slate-700/50 border-slate-600 text-white"
+                                    className="bg-muted/50 border-border text-foreground"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description" className="text-slate-300">{t('meta.description')}</Label>
+                                <Label htmlFor="description" className="text-muted-foreground">{t('meta.description')}</Label>
                                 <Textarea
                                     id="description"
                                     value={metadata.description}
                                     onChange={(e) => setMetadata(prev => ({ ...prev, description: e.target.value }))}
-                                    className="bg-slate-700/50 border-slate-600 text-white"
+                                    className="bg-muted/50 border-border text-foreground"
                                     rows={3}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="creator" className="text-slate-300">{t('meta.organization')}</Label>
+                                    <Label htmlFor="creator" className="text-muted-foreground">{t('meta.organization')}</Label>
                                     <Input
                                         id="creator"
                                         value={metadata.creator}
                                         onChange={(e) => setMetadata(prev => ({ ...prev, creator: e.target.value }))}
-                                        className="bg-slate-700/50 border-slate-600 text-white"
+                                        className="bg-muted/50 border-border text-foreground"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="license" className="text-slate-300">{t('meta.license')}</Label>
+                                    <Label htmlFor="license" className="text-muted-foreground">{t('meta.license')}</Label>
                                     <Select
                                         value={metadata.license}
                                         onValueChange={(value) => setMetadata(prev => ({ ...prev, license: value }))}
                                     >
-                                        <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                                        <SelectTrigger className="bg-muted/50 border-border text-foreground">
                                             <SelectValue placeholder={t('meta.chooseLicense')} />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -358,9 +358,9 @@ ${fieldsXml}
 
                 <div className="grid lg:grid-cols-2 gap-6 mt-6">
                     {/* Actions */}
-                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                    <Card className="bg-card/90 border-border backdrop-blur">
                         <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
+                            <CardTitle className="text-card-foreground flex items-center gap-2">
                                 <FileCode className="w-5 h-5" />
                                 {t('meta.generateFiles')}
                             </CardTitle>
@@ -409,7 +409,7 @@ ${fieldsXml}
                                 <Button
                                     onClick={() => setShowPreview(!showPreview)}
                                     variant="outline"
-                                    className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                                    className="flex-1 border-border text-muted-foreground hover:bg-muted"
                                     disabled={!generatedFiles.meta && !generatedFiles.datapackage}
                                 >
                                     <Eye className="w-4 h-4 mr-2" />
@@ -438,10 +438,10 @@ ${fieldsXml}
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-6"
                         >
-                            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                            <Card className="bg-card/90 border-border backdrop-blur">
                                 <CardContent className="pt-6">
                                     <Tabs defaultValue="meta" className="w-full">
-                                        <TabsList className="w-full bg-slate-700/50 mb-4">
+                                        <TabsList className="w-full bg-muted mb-4">
                                             <TabsTrigger value="meta" className="flex-1" disabled={!generatedFiles.meta}>
                                                 meta.xml
                                             </TabsTrigger>
@@ -451,13 +451,13 @@ ${fieldsXml}
                                         </TabsList>
 
                                         <TabsContent value="meta" className="mt-0">
-                                            <pre className="bg-slate-900 p-4 rounded-lg overflow-x-auto text-sm text-green-400 font-mono max-h-96">
+                                            <pre className="bg-gray-100 dark:bg-slate-900 p-4 rounded-lg overflow-x-auto text-sm text-green-700 dark:text-green-400 font-mono max-h-96">
                                                 {metaXml}
                                             </pre>
                                         </TabsContent>
 
                                         <TabsContent value="datapackage" className="mt-0">
-                                            <pre className="bg-slate-900 p-4 rounded-lg overflow-x-auto text-sm text-yellow-400 font-mono max-h-96">
+                                            <pre className="bg-gray-100 dark:bg-slate-900 p-4 rounded-lg overflow-x-auto text-sm text-yellow-700 dark:text-yellow-400 font-mono max-h-96">
                                                 {datapackageJson}
                                             </pre>
                                         </TabsContent>
@@ -474,27 +474,27 @@ ${fieldsXml}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-6"
                 >
-                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                    <Card className="bg-card/90 border-border backdrop-blur">
                         <CardHeader>
-                            <CardTitle className="text-white flex items-center gap-2">
+                            <CardTitle className="text-card-foreground flex items-center gap-2">
                                 <FileArchive className="w-5 h-5" />
                                 {t('meta.archiveStatus')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-700/50">
-                                    <Package className="w-6 h-6 text-teal-400" />
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                                    <Package className="w-6 h-6 text-teal-600 dark:text-teal-400" />
                                     <div>
-                                        <p className="text-sm text-slate-400">meta.xml</p>
-                                        <p className="font-semibold text-white">{generatedFiles.meta ? t('meta.ready') : t('meta.generate')}</p>
+                                        <p className="text-sm text-muted-foreground">meta.xml</p>
+                                        <p className="font-semibold text-foreground">{generatedFiles.meta ? t('meta.ready') : t('meta.generate')}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-700/50">
-                                    <FileCode className="w-6 h-6 text-purple-400" />
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                                    <FileCode className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                                     <div>
-                                        <p className="text-sm text-slate-400">datapackage.json</p>
-                                        <p className="font-semibold text-white">{generatedFiles.datapackage ? t('meta.ready') : t('meta.generate')}</p>
+                                        <p className="text-sm text-muted-foreground">datapackage.json</p>
+                                        <p className="font-semibold text-foreground">{generatedFiles.datapackage ? t('meta.ready') : t('meta.generate')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -503,7 +503,7 @@ ${fieldsXml}
                             <Button
                                 onClick={handleComplete}
                                 disabled={!canComplete}
-                                className={`flex-1 ${canComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-slate-600'}`}
+                                className={`flex-1 ${canComplete ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-muted text-muted-foreground'}`}
                                 size="lg"
                             >
                                 <CheckCircle className="w-4 h-4 mr-2" />

@@ -294,7 +294,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     const selectedSchemaInfo = schemaTypes.find(s => s.id === selectedSchema);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 p-4 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -307,16 +307,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             onClick={onBack}
                             variant="ghost"
                             size="sm"
-                            className="text-slate-400 hover:text-white"
+                            className="text-muted-foreground hover:text-foreground"
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
                         <Sparkles className="w-8 h-8 text-purple-400" />
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-white">
+                            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                                 {t('schema.title')}
                             </h1>
-                            <p className="text-slate-400">
+                            <p className="text-muted-foreground">
                                 {t('schema.subtitle')}
                             </p>
                         </div>
@@ -330,9 +330,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     transition={{ delay: 0.1 }}
                     className="mb-6"
                 >
-                    <Card className="bg-slate-800/50 border-slate-700 backdrop-blur">
+                    <Card className="bg-card/90 border-border backdrop-blur">
                         <CardContent className="pt-6">
-                            <p className="text-sm text-slate-400 mb-4">{t('schema.selectSchema')}</p>
+                            <p className="text-sm text-muted-foreground mb-4">{t('schema.selectSchema')}</p>
                             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                                 {schemaTypes.map((schema) => {
                                     const Icon = schema.icon;
@@ -345,13 +345,13 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
                                                 ${isSelected 
                                                     ? 'border-purple-500 bg-purple-500/20' 
-                                                    : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'}
+                                                    : 'border-border bg-muted/50 hover:border-muted-foreground'}
                                             `}
                                         >
                                             <div className={`p-2 rounded-lg ${schema.color}`}>
                                                 <Icon className="w-5 h-5 text-white" />
                                             </div>
-                                            <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                                            <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
                                                 {schema.name}
                                             </span>
                                         </button>
@@ -370,14 +370,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur h-full">
-                            <CardHeader className="border-b border-slate-700">
-                                <CardTitle className="text-white flex items-center justify-between">
+                        <Card className="bg-card/90 border-border backdrop-blur h-full">
+                            <CardHeader className="border-b border-border">
+                                <CardTitle className="text-card-foreground flex items-center justify-between">
                                     <span className="flex items-center gap-2">
-                                        <FileSpreadsheet className="w-5 h-5 text-slate-400" />
+                                        <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />
                                         {t('schema.yourColumns')} ({columns.length})
                                     </span>
-                                    <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+                                    <Badge variant="secondary">
                                         {data.length} {t('schema.rows')}
                                     </Badge>
                                 </CardTitle>
@@ -400,19 +400,19 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                     p-4 rounded-xl border-2 cursor-grab active:cursor-grabbing transition-all
                                                     ${mappedTo 
                                                         ? 'border-green-500/50 bg-green-500/10' 
-                                                        : 'border-slate-600 bg-slate-800/50 hover:border-purple-500/50'}
+                                                        : 'border-border bg-muted/50 hover:border-purple-500/50'}
                                                     ${draggedColumn === column ? 'opacity-50 scale-95' : ''}
                                                 `}
                                             >
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className="font-semibold text-white">{column}</span>
+                                                    <span className="font-semibold text-foreground">{column}</span>
                                                     {mappedTo && (
                                                         <Badge variant="outline" className="text-green-400 border-green-500/50 text-xs">
                                                             → {mappedTo}
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-slate-500 truncate">
+                                                <p className="text-xs text-muted-foreground truncate">
                                                     {t('schema.samplePrefix')} {getSampleValues(column) || '—'}
                                                 </p>
                                             </div>
@@ -429,9 +429,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur h-full flex flex-col">
-                            <CardHeader className="border-b border-slate-700">
-                                <CardTitle className="text-white flex items-center gap-2">
+                        <Card className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
+                            <CardHeader className="border-b border-border">
+                                <CardTitle className="text-card-foreground flex items-center gap-2">
                                     {selectedSchemaInfo && (
                                         <div className={`p-1.5 rounded-lg ${selectedSchemaInfo.color}`}>
                                             <selectedSchemaInfo.icon className="w-4 h-4 text-white" />
@@ -448,13 +448,13 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                         placeholder={t('schema.searchFields')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                                        className="pl-10 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground"
                                     />
                                 </div>
 
                                 {/* Tabs */}
                                 <Tabs defaultValue="required" className="flex-1 flex flex-col">
-                                    <TabsList className="w-full bg-slate-700/50 mb-4">
+                                    <TabsList className="w-full bg-muted mb-4">
                                         <TabsTrigger value="required" className="flex-1">
                                             {t('schema.required')} ({currentSchema.required.length})
                                         </TabsTrigger>
@@ -493,18 +493,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 </Tabs>
 
                                 {/* Actions */}
-                                <div className="flex gap-3 mt-4 pt-4 border-t border-slate-700">
+                                <div className="flex gap-3 mt-4 pt-4 border-t border-border">
                                     <Button
                                         onClick={handleAutoMap}
                                         variant="outline"
-                                        className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                                        className="flex-1"
                                     >
                                         {t('schema.mapRequired')}
                                     </Button>
                                     <Button
                                         onClick={handleReset}
                                         variant="ghost"
-                                        className="text-slate-400 hover:text-white"
+                                        className="text-muted-foreground hover:text-foreground"
                                     >
                                         <X className="w-4 h-4 mr-1" />
                                         {t('schema.reset')}
@@ -536,8 +536,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         disabled={!allRequiredMapped}
                         className={`flex-1 py-6 text-lg ${
                             allRequiredMapped
-                                ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700'
-                                : 'bg-slate-700 text-slate-400'
+                            ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white'
+                            : 'bg-muted text-muted-foreground'
                         }`}
                     >
                         {allRequiredMapped ? (
@@ -596,13 +596,13 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                     ? 'border-green-500/50 bg-green-500/10' 
                     : isRequired 
                         ? 'border-dashed border-orange-500/50 bg-orange-500/5' 
-                        : 'border-dashed border-slate-600 bg-slate-800/30'}
+                        : 'border-dashed border-border bg-muted/30'}
             `}
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="font-mono text-sm font-semibold text-white">
+                        <span className="font-mono text-sm font-semibold text-foreground">
                             {termName}
                         </span>
                         {isRequired && (
@@ -616,7 +616,7 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                             </Badge>
                         )}
                     </div>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-muted-foreground">
                         {term?.description || 'Darwin Core term'}
                     </p>
                 </div>
@@ -625,7 +625,7 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                         variant="ghost"
                         size="sm"
                         onClick={() => onRemove(termName)}
-                        className="text-slate-400 hover:text-red-400 h-6 px-2"
+                        className="text-muted-foreground hover:text-red-400 h-6 px-2"
                     >
                         <X className="w-3 h-3" />
                     </Button>
@@ -633,21 +633,21 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
             </div>
 
             {mappedColumn ? (
-                <div className="mt-2 pt-2 border-t border-slate-700/50">
+                <div className="mt-2 pt-2 border-t border-border/50">
                     <p className="text-sm text-green-400 flex items-center gap-1">
                         <Check className="w-3 h-3" />
                         {mappedColumn}
                     </p>
                 </div>
             ) : (
-                <div className="mt-2 pt-2 border-t border-slate-700/50">
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                <div className="mt-2 pt-2 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Target className="w-3 h-3" />
                         {t('schema.dragHere')}
                     </p>
                     {term?.example && (
-                        <p className="text-xs text-slate-600 mt-1">
-                            {t('schema.examplePrefix')} <code className="text-slate-400">{term.example}</code>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {t('schema.examplePrefix')} <code className="text-foreground/70">{term.example}</code>
                         </p>
                     )}
                 </div>

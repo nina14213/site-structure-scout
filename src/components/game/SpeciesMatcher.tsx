@@ -178,24 +178,24 @@ export default function SpeciesMatcher({
   if (finished) {
     const correctCount = Object.values(answers).filter(a => a.correct).length;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950 flex items-center justify-center p-4">
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-lg w-full">
-          <Card className="bg-slate-800/80 border-emerald-500/30 backdrop-blur">
+          <Card className="bg-card/90 border-emerald-300 dark:border-emerald-500/30 backdrop-blur">
             <CardHeader className="text-center">
               <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: 2 }} className="text-5xl mb-2">
                 🧬
               </motion.div>
-              <CardTitle className="text-2xl text-white">{t('species.completed')}</CardTitle>
+              <CardTitle className="text-2xl text-foreground">{t('species.completed')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-center">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                   <div className="text-2xl font-bold text-emerald-400">{score}</div>
-                   <div className="text-xs text-slate-400">{t('species.points')}</div>
+                   <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{score}</div>
+                   <div className="text-xs text-muted-foreground">{t('species.points')}</div>
                  </div>
                  <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                   <div className="text-2xl font-bold text-cyan-400">{correctCount}/{totalEntries}</div>
-                   <div className="text-xs text-slate-400">{t('species.correctCount')}</div>
+                   <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{correctCount}/{totalEntries}</div>
+                   <div className="text-xs text-muted-foreground">{t('species.correctCount')}</div>
                 </div>
               </div>
               <Button
@@ -214,21 +214,21 @@ export default function SpeciesMatcher({
   const options = round === 3 ? currentEntry.kingdomOptions! : currentEntry.options;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950 p-4 md:p-8">
       <div className="max-w-3xl mx-auto pt-12">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-400">{roundTitles[round]}</span>
+              <FlaskConical className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{roundTitles[round]}</span>
             </div>
-             <Badge variant="outline" className="text-cyan-400 border-cyan-500/50">
+             <Badge variant="outline" className="text-cyan-600 dark:text-cyan-400 border-cyan-500/50">
                {t('species.score')}: {score}
             </Badge>
           </div>
-          <p className="text-xs text-slate-400 mb-2">{roundDescs[round]}</p>
-          <Progress value={(completedEntries / totalEntries) * 100} className="h-2 bg-slate-700" />
+          <p className="text-xs text-muted-foreground mb-2">{roundDescs[round]}</p>
+          <Progress value={(completedEntries / totalEntries) * 100} className="h-2 bg-gray-200 dark:bg-slate-700" />
 
           {/* GBIF hint box */}
           <details className="mt-3 group">
@@ -236,7 +236,7 @@ export default function SpeciesMatcher({
                <Search className="w-3 h-3" />
                {t('species.howToGBIF')}
             </summary>
-            <div className="mt-2 p-3 rounded-lg bg-slate-800/60 border border-emerald-500/20 text-xs text-slate-300 space-y-1.5">
+            <div className="mt-2 p-3 rounded-lg bg-muted/60 border border-emerald-300 dark:border-emerald-500/20 text-xs text-foreground/80 space-y-1.5">
               <p>
                 <strong className="text-emerald-400">1.</strong> Wejdź na{' '}
                 <a href="https://www.gbif.org/tools/species-lookup" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline hover:text-cyan-300">
@@ -267,15 +267,15 @@ export default function SpeciesMatcher({
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="bg-slate-800/70 border-slate-700 backdrop-blur mb-6">
+            <Card className="bg-card/90 border-border backdrop-blur mb-6">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                     {round === 3 ? <Dna className="w-5 h-5 text-emerald-400" /> : <Search className="w-5 h-5 text-emerald-400" />}
                   </div>
                   <div>
-                    <CardTitle className="text-lg text-white font-mono italic">{currentEntry.inputName}</CardTitle>
-                     <p className="text-xs text-slate-400">
+                    <CardTitle className="text-lg text-foreground font-mono italic">{currentEntry.inputName}</CardTitle>
+                     <p className="text-xs text-muted-foreground">
                        {round === 3 ? t('species.assignKingdom') : t('species.selectCorrect')}
                      </p>
                   </div>
@@ -309,13 +309,13 @@ export default function SpeciesMatcher({
                   >
                     {feedback === 'correct' ? (
                       <>
-                         <CheckCircle className="w-5 h-5 text-emerald-400" />
-                         <span className="text-emerald-300 text-sm">{t('species.correct')}</span>
+                         <CheckCircle className="w-5 h-5 text-emerald-500" />
+                         <span className="text-emerald-700 dark:text-emerald-300 text-sm">{t('species.correct')}</span>
                       </>
                     ) : (
                       <>
-                         <XCircle className="w-5 h-5 text-red-400" />
-                         <span className="text-red-300 text-sm">
+                         <XCircle className="w-5 h-5 text-red-500" />
+                         <span className="text-red-700 dark:text-red-300 text-sm">
                            {t('species.wrong')} <span className="font-mono italic">{round === 3 ? currentEntry.kingdom : currentEntry.correctName}</span>
                         </span>
                       </>
@@ -335,11 +335,11 @@ export default function SpeciesMatcher({
                       className={`p-3 rounded-lg border text-left transition-colors disabled:cursor-not-allowed ${
                         feedback
                           ? opt === (round === 3 ? currentEntry.kingdom : currentEntry.correctName)
-                            ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
+                            ? 'border-emerald-500 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
                             : answers[currentEntry.id]?.chosen === opt && !answers[currentEntry.id]?.correct
-                              ? 'border-red-500 bg-red-500/10 text-red-300'
-                              : 'border-slate-600 bg-slate-700/30 text-slate-400'
-                          : 'border-slate-600 bg-slate-700/50 text-slate-200 hover:border-emerald-500/50 hover:bg-emerald-500/10'
+                              ? 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-300'
+                              : 'border-border bg-muted/30 text-muted-foreground'
+                          : 'border-border bg-muted/50 text-foreground hover:border-emerald-500/50 hover:bg-emerald-500/10'
                       }`}
                     >
                       <span className={round !== 3 ? 'font-mono italic text-sm' : 'text-sm font-medium'}>{opt}</span>
@@ -356,8 +356,8 @@ export default function SpeciesMatcher({
           {[1, 2, 3].map(r => (
             <div
               key={r}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                r === round ? 'bg-emerald-400' : r < round ? 'bg-emerald-600' : 'bg-slate-600'
+                className={`w-3 h-3 rounded-full transition-colors ${
+                r === round ? 'bg-emerald-500' : r < round ? 'bg-emerald-700 dark:bg-emerald-600' : 'bg-gray-300 dark:bg-slate-600'
               }`}
             />
           ))}
