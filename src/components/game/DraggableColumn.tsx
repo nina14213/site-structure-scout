@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GripVertical, Check, X, AlertCircle } from 'lucide-react';
+import { GripVertical, Check, X, AlertCircle, MousePointerClick } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { dwcTerms } from './DwCTerms';
@@ -12,10 +12,12 @@ interface DraggableColumnProps {
     isDragging: boolean;
     mappedTo: string | null;
     validationStatus: 'valid' | 'warning' | 'error' | null;
+    isSelected?: boolean;
     onDragStart?: (column: string, index: number) => void;
     onDragEnd?: () => void;
     onDragOver?: (e: React.DragEvent) => void;
     onDrop?: (e: React.DragEvent, column: string) => void;
+    onTapSelect?: (column: string) => void;
     sampleValues?: string[];
 }
 
@@ -25,10 +27,12 @@ export default function DraggableColumn({
     isDragging,
     mappedTo,
     validationStatus,
+    isSelected = false,
     onDragStart,
     onDragEnd,
     onDragOver,
     onDrop,
+    onTapSelect,
     sampleValues = []
 }: DraggableColumnProps) {
     const { t, language } = useLanguage();
@@ -41,6 +45,7 @@ export default function DraggableColumn({
         : null;
 
     const getStatusColor = () => {
+        if (isSelected) return 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 ring-2 ring-indigo-400/50';
         if (!mappedTo) return 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
         if (validationStatus === 'valid') return 'border-green-400 bg-green-50 dark:bg-green-900/30';
         if (validationStatus === 'warning') return 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/30';
@@ -49,6 +54,7 @@ export default function DraggableColumn({
     };
 
     const getStatusIcon = () => {
+        if (isSelected) return <MousePointerClick className="w-4 h-4 text-indigo-500 animate-pulse" />;
         if (validationStatus === 'valid') return <Check className="w-4 h-4 text-green-500" />;
         if (validationStatus === 'warning') return <AlertCircle className="w-4 h-4 text-yellow-500" />;
         if (validationStatus === 'error') return <X className="w-4 h-4 text-red-500" />;
@@ -63,7 +69,7 @@ export default function DraggableColumn({
                 animate={{
                     opacity: isDragging ? 0.5 : 1,
                     x: 0,
-                    scale: isDragging ? 1.05 : 1
+                    scale: isDragging ? 1.05 : isSelected ? 1.02 : 1
                 }}
                 exit={{ opacity: 0, x: 20 }}
                 draggable
@@ -82,15 +88,18 @@ export default function DraggableColumn({
                     e.preventDefault();
                     onDrop?.(e as unknown as React.DragEvent, column);
                 }}
+                onClick={() => onTapSelect?.(column)}
                 className={`
                     p-3 rounded-xl border-2 cursor-grab active:cursor-grabbing
                     transition-all duration-200 select-none
                     ${getStatusColor()}
                     hover:shadow-md hover:scale-[1.02]
+                    ${onTapSelect ? 'md:cursor-grab cursor-pointer' : ''}
                 `}
             >
                 <div className="flex items-center gap-3">
-                    <GripVertical className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0" />
+                    <GripVertical className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 hidden md:block" />
+                    <MousePointerClick className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 md:hidden" />
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">

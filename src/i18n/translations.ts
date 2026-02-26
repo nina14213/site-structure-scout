@@ -59,6 +59,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'core.optionalTab': 'Opcjonalne',
     'core.completeLevel': 'Ukończ poziom',
     'core.mapAllRequired': 'Zmapuj wymagane pola',
+    'core.tapToSelect': 'Dotknij kolumnę, a potem pole docelowe',
+    'core.selectedColumn': 'Wybrano: {column} — dotknij pole docelowe',
 
     // === ExtensionLinker (Mission 2) ===
     'ext.title': 'Mission 2: Extension Nexus',
@@ -442,6 +444,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'core.optionalTab': 'Optional',
     'core.completeLevel': 'Complete Level',
     'core.mapAllRequired': 'Map required fields',
+    'core.tapToSelect': 'Tap a column, then tap the target field',
+    'core.selectedColumn': 'Selected: {column} — tap a target field',
 
     // === ExtensionLinker (Mission 2) ===
     'ext.title': 'Mission 2: Extension Nexus',
@@ -825,6 +829,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'core.optionalTab': 'Optionnel',
     'core.completeLevel': 'Terminer le niveau',
     'core.mapAllRequired': 'Mappez les champs requis',
+    'core.tapToSelect': 'Touchez une colonne, puis le champ cible',
+    'core.selectedColumn': 'Sélectionné : {column} — touchez un champ cible',
 
     // === ExtensionLinker (Mission 2) ===
     'ext.title': 'Mission 2 : Extension Nexus',
@@ -1208,6 +1214,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'core.optionalTab': 'Optional',
     'core.completeLevel': 'Level abschließen',
     'core.mapAllRequired': 'Erforderliche Felder zuordnen',
+    'core.tapToSelect': 'Tippe auf eine Spalte, dann auf das Zielfeld',
+    'core.selectedColumn': 'Ausgewählt: {column} — tippe auf ein Zielfeld',
 
     // === ExtensionLinker (Mission 2) ===
     'ext.title': 'Mission 2: Extension Nexus',

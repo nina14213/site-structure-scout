@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Check, X, Link as LinkIcon } from 'lucide-react';
+import { Target, Check, X, Link as LinkIcon, MousePointerClick } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,7 +14,9 @@ interface DropZoneProps {
     isValid: boolean;
     onDrop?: (termName: string, columnName: string) => void;
     onRemove?: (termName: string) => void;
+    onTapAssign?: (termName: string) => void;
     category?: string;
+    hasSelectedColumn?: boolean;
 }
 
 export default function DropZone({
@@ -24,7 +26,9 @@ export default function DropZone({
     isValid,
     onDrop,
     onRemove,
-    category = 'core'
+    onTapAssign,
+    category = 'core',
+    hasSelectedColumn = false,
 }: DropZoneProps) {
     const [isOver, setIsOver] = useState(false);
     const { t, language } = useLanguage();
@@ -47,8 +51,15 @@ export default function DropZone({
         onDrop?.(termName, columnName);
     };
 
+    const handleClick = () => {
+        if (hasSelectedColumn && !mappedColumn) {
+            onTapAssign?.(termName);
+        }
+    };
+
     const getBorderStyle = () => {
         if (isOver) return 'border-indigo-500 bg-indigo-900/30 scale-[1.02]';
+        if (hasSelectedColumn && !mappedColumn) return 'border-indigo-400 bg-indigo-900/20 border-dashed animate-pulse cursor-pointer';
         if (mappedColumn && isValid) return 'border-green-400 bg-green-900/20';
         if (mappedColumn && !isValid) return 'border-red-400 bg-red-900/20';
         if (isRequired) return 'border-orange-400 bg-orange-900/10 border-dashed';
@@ -67,6 +78,7 @@ export default function DropZone({
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
+                onClick={handleClick}
                 className={`
                     p-4 rounded-xl border-2 transition-all duration-200
                     min-h-[80px] flex flex-col justify-center
@@ -142,6 +154,9 @@ export default function DropZone({
                     </div>
 
                     <div className="flex items-center gap-1">
+                        {hasSelectedColumn && !mappedColumn && (
+                            <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce" />
+                        )}
                         {mappedColumn && !isValid && (
                             <span className="text-red-500">
                                 <X className="w-4 h-4" />
@@ -156,13 +171,13 @@ export default function DropZone({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => onRemove?.(termName)}
+                                onClick={(e) => { e.stopPropagation(); onRemove?.(termName); }}
                                 className="text-xs h-6 px-2"
                             >
                                 {t('common.remove')}
                             </Button>
                         )}
-                        {!mappedColumn && isRequired && (
+                        {!mappedColumn && !hasSelectedColumn && isRequired && (
                             <Target className="w-4 h-4 text-orange-400 animate-pulse" />
                         )}
                     </div>

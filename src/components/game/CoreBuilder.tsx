@@ -56,6 +56,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
     const [columns, setColumns] = useState<string[]>(initialColumns);
     const [mappings, setMappings] = useState<Record<string, string>>({});
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+    const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
     const [showTutorial, setShowTutorial] = useState(true);
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
@@ -133,6 +134,18 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
             return newMappings;
         });
     }, []);
+
+    // Tap-to-assign: select a column
+    const handleTapSelect = useCallback((column: string) => {
+        setSelectedColumn(prev => prev === column ? null : column);
+    }, []);
+
+    // Tap-to-assign: assign selected column to a term
+    const handleTapAssign = useCallback((termName: string) => {
+        if (!selectedColumn) return;
+        handleDrop(termName, selectedColumn);
+        setSelectedColumn(null);
+    }, [selectedColumn, handleDrop]);
 
     // Get sample values for column
     const getSampleValues = useCallback((columnName: string) => {
@@ -237,6 +250,21 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                     </div>
                 </motion.div>
 
+                {/* Mobile tap-to-assign hint */}
+                {selectedColumn && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4 md:hidden p-3 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-200 text-sm flex items-center gap-2"
+                    >
+                        <span className="text-lg">👆</span>
+                        {t('core.selectedColumn', { column: selectedColumn })}
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} className="ml-auto h-6 px-2 text-indigo-300">
+                            ✕
+                        </Button>
+                    </motion.div>
+                )}
+
                 {/* Main Content */}
                 {columns.length > 0 && (
                     /* Mapping Interface - Side by Side */
@@ -253,6 +281,10 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex-1 max-h-[60vh] overflow-y-auto space-y-2">
+                                {/* Mobile hint */}
+                                <p className="text-xs text-muted-foreground md:hidden mb-2 flex items-center gap-1">
+                                    👆 {t('core.tapToSelect')}
+                                </p>
                                 <AnimatePresence>
                                     {columns.map((column, idx) => (
                                         <DraggableColumn
@@ -260,10 +292,12 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                             column={column}
                                             index={idx}
                                             isDragging={draggedColumn === column}
+                                            isSelected={selectedColumn === column}
                                             mappedTo={getColumnMapping(column)}
                                             validationStatus={getColumnMapping(column) ? validateMapping(getColumnMapping(column)!) : null}
                                             onDragStart={(col) => setDraggedColumn(col)}
                                             onDragEnd={() => setDraggedColumn(null)}
+                                            onTapSelect={handleTapSelect}
                                             sampleValues={getSampleValues(column)}
                                         />
                                     ))}
@@ -319,6 +353,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                                     isValid={validateMapping(term) === 'valid'}
                                                     onDrop={handleDrop}
                                                     onRemove={handleRemoveMapping}
+                                                    onTapAssign={handleTapAssign}
+                                                    hasSelectedColumn={!!selectedColumn}
                                                     category={dwcTerms[term]?.category || 'core'}
                                                 />
                                                 {mappingErrors[term] && (
@@ -348,6 +384,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                                 isValid={validateMapping(term) === 'valid' || !mappings[term]}
                                                 onDrop={handleDrop}
                                                 onRemove={handleRemoveMapping}
+                                                onTapAssign={handleTapAssign}
+                                                hasSelectedColumn={!!selectedColumn}
                                                 category={dwcTerms[term]?.category || 'event'}
                                             />
                                         ))}

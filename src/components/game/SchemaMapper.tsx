@@ -18,7 +18,8 @@ import {
     RotateCcw,
     Check,
     X,
-    Download
+    Download,
+    MousePointerClick
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -125,6 +126,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     const [mappings, setMappings] = useState<Record<string, string>>({});
     const [searchTerm, setSearchTerm] = useState('');
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+    const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
 
     const currentSchema = schemaTerms[selectedSchema];
     const allTerms = [...currentSchema.required, ...currentSchema.optional];
@@ -174,7 +176,24 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         });
     };
 
-    // Reset all mappings
+    // Tap-to-assign handlers
+    const handleTapSelectColumn = (column: string) => {
+        setSelectedColumn(prev => prev === column ? null : column);
+    };
+
+    const handleTapAssignTerm = (termName: string) => {
+        if (!selectedColumn) return;
+        setMappings(prev => {
+            const newMappings = { ...prev };
+            Object.keys(newMappings).forEach(key => {
+                if (newMappings[key] === selectedColumn) delete newMappings[key];
+            });
+            newMappings[termName] = selectedColumn;
+            return newMappings;
+        });
+        setSelectedColumn(null);
+    };
+
     const handleReset = () => {
         setMappings({});
     };
@@ -383,8 +402,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="pt-4 max-h-[60vh] overflow-y-auto space-y-2">
+                                {/* Mobile hint */}
+                                <p className="text-xs text-muted-foreground md:hidden mb-2 flex items-center gap-1">
+                                    👆 {t('core.tapToSelect')}
+                                </p>
+                                {/* Selected column banner (mobile) */}
+                                {selectedColumn && (
+                                    <div className="md:hidden p-2 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-200 text-sm flex items-center gap-2 mb-2">
+                                        <span>👆</span>
+                                        {t('core.selectedColumn', { column: selectedColumn })}
+                                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} className="ml-auto h-5 px-1 text-indigo-300">✕</Button>
+                                    </div>
+                                )}
                                 {columns.map((column, idx) => {
                                     const mappedTo = getColumnMapping(column);
+                                    const isSelected = selectedColumn === column;
                                     return (
                                         <motion.div
                                             key={column}
@@ -396,17 +428,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                 draggable
                                                 onDragStart={(e) => handleDragStart(e, column)}
                                                 onDragEnd={() => setDraggedColumn(null)}
+                                                onClick={() => handleTapSelectColumn(column)}
                                                 className={`
                                                     p-4 rounded-xl border-2 cursor-grab active:cursor-grabbing transition-all
-                                                    ${mappedTo 
-                                                        ? 'border-green-500/50 bg-green-500/10' 
-                                                        : 'border-border bg-muted/50 hover:border-purple-500/50'}
+                                                    md:cursor-grab cursor-pointer
+                                                    ${isSelected
+                                                        ? 'border-indigo-500 bg-indigo-500/20 ring-2 ring-indigo-400/50'
+                                                        : mappedTo 
+                                                            ? 'border-green-500/50 bg-green-500/10' 
+                                                            : 'border-border bg-muted/50 hover:border-purple-500/50'}
                                                     ${draggedColumn === column ? 'opacity-50 scale-95' : ''}
                                                 `}
                                             >
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className="font-semibold text-foreground">{column}</span>
-                                                    {mappedTo && (
+                                                    <div className="flex items-center gap-2">
+                                                        <MousePointerClick className="w-4 h-4 text-muted-foreground md:hidden flex-shrink-0" />
+                                                        <span className="font-semibold text-foreground">{column}</span>
+                                                    </div>
+                                                    {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
+                                                    {mappedTo && !isSelected && (
                                                         <Badge variant="outline" className="text-green-400 border-green-500/50 text-xs">
                                                             → {mappedTo}
                                                         </Badge>
@@ -473,6 +513,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                     isRequired={true}
                                                     onDrop={handleDrop}
                                                     onRemove={handleRemoveMapping}
+                                                    onTapAssign={handleTapAssignTerm}
+                                                    hasSelectedColumn={!!selectedColumn}
                                                 />
                                             ))}
                                         </TabsContent>
@@ -486,6 +528,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                                     isRequired={false}
                                                     onDrop={handleDrop}
                                                     onRemove={handleRemoveMapping}
+                                                    onTapAssign={handleTapAssignTerm}
+                                                    hasSelectedColumn={!!selectedColumn}
                                                 />
                                             ))}
                                         </TabsContent>
@@ -562,9 +606,11 @@ interface TermDropZoneProps {
     isRequired: boolean;
     onDrop: (e: React.DragEvent, termName: string) => void;
     onRemove: (termName: string) => void;
+    onTapAssign?: (termName: string) => void;
+    hasSelectedColumn?: boolean;
 }
 
-function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: TermDropZoneProps) {
+function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove, onTapAssign, hasSelectedColumn = false }: TermDropZoneProps) {
     const { t, language } = useLanguage();
     const [isOver, setIsOver] = useState(false);
     const term = dwcTerms[termName];
@@ -590,19 +636,29 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
         onDrop(e, termName);
     };
 
+    const handleClick = () => {
+        if (hasSelectedColumn && !mappedColumn) {
+            onTapAssign?.(termName);
+        }
+    };
+
     return (
         <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onClick={handleClick}
             className={`
                 p-4 rounded-xl border-2 transition-all
                 ${isOver ? 'border-purple-500 bg-purple-500/20 scale-[1.02]' : ''}
-                ${mappedColumn 
+                ${hasSelectedColumn && !mappedColumn ? 'border-indigo-400 bg-indigo-500/20 border-dashed animate-pulse cursor-pointer' : ''}
+                ${!isOver && !hasSelectedColumn && mappedColumn 
                     ? 'border-green-500/50 bg-green-500/10' 
-                    : isRequired 
-                        ? 'border-dashed border-orange-500/50 bg-orange-500/5' 
-                        : 'border-dashed border-border bg-muted/30'}
+                    : !isOver && !hasSelectedColumn && !mappedColumn
+                        ? isRequired 
+                            ? 'border-dashed border-orange-500/50 bg-orange-500/5' 
+                            : 'border-dashed border-border bg-muted/30'
+                        : ''}
             `}
         >
             <div className="flex items-start justify-between gap-2">
@@ -626,11 +682,14 @@ function TermDropZone({ termName, mappedColumn, isRequired, onDrop, onRemove }: 
                         {termDescription || term?.description || 'Darwin Core term'}
                     </p>
                 </div>
+                {hasSelectedColumn && !mappedColumn && (
+                    <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce flex-shrink-0" />
+                )}
                 {mappedColumn && (
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onRemove(termName)}
+                        onClick={(e) => { e.stopPropagation(); onRemove(termName); }}
                         className="text-muted-foreground hover:text-red-400 h-6 px-2"
                     >
                         <X className="w-3 h-3" />
