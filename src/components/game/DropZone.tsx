@@ -56,7 +56,7 @@ export default function DropZone({
     };
 
     const termDescription = language === 'de' && term?.descriptionDE ? term.descriptionDE : language === 'fr' && term?.descriptionFR ? term.descriptionFR : language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
-    const catName = language === 'en' ? (t(`cat.${category}`) !== `cat.${category}` ? t(`cat.${category}`) : categoryInfo?.name) : categoryInfo?.name;
+    const catName = categoryInfo?.name[language] || categoryInfo?.name['en'] || category;
 
     return (
         <TooltipProvider>
