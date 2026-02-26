@@ -60,7 +60,7 @@ export default function GameLauncher({
 
     return (
         <div className="relative">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-4 left-4 z-50">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-4 left-4 z-50 hidden md:block">
                 <Button
                     onClick={onClose}
                     variant="outline"
@@ -71,6 +71,19 @@ export default function GameLauncher({
                     {t('common.menu')}
                 </Button>
             </motion.div>
+
+            {/* Mobile-only sticky back button */}
+            <div className="md:hidden sticky top-0 z-50 px-3 py-2 bg-background/80 backdrop-blur-sm border-b border-border">
+                <Button
+                    onClick={onClose}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-1" />
+                    {t('common.menu')}
+                </Button>
+            </div>
 
             <LevelComponent
                 onComplete={onComplete}
