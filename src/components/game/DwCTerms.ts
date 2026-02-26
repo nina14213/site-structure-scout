@@ -293,14 +293,14 @@ export const dwcTerms: Record<string, DwCTerm> = {
 };
 
 // Kategorie terminów
-export const termCategories: Record<string, { name: string; icon: string; color: string }> = {
-  core: { name: "Core IDs", icon: "Key", color: "#22d3ee" },
-  location: { name: "Lokalizacja", icon: "MapPin", color: "#22c55e" },
-  event: { name: "Zdarzenie", icon: "Calendar", color: "#a855f7" },
-  taxon: { name: "Takson", icon: "Leaf", color: "#f59e0b" },
-  occurrence: { name: "Obserwacja", icon: "Eye", color: "#3b82f6" },
-  multimedia: { name: "Multimedia", icon: "Image", color: "#ec4899" },
-  extension: { name: "Rozszerzenia", icon: "Link", color: "#6366f1" },
+export const termCategories: Record<string, { name: Record<string, string>; icon: string; color: string }> = {
+  core: { name: { pl: "Core IDs", en: "Core IDs", fr: "IDs principaux", de: "Core-IDs" }, icon: "Key", color: "#22d3ee" },
+  location: { name: { pl: "Lokalizacja", en: "Location", fr: "Localisation", de: "Standort" }, icon: "MapPin", color: "#22c55e" },
+  event: { name: { pl: "Zdarzenie", en: "Event", fr: "Événement", de: "Ereignis" }, icon: "Calendar", color: "#a855f7" },
+  taxon: { name: { pl: "Takson", en: "Taxon", fr: "Taxon", de: "Taxon" }, icon: "Leaf", color: "#f59e0b" },
+  occurrence: { name: { pl: "Obserwacja", en: "Occurrence", fr: "Occurrence", de: "Vorkommen" }, icon: "Eye", color: "#3b82f6" },
+  multimedia: { name: { pl: "Multimedia", en: "Multimedia", fr: "Multimédia", de: "Multimedia" }, icon: "Image", color: "#ec4899" },
+  extension: { name: { pl: "Rozszerzenia", en: "Extensions", fr: "Extensions", de: "Erweiterungen" }, icon: "Link", color: "#6366f1" },
 };
 
 // Reguły walidacji GBIF
