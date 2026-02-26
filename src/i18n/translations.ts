@@ -238,6 +238,19 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.dataPreview': 'Podgląd danych',
     'import.noData': 'Wgraj plik CSV, TXT lub XLSX, aby zobaczyć podgląd danych.',
     'import.supportedFormats': 'Obsługiwane formaty: CSV, TXT, XLSX, XLS',
+    'import.error.empty': 'Plik jest pusty',
+    'import.error.sheetEmpty': 'Arkusz jest pusty',
+    'import.error.unsupported': 'Obsługiwane formaty: CSV, TXT, XLSX, XLS',
+    'import.error.readFile': 'Błąd podczas wczytywania pliku',
+    'import.error.parse': 'Błąd parsowania',
+    'import.error.import': 'Błąd importu',
+    'import.sep.comma': 'Przecinek (,)',
+    'import.sep.semicolon': 'Średnik (;)',
+    'import.sep.tab': 'Tab',
+    'import.sep.pipe': 'Pipe (|)',
+    'import.sep.space': 'Spacja ( )',
+    'import.dec.dot': 'Kropka (.)',
+    'import.dec.comma': 'Przecinek (,)',
 
     // === SchemaMapper ===
     'schema.title': 'Stwórz swoją Data Package',
@@ -254,6 +267,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadCSV': 'Pobierz CSV (UTF-8, WGS-84)',
     'schema.continueValidation': 'Kontynuuj do walidacji',
     'schema.mapAllRequired': 'Zmapuj wymagane pola, aby kontynuować',
+    'schema.samplePrefix': 'np:',
+    'schema.examplePrefix': 'Przykład:',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
@@ -606,6 +621,19 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.dataPreview': 'Data Preview',
     'import.noData': 'Upload a CSV, TXT, or XLSX file to preview data.',
     'import.supportedFormats': 'Supported formats: CSV, TXT, XLSX, XLS',
+    'import.error.empty': 'File is empty',
+    'import.error.sheetEmpty': 'Sheet is empty',
+    'import.error.unsupported': 'Supported formats: CSV, TXT, XLSX, XLS',
+    'import.error.readFile': 'Error reading file',
+    'import.error.parse': 'Parsing error',
+    'import.error.import': 'Import error',
+    'import.sep.comma': 'Comma (,)',
+    'import.sep.semicolon': 'Semicolon (;)',
+    'import.sep.tab': 'Tab',
+    'import.sep.pipe': 'Pipe (|)',
+    'import.sep.space': 'Space ( )',
+    'import.dec.dot': 'Dot (.)',
+    'import.dec.comma': 'Comma (,)',
 
     // === SchemaMapper ===
     'schema.title': 'Create Your Data Package',
@@ -622,6 +650,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadCSV': 'Download CSV (UTF-8, WGS-84)',
     'schema.continueValidation': 'Continue to Validation',
     'schema.mapAllRequired': 'Map all required fields to continue',
+    'schema.samplePrefix': 'e.g:',
+    'schema.examplePrefix': 'Example:',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
@@ -974,6 +1004,19 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.dataPreview': 'Aperçu des Données',
     'import.noData': 'Chargez un fichier CSV, TXT ou XLSX pour prévisualiser les données.',
     'import.supportedFormats': 'Formats supportés : CSV, TXT, XLSX, XLS',
+    'import.error.empty': 'Le fichier est vide',
+    'import.error.sheetEmpty': 'La feuille est vide',
+    'import.error.unsupported': 'Formats supportés : CSV, TXT, XLSX, XLS',
+    'import.error.readFile': 'Erreur lors de la lecture du fichier',
+    'import.error.parse': 'Erreur d\'analyse',
+    'import.error.import': 'Erreur d\'import',
+    'import.sep.comma': 'Virgule (,)',
+    'import.sep.semicolon': 'Point-virgule (;)',
+    'import.sep.tab': 'Tabulation',
+    'import.sep.pipe': 'Barre verticale (|)',
+    'import.sep.space': 'Espace ( )',
+    'import.dec.dot': 'Point (.)',
+    'import.dec.comma': 'Virgule (,)',
 
     // === SchemaMapper ===
     'schema.title': 'Créez votre Data Package',
@@ -990,6 +1033,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadCSV': 'Télécharger CSV (UTF-8, WGS-84)',
     'schema.continueValidation': 'Continuer vers la Validation',
     'schema.mapAllRequired': 'Mappez tous les champs requis pour continuer',
+    'schema.samplePrefix': 'ex :',
+    'schema.examplePrefix': 'Exemple :',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
