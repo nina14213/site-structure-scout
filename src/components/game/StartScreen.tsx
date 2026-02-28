@@ -72,7 +72,7 @@ export default function StartScreen({
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-8 grid-bg">
+        <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
             <div className="max-w-6xl mx-auto">
                 {/* Header with settings */}
                 <div className="flex justify-end gap-4 mb-8">
