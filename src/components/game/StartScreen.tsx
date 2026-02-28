@@ -72,7 +72,7 @@ export default function StartScreen({
     };
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="min-h-screen p-4 md:p-8 grid-bg">
             <div className="max-w-6xl mx-auto">
                 {/* Header with settings */}
                 <div className="flex justify-end gap-4 mb-8">
