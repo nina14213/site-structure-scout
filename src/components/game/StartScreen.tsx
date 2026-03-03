@@ -72,7 +72,7 @@ export default function StartScreen({
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
+        <div className="min-h-screen p-4 md:p-8 bg-background dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
             <div className="max-w-6xl mx-auto">
                 {/* Header with settings */}
                 <div className="flex justify-end gap-4 mb-8">
@@ -152,11 +152,11 @@ export default function StartScreen({
                                                 className={`p-4 rounded-xl bg-gradient-to-br ${level.color} bg-opacity-10 border border-border/50 hover:border-border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left ${!unlocked ? 'opacity-30' : ''}`}
                                             >
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <LevelIcon className="w-5 h-5 text-white" />
-                                                    <span className="font-semibold text-white text-sm">{t(level.nameKey)}</span>
-                                                    {!unlocked && <span className="text-xs text-white/60 ml-auto">🔒</span>}
+                                                    <LevelIcon className="w-5 h-5 text-white drop-shadow-sm" />
+                                                    <span className="font-semibold text-white text-sm drop-shadow-sm">{t(level.nameKey)}</span>
+                                                    {!unlocked && <span className="text-xs text-white/70 ml-auto">🔒</span>}
                                                 </div>
-                                                <p className="text-xs text-white/80">{t(level.descKey)}</p>
+                                                <p className="text-xs text-white/90 drop-shadow-sm">{t(level.descKey)}</p>
                                             </motion.button>
                                         );
                                     })}
@@ -248,7 +248,7 @@ export default function StartScreen({
                                     <li>{t('start.tutorial.4')}</li>
                                     <li>{t('start.tutorial.5')}</li>
                                 </ol>
-                                <p className="text-xs text-muted-foreground/70 mt-3">{t('start.tutorial.time')}</p>
+                                <p className="text-xs text-muted-foreground mt-3">{t('start.tutorial.time')}</p>
                             </motion.div>
                         )}
                     </motion.div>
