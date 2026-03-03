@@ -16,14 +16,14 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 12%;
 
-    --primary: 142 60% 35%;
+    --primary: 142 65% 28%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 185 80% 30%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 15% 90%;
-    --muted-foreground: 220 15% 40%;
+    --muted-foreground: 220 15% 35%;
 
     --accent: 270 60% 50%;
     --accent-foreground: 0 0% 100%;
@@ -33,15 +33,15 @@
 
     --border: 220 15% 80%;
     --input: 220 15% 85%;
-    --ring: 142 60% 35%;
+    --ring: 142 65% 28%;
 
     --radius: 0.75rem;
 
     /* Custom tokens – light */
-    --neon-green: 142 60% 35%;
-    --neon-cyan: 185 80% 30%;
-    --neon-purple: 270 60% 50%;
-    --neon-orange: 25 80% 50%;
+    --neon-green: 142 65% 28%;
+    --neon-cyan: 185 80% 28%;
+    --neon-purple: 270 60% 42%;
+    --neon-orange: 25 85% 38%;
     --dark-base: 220 15% 96%;
     --dark-surface: 0 0% 100%;
     --dark-elevated: 220 15% 94%;
@@ -73,9 +73,9 @@
     --secondary-foreground: 220 20% 8%;
 
     --muted: 220 20% 18%;
-    --muted-foreground: 220 15% 60%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 280 100% 65%;
+    --accent: 280 100% 75%;
     --accent-foreground: 180 100% 95%;
 
     --destructive: 0 84% 60%;
@@ -87,7 +87,7 @@
 
     --neon-green: 142 76% 50%;
     --neon-cyan: 185 100% 50%;
-    --neon-purple: 280 100% 65%;
+    --neon-purple: 280 100% 75%;
     --neon-orange: 25 100% 55%;
     --dark-base: 220 20% 8%;
     --dark-surface: 220 25% 12%;
