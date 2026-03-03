@@ -255,11 +255,11 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 md:hidden p-3 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-200 text-sm flex items-center gap-2"
+                        className="mb-4 md:hidden p-3 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-800 dark:text-indigo-200 text-sm flex items-center gap-2"
                     >
                         <span className="text-lg">👆</span>
                         {t('core.selectedColumn', { column: selectedColumn })}
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} className="ml-auto h-6 px-2 text-indigo-300">
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} className="ml-auto h-6 px-2 text-indigo-700 dark:text-indigo-300">
                             ✕
                         </Button>
                     </motion.div>
