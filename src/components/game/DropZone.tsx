@@ -58,12 +58,12 @@ export default function DropZone({
     };
 
     const getBorderStyle = () => {
-        if (isOver) return 'border-indigo-500 bg-indigo-900/30 scale-[1.02]';
-        if (hasSelectedColumn && !mappedColumn) return 'border-indigo-400 bg-indigo-900/20 border-dashed animate-pulse cursor-pointer';
-        if (mappedColumn && isValid) return 'border-green-400 bg-green-900/20';
-        if (mappedColumn && !isValid) return 'border-red-400 bg-red-900/20';
-        if (isRequired) return 'border-orange-400 bg-orange-900/10 border-dashed';
-        return 'border-slate-700/50 bg-slate-800/10 border-dashed';
+        if (isOver) return 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/30 scale-[1.02]';
+        if (hasSelectedColumn && !mappedColumn) return 'border-indigo-400 bg-indigo-100/50 dark:bg-indigo-900/20 border-dashed animate-pulse cursor-pointer';
+        if (mappedColumn && isValid) return 'border-green-400 bg-green-50 dark:bg-green-900/20';
+        if (mappedColumn && !isValid) return 'border-red-400 bg-red-50 dark:bg-red-900/20';
+        if (isRequired) return 'border-orange-400 bg-orange-50/50 dark:bg-orange-900/10 border-dashed';
+        return 'border-border bg-muted/30 border-dashed';
     };
 
     const termDescription = language === 'de' && term?.descriptionDE ? term.descriptionDE : language === 'fr' && term?.descriptionFR ? term.descriptionFR : language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
@@ -147,7 +147,7 @@ export default function DropZone({
                         </div>
 
                         {termDescription && (
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                 {termDescription}
                             </p>
                         )}
@@ -191,7 +191,7 @@ export default function DropZone({
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-2 pt-2 border-t border-slate-700"
                         >
-                            <p className="text-xs text-slate-300">
+                            <p className="text-xs text-foreground">
                                 <span className="font-semibold">{t('common.mapping')}:</span> {mappedColumn}
                             </p>
                         </motion.div>

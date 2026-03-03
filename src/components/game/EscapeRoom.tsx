@@ -50,13 +50,13 @@ interface Puzzle {
 }
 
 const categoryConfig: Record<string, { color: string; bgColor: string; borderColor: string; glowColor: string; label: string }> = {
-  eventID: { color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", glowColor: "shadow-amber-500/20", label: "Identyfikacja" },
-  scientificName: { color: "text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/30", glowColor: "shadow-emerald-500/20", label: "Taksonomia" },
-  recordedBy: { color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", glowColor: "shadow-blue-500/20", label: "Obserwator" },
-  quantity: { color: "text-pink-400", bgColor: "bg-pink-500/10", borderColor: "border-pink-500/30", glowColor: "shadow-pink-500/20", label: "Zliczanie" },
-  coordinates: { color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/30", glowColor: "shadow-cyan-500/20", label: "Współrzędne" },
-  date: { color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/30", glowColor: "shadow-violet-500/20", label: "Data" },
-  geodetic: { color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", glowColor: "shadow-orange-500/20", label: "Geodezja" },
+  eventID: { color: "text-amber-700 dark:text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", glowColor: "shadow-amber-500/20", label: "Identyfikacja" },
+  scientificName: { color: "text-emerald-700 dark:text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/30", glowColor: "shadow-emerald-500/20", label: "Taksonomia" },
+  recordedBy: { color: "text-blue-700 dark:text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", glowColor: "shadow-blue-500/20", label: "Obserwator" },
+  quantity: { color: "text-pink-700 dark:text-pink-400", bgColor: "bg-pink-500/10", borderColor: "border-pink-500/30", glowColor: "shadow-pink-500/20", label: "Zliczanie" },
+  coordinates: { color: "text-cyan-700 dark:text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/30", glowColor: "shadow-cyan-500/20", label: "Współrzędne" },
+  date: { color: "text-violet-700 dark:text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/30", glowColor: "shadow-violet-500/20", label: "Data" },
+  geodetic: { color: "text-orange-700 dark:text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", glowColor: "shadow-orange-500/20", label: "Geodezja" },
 };
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -321,7 +321,7 @@ export default function EscapeRoom({
       {[1, 2, 3].map((i) => (
         <Star
           key={i}
-          className={`w-3 h-3 ${i <= level ? "text-amber-400 fill-amber-400" : "text-slate-600"}`}
+          className={`w-3 h-3 ${i <= level ? "text-amber-600 dark:text-amber-400 fill-amber-600 dark:fill-amber-400" : "text-slate-400 dark:text-slate-600"}`}
         />
       ))}
     </div>
@@ -435,9 +435,9 @@ export default function EscapeRoom({
                 transition={{ duration: 0.5, repeat: Infinity }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
                   timeLeft < 60
-                    ? "bg-red-500/20 text-red-400 border-red-500/50"
+                    ? "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/50"
                     : timeLeft < 180
-                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30"
                     : "bg-muted/80 text-muted-foreground border-border"
                 }`}
               >
@@ -445,8 +445,8 @@ export default function EscapeRoom({
                 <span className="font-mono text-lg font-bold">{formatTime(timeLeft)}</span>
               </motion.div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30">
-                <Zap className="w-4 h-4 text-amber-400" />
-                <span className="font-mono text-lg font-bold text-amber-400">{score}</span>
+                <Zap className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                <span className="font-mono text-lg font-bold text-amber-700 dark:text-amber-400">{score}</span>
               </div>
             </div>
           </div>
@@ -498,7 +498,7 @@ export default function EscapeRoom({
                   {puzzle.solved ? "✅" : puzzle.unlocked ? puzzle.icon : "🔒"}
                 </span>
                 <span className={`text-[10px] font-bold ${
-                  puzzle.solved ? "text-emerald-400" : puzzle.unlocked ? pCat.color : "text-slate-600"
+                  puzzle.solved ? "text-emerald-700 dark:text-emerald-400" : puzzle.unlocked ? pCat.color : "text-slate-500 dark:text-slate-600"
                 }`}>
                   {puzzle.id}
                 </span>
@@ -599,8 +599,8 @@ export default function EscapeRoom({
                       exit={{ opacity: 0, height: 0 }}
                     >
                       <Alert className="bg-yellow-500/10 border-yellow-500/30 rounded-xl">
-                        <Lightbulb className="w-4 h-4 text-yellow-400" />
-                        <AlertDescription className="text-yellow-700 dark:text-yellow-300">
+                        <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                        <AlertDescription className="text-yellow-800 dark:text-yellow-300">
                           {currentPuzzleData.hint}
                         </AlertDescription>
                       </Alert>
@@ -617,8 +617,8 @@ export default function EscapeRoom({
                       exit={{ opacity: 0, height: 0 }}
                     >
                       <Alert className="bg-amber-500/10 border-amber-500/30 rounded-xl">
-                        <Key className="w-4 h-4 text-amber-400" />
-                        <AlertDescription className="text-amber-700 dark:text-amber-300">
+                        <Key className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <AlertDescription className="text-amber-800 dark:text-amber-300">
                           {currentPuzzleData.clue}
                         </AlertDescription>
                       </Alert>
@@ -629,7 +629,7 @@ export default function EscapeRoom({
                 {/* Answer Input */}
                 <div className="space-y-3">
                   <label className="text-foreground/80 font-medium flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-amber-400" />
+                    <ArrowRight className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                     {t('escape.yourAnswer')}
                   </label>
                   <div className="flex gap-3">
@@ -670,8 +670,8 @@ export default function EscapeRoom({
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <Alert className="bg-red-500/10 border-red-500/30 rounded-xl">
-                        <Skull className="w-4 h-4 text-red-400" />
-                        <AlertDescription className="text-red-700 dark:text-red-300">
+                        <Skull className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        <AlertDescription className="text-red-800 dark:text-red-300">
                           {t('escape.tooManyAttempts', { count: attempts })}
                         </AlertDescription>
                       </Alert>
@@ -704,7 +704,7 @@ export default function EscapeRoom({
           <Button
             onClick={() => setShowFieldNotes(!showFieldNotes)}
             variant="outline"
-            className="w-full border-amber-700/50 bg-amber-900/10 text-amber-300 hover:bg-amber-900/30 hover:border-amber-600 rounded-xl"
+            className="w-full border-amber-600/50 dark:border-amber-700/50 bg-amber-100 dark:bg-amber-900/10 text-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/30 hover:border-amber-700 dark:hover:border-amber-600 rounded-xl"
           >
             <span className="mr-2">📋</span>
             {t('escape.fieldNotes')}
@@ -724,9 +724,9 @@ export default function EscapeRoom({
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="mt-3 bg-amber-950/30 border-amber-800/40 backdrop-blur rounded-xl overflow-hidden">
+                <Card className="mt-3 bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800/40 backdrop-blur rounded-xl overflow-hidden">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-amber-200 text-sm flex items-center gap-2">
+                    <CardTitle className="text-amber-800 dark:text-amber-200 text-sm flex items-center gap-2">
                       📋 Notatki Terenowe — Ailanthus altissima (Poznań, 2025)
                     </CardTitle>
                   </CardHeader>
@@ -742,17 +742,17 @@ export default function EscapeRoom({
                           key={note.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="bg-slate-800/60 p-3 rounded-lg border border-amber-800/20 hover:border-amber-600/40 transition-colors group"
+                          className="bg-amber-100/60 dark:bg-slate-800/60 p-3 rounded-lg border border-amber-300/50 dark:border-amber-800/20 hover:border-amber-500 dark:hover:border-amber-600/40 transition-colors group"
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <p className="text-amber-300 font-bold flex items-center gap-1.5">
+                          <p className="text-amber-800 dark:text-amber-300 font-bold flex items-center gap-1.5">
                               <Hash className="w-3 h-3 opacity-60" />
                               {note.id}
                             </p>
-                            <span className="text-slate-500 text-xs">1 {t('escape.individual')}</span>
+                            <span className="text-muted-foreground text-xs">1 {t('escape.individual')}</span>
                           </div>
-                          <p className="text-slate-300 font-medium text-xs mb-1">{note.name}</p>
-                          <div className="flex items-center gap-3 text-xs text-slate-500">
+                          <p className="text-foreground font-medium text-xs mb-1">{note.name}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <User className="w-3 h-3" /> {note.observer}
                             </span>
@@ -760,7 +760,7 @@ export default function EscapeRoom({
                               <Calendar className="w-3 h-3" /> {note.date}
                             </span>
                           </div>
-                          <p className="text-slate-600 text-[10px] mt-1 flex items-center gap-1 group-hover:text-cyan-400/60 transition-colors">
+                          <p className="text-muted-foreground text-[10px] mt-1 flex items-center gap-1 group-hover:text-cyan-600 dark:group-hover:text-cyan-400/60 transition-colors">
                             <MapPin className="w-3 h-3" /> {note.coords}
                           </p>
                         </motion.div>
