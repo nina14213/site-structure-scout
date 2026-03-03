@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import DataImportTutorial from './DataImportTutorial';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -30,6 +31,9 @@ interface DataImportProps {
 
 export default function DataImport({ onBack, onImportComplete }: DataImportProps) {
     const { t } = useLanguage();
+    const [showTutorial, setShowTutorial] = useState(() => {
+        try { return !localStorage.getItem('dwc-import-tutorial-seen'); } catch { return true; }
+    });
     const [file, setFile] = useState<File | null>(null);
     const [fileType, setFileType] = useState<'csv' | 'txt' | 'xlsx' | null>(null);
     const [delimiter, setDelimiter] = useState(',');
@@ -157,6 +161,15 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
             setIsLoading(false);
         }
     }, [file, fileType, preview, delimiter, parseTextFile, onImportComplete, t]);
+
+    const dismissTutorial = useCallback(() => {
+        try { localStorage.setItem('dwc-import-tutorial-seen', '1'); } catch {}
+        setShowTutorial(false);
+    }, []);
+
+    if (showTutorial) {
+        return <DataImportTutorial onComplete={dismissTutorial} onSkip={dismissTutorial} />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
