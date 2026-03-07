@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Orbitron", "sans-serif"],
-        body: ["Rajdhani", "sans-serif"],
+        display: ["Bahnschrift", "DIN Alternate", "Segoe UI", "sans-serif"],
+        body: ["Bahnschrift", "DIN Alternate", "Segoe UI", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
