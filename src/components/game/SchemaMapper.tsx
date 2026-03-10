@@ -157,6 +157,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     const [searchTerm, setSearchTerm] = useState('');
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
     const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
+    const [previewSchemaId, setPreviewSchemaId] = useState<string | null>(null);
+    const [convertDatesToISO, setConvertDatesToISO] = useState(true);
 
     // Persist mappings to localStorage
     const saveMappings = useCallback((newMappings: Record<string, string>, schema?: string) => {
