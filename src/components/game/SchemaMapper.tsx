@@ -32,6 +32,7 @@ const schemaTypes = [
     { id: 'material', name: 'Material Entity', icon: Calendar, color: 'bg-amber-600' },
     { id: 'media', name: 'Media', icon: Image, color: 'bg-blue-600' },
     { id: 'identification', name: 'Identification', icon: SearchIcon, color: 'bg-cyan-600' },
+    { id: 'agent', name: 'Agent', icon: Users, color: 'bg-teal-600' },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
