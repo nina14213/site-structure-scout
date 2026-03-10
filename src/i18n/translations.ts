@@ -1560,6 +1560,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.previewFirst5': 'erste 5 Zeilen',
     'schema.dateConversion': 'Datumskonvertierung in ISO 8601',
     'schema.dateConversionDesc': 'Automatische Konvertierung von Daten (TT-MM-JJJJ, Excel-Seriennummern) in das Format JJJJ-MM-TT',
+    'schema.convertDates': 'Daten konvertieren',
+    'schema.datesConverted': 'Daten konvertiert ✓',
     'schema.continueValidation': 'Weiter zur Validierung',
     'schema.mapAllRequired': 'Ordne alle erforderlichen Felder zu, um fortzufahren',
     'schema.samplePrefix': 'z.B.:',
