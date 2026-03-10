@@ -1132,6 +1132,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.previewFirst5': '5 premières lignes',
     'schema.dateConversion': 'Convertir les dates en ISO 8601',
     'schema.dateConversionDesc': 'Conversion automatique des dates (JJ-MM-AAAA, numéros Excel) au format AAAA-MM-JJ',
+    'schema.convertDates': 'Convertir les dates',
+    'schema.datesConverted': 'Dates converties ✓',
     'schema.continueValidation': 'Continuer vers la Validation',
     'schema.mapAllRequired': 'Mappez tous les champs requis pour continuer',
     'schema.samplePrefix': 'ex :',
