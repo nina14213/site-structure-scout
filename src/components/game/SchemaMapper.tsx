@@ -19,7 +19,9 @@ import {
     Check,
     X,
     Download,
-    MousePointerClick
+    MousePointerClick,
+    Eye,
+    CalendarClock
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -155,6 +157,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     const [searchTerm, setSearchTerm] = useState('');
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
     const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
+    const [previewSchemaId, setPreviewSchemaId] = useState<string | null>(null);
+    const [convertDatesToISO, setConvertDatesToISO] = useState(true);
 
     // Persist mappings to localStorage
     const saveMappings = useCallback((newMappings: Record<string, string>, schema?: string) => {
@@ -307,6 +311,57 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         return grouped;
     }, [mappings]);
 
+    // Date conversion helpers
+    const excelDateToISO = (serial: number): string => {
+        const utcDays = serial - 25569;
+        const date = new Date(utcDays * 86400 * 1000);
+        return date.toISOString().split('T')[0];
+    };
+
+    const normalizeDate = (value: string): string => {
+        if (!value || value.trim() === '') return value;
+        const trimmed = value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        const asNum = Number(trimmed);
+        if (!isNaN(asNum) && asNum > 1 && asNum < 200000 && !trimmed.includes('.') && !trimmed.includes('/') && !trimmed.includes('-')) {
+            return excelDateToISO(asNum);
+        }
+        const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+        if (dmy) {
+            const [, d, m, y] = dmy;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+        const ymd = trimmed.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+        if (ymd) {
+            const [, y, m, d] = ymd;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+        return trimmed;
+    };
+
+    const isDateTerm = (term: string) => /date|Date|day|Day|eventDate|dateIdentified|georeferencedDate|CreateDate|agentRoleDate/.test(term);
+
+    // Apply date conversion to a value if the term is date-related
+    const maybeConvertDate = useCallback((value: string, term: string): string => {
+        if (!convertDatesToISO) return value;
+        if (!isDateTerm(term)) return value;
+        return normalizeDate(value);
+    }, [convertDatesToISO]);
+
+    // Generate preview rows for a schema
+    const getPreviewRows = useCallback((termMappings: Record<string, string>) => {
+        const dwcHeaders = Object.keys(termMappings);
+        return data.slice(0, 5).map(row => {
+            const previewRow: Record<string, string> = {};
+            dwcHeaders.forEach(term => {
+                const sourceCol = termMappings[term];
+                const rawValue = row[sourceCol] ?? '';
+                previewRow[term] = maybeConvertDate(String(rawValue), term);
+            });
+            return previewRow;
+        });
+    }, [data, maybeConvertDate]);
+
     // Generate CSV content for a given set of term->column mappings
     const generateCSV = useCallback((termMappings: Record<string, string>) => {
         const dwcHeaders = Object.keys(termMappings);
@@ -315,19 +370,19 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         data.forEach(row => {
             const rowValues = dwcHeaders.map(dwcTerm => {
                 const sourceColumn = termMappings[dwcTerm];
-                const value = row[sourceColumn] ?? '';
-                const strValue = String(value);
-                if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-                    return `"${strValue.replace(/"/g, '""')}"`;
+                const rawValue = row[sourceColumn] ?? '';
+                const value = maybeConvertDate(String(rawValue), dwcTerm);
+                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                    return `"${value.replace(/"/g, '""')}"`;
                 }
-                return strValue;
+                return value;
             });
             csvRows.push(rowValues.join(','));
         });
 
         const BOM = '\uFEFF';
         return BOM + csvRows.join('\n');
-    }, [data]);
+    }, [data, maybeConvertDate]);
 
     // Download a single CSV file
     const downloadFile = useCallback((content: string, name: string) => {
@@ -634,35 +689,120 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 </CardTitle>
                                 <p className="text-sm text-muted-foreground">{t('schema.downloadPackageDesc')}</p>
                             </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                            <CardContent className="pt-4 space-y-4">
+                                {/* Date conversion toggle */}
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                                    <CalendarClock className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">{t('schema.dateConversion')}</p>
+                                        <p className="text-xs text-muted-foreground">{t('schema.dateConversionDesc')}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setConvertDatesToISO(prev => !prev)}
+                                        className={`relative w-11 h-6 rounded-full transition-colors ${convertDatesToISO ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
+                                    >
+                                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${convertDatesToISO ? 'translate-x-5' : ''}`} />
+                                    </button>
+                                </div>
+
+                                {/* File cards */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     {schemasWithMappings.map(schemaId => {
                                         const info = schemaTypes.find(s => s.id === schemaId);
                                         const termCount = Object.keys(groupedMappings[schemaId]).length;
+                                        const isPreviewOpen = previewSchemaId === schemaId;
                                         return (
-                                            <button
-                                                key={schemaId}
-                                                onClick={() => handleDownloadSchema(schemaId)}
-                                                className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/50 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
-                                            >
-                                                {info && (
-                                                    <div className={`p-1.5 rounded-lg ${info.color}`}>
-                                                        <info.icon className="w-4 h-4 text-white" />
+                                            <div key={schemaId} className="flex flex-col gap-1">
+                                                <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isPreviewOpen ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-border bg-muted/50'}`}>
+                                                    {info && (
+                                                        <div className={`p-1.5 rounded-lg ${info.color}`}>
+                                                            <info.icon className="w-4 h-4 text-white" />
+                                                        </div>
+                                                    )}
+                                                    <div className="text-left flex-1 min-w-0">
+                                                        <p className="text-sm font-semibold text-foreground truncate">
+                                                            {schemaId}.csv
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {termCount} {t('schema.columns')}, {data.length} {t('schema.rows')}
+                                                        </p>
                                                     </div>
-                                                )}
-                                                <div className="text-left flex-1 min-w-0">
-                                                    <p className="text-sm font-semibold text-foreground truncate">
-                                                        {schemaId}.csv
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {termCount} {t('schema.columns')}
-                                                    </p>
                                                 </div>
-                                                <Download className="w-4 h-4 text-muted-foreground group-hover:text-amber-400 transition-colors flex-shrink-0" />
-                                            </button>
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setPreviewSchemaId(isPreviewOpen ? null : schemaId)}
+                                                        className="flex-1 h-7 text-xs text-muted-foreground hover:text-cyan-400"
+                                                    >
+                                                        <Eye className="w-3 h-3 mr-1" />
+                                                        {t('schema.preview')}
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleDownloadSchema(schemaId)}
+                                                        className="flex-1 h-7 text-xs text-muted-foreground hover:text-amber-400"
+                                                    >
+                                                        <Download className="w-3 h-3 mr-1" />
+                                                        CSV
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         );
                                     })}
                                 </div>
+
+                                {/* Preview table */}
+                                <AnimatePresence>
+                                    {previewSchemaId && groupedMappings[previewSchemaId] && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="rounded-xl border border-border bg-muted/30 overflow-x-auto">
+                                                <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+                                                    <p className="text-sm font-medium text-foreground">
+                                                        {previewSchemaId}.csv — {t('schema.previewFirst5')}
+                                                    </p>
+                                                    <Button variant="ghost" size="sm" onClick={() => setPreviewSchemaId(null)} className="h-6 px-2 text-muted-foreground">
+                                                        <X className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-xs">
+                                                        <thead>
+                                                            <tr className="border-b border-border">
+                                                                {Object.keys(groupedMappings[previewSchemaId]).map(term => (
+                                                                    <th key={term} className="px-3 py-2 text-left font-mono font-semibold text-foreground whitespace-nowrap">
+                                                                        {term}
+                                                                        {isDateTerm(term) && convertDatesToISO && (
+                                                                            <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
+                                                                        )}
+                                                                    </th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {getPreviewRows(groupedMappings[previewSchemaId]).map((row, i) => (
+                                                                <tr key={i} className="border-b border-border/30">
+                                                                    {Object.entries(row).map(([term, val], j) => (
+                                                                        <td key={j} className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'}`}>
+                                                                            {val || '—'}
+                                                                        </td>
+                                                                    ))}
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
                                 <Button
                                     onClick={handleDownloadAll}
                                     variant="outline"
