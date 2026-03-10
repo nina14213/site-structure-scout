@@ -411,7 +411,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                     return (
                                         <button
                                             key={schema.id}
-                                            onClick={() => setSelectedSchema(schema.id)}
+                                            onClick={() => handleSchemaChange(schema.id)}
                                             className={`
                                                 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
                                                 ${isSelected 
