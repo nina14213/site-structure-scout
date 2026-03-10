@@ -203,9 +203,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         e.preventDefault();
         const columnName = e.dataTransfer.getData('text/plain');
         
-        setMappings(prev => {
+        updateMappings(prev => {
             const newMappings = { ...prev };
-            // Remove previous mapping for this column
             Object.keys(newMappings).forEach(key => {
                 if (newMappings[key] === columnName) delete newMappings[key];
             });
@@ -217,7 +216,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
     // Remove mapping
     const handleRemoveMapping = (termName: string) => {
-        setMappings(prev => {
+        updateMappings(prev => {
             const newMappings = { ...prev };
             delete newMappings[termName];
             return newMappings;
@@ -231,7 +230,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
     const handleTapAssignTerm = (termName: string) => {
         if (!selectedColumn) return;
-        setMappings(prev => {
+        updateMappings(prev => {
             const newMappings = { ...prev };
             Object.keys(newMappings).forEach(key => {
                 if (newMappings[key] === selectedColumn) delete newMappings[key];
@@ -243,7 +242,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     };
 
     const handleReset = () => {
-        setMappings({});
+        updateMappings(() => ({}));
     };
 
     // Check if column is mapped
