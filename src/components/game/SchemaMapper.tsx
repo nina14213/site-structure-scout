@@ -256,7 +256,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         
         currentSchema.required.forEach(term => {
             if (!newMappings[term]) {
-                // Try to find a matching column
                 const matchingColumn = columns.find(col => 
                     col.toLowerCase().includes(term.toLowerCase()) ||
                     term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, ''))
@@ -267,7 +266,13 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             }
         });
         
-        setMappings(newMappings);
+        updateMappings(() => newMappings);
+    };
+
+    // Persist schema selection
+    const handleSchemaChange = (schemaId: string) => {
+        setSelectedSchema(schemaId);
+        saveMappings(mappings, schemaId);
     };
 
     // Check if all required fields are mapped
