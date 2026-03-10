@@ -242,60 +242,30 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         }
     };
 
-    // Download CSV with DwC headers (UTF-8, WGS-84 only)
-    const handleDownloadCSV = () => {
-        // Get all mapped DwC terms as headers
-        const dwcHeaders = Object.keys(mappings);
-        
-        // Check if data uses WGS-84 (look for geodeticDatum column or coordinate_system)
-        const datumMapping = mappings['geodeticDatum'];
-        const hasWGS84Data = data.every(row => {
-            if (datumMapping) {
-                const datum = row[datumMapping]?.toString().toUpperCase();
-                return datum === 'WGS84' || datum === 'WGS 84' || datum === 'EPSG:4326';
-            }
-            // If no datum column mapped, check common column names
-            const coordinateSystemCol = columns.find(col => 
-                col.toLowerCase().includes('coordinate') || 
-                col.toLowerCase().includes('datum') ||
-                col.toLowerCase().includes('system')
-            );
-            if (coordinateSystemCol) {
-                const value = row[coordinateSystemCol]?.toString().toUpperCase();
-                return value === 'WGS84' || value === 'WGS 84' || value === 'EPSG:4326';
-            }
-            return true; // Assume WGS-84 if no datum info
-        });
-
-        if (!hasWGS84Data) {
-            alert('Warning: Some data may not be in WGS-84 format. Only WGS-84 coordinates are included.');
-        }
-
-        // Build CSV content
-        const csvRows: string[] = [];
-        
-        // Add header row with DwC terms
-        csvRows.push(dwcHeaders.join(','));
-        
-        // Add data rows (only WGS-84)
-        data.forEach(row => {
-            // Check if this row is WGS-84
-            const datumCol = datumMapping || columns.find(col => 
-                col.toLowerCase().includes('coordinate') || 
-                col.toLowerCase().includes('datum') ||
-                col.toLowerCase().includes('system')
-            );
-            if (datumCol) {
-                const datum = row[datumCol]?.toString().toUpperCase();
-                if (datum && datum !== 'WGS84' && datum !== 'WGS 84' && datum !== 'EPSG:4326') {
-                    return; // Skip non-WGS84 rows
+    // Group mappings by schema type
+    const getMappingsBySchema = useCallback(() => {
+        const grouped: Record<string, Record<string, string>> = {};
+        Object.entries(mappings).forEach(([term, col]) => {
+            for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+                if (schema.required.includes(term) || schema.optional.includes(term)) {
+                    if (!grouped[schemaId]) grouped[schemaId] = {};
+                    grouped[schemaId][term] = col;
+                    break;
                 }
             }
-            
+        });
+        return grouped;
+    }, [mappings]);
+
+    // Generate CSV content for a given set of term->column mappings
+    const generateCSV = useCallback((termMappings: Record<string, string>) => {
+        const dwcHeaders = Object.keys(termMappings);
+        const csvRows: string[] = [dwcHeaders.join(',')];
+
+        data.forEach(row => {
             const rowValues = dwcHeaders.map(dwcTerm => {
-                const sourceColumn = mappings[dwcTerm];
+                const sourceColumn = termMappings[dwcTerm];
                 const value = row[sourceColumn] ?? '';
-                // Escape values with commas or quotes
                 const strValue = String(value);
                 if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
                     return `"${strValue.replace(/"/g, '""')}"`;
@@ -305,19 +275,49 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             csvRows.push(rowValues.join(','));
         });
 
-        // Create and download CSV with UTF-8 BOM
         const BOM = '\uFEFF';
-        const csvContent = BOM + csvRows.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        return BOM + csvRows.join('\n');
+    }, [data]);
+
+    // Download a single CSV file
+    const downloadFile = useCallback((content: string, name: string) => {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `dwc_${selectedSchema}_${fileName.replace(/\.[^/.]+$/, '')}.csv`;
+        link.download = name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-    };
+    }, []);
+
+    // Download all DwC files as separate CSVs
+    const handleDownloadAll = useCallback(() => {
+        const grouped = getMappingsBySchema();
+        const baseName = fileName.replace(/\.[^/.]+$/, '');
+        let delay = 0;
+        Object.entries(grouped).forEach(([schemaId, termMappings]) => {
+            const csv = generateCSV(termMappings);
+            setTimeout(() => {
+                downloadFile(csv, `${schemaId}_${baseName}.csv`);
+            }, delay);
+            delay += 300;
+        });
+    }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
+
+    // Download single schema CSV
+    const handleDownloadSchema = useCallback((schemaId: string) => {
+        const grouped = getMappingsBySchema();
+        const termMappings = grouped[schemaId];
+        if (!termMappings) return;
+        const baseName = fileName.replace(/\.[^/.]+$/, '');
+        const csv = generateCSV(termMappings);
+        downloadFile(csv, `${schemaId}_${baseName}.csv`);
+    }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
+
+    const groupedMappings = getMappingsBySchema();
+    const schemasWithMappings = Object.keys(groupedMappings);
 
     const selectedSchemaInfo = schemaTypes.find(s => s.id === selectedSchema);
 
