@@ -715,46 +715,50 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           </div>
         </motion.div>
 
-        {/* Schema Selector *
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="mb-6"
-                >
-                    <Card className="bg-card/90 border-border backdrop-blur">
-                        <CardContent className="pt-6">
-                            <p className="text-sm text-muted-foreground mb-4">{t('schema.selectSchema')}</p>
-                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                                {schemaTypes.map((schema) => {
-                                    const Icon = schema.icon;
-                                    const isSelected = selectedSchema === schema.id;
-                                    return (
-                                        <button
-                                            key={schema.id}
-                                            onClick={() => handleSchemaChange(schema.id)}
-                                            className={`
+        {/* Schema Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <Card className="bg-card/90 border-border backdrop-blur">
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground mb-4">{t("schema.selectSchema")}</p>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {schemaTypes.map((schema) => {
+                  const Icon = schema.icon;
+                  const isSelected = selectedSchema === schema.id;
+                  return (
+                    <button
+                      key={schema.id}
+                      onClick={() => handleSchemaChange(schema.id)}
+                      className={`
                                                 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
-                                                ${isSelected 
-                                                    ? 'border-purple-500 bg-purple-500/20' 
-                                                    : 'border-border bg-muted/50 hover:border-muted-foreground'}
+                                                ${
+                                                  isSelected
+                                                    ? "border-purple-500 bg-purple-500/20"
+                                                    : "border-border bg-muted/50 hover:border-muted-foreground"
+                                                }
                                             `}
-                                        >
-                                            <div className={`p-2 rounded-lg ${schema.color}`}>
-                                                <Icon className="w-5 h-5 text-white" />
-                                            </div>
-                                            <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                                {schema.name}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>/}
+                    >
+                      <div className={`p-2 rounded-lg ${schema.color}`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <span
+                        className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
+                      >
+                        {schema.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-                {/* Main Content - Two Columns */}
+        {/* Main Content - Two Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Your Columns */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
