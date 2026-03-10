@@ -313,19 +313,27 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
     // Date conversion helpers
     const excelDateToISO = (serial: number): string => {
-        const utcDays = serial - 25569;
-        const date = new Date(utcDays * 86400 * 1000);
-        return date.toISOString().split('T')[0];
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const msPerDay = 86400000;
+        const date = new Date(excelEpoch.getTime() + serial * msPerDay);
+        const hours = date.getUTCHours();
+        const minutes = date.getUTCMinutes();
+        const dateStr = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+        if (hours === 0 && minutes === 0) return dateStr;
+        return `${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     };
 
     const normalizeDate = (value: string): string => {
         if (!value || value.trim() === '') return value;
         const trimmed = value.trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(trimmed)) return trimmed;
+
+        // Excel serial number: integer or decimal, e.g. 45733 or 45733.552777
         const asNum = Number(trimmed);
-        if (!isNaN(asNum) && asNum > 1 && asNum < 200000 && !trimmed.includes('.') && !trimmed.includes('/') && !trimmed.includes('-')) {
+        if (!isNaN(asNum) && asNum > 1000 && asNum < 200000 && /^\d+(\.\d+)?$/.test(trimmed)) {
             return excelDateToISO(asNum);
         }
+
         const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
         if (dmy) {
             const [, d, m, y] = dmy;
