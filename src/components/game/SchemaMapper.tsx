@@ -698,19 +698,28 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 <p className="text-sm text-muted-foreground">{t('schema.downloadPackageDesc')}</p>
                             </CardHeader>
                             <CardContent className="pt-4 space-y-4">
-                                {/* Date conversion toggle */}
+                                {/* Date conversion button */}
                                 <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
                                     <CalendarClock className="w-5 h-5 text-cyan-500 flex-shrink-0" />
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-foreground">{t('schema.dateConversion')}</p>
                                         <p className="text-xs text-muted-foreground">{t('schema.dateConversionDesc')}</p>
                                     </div>
-                                    <button
-                                        onClick={() => setConvertDatesToISO(prev => !prev)}
-                                        className={`relative w-11 h-6 rounded-full transition-colors ${convertDatesToISO ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`}
+                                    <Button
+                                        size="sm"
+                                        variant={convertDatesToISO ? 'default' : 'outline'}
+                                        onClick={() => {
+                                            setConvertDatesToISO(prev => !prev);
+                                            // Auto-open preview of first schema with mappings
+                                            if (!convertDatesToISO && schemasWithMappings.length > 0 && !previewSchemaId) {
+                                                setPreviewSchemaId(schemasWithMappings[0]);
+                                            }
+                                        }}
+                                        className={convertDatesToISO ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : ''}
                                     >
-                                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${convertDatesToISO ? 'translate-x-5' : ''}`} />
-                                    </button>
+                                        <CalendarClock className="w-4 h-4 mr-1" />
+                                        {convertDatesToISO ? t('schema.datesConverted') : t('schema.convertDates')}
+                                    </Button>
                                 </div>
 
                                 {/* File cards */}
