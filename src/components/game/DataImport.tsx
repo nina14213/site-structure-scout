@@ -47,6 +47,76 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         return delim;
     };
 
+    // Convert Excel serial date number to ISO 8601 string
+    const excelDateToISO = (serial: number): string => {
+        // Excel epoch: 1900-01-01 (with the famous Lotus 1-2-3 leap year bug)
+        const utcDays = serial - 25569; // days between 1900-01-01 and 1970-01-01 (adjusted)
+        const date = new Date(utcDays * 86400 * 1000);
+        return date.toISOString().split('T')[0];
+    };
+
+    // Try to convert common date formats to ISO 8601
+    const normalizeDate = (value: string): string => {
+        if (!value || value.trim() === '') return value;
+        const trimmed = value.trim();
+
+        // Already ISO format (YYYY-MM-DD)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+        // Excel serial number (pure number, typically 5 digits for modern dates)
+        const asNum = Number(trimmed);
+        if (!isNaN(asNum) && asNum > 1 && asNum < 200000 && !trimmed.includes('.') && !trimmed.includes('/') && !trimmed.includes('-')) {
+            return excelDateToISO(asNum);
+        }
+
+        // DD-MM-YYYY or DD/MM/YYYY or DD.MM.YYYY
+        const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+        if (dmy) {
+            const [, d, m, y] = dmy;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+
+        // MM/DD/YYYY (US format — ambiguous, try if month ≤ 12)
+        // We prefer DD-MM-YYYY above, so this is a fallback
+        
+        // YYYY/MM/DD
+        const ymd = trimmed.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+        if (ymd) {
+            const [, y, m, d] = ymd;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+
+        return trimmed;
+    };
+
+    // Detect date-like columns and convert values
+    const convertDates = useCallback((rows: Record<string, string>[], columns: string[]): Record<string, string>[] => {
+        // Heuristic: column name contains 'date', 'data', 'datum', or sample values look like dates
+        const dateColumns = columns.filter(col => {
+            const lc = col.toLowerCase();
+            if (/date|data|datum|day|dzień|jour/.test(lc)) return true;
+            // Check first few values
+            const samples = rows.slice(0, 5).map(r => r[col]).filter(Boolean);
+            return samples.some(v => {
+                const n = Number(v);
+                return (!isNaN(n) && n > 30000 && n < 100000) || // Excel serial
+                       /^\d{1,2}[./-]\d{1,2}[./-]\d{4}$/.test(v);
+            });
+        });
+
+        if (dateColumns.length === 0) return rows;
+
+        return rows.map(row => {
+            const newRow = { ...row };
+            dateColumns.forEach(col => {
+                if (newRow[col]) {
+                    newRow[col] = normalizeDate(newRow[col]);
+                }
+            });
+            return newRow;
+        });
+    }, []);
+
     const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
         const actualDelim = getActualDelimiter(delim);
         const lines = text.split(/\r?\n/).filter(line => line.trim());
@@ -97,7 +167,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                     return obj;
                 });
 
-                setPreview({ columns: headers, rows: rows.slice(0, 5) });
+                const convertedRows = convertDates(rows, headers);
+                setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
             } catch (err: any) {
                 setError(err.message || t('import.error.parse'));
             }
@@ -148,10 +219,11 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                     headers.forEach((h, i) => { obj[h] = row[i] != null ? String(row[i]) : ''; });
                     return obj;
                 });
+                allData = convertDates(allData, headers);
             } else {
                 const text = await file.text();
                 const parsed = parseTextFile(text, delimiter);
-                allData = parsed.rows;
+                allData = convertDates(parsed.rows, parsed.columns);
             }
 
             onImportComplete?.(allData, preview.columns, file.name);
