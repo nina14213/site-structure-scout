@@ -311,6 +311,57 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         return grouped;
     }, [mappings]);
 
+    // Date conversion helpers
+    const excelDateToISO = (serial: number): string => {
+        const utcDays = serial - 25569;
+        const date = new Date(utcDays * 86400 * 1000);
+        return date.toISOString().split('T')[0];
+    };
+
+    const normalizeDate = (value: string): string => {
+        if (!value || value.trim() === '') return value;
+        const trimmed = value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        const asNum = Number(trimmed);
+        if (!isNaN(asNum) && asNum > 1 && asNum < 200000 && !trimmed.includes('.') && !trimmed.includes('/') && !trimmed.includes('-')) {
+            return excelDateToISO(asNum);
+        }
+        const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+        if (dmy) {
+            const [, d, m, y] = dmy;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+        const ymd = trimmed.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+        if (ymd) {
+            const [, y, m, d] = ymd;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+        return trimmed;
+    };
+
+    const isDateTerm = (term: string) => /date|Date|day|Day|eventDate|dateIdentified|georeferencedDate|CreateDate|agentRoleDate/.test(term);
+
+    // Apply date conversion to a value if the term is date-related
+    const maybeConvertDate = useCallback((value: string, term: string): string => {
+        if (!convertDatesToISO) return value;
+        if (!isDateTerm(term)) return value;
+        return normalizeDate(value);
+    }, [convertDatesToISO]);
+
+    // Generate preview rows for a schema
+    const getPreviewRows = useCallback((termMappings: Record<string, string>) => {
+        const dwcHeaders = Object.keys(termMappings);
+        return data.slice(0, 5).map(row => {
+            const previewRow: Record<string, string> = {};
+            dwcHeaders.forEach(term => {
+                const sourceCol = termMappings[term];
+                const rawValue = row[sourceCol] ?? '';
+                previewRow[term] = maybeConvertDate(String(rawValue), term);
+            });
+            return previewRow;
+        });
+    }, [data, maybeConvertDate]);
+
     // Generate CSV content for a given set of term->column mappings
     const generateCSV = useCallback((termMappings: Record<string, string>) => {
         const dwcHeaders = Object.keys(termMappings);
@@ -319,19 +370,19 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         data.forEach(row => {
             const rowValues = dwcHeaders.map(dwcTerm => {
                 const sourceColumn = termMappings[dwcTerm];
-                const value = row[sourceColumn] ?? '';
-                const strValue = String(value);
-                if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-                    return `"${strValue.replace(/"/g, '""')}"`;
+                const rawValue = row[sourceColumn] ?? '';
+                const value = maybeConvertDate(String(rawValue), dwcTerm);
+                if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                    return `"${value.replace(/"/g, '""')}"`;
                 }
-                return strValue;
+                return value;
             });
             csvRows.push(rowValues.join(','));
         });
 
         const BOM = '\uFEFF';
         return BOM + csvRows.join('\n');
-    }, [data]);
+    }, [data, maybeConvertDate]);
 
     // Download a single CSV file
     const downloadFile = useCallback((content: string, name: string) => {
