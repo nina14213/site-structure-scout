@@ -203,7 +203,6 @@ const Index = () => {
       title: t('toast.mappingComplete'),
       description: t('toast.mappingCompleteDesc', { schema }),
     });
-    setCurrentScreen('start');
   }, [toast, t]);
 
   // Render based on current screen
