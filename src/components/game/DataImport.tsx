@@ -167,7 +167,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                     return obj;
                 });
 
-                setPreview({ columns: headers, rows: rows.slice(0, 5) });
+                const convertedRows = convertDates(rows, headers);
+                setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
             } catch (err: any) {
                 setError(err.message || t('import.error.parse'));
             }
