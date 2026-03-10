@@ -9,6 +9,7 @@ import {
     ArrowLeft, 
     Sparkles,
     FileSpreadsheet,
+    FileText,
     Users,
     Target,
     Calendar,
