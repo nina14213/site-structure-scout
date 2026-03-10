@@ -276,6 +276,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.previewFirst5': 'pierwsze 5 wierszy',
     'schema.dateConversion': 'Konwersja dat do ISO 8601',
     'schema.dateConversionDesc': 'Automatycznie konwertuj daty (DD-MM-YYYY, numery Excela) do formatu YYYY-MM-DD',
+    'schema.convertDates': 'Konwertuj daty',
+    'schema.datesConverted': 'Daty skonwertowane ✓',
     'schema.continueValidation': 'Kontynuuj do walidacji',
     'schema.mapAllRequired': 'Zmapuj wymagane pola, aby kontynuować',
     'schema.samplePrefix': 'np:',
