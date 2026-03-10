@@ -44,7 +44,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
+  if (!context) {
+    // Fallback for HMR boundary breaks — return Polish defaults
+    console.warn('useLanguage called outside LanguageProvider — using fallback');
+    return {
+      language: 'pl' as Language,
+      setLanguage: () => {},
+      t: (key: string) => translations['pl']?.[key] || key,
+    };
+  }
   return context;
 }
 
