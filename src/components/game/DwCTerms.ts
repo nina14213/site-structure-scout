@@ -332,6 +332,7 @@ export const termCategories: Record<string, { name: Record<string, string>; icon
   occurrence: { name: { pl: "Obserwacja", en: "Occurrence", fr: "Occurrence", de: "Vorkommen" }, icon: "Eye", color: "#3b82f6" },
   multimedia: { name: { pl: "Multimedia", en: "Multimedia", fr: "Multimédia", de: "Multimedia" }, icon: "Image", color: "#ec4899" },
   extension: { name: { pl: "Rozszerzenia", en: "Extensions", fr: "Extensions", de: "Erweiterungen" }, icon: "Link", color: "#6366f1" },
+  agent: { name: { pl: "Agent", en: "Agent", fr: "Agent", de: "Agent" }, icon: "Users", color: "#14b8a6" },
 };
 
 // Reguły walidacji GBIF
