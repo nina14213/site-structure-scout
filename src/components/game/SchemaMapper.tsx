@@ -111,6 +111,14 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
             'infraspecificEpithet', 'cultivarEpithet', 'vernacularName'
         ],
     },
+    agent: {
+        required: ['agentID'],
+        optional: [
+            'agentType', 'preferredAgentName', 'alternativeAgentNames',
+            'agentIdentifier', 'agentIdentifierType', 'agentAffiliation',
+            'agentRole', 'agentRoleDate', 'agentRemarks'
+        ],
+    },
 };
 
 interface SchemaMapperProps {
