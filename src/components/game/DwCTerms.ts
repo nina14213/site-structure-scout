@@ -290,9 +290,40 @@ export const dwcTerms: Record<string, DwCTerm> = {
     example: "https://example.org/image.jpg",
     category: "multimedia",
   },
+  // Agent Terms
+  agentID: {
+    type: "coreID",
+    required: true,
+    unique: true,
+    description: "Unikalny identyfikator agenta (osoby lub organizacji)",
+    descriptionEN: "Unique identifier for the agent (person or organization)",
+    descriptionDE: "Eindeutiger Bezeichner für den Agenten (Person oder Organisation)",
+    descriptionFR: "Un identifiant unique pour l'agent (personne ou organisation)",
+    example: "https://orcid.org/0000-0001-2345-6789",
+    category: "agent",
+  },
+  agentType: {
+    type: "controlled",
+    required: false,
+    allowedValues: ["Person", "Organization", "SoftwareAgent"],
+    description: "Typ agenta",
+    descriptionEN: "Type of the agent",
+    descriptionDE: "Typ des Agenten",
+    descriptionFR: "Le type d'agent",
+    example: "Person",
+    category: "agent",
+  },
+  preferredAgentName: {
+    type: "text",
+    required: false,
+    description: "Preferowana nazwa agenta",
+    descriptionEN: "Preferred name of the agent",
+    descriptionDE: "Bevorzugter Name des Agenten",
+    descriptionFR: "Le nom préféré de l'agent",
+    example: "Jan Kowalski",
+    category: "agent",
+  },
 };
-
-// Kategorie terminów
 export const termCategories: Record<string, { name: Record<string, string>; icon: string; color: string }> = {
   core: { name: { pl: "Core IDs", en: "Core IDs", fr: "IDs principaux", de: "Core-IDs" }, icon: "Key", color: "#22d3ee" },
   location: { name: { pl: "Lokalizacja", en: "Location", fr: "Localisation", de: "Standort" }, icon: "MapPin", color: "#22c55e" },
@@ -301,6 +332,7 @@ export const termCategories: Record<string, { name: Record<string, string>; icon
   occurrence: { name: { pl: "Obserwacja", en: "Occurrence", fr: "Occurrence", de: "Vorkommen" }, icon: "Eye", color: "#3b82f6" },
   multimedia: { name: { pl: "Multimedia", en: "Multimedia", fr: "Multimédia", de: "Multimedia" }, icon: "Image", color: "#ec4899" },
   extension: { name: { pl: "Rozszerzenia", en: "Extensions", fr: "Extensions", de: "Erweiterungen" }, icon: "Link", color: "#6366f1" },
+  agent: { name: { pl: "Agent", en: "Agent", fr: "Agent", de: "Agent" }, icon: "Users", color: "#14b8a6" },
 };
 
 // Reguły walidacji GBIF
