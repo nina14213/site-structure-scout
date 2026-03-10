@@ -704,6 +704,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.previewFirst5': 'first 5 rows',
     'schema.dateConversion': 'Convert dates to ISO 8601',
     'schema.dateConversionDesc': 'Auto-convert dates (DD-MM-YYYY, Excel serials) to YYYY-MM-DD format',
+    'schema.convertDates': 'Convert dates',
+    'schema.datesConverted': 'Dates converted ✓',
     'schema.continueValidation': 'Continue to Validation',
     'schema.mapAllRequired': 'Map all required fields to continue',
     'schema.samplePrefix': 'e.g:',
