@@ -35,13 +35,21 @@ const schemaTypes = [
     { id: 'media', name: 'Media', icon: Image, color: 'bg-blue-600' },
     { id: 'identification', name: 'Identification', icon: SearchIcon, color: 'bg-cyan-600' },
     { id: 'agent', name: 'Agent', icon: Users, color: 'bg-teal-600' },
+    { id: 'agent-agent-role', name: 'Agent Agent Role', icon: Users, color: 'bg-teal-500' },
+    { id: 'agent-identifier', name: 'Agent Identifier', icon: Users, color: 'bg-teal-400' },
+    { id: 'agent-media', name: 'Agent Media', icon: Image, color: 'bg-teal-300' },
+    { id: 'bibliographic-resource', name: 'Bibliographic Resource', icon: FileText, color: 'bg-orange-600' },
+    { id: 'chronometric-age', name: 'Chronometric Age', icon: Calendar, color: 'bg-indigo-600' },
+    { id: 'chronometric-age-agent-role', name: 'Chrono Age Agent Role', icon: Users, color: 'bg-indigo-500' },
+    { id: 'chronometric-age-assertion', name: 'Chrono Age Assertion', icon: FileText, color: 'bg-indigo-400' },
+    { id: 'chronometric-age-media', name: 'Chrono Age Media', icon: Image, color: 'bg-indigo-300' },
+    { id: 'chronometric-age-protocol', name: 'Chrono Age Protocol', icon: FileText, color: 'bg-indigo-200' },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
 // Source: https://gbif.github.io/dwc-dp/qrg/
 const schemaTerms: Record<string, { required: string[]; optional: string[] }> = {
     event: {
-        // Only eventID is required for Event table per DwC-DP QRG
         required: ['eventID'],
         optional: [
             'parentEventID', 'preferredEventName', 'eventCategory', 'eventType', 
@@ -63,7 +71,6 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     occurrence: {
-        // Only occurrenceID is required per DwC-DP QRG; basisOfRecord is recommended but not required
         required: ['occurrenceID'],
         optional: [
             'eventID', 'basisOfRecord', 'catalogNumber', 'recordNumber', 'recordedBy', 'recordedByID',
@@ -77,7 +84,6 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     organism: {
-        // Only organismID is required per DwC-DP QRG
         required: ['organismID'],
         optional: [
             'eventID', 'organismName', 'organismScope', 'associatedOccurrences', 'associatedOrganisms',
@@ -85,7 +91,6 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     material: {
-        // Only materialEntityID is required per DwC-DP QRG
         required: ['materialEntityID'],
         optional: [
             'eventID', 'materialEntityType', 'preparations', 'disposition', 'verbatimLabel',
@@ -93,7 +98,6 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     media: {
-        // Only mediaID is required per DwC-DP QRG
         required: ['mediaID'],
         optional: [
             'eventID', 'mediaType', 'accessURI', 'WebStatement', 'format', 'rights',
@@ -102,7 +106,6 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
         ],
     },
     identification: {
-        // Only identificationID is required per DwC-DP QRG
         required: ['identificationID'],
         optional: [
             'eventID', 'verbatimIdentification', 'identifiedBy', 'identifiedByID', 'dateIdentified',
@@ -115,11 +118,73 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
     },
     agent: {
         required: ['agentID'],
+        optional: ['agentType', 'preferredAgentName', 'agentRemarks'],
+    },
+    'agent-agent-role': {
+        required: ['agentID', 'relatedAgentID'],
+        optional: ['agentRole', 'agentRoleIRI', 'agentRoleSource', 'agentRoleOrder', 'agentRoleDate'],
+    },
+    'agent-identifier': {
+        required: ['agentID', 'identifier'],
+        optional: ['identifierType', 'identifierTypeIRI', 'identifierTypeSource', 'identifierLanguage'],
+    },
+    'agent-media': {
+        required: ['mediaID', 'agentID'],
         optional: [
-            'agentType', 'preferredAgentName', 'alternativeAgentNames',
-            'agentIdentifier', 'agentIdentifierType', 'agentAffiliation',
-            'agentRole', 'agentRoleDate', 'agentRemarks'
+            'subjectCategory', 'subjectCategoryIRI', 'subjectCategorySource',
+            'subjectPartLiteral', 'subjectPart', 'subjectOrientationLiteral',
+            'subjectOrientation', 'physicalSetting'
         ],
+    },
+    'bibliographic-resource': {
+        required: ['referenceID'],
+        optional: [
+            'parentReferenceID', 'referenceType', 'bibliographicCitation', 'title',
+            'author', 'authorID', 'editor', 'editorID', 'publisher', 'publisherID',
+            'volume', 'issue', 'edition', 'pages', 'version', 'issued', 'accessed',
+            'peerReviewStatus', 'referenceRemarks'
+        ],
+    },
+    'chronometric-age': {
+        required: ['chronometricAgeID'],
+        optional: [
+            'eventID', 'verbatimChronometricAge', 'chronometricAgeProtocol',
+            'chronometricAgeProtocolID', 'uncalibratedChronometricAge',
+            'chronometricAgeConversionProtocol', 'chronometricAgeConversionProtocolID',
+            'earliestChronometricAge', 'earliestChronometricAgeReferenceSystem',
+            'latestChronometricAge', 'latestChronometricAgeReferenceSystem',
+            'chronometricAgeUncertaintyInYears', 'chronometricAgeUncertaintyMethod',
+            'materialDated', 'materialDatedID', 'materialDatedRelationship',
+            'chronometricAgeDeterminedBy', 'chronometricAgeDeterminedByID',
+            'chronometricAgeDeterminedDate', 'chronometricAgeReferences', 'chronometricAgeRemarks'
+        ],
+    },
+    'chronometric-age-agent-role': {
+        required: ['agentID', 'chronometricAgeID'],
+        optional: ['agentRole', 'agentRoleIRI', 'agentRoleSource', 'agentRoleOrder', 'agentRoleDate'],
+    },
+    'chronometric-age-assertion': {
+        required: ['chronometricAgeID'],
+        optional: [
+            'assertionID', 'verbatimAssertionType', 'assertionType', 'assertionTypeIRI',
+            'assertionTypeSource', 'assertionMadeDate', 'assertionEffectiveDate',
+            'assertionValue', 'assertionValueIRI', 'assertionValueSource',
+            'assertionValueNumeric', 'assertionUnit', 'assertionUnitIRI', 'assertionUnitSource',
+            'assertionError', 'assertionBy', 'assertionByID', 'assertionProtocols',
+            'assertionProtocolID', 'assertionReferences', 'assertionRemarks'
+        ],
+    },
+    'chronometric-age-media': {
+        required: ['mediaID', 'chronometricAgeID'],
+        optional: [
+            'subjectCategory', 'subjectCategoryIRI', 'subjectCategorySource',
+            'subjectPartLiteral', 'subjectPart', 'subjectOrientationLiteral',
+            'subjectOrientation', 'physicalSetting'
+        ],
+    },
+    'chronometric-age-protocol': {
+        required: ['chronometricAgeID', 'protocolID'],
+        optional: [],
     },
 };
 
