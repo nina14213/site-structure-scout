@@ -131,11 +131,50 @@ interface SchemaMapperProps {
 
 export default function SchemaMapper({ columns, data, fileName, onBack, onComplete }: SchemaMapperProps) {
     const { t } = useLanguage();
-    const [selectedSchema, setSelectedSchema] = useState('event');
-    const [mappings, setMappings] = useState<Record<string, string>>({});
+    const storageKey = `dwc-mappings-${fileName}`;
+    const [selectedSchema, setSelectedSchema] = useState(() => {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) return JSON.parse(saved).schema || 'event';
+        } catch {}
+        return 'event';
+    });
+    const [mappings, setMappings] = useState<Record<string, string>>(() => {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Only restore if columns match
+                if (parsed.columns && JSON.stringify(parsed.columns.sort()) === JSON.stringify([...columns].sort())) {
+                    return parsed.mappings || {};
+                }
+            }
+        } catch {}
+        return {};
+    });
     const [searchTerm, setSearchTerm] = useState('');
     const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
     const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
+
+    // Persist mappings to localStorage
+    const saveMappings = useCallback((newMappings: Record<string, string>, schema?: string) => {
+        try {
+            localStorage.setItem(storageKey, JSON.stringify({
+                mappings: newMappings,
+                schema: schema || selectedSchema,
+                columns,
+            }));
+        } catch {}
+    }, [storageKey, selectedSchema, columns]);
+
+    // Wrap setMappings to also persist
+    const updateMappings = useCallback((updater: (prev: Record<string, string>) => Record<string, string>) => {
+        setMappings(prev => {
+            const next = updater(prev);
+            saveMappings(next);
+            return next;
+        });
+    }, [saveMappings]);
 
     const currentSchema = schemaTerms[selectedSchema];
     const allTerms = [...currentSchema.required, ...currentSchema.optional];
