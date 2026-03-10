@@ -19,7 +19,9 @@ import {
     Check,
     X,
     Download,
-    MousePointerClick
+    MousePointerClick,
+    Eye,
+    CalendarClock
 } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 import { useLanguage } from '@/i18n/LanguageContext';
