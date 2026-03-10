@@ -219,10 +219,11 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                     headers.forEach((h, i) => { obj[h] = row[i] != null ? String(row[i]) : ''; });
                     return obj;
                 });
+                allData = convertDates(allData, headers);
             } else {
                 const text = await file.text();
                 const parsed = parseTextFile(text, delimiter);
-                allData = parsed.rows;
+                allData = convertDates(parsed.rows, parsed.columns);
             }
 
             onImportComplete?.(allData, preview.columns, file.name);
