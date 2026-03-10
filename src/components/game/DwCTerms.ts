@@ -1177,6 +1177,8 @@ export const dwcTerms: Record<string, DwCTerm> = {
     example: "",
     category: "assertion",
   },
+};
+
 export const termCategories: Record<string, { name: Record<string, string>; icon: string; color: string }> = {
   core: { name: { pl: "Core IDs", en: "Core IDs", fr: "IDs principaux", de: "Core-IDs" }, icon: "Key", color: "#22d3ee" },
   location: { name: { pl: "Lokalizacja", en: "Location", fr: "Localisation", de: "Standort" }, icon: "MapPin", color: "#22c55e" },
@@ -1186,6 +1188,9 @@ export const termCategories: Record<string, { name: Record<string, string>; icon
   multimedia: { name: { pl: "Multimedia", en: "Multimedia", fr: "Multimédia", de: "Multimedia" }, icon: "Image", color: "#ec4899" },
   extension: { name: { pl: "Rozszerzenia", en: "Extensions", fr: "Extensions", de: "Erweiterungen" }, icon: "Link", color: "#6366f1" },
   agent: { name: { pl: "Agent", en: "Agent", fr: "Agent", de: "Agent" }, icon: "Users", color: "#14b8a6" },
+  reference: { name: { pl: "Bibliografia", en: "Bibliography", fr: "Bibliographie", de: "Bibliographie" }, icon: "BookOpen", color: "#f97316" },
+  chronometric: { name: { pl: "Wiek chronometryczny", en: "Chronometric Age", fr: "Âge chronométrique", de: "Chronometrisches Alter" }, icon: "Clock", color: "#6366f1" },
+  assertion: { name: { pl: "Asercja", en: "Assertion", fr: "Assertion", de: "Aussage" }, icon: "CheckSquare", color: "#8b5cf6" },
 };
 
 // Reguły walidacji GBIF
