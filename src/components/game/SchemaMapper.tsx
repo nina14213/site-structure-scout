@@ -179,13 +179,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     const currentSchema = schemaTerms[selectedSchema];
     const allTerms = [...currentSchema.required, ...currentSchema.optional];
 
-    // Filter terms by search
-    const filteredRequired = currentSchema.required.filter(term => 
-        term.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    const filteredOptional = currentSchema.optional.filter(term => 
-        term.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter terms by search (name + description)
+    const matchesTerm = useCallback((term: string) => {
+        const q = searchTerm.toLowerCase();
+        if (!q) return true;
+        if (term.toLowerCase().includes(q)) return true;
+        const info = dwcTerms[term];
+        if (!info) return false;
+        return [info.description, info.descriptionEN, info.descriptionFR, info.descriptionDE, info.category]
+            .filter(Boolean)
+            .some(text => text!.toLowerCase().includes(q));
+    }, [searchTerm]);
+
+    const filteredRequired = currentSchema.required.filter(matchesTerm);
+    const filteredOptional = currentSchema.optional.filter(matchesTerm);
 
     // Get sample values for a column
     const getSampleValues = useCallback((columnName: string) => {
