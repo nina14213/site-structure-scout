@@ -742,6 +742,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optimal table layout',
     'schema.optimalDescription': 'Minimum number of tables covering all mapped fields',
     'schema.fieldsCount': 'fields',
+    'schema.dismissSchema': 'Click to dismiss suggestion',
+    'schema.dismissed': 'Hidden tables',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
