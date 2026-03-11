@@ -2041,7 +2041,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             </div>
                           )}
                           <span className="font-semibold text-sm text-foreground">{info?.name || schemaId}</span>
-                          <Badge variant="secondary" className="text-[10px] h-4 px-1 ml-auto">{terms.length} pól</Badge>
+                          {(() => {
+                            const schema = schemaTerms[schemaId];
+                            const hasReqFields = schema && schema.required.length > 0;
+                            return (
+                              <Badge className={`text-[10px] h-4 px-1 ${hasReqFields ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-sky-500/20 text-sky-400 border-sky-500/30'}`}>
+                                {hasReqFields ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')}
+                              </Badge>
+                            );
+                          })()}
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1 ml-auto">{terms.length} {t('schema.fieldsCount')}</Badge>
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {terms.slice(0, 8).map(term => (
