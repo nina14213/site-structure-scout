@@ -245,6 +245,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.error.unsupported': 'Obsługiwane formaty: CSV, TXT, XLSX, XLS',
     'import.error.readFile': 'Błąd podczas wczytywania pliku',
     'import.error.parse': 'Błąd parsowania',
+    'import.error.fewColumns': 'Wykryto tylko 1 kolumnę — spróbuj zmienić separator (np. średnik, tabulator)',
     'import.error.import': 'Błąd importu',
     'import.sep.comma': 'Przecinek (,)',
     'import.sep.semicolon': 'Średnik (;)',
