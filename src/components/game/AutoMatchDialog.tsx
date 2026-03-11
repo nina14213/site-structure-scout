@@ -23,7 +23,7 @@ interface AutoMatchDialogProps {
 }
 
 // Normalize header: lowercase, remove diacritics, collapse separators
-function normalizeHeader(header: string): string {
+export function normalizeHeader(header: string): string {
   return header
     .trim()
     .toLowerCase()
