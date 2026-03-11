@@ -1917,32 +1917,23 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                     </button>
                                   </>
                                 )}
-                                {hasMappings && fullSchema && fullSchema.required.length === 0 && (
-                                  <Badge 
-                                    className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
-                                    title={t('schema.dismissSchema')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
-                                  >
-                                    {t('schema.optionalTable')} ✕
-                                  </Badge>
-                                )}
-                                {isOptimal && fullSchema && fullSchema.required.length > 0 && (
-                                  <Badge 
-                                    className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
-                                    title={t('schema.dismissSchema')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
-                                  >
-                                    ✓ {t('schema.optimal')} ✕
-                                  </Badge>
-                                )}
-                                {hasMappings && !isOptimal && fullSchema && fullSchema.required.length > 0 && (
-                                  <Badge 
-                                    className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
-                                    title={t('schema.dismissSchema')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
-                                  >
-                                    {t('schema.optionalTable')} ✕
-                                  </Badge>
+                                {mappedCount > 0 && !isOptionalSchema && (
+                                  (() => {
+                                    const hasReqFields = fullSchema && fullSchema.required.length > 0;
+                                    const isOptBadge = !isOptimal || !hasReqFields;
+                                    return (
+                                      <Badge 
+                                        className={`${isOptBadge 
+                                          ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' 
+                                          : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                        } text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors`}
+                                        title={t('schema.dismissSchema')}
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
+                                      >
+                                        {isOptBadge ? t('schema.optionalTable') : `✓ ${t('schema.optimal')}`} ✕
+                                      </Badge>
+                                    );
+                                  })()
                                 )}
                                 {mappedCount > 0 && (
                                   <Badge variant="secondary" className="text-[10px] h-4 px-1">
