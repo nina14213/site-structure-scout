@@ -425,6 +425,10 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
     required: ["provenanceID", "mediaID"],
     optional: [],
   },
+  "media-usage-policy": {
+    required: ["usagePolicyID", "mediaID"],
+    optional: [],
+  },
   identification: {
     required: ["identificationID"],
     optional: [
