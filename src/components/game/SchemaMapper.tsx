@@ -1717,64 +1717,135 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                       <selectedSchemaInfo.icon className="w-4 h-4 text-white" />
                     </div>
                   )}
-                  {selectedSchemaInfo?.name} Schema
+                  {searchTerm ? `🔍 ${t("schema.searchFields")}` : `${selectedSchemaInfo?.name} Schema`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 flex-1 flex flex-col">
-                {/* Search */}
+                {/* Search - cross-schema */}
                 <div className="relative mb-4">
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder={t("schema.searchFields")}
+                    placeholder={`${t("schema.searchFields")} (${t("schema.allSchemas") || "all schemas"})…`}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground"
                   />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-6 px-2 text-muted-foreground"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
                 </div>
 
-                {/* Tabs */}
-                <Tabs defaultValue="required" className="flex-1 flex flex-col">
-                  <TabsList className="w-full bg-muted mb-4">
-                    <TabsTrigger value="required" className="flex-1">
-                      {t("schema.required")} ({currentSchema.required.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="optional" className="flex-1">
-                      {t("schema.optional")} ({currentSchema.optional.length})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <div className="flex-1 max-h-[40vh] overflow-y-auto">
-                    <TabsContent value="required" className="mt-0 space-y-3">
-                      {filteredRequired.map((term) => (
-                        <TermDropZone
-                          key={term}
-                          termName={term}
-                          mappedColumn={mappings[term]}
-                          isRequired={true}
-                          onDrop={handleDrop}
-                          onRemove={handleRemoveMapping}
-                          onTapAssign={handleTapAssignTerm}
-                          hasSelectedColumn={!!selectedColumn}
-                        />
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="optional" className="mt-0 space-y-3">
-                      {filteredOptional.map((term) => (
-                        <TermDropZone
-                          key={term}
-                          termName={term}
-                          mappedColumn={mappings[term]}
-                          isRequired={false}
-                          onDrop={handleDrop}
-                          onRemove={handleRemoveMapping}
-                          onTapAssign={handleTapAssignTerm}
-                          hasSelectedColumn={!!selectedColumn}
-                        />
-                      ))}
-                    </TabsContent>
+                {/* Cross-schema results when searching */}
+                {crossSchemaResults && crossSchemaResults.length > 0 ? (
+                  <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
+                    {(() => {
+                      // Group by schema
+                      const grouped: Record<string, typeof crossSchemaResults> = {};
+                      crossSchemaResults.forEach(r => {
+                        if (!grouped[r.schemaId]) grouped[r.schemaId] = [];
+                        grouped[r.schemaId].push(r);
+                      });
+                      return Object.entries(grouped).map(([schemaId, results]) => {
+                        const info = schemaTypes.find(s => s.id === schemaId);
+                        return (
+                          <div key={schemaId}>
+                            <button
+                              onClick={() => { handleSchemaChange(schemaId); setSearchTerm(""); }}
+                              className="flex items-center gap-2 mb-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {info && (
+                                <div className={`p-0.5 rounded ${info.color}`}>
+                                  <info.icon className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                              {info?.name || schemaId}
+                              <Badge variant="secondary" className="text-[10px] h-4 px-1">{results.length}</Badge>
+                            </button>
+                            <div className="space-y-2">
+                              {results.slice(0, 5).map(r => (
+                                <TermDropZone
+                                  key={`${schemaId}-${r.term}`}
+                                  termName={r.term}
+                                  mappedColumn={mappings[r.term]}
+                                  isRequired={r.isRequired}
+                                  onDrop={handleDrop}
+                                  onRemove={handleRemoveMapping}
+                                  onTapAssign={handleTapAssignTerm}
+                                  hasSelectedColumn={!!selectedColumn}
+                                />
+                              ))}
+                              {results.length > 5 && (
+                                <p className="text-xs text-muted-foreground pl-2">
+                                  +{results.length - 5} more…
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      {crossSchemaResults.length} wyników w {new Set(crossSchemaResults.map(r => r.schemaId)).size} schematach
+                    </p>
                   </div>
-                </Tabs>
+                ) : crossSchemaResults && crossSchemaResults.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+                    Brak wyników dla „{searchTerm}"
+                  </div>
+                ) : (
+                  /* Normal schema view - tabs */
+                  <>
+                    <Tabs defaultValue="required" className="flex-1 flex flex-col">
+                      <TabsList className="w-full bg-muted mb-4">
+                        <TabsTrigger value="required" className="flex-1">
+                          {t("schema.required")} ({currentSchema.required.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="optional" className="flex-1">
+                          {t("schema.optional")} ({currentSchema.optional.length})
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <div className="flex-1 max-h-[40vh] overflow-y-auto">
+                        <TabsContent value="required" className="mt-0 space-y-3">
+                          {filteredRequired.map((term) => (
+                            <TermDropZone
+                              key={term}
+                              termName={term}
+                              mappedColumn={mappings[term]}
+                              isRequired={true}
+                              onDrop={handleDrop}
+                              onRemove={handleRemoveMapping}
+                              onTapAssign={handleTapAssignTerm}
+                              hasSelectedColumn={!!selectedColumn}
+                            />
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="optional" className="mt-0 space-y-3">
+                          {filteredOptional.map((term) => (
+                            <TermDropZone
+                              key={term}
+                              termName={term}
+                              mappedColumn={mappings[term]}
+                              isRequired={false}
+                              onDrop={handleDrop}
+                              onRemove={handleRemoveMapping}
+                              onTapAssign={handleTapAssignTerm}
+                              hasSelectedColumn={!!selectedColumn}
+                            />
+                          ))}
+                        </TabsContent>
+                      </div>
+                    </Tabs>
+                  </>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 mt-4 pt-4 border-t border-border">
