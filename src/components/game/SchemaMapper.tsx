@@ -1295,6 +1295,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     setDraggedColumn(column);
   };
 
+  // Check if column should allow multi-mapping (ID columns)
+  const isMultiMapColumn = (colName: string) => /id$/i.test(colName) || /ID/.test(colName);
+
   // Handle drop
   const handleDrop = (e: React.DragEvent, termName: string) => {
     e.preventDefault();
@@ -1302,9 +1305,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      Object.keys(newMappings).forEach((key) => {
-        if (newMappings[key] === columnName) delete newMappings[key];
-      });
+      // Only remove previous mappings if NOT an ID column
+      if (!isMultiMapColumn(columnName)) {
+        Object.keys(newMappings).forEach((key) => {
+          if (newMappings[key] === columnName) delete newMappings[key];
+        });
+      }
       newMappings[termName] = columnName;
       return newMappings;
     });
@@ -1329,9 +1335,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     if (!selectedColumn) return;
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      Object.keys(newMappings).forEach((key) => {
-        if (newMappings[key] === selectedColumn) delete newMappings[key];
-      });
+      // Only remove previous mappings if NOT an ID column
+      if (!isMultiMapColumn(selectedColumn)) {
+        Object.keys(newMappings).forEach((key) => {
+          if (newMappings[key] === selectedColumn) delete newMappings[key];
+        });
+      }
       newMappings[termName] = selectedColumn;
       return newMappings;
     });
@@ -1343,8 +1352,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   };
 
   // Check if column is mapped
+  // Get first mapping for a column
   const getColumnMapping = (columnName: string) => {
     return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
+  };
+
+  // Get ALL mappings for a column (for ID multi-map display)
+  const getAllColumnMappings = (columnName: string) => {
+    return Object.entries(mappings).filter(([, col]) => col === columnName).map(([term]) => term);
   };
 
   // Auto-map across ALL schemas (not just current)
@@ -1601,7 +1616,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 )}
                 {columns.map((column, idx) => {
                   const mappedTo = getColumnMapping(column);
+                  const allMappedTo = getAllColumnMappings(column);
                   const isSelected = selectedColumn === column;
+                  const isIdColumn = isMultiMapColumn(column);
                   return (
                     <motion.div
                       key={column}
@@ -1631,12 +1648,26 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           <div className="flex items-center gap-2">
                             <MousePointerClick className="w-4 h-4 text-muted-foreground md:hidden flex-shrink-0" />
                             <span className="font-semibold text-foreground">{column}</span>
+                            {isIdColumn && allMappedTo.length > 1 && (
+                              <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                                ×{allMappedTo.length}
+                              </Badge>
+                            )}
                           </div>
                           {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
-                          {mappedTo && !isSelected && (
-                            <Badge variant="outline" className="text-green-400 border-green-500/50 text-xs">
-                              → {mappedTo}
-                            </Badge>
+                          {allMappedTo.length > 0 && !isSelected && (
+                            <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                              {allMappedTo.slice(0, 3).map(term => (
+                                <Badge key={term} variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
+                                  → {term}
+                                </Badge>
+                              ))}
+                              {allMappedTo.length > 3 && (
+                                <Badge variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
+                                  +{allMappedTo.length - 3}
+                                </Badge>
+                              )}
+                            </div>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
