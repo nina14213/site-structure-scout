@@ -1188,32 +1188,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const currentSchema = schemaTerms[selectedSchema];
   const allTerms = [...currentSchema.required, ...currentSchema.optional];
 
-  // Cross-schema search: when searching, find matches across ALL schemas
-  const crossSchemaResults = useMemo(() => {
-    const q = searchTerm.toLowerCase().trim();
-    if (!q) return null;
-    
-    const results: { schemaId: string; schemaName: string; term: string; isRequired: boolean }[] = [];
-    
-    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
-      const schemaInfo = schemaTypes.find(s => s.id === schemaId);
-      const schemaName = schemaInfo?.name || schemaId;
-      
-      for (const term of schema.required) {
-        if (matchesTermSearch(term, q)) {
-          results.push({ schemaId, schemaName, term, isRequired: true });
-        }
-      }
-      for (const term of schema.optional) {
-        if (matchesTermSearch(term, q)) {
-          results.push({ schemaId, schemaName, term, isRequired: false });
-        }
-      }
-    }
-    
-    return results;
-  }, [searchTerm]);
-
   // Helper: check if a term matches a search query
   function matchesTermSearch(term: string, q: string): boolean {
     if (term.toLowerCase().includes(q)) return true;
@@ -1224,7 +1198,27 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       .some((text) => text!.toLowerCase().includes(q));
   }
 
-  // Filter terms by search (name + description) — for current schema view
+  // All schemas with their terms, filtered by search
+  const allSchemasFiltered = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    const results: { schemaId: string; schemaName: string; required: string[]; optional: string[] }[] = [];
+    
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      const schemaInfo = schemaTypes.find(s => s.id === schemaId);
+      const schemaName = schemaInfo?.name || schemaId;
+      
+      const filteredReq = q ? schema.required.filter(t => matchesTermSearch(t, q)) : schema.required;
+      const filteredOpt = q ? schema.optional.filter(t => matchesTermSearch(t, q)) : schema.optional;
+      
+      if (filteredReq.length > 0 || filteredOpt.length > 0) {
+        results.push({ schemaId, schemaName, required: filteredReq, optional: filteredOpt });
+      }
+    }
+    
+    return results;
+  }, [searchTerm]);
+
+  // Filter terms by search — for backward compat
   const matchesTerm = useCallback(
     (term: string) => {
       const q = searchTerm.toLowerCase();
