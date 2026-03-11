@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
+import AutoMatchDialog, { findAutoMatches } from "./AutoMatchDialog";
 
 // Darwin Core Data Package schema types based on https://gbif.github.io/dwc-dp/qrg/
 const schemaTypes = [
