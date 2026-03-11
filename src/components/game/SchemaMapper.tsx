@@ -1973,7 +1973,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 {opt.length > 0 && (
                                   <div>
                                     <p className="text-[10px] text-muted-foreground font-semibold mb-1 uppercase tracking-wider">Opcjonalne ({opt.length})</p>
-                                    {opt.map(term => (
+                                    {[...opt].sort((a, b) => {
+                                      const aMapped = mappings[a] ? 0 : 1;
+                                      const bMapped = mappings[b] ? 0 : 1;
+                                      return aMapped - bMapped;
+                                    }).map(term => (
                                       <TermDropZone
                                         key={`${schemaId}-${term}`}
                                         termName={term}
