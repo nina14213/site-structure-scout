@@ -3850,6 +3850,14 @@ const protocolTerms: Record<string, any> = {
     example: "",
     category: "core",
   },
+  protocolReferences: {
+    type: "text",
+    required: false,
+    description: "Lista odnośników bibliograficznych użytych w protokole",
+    descriptionEN: "A list of bibliographic resources used in a Protocol",
+    example: "Penguins from space, https://doi.org/10.1111/j.1466-8238.2009.00467.x",
+    category: "core",
+  },
 };
 
 // Provenance terms
