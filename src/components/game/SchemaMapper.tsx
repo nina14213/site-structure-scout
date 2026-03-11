@@ -1347,22 +1347,24 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
   };
 
-  // Auto-map required fields (basic matching)
+  // Auto-map across ALL schemas (not just current)
   const handleAutoMap = () => {
     const newMappings: Record<string, string> = { ...mappings };
 
-    currentSchema.required.forEach((term) => {
-      if (!newMappings[term]) {
-        const matchingColumn = columns.find(
-          (col) =>
-            col.toLowerCase().includes(term.toLowerCase()) ||
-            term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, "")),
-        );
-        if (matchingColumn) {
-          newMappings[term] = matchingColumn;
+    for (const [, schema] of Object.entries(schemaTerms)) {
+      [...schema.required, ...schema.optional].forEach((term) => {
+        if (!newMappings[term]) {
+          const matchingColumn = columns.find(
+            (col) =>
+              col.toLowerCase().includes(term.toLowerCase()) ||
+              term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, "")),
+          );
+          if (matchingColumn) {
+            newMappings[term] = matchingColumn;
+          }
         }
-      }
-    });
+      });
+    }
 
     updateMappings(() => newMappings);
   };
