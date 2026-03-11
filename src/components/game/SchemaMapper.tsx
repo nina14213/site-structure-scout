@@ -1820,9 +1820,29 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                         const mappedIds = new Set(schemasWithMappings);
                         
                         const sorted = [...allSchemasFiltered].sort((a, b) => {
-                          const aScore = (mappedIds.has(a.schemaId) ? 100 : 0) + (optimalIds.has(a.schemaId) ? 50 : 0);
-                          const bScore = (mappedIds.has(b.schemaId) ? 100 : 0) + (optimalIds.has(b.schemaId) ? 50 : 0);
-                          return bScore - aScore;
+                          const aMapped = [...a.required, ...a.optional].filter(t => mappings[t]).length;
+                          const bMapped = [...b.required, ...b.optional].filter(t => mappings[t]).length;
+                          const aHasMappings = mappedIds.has(a.schemaId);
+                          const bHasMappings = mappedIds.has(b.schemaId);
+                          
+                          // Check if all required fields are satisfied
+                          const aFullSchema = schemaTerms[a.schemaId];
+                          const bFullSchema = schemaTerms[b.schemaId];
+                          const aMissingReq = aFullSchema?.required.filter(t => !mappings[t]).length || 0;
+                          const bMissingReq = bFullSchema?.required.filter(t => !mappings[t]).length || 0;
+                          const aReqOk = aMissingReq === 0;
+                          const bReqOk = bMissingReq === 0;
+                          
+                          // Priority: mapped schemas first, then req satisfied before not, then by mapped count desc
+                          if (aHasMappings !== bHasMappings) return bHasMappings ? 1 : -1;
+                          if (aHasMappings && bHasMappings) {
+                            if (aReqOk !== bReqOk) return aReqOk ? -1 : 1;
+                            return bMapped - aMapped;
+                          }
+                          const aOptimal = optimalIds.has(a.schemaId);
+                          const bOptimal = optimalIds.has(b.schemaId);
+                          if (aOptimal !== bOptimal) return aOptimal ? -1 : 1;
+                          return 0;
                         });
                         
                         return sorted.map(({ schemaId, schemaName, required: req, optional: opt }) => {
