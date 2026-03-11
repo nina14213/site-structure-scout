@@ -1273,6 +1273,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
 
