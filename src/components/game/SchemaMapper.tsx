@@ -50,6 +50,7 @@ const schemaTypes = [
   { id: "media-assertion", name: "Media Assertion", icon: FileText, color: "bg-blue-400" },
   { id: "media-identifier", name: "Media Identifier", icon: FileText, color: "bg-blue-300" },
   { id: "media-provenance", name: "Media Provenance", icon: FileText, color: "bg-blue-200" },
+  { id: "media-usage-policy", name: "Media Usage Policy", icon: FileText, color: "bg-blue-100" },
   { id: "identification", name: "Identification", icon: SearchIcon, color: "bg-cyan-600" },
   { id: "identification-agent-role", name: "Identification Agent Role", icon: Users, color: "bg-cyan-500" },
   { id: "identification-reference", name: "Identification Reference", icon: FileText, color: "bg-cyan-400" },
