@@ -498,6 +498,43 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
   const [previewSchemaId, setPreviewSchemaId] = useState<string | null>(null);
   const [convertDatesToISO, setConvertDatesToISO] = useState(true);
+  const [showAutoMatch, setShowAutoMatch] = useState(false);
+  const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
+
+  // Auto-detect matches on mount
+  useEffect(() => {
+    if (autoMatchShown.current) return;
+    // Only show if no existing mappings
+    if (Object.keys(mappings).length > 0) return;
+    
+    const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language);
+    if (matches.length > 0) {
+      autoMatchShown.current = true;
+      setAutoMatchResults(matches);
+      setShowAutoMatch(true);
+    }
+  }, [columns, data, language, mappings]);
+
+  const handleAutoMatchApply = useCallback((selectedMatches: typeof autoMatchResults) => {
+    const newMappings: Record<string, string> = { ...mappings };
+    
+    // Group by schema — switch to the schema with most matches
+    const schemaCounts: Record<string, number> = {};
+    selectedMatches.forEach(m => {
+      schemaCounts[m.schemaId] = (schemaCounts[m.schemaId] || 0) + 1;
+      newMappings[m.termName] = m.column;
+    });
+    
+    // Switch to schema with most matches
+    const topSchema = Object.entries(schemaCounts).sort((a, b) => b[1] - a[1])[0];
+    if (topSchema) {
+      setSelectedSchema(topSchema[0]);
+      saveMappings(newMappings, topSchema[0]);
+    }
+    
+    setMappings(newMappings);
+    setShowAutoMatch(false);
+  }, [mappings, saveMappings]);
 
   // Persist mappings to localStorage
   const saveMappings = useCallback(
