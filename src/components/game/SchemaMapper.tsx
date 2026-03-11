@@ -1919,7 +1919,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 )}
                                 {hasMappings && fullSchema && fullSchema.required.length === 0 && (
                                   <Badge 
-                                    className="bg-sky-500/20 text-sky-400 border-sky-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+                                    className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
                                     title={t('schema.dismissSchema')}
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
                                   >
@@ -1937,7 +1937,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 )}
                                 {hasMappings && !isOptimal && fullSchema && fullSchema.required.length > 0 && (
                                   <Badge 
-                                    className="bg-sky-500/20 text-sky-400 border-sky-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+                                    className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
                                     title={t('schema.dismissSchema')}
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
                                   >
@@ -2090,7 +2090,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             const schema = schemaTerms[schemaId];
                             const hasReqFields = schema && schema.required.length > 0;
                             return (
-                              <Badge className={`text-[10px] h-4 px-1 ${hasReqFields ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-sky-500/20 text-sky-400 border-sky-500/30'}`}>
+                              <Badge className={`text-[10px] h-4 px-1 ${hasReqFields ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-orange-500/20 text-orange-400 border-orange-500/30'}`}>
                                 {hasReqFields ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')}
                               </Badge>
                             );
