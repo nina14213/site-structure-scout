@@ -683,6 +683,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.error.unsupported': 'Supported formats: CSV, TXT, XLSX, XLS',
     'import.error.readFile': 'Error reading file',
     'import.error.parse': 'Parsing error',
+    'import.error.fewColumns': 'Only 1 column detected — try changing the separator (e.g. semicolon, tab)',
     'import.error.import': 'Import error',
     'import.sep.comma': 'Comma (,)',
     'import.sep.semicolon': 'Semicolon (;)',
