@@ -3268,6 +3268,7 @@ export const termCategories: Record<string, { name: Record<string, string>; icon
   chronometric: { name: { pl: "Wiek chronometryczny", en: "Chronometric Age", fr: "Âge chronométrique", de: "Chronometrisches Alter" }, icon: "Clock", color: "#6366f1" },
   assertion: { name: { pl: "Asercja", en: "Assertion", fr: "Assertion", de: "Aussage" }, icon: "CheckSquare", color: "#8b5cf6" },
   geological: { name: { pl: "Geologia", en: "Geological Context", fr: "Contexte géologique", de: "Geologischer Kontext" }, icon: "Mountain", color: "#78716c" },
+  molecular: { name: { pl: "Protokół molekularny", en: "Molecular Protocol", fr: "Protocole moléculaire", de: "Molekulares Protokoll" }, icon: "Dna", color: "#84cc16" },
 };
 
 // Reguły walidacji GBIF
