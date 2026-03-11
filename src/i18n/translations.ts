@@ -1613,6 +1613,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadPackage': 'Data Package herunterladen',
     'schema.downloadPackageDesc': 'CSV-Dateien nach Darwin Core-Tabellen aufgeteilt (UTF-8, WGS-84)',
     'schema.downloadAll': 'Alle Dateien herunterladen',
+    'schema.downloadOptimal': 'Nur optimale',
+    'schema.downloadOptional': 'Nur optionale',
     'schema.files': 'Dateien',
     'schema.columns': 'Spalten',
     'schema.preview': 'Vorschau',
