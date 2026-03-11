@@ -292,6 +292,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Zmapuj wymagane pola, aby kontynuować',
     'schema.samplePrefix': 'np:',
     'schema.examplePrefix': 'Przykład:',
+    'schema.optimal': 'optymalny',
+    'schema.optionalTable': 'opcjonalnie',
+    'schema.optimalLayout': 'Optymalny układ tabel',
+    'schema.optimalDescription': 'Minimalna liczba tabel pokrywająca wszystkie zmapowane pola',
+    'schema.fieldsCount': 'pól',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
