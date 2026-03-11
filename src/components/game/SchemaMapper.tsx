@@ -1920,17 +1920,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 {mappedCount > 0 && !isOptionalSchema && (
                                   (() => {
                                     const hasReqFields = fullSchema && fullSchema.required.length > 0;
-                                    const isOptBadge = !isOptimal || !hasReqFields;
+                                    const allReqMapped = hasReqFields && fullSchema.required.every(t => mappings[t]);
+                                    const showOptimal = isOptimal && allReqMapped;
                                     return (
                                       <Badge 
-                                        className={`${isOptBadge 
-                                          ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' 
-                                          : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                        className={`${showOptimal 
+                                          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                                          : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
                                         } text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors`}
                                         title={t('schema.dismissSchema')}
                                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
                                       >
-                                        {isOptBadge ? t('schema.optionalTable') : `✓ ${t('schema.optimal')}`} ✕
+                                        {showOptimal ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')} ✕
                                       </Badge>
                                     );
                                   })()
