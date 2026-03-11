@@ -1759,6 +1759,56 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   )}
                 </div>
 
+                {/* Map all optional button */}
+                {(() => {
+                  // Check if there are any optional schemas
+                  const hasOptional = allSchemasFiltered.some(({ schemaId }) => {
+                    const fullSchema = schemaTerms[schemaId];
+                    if (!fullSchema) return false;
+                    const missing = fullSchema.required.filter(t => !mappings[t]);
+                    if (missing.length === 0) return false;
+                    return missing.every(reqTerm =>
+                      Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
+                        if (otherId === schemaId) return false;
+                        return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && mappings[reqTerm];
+                      })
+                    );
+                  });
+                  if (!hasOptional) return null;
+                  return (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full mb-3 border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 text-xs"
+                      onClick={() => {
+                        updateMappings((prev) => {
+                          const newMappings = { ...prev };
+                          for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+                            const missing = schema.required.filter(t => !newMappings[t]);
+                            if (missing.length === 0) continue;
+                            const isOpt = missing.every(reqTerm =>
+                              Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
+                                if (otherId === schemaId) return false;
+                                return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && newMappings[reqTerm];
+                              })
+                            );
+                            if (!isOpt) continue;
+                            [...schema.required, ...schema.optional].forEach((term) => {
+                              if (!newMappings[term]) {
+                                const match = findBestColumnMatch(term, columns);
+                                if (match) newMappings[term] = match;
+                              }
+                            });
+                          }
+                          return newMappings;
+                        });
+                      }}
+                    >
+                      ⚡ Mapuj wszystkie opcjonalne
+                    </Button>
+                  );
+                })()}
+
                 {/* All schemas, grouped, filterable */}
                 <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
                   {allSchemasFiltered.length > 0 ? (
