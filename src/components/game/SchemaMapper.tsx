@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
@@ -23,6 +24,9 @@ import {
   MousePointerClick,
   Eye,
   CalendarClock,
+  ChevronDown,
+  Layers,
+  Minimize2,
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -1184,23 +1188,100 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const currentSchema = schemaTerms[selectedSchema];
   const allTerms = [...currentSchema.required, ...currentSchema.optional];
 
-  // Filter terms by search (name + description)
+  // Cross-schema search: when searching, find matches across ALL schemas
+  const crossSchemaResults = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return null;
+    
+    const results: { schemaId: string; schemaName: string; term: string; isRequired: boolean }[] = [];
+    
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      const schemaInfo = schemaTypes.find(s => s.id === schemaId);
+      const schemaName = schemaInfo?.name || schemaId;
+      
+      for (const term of schema.required) {
+        if (matchesTermSearch(term, q)) {
+          results.push({ schemaId, schemaName, term, isRequired: true });
+        }
+      }
+      for (const term of schema.optional) {
+        if (matchesTermSearch(term, q)) {
+          results.push({ schemaId, schemaName, term, isRequired: false });
+        }
+      }
+    }
+    
+    return results;
+  }, [searchTerm]);
+
+  // Helper: check if a term matches a search query
+  function matchesTermSearch(term: string, q: string): boolean {
+    if (term.toLowerCase().includes(q)) return true;
+    const info = dwcTerms[term];
+    if (!info) return false;
+    return [info.description, info.descriptionEN, info.descriptionFR, info.descriptionDE, info.category]
+      .filter(Boolean)
+      .some((text) => text!.toLowerCase().includes(q));
+  }
+
+  // Filter terms by search (name + description) — for current schema view
   const matchesTerm = useCallback(
     (term: string) => {
       const q = searchTerm.toLowerCase();
       if (!q) return true;
-      if (term.toLowerCase().includes(q)) return true;
-      const info = dwcTerms[term];
-      if (!info) return false;
-      return [info.description, info.descriptionEN, info.descriptionFR, info.descriptionDE, info.category]
-        .filter(Boolean)
-        .some((text) => text!.toLowerCase().includes(q));
+      return matchesTermSearch(term, q);
     },
     [searchTerm],
   );
 
   const filteredRequired = currentSchema.required.filter(matchesTerm);
   const filteredOptional = currentSchema.optional.filter(matchesTerm);
+
+  // Compute optimal table layout from current mappings
+  const optimalLayout = useMemo(() => {
+    const mapped = Object.keys(mappings);
+    if (mapped.length === 0) return [];
+    
+    // Find which schemas each mapped term belongs to
+    const schemaForTerm: Record<string, string[]> = {};
+    mapped.forEach(term => {
+      const schemas: string[] = [];
+      for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+        if (schema.required.includes(term) || schema.optional.includes(term)) {
+          schemas.push(schemaId);
+        }
+      }
+      schemaForTerm[term] = schemas;
+    });
+    
+    // Greedy set-cover: pick schemas that cover the most unmapped terms
+    const uncovered = new Set(mapped);
+    const chosen: { schemaId: string; terms: string[]; required: string[] }[] = [];
+    
+    while (uncovered.size > 0) {
+      let bestSchema = '';
+      let bestTerms: string[] = [];
+      let bestRequired: string[] = [];
+      let bestCount = 0;
+      
+      for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+        const allSchemaTerms = [...schema.required, ...schema.optional];
+        const covered = allSchemaTerms.filter(t => uncovered.has(t));
+        if (covered.length > bestCount) {
+          bestCount = covered.length;
+          bestSchema = schemaId;
+          bestTerms = covered;
+          bestRequired = schema.required.filter(t => !mappings[t]);
+        }
+      }
+      
+      if (bestCount === 0) break;
+      chosen.push({ schemaId: bestSchema, terms: bestTerms, required: bestRequired });
+      bestTerms.forEach(t => uncovered.delete(t));
+    }
+    
+    return chosen;
+  }, [mappings]);
 
   // Get sample values for a column
   const getSampleValues = useCallback(
@@ -1486,47 +1567,57 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           </div>
         </motion.div>
 
-        {/* Schema Selector */}
+        {/* Schema Selector - Dropdown */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <Card className="bg-card/90 border-border backdrop-blur">
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground mb-4">{t("schema.selectSchema")}</p>
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                {schemaTypes.map((schema) => {
-                  const Icon = schema.icon;
-                  const isSelected = selectedSchema === schema.id;
-                  return (
-                    <button
-                      key={schema.id}
-                      onClick={() => handleSchemaChange(schema.id)}
-                      className={`
-                                                flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
-                                                ${
-                                                  isSelected
-                                                    ? "border-purple-500 bg-purple-500/20"
-                                                    : "border-border bg-muted/50 hover:border-muted-foreground"
-                                                }
-                                            `}
-                    >
-                      <div className={`p-2 rounded-lg ${schema.color}`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
-                      <span
-                        className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
-                      >
-                        {schema.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-3">
+            <Select value={selectedSchema} onValueChange={handleSchemaChange}>
+              <SelectTrigger className="w-full md:w-96 bg-card/90 border-border text-foreground">
+                <div className="flex items-center gap-2">
+                  {selectedSchemaInfo && (
+                    <div className={`p-1 rounded ${selectedSchemaInfo.color}`}>
+                      <selectedSchemaInfo.icon className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                  <SelectValue placeholder={t("schema.selectSchema")} />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                {/* Group schemas by category */}
+                {(() => {
+                  const groups: Record<string, typeof schemaTypes> = {};
+                  schemaTypes.forEach(s => {
+                    const base = s.id.split('-')[0];
+                    const groupName = base.charAt(0).toUpperCase() + base.slice(1);
+                    if (!groups[groupName]) groups[groupName] = [];
+                    groups[groupName].push(s);
+                  });
+                  return Object.entries(groups).map(([groupName, schemas]) => (
+                    <SelectGroup key={groupName}>
+                      <SelectLabel className="text-xs text-muted-foreground">{groupName}</SelectLabel>
+                      {schemas.map(schema => (
+                        <SelectItem key={schema.id} value={schema.id}>
+                          <span className="flex items-center gap-2">
+                            <div className={`p-0.5 rounded ${schema.color}`}>
+                              <schema.icon className="w-3 h-3 text-white" />
+                            </div>
+                            {schema.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ));
+                })()}
+              </SelectContent>
+            </Select>
+            <Badge variant="secondary" className="whitespace-nowrap">
+              {currentSchema.required.length + currentSchema.optional.length} {t("schema.columns")}
+            </Badge>
+          </div>
         </motion.div>
 
         {/* Main Content - Two Columns */}
@@ -1626,64 +1717,135 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                       <selectedSchemaInfo.icon className="w-4 h-4 text-white" />
                     </div>
                   )}
-                  {selectedSchemaInfo?.name} Schema
+                  {searchTerm ? `🔍 ${t("schema.searchFields")}` : `${selectedSchemaInfo?.name} Schema`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 flex-1 flex flex-col">
-                {/* Search */}
+                {/* Search - cross-schema */}
                 <div className="relative mb-4">
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder={t("schema.searchFields")}
+                    placeholder={`${t("schema.searchFields")} (${t("schema.allSchemas") || "all schemas"})…`}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground"
                   />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-6 px-2 text-muted-foreground"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
                 </div>
 
-                {/* Tabs */}
-                <Tabs defaultValue="required" className="flex-1 flex flex-col">
-                  <TabsList className="w-full bg-muted mb-4">
-                    <TabsTrigger value="required" className="flex-1">
-                      {t("schema.required")} ({currentSchema.required.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="optional" className="flex-1">
-                      {t("schema.optional")} ({currentSchema.optional.length})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <div className="flex-1 max-h-[40vh] overflow-y-auto">
-                    <TabsContent value="required" className="mt-0 space-y-3">
-                      {filteredRequired.map((term) => (
-                        <TermDropZone
-                          key={term}
-                          termName={term}
-                          mappedColumn={mappings[term]}
-                          isRequired={true}
-                          onDrop={handleDrop}
-                          onRemove={handleRemoveMapping}
-                          onTapAssign={handleTapAssignTerm}
-                          hasSelectedColumn={!!selectedColumn}
-                        />
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="optional" className="mt-0 space-y-3">
-                      {filteredOptional.map((term) => (
-                        <TermDropZone
-                          key={term}
-                          termName={term}
-                          mappedColumn={mappings[term]}
-                          isRequired={false}
-                          onDrop={handleDrop}
-                          onRemove={handleRemoveMapping}
-                          onTapAssign={handleTapAssignTerm}
-                          hasSelectedColumn={!!selectedColumn}
-                        />
-                      ))}
-                    </TabsContent>
+                {/* Cross-schema results when searching */}
+                {crossSchemaResults && crossSchemaResults.length > 0 ? (
+                  <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
+                    {(() => {
+                      // Group by schema
+                      const grouped: Record<string, typeof crossSchemaResults> = {};
+                      crossSchemaResults.forEach(r => {
+                        if (!grouped[r.schemaId]) grouped[r.schemaId] = [];
+                        grouped[r.schemaId].push(r);
+                      });
+                      return Object.entries(grouped).map(([schemaId, results]) => {
+                        const info = schemaTypes.find(s => s.id === schemaId);
+                        return (
+                          <div key={schemaId}>
+                            <button
+                              onClick={() => { handleSchemaChange(schemaId); setSearchTerm(""); }}
+                              className="flex items-center gap-2 mb-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              {info && (
+                                <div className={`p-0.5 rounded ${info.color}`}>
+                                  <info.icon className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                              {info?.name || schemaId}
+                              <Badge variant="secondary" className="text-[10px] h-4 px-1">{results.length}</Badge>
+                            </button>
+                            <div className="space-y-2">
+                              {results.slice(0, 5).map(r => (
+                                <TermDropZone
+                                  key={`${schemaId}-${r.term}`}
+                                  termName={r.term}
+                                  mappedColumn={mappings[r.term]}
+                                  isRequired={r.isRequired}
+                                  onDrop={handleDrop}
+                                  onRemove={handleRemoveMapping}
+                                  onTapAssign={handleTapAssignTerm}
+                                  hasSelectedColumn={!!selectedColumn}
+                                />
+                              ))}
+                              {results.length > 5 && (
+                                <p className="text-xs text-muted-foreground pl-2">
+                                  +{results.length - 5} more…
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      {crossSchemaResults.length} wyników w {new Set(crossSchemaResults.map(r => r.schemaId)).size} schematach
+                    </p>
                   </div>
-                </Tabs>
+                ) : crossSchemaResults && crossSchemaResults.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+                    Brak wyników dla „{searchTerm}"
+                  </div>
+                ) : (
+                  /* Normal schema view - tabs */
+                  <>
+                    <Tabs defaultValue="required" className="flex-1 flex flex-col">
+                      <TabsList className="w-full bg-muted mb-4">
+                        <TabsTrigger value="required" className="flex-1">
+                          {t("schema.required")} ({currentSchema.required.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="optional" className="flex-1">
+                          {t("schema.optional")} ({currentSchema.optional.length})
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <div className="flex-1 max-h-[40vh] overflow-y-auto">
+                        <TabsContent value="required" className="mt-0 space-y-3">
+                          {filteredRequired.map((term) => (
+                            <TermDropZone
+                              key={term}
+                              termName={term}
+                              mappedColumn={mappings[term]}
+                              isRequired={true}
+                              onDrop={handleDrop}
+                              onRemove={handleRemoveMapping}
+                              onTapAssign={handleTapAssignTerm}
+                              hasSelectedColumn={!!selectedColumn}
+                            />
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="optional" className="mt-0 space-y-3">
+                          {filteredOptional.map((term) => (
+                            <TermDropZone
+                              key={term}
+                              termName={term}
+                              mappedColumn={mappings[term]}
+                              isRequired={false}
+                              onDrop={handleDrop}
+                              onRemove={handleRemoveMapping}
+                              onTapAssign={handleTapAssignTerm}
+                              hasSelectedColumn={!!selectedColumn}
+                            />
+                          ))}
+                        </TabsContent>
+                      </div>
+                    </Tabs>
+                  </>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 mt-4 pt-4 border-t border-border">
@@ -1699,6 +1861,69 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             </Card>
           </motion.div>
         </div>
+
+        {/* Optimal Layout Panel */}
+        {optimalLayout.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="mt-6"
+          >
+            <Card className="bg-card/90 border-border backdrop-blur">
+              <CardHeader className="border-b border-border pb-3">
+                <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
+                  <Minimize2 className="w-5 h-5 text-emerald-400" />
+                  Optymalny układ tabel
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Minimalna liczba tabel pokrywająca wszystkie zmapowane pola ({Object.keys(mappings).length} pól → {optimalLayout.length} {optimalLayout.length === 1 ? 'tabela' : optimalLayout.length < 5 ? 'tabele' : 'tabel'})
+                </p>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {optimalLayout.map(({ schemaId, terms, required }) => {
+                    const info = schemaTypes.find(s => s.id === schemaId);
+                    return (
+                      <div
+                        key={schemaId}
+                        className="p-3 rounded-xl border border-border bg-muted/30 hover:border-emerald-500/50 transition-colors cursor-pointer"
+                        onClick={() => { handleSchemaChange(schemaId); setSearchTerm(""); }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          {info && (
+                            <div className={`p-1 rounded ${info.color}`}>
+                              <info.icon className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          <span className="font-semibold text-sm text-foreground">{info?.name || schemaId}</span>
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1 ml-auto">{terms.length} pól</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {terms.slice(0, 8).map(term => (
+                            <Badge key={term} variant="outline" className="text-[10px] text-muted-foreground border-border">
+                              {term}
+                            </Badge>
+                          ))}
+                          {terms.length > 8 && (
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-border">
+                              +{terms.length - 8}
+                            </Badge>
+                          )}
+                        </div>
+                        {required.length > 0 && (
+                          <p className="text-[10px] text-orange-400 mt-1.5">
+                            ⚠ Brak wymaganych: {required.join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Download Panel */}
         {schemasWithMappings.length > 0 && (
