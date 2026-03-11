@@ -470,8 +470,9 @@ interface SchemaMapperProps {
 }
 
 export default function SchemaMapper({ columns, data, fileName, onBack, onComplete }: SchemaMapperProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const storageKey = `dwc-mappings-${fileName}`;
+  const autoMatchShown = useRef(false);
   const [selectedSchema, setSelectedSchema] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey);
