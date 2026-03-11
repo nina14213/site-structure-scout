@@ -1295,6 +1295,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     setDraggedColumn(column);
   };
 
+  // Check if column should allow multi-mapping (ID columns)
+  const isMultiMapColumn = (colName: string) => /id$/i.test(colName) || /ID/.test(colName);
+
   // Handle drop
   const handleDrop = (e: React.DragEvent, termName: string) => {
     e.preventDefault();
@@ -1302,9 +1305,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      Object.keys(newMappings).forEach((key) => {
-        if (newMappings[key] === columnName) delete newMappings[key];
-      });
+      // Only remove previous mappings if NOT an ID column
+      if (!isMultiMapColumn(columnName)) {
+        Object.keys(newMappings).forEach((key) => {
+          if (newMappings[key] === columnName) delete newMappings[key];
+        });
+      }
       newMappings[termName] = columnName;
       return newMappings;
     });
