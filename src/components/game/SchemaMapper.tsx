@@ -30,7 +30,46 @@ import {
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
-import AutoMatchDialog, { findAutoMatches } from "./AutoMatchDialog";
+import AutoMatchDialog, { findAutoMatches, normalizeHeader, termAliases } from "./AutoMatchDialog";
+
+// Find best matching column for a DwC term using multi-tier matching
+function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
+  const termNorm = normalizeHeader(term);
+  const available = usedColumns 
+    ? columns.filter(c => !usedColumns.has(c))
+    : columns;
+  
+  // Tier 1: Exact normalized match
+  const exact = available.find(c => normalizeHeader(c) === termNorm);
+  if (exact) return exact;
+  
+  // Tier 2: Alias match
+  const aliases = termAliases[term];
+  if (aliases) {
+    const aliasMatch = available.find(c => aliases.some(a => normalizeHeader(a) === normalizeHeader(c)));
+    if (aliasMatch) return aliasMatch;
+  }
+  
+  // Tier 3: Starts-with (min 4 chars)
+  if (termNorm.length >= 4) {
+    const startsWith = available.find(c => {
+      const cn = normalizeHeader(c);
+      return cn.length >= 4 && (cn.startsWith(termNorm) || termNorm.startsWith(cn));
+    });
+    if (startsWith) return startsWith;
+  }
+  
+  // Tier 4: Contains (min 5 chars)
+  if (termNorm.length >= 5) {
+    const contains = available.find(c => {
+      const cn = normalizeHeader(c);
+      return cn.length >= 5 && (cn.includes(termNorm) || termNorm.includes(cn));
+    });
+    if (contains) return contains;
+  }
+  
+  return undefined;
+}
 
 // Darwin Core Data Package schema types based on https://gbif.github.io/dwc-dp/qrg/
 const schemaTypes = [
