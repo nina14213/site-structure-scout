@@ -1559,6 +1559,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.error.unsupported': 'Unterstützte Formate: CSV, TXT, XLSX, XLS',
     'import.error.readFile': 'Fehler beim Lesen der Datei',
     'import.error.parse': 'Analysefehler',
+    'import.error.fewColumns': 'Nur 1 Spalte erkannt — versuchen Sie, das Trennzeichen zu ändern (z.B. Semikolon, Tabulator)',
     'import.error.import': 'Importfehler',
     'import.sep.comma': 'Komma (,)',
     'import.sep.semicolon': 'Semikolon (;)',
