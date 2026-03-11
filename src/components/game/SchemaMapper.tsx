@@ -1829,11 +1829,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                           const allTerms = [...fullSchema.required, ...fullSchema.optional];
                                           allTerms.forEach((term) => {
                                             if (!newMappings[term]) {
-                                              const match = columns.find(
-                                                (col) =>
-                                                  col.toLowerCase().includes(term.toLowerCase()) ||
-                                                  term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, "")),
-                                              );
+                                              const match = findBestColumnMatch(term, columns);
                                               if (match) newMappings[term] = match;
                                             }
                                           });
