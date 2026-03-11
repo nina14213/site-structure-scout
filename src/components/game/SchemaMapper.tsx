@@ -1555,8 +1555,38 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     URL.revokeObjectURL(url);
   }, []);
 
+  // Download all DwC files as separate CSVs
+  const handleDownloadAll = useCallback(() => {
+    const grouped = getMappingsBySchema();
+    const baseName = fileName.replace(/\.[^/.]+$/, "");
+    let delay = 0;
+    Object.entries(grouped).forEach(([schemaId, termMappings]) => {
+      const csv = generateCSV(termMappings);
+      setTimeout(() => {
+        downloadFile(csv, `${schemaId}_${baseName}.csv`);
+      }, delay);
+      delay += 300;
+    });
+  }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
+
+  // Download single schema CSV
+  const handleDownloadSchema = useCallback(
+    (schemaId: string) => {
+      const grouped = getMappingsBySchema();
+      const termMappings = grouped[schemaId];
+      if (!termMappings) return;
+      const baseName = fileName.replace(/\.[^/.]+$/, "");
+      const csv = generateCSV(termMappings);
+      downloadFile(csv, `${schemaId}_${baseName}.csv`);
+    },
+    [getMappingsBySchema, generateCSV, downloadFile, fileName],
+  );
+
+  const groupedMappings = getMappingsBySchema();
+  const schemasWithMappings = Object.keys(groupedMappings);
+
   // Classify schemas as optimal or optional
-  const classifySchemas = useCallback(() => {
+  const classifiedSchemas = useMemo(() => {
     const optimalIds = new Set(optimalLayout.map(o => o.schemaId));
     const optimal: string[] = [];
     const optional: string[] = [];
@@ -1575,25 +1605,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     return { optimal, optional };
   }, [optimalLayout, schemasWithMappings, mappings]);
 
-  // Download all DwC files as separate CSVs
-  const handleDownloadAll = useCallback(() => {
-    const grouped = getMappingsBySchema();
-    const baseName = fileName.replace(/\.[^/.]+$/, "");
-    let delay = 0;
-    Object.entries(grouped).forEach(([schemaId, termMappings]) => {
-      const csv = generateCSV(termMappings);
-      setTimeout(() => {
-        downloadFile(csv, `${schemaId}_${baseName}.csv`);
-      }, delay);
-      delay += 300;
-    });
-  }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
-
   // Download filtered schemas
   const handleDownloadFiltered = useCallback((filter: 'optimal' | 'optional') => {
     const grouped = getMappingsBySchema();
-    const { optimal, optional } = classifySchemas();
-    const ids = filter === 'optimal' ? optimal : optional;
+    const ids = filter === 'optimal' ? classifiedSchemas.optimal : classifiedSchemas.optional;
     const baseName = fileName.replace(/\.[^/.]+$/, "");
     let delay = 0;
     ids.forEach(schemaId => {
@@ -1605,23 +1620,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       }, delay);
       delay += 300;
     });
-  }, [getMappingsBySchema, classifySchemas, generateCSV, downloadFile, fileName]);
-
-  // Download single schema CSV
-  const handleDownloadSchema = useCallback(
-    (schemaId: string) => {
-      const grouped = getMappingsBySchema();
-      const termMappings = grouped[schemaId];
-      if (!termMappings) return;
-      const baseName = fileName.replace(/\.[^/.]+$/, "");
-      const csv = generateCSV(termMappings);
-      downloadFile(csv, `${schemaId}_${baseName}.csv`);
-    },
-    [getMappingsBySchema, generateCSV, downloadFile, fileName],
-  );
-
-  const groupedMappings = getMappingsBySchema();
-  const schemasWithMappings = Object.keys(groupedMappings);
+  }, [getMappingsBySchema, classifiedSchemas, generateCSV, downloadFile, fileName]);
 
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
