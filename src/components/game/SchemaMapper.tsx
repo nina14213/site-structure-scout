@@ -1746,11 +1746,26 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           const hasMappings = mappedIds.has(schemaId);
                           const mappedCount = [...req, ...opt].filter(t => mappings[t]).length;
                           const totalVisible = req.length + opt.length;
+
+                          // Check if schema is "optional" — required fields missing but
+                          // could be satisfied by columns already mapped in other schemas
+                          const fullSchema = schemaTerms[schemaId];
+                          const missingRequired = fullSchema?.required.filter(t => !mappings[t]) || [];
+                          const allRequiredSatisfied = missingRequired.length === 0;
+                          const isOptionalSchema = !allRequiredSatisfied && missingRequired.length > 0 && missingRequired.every(reqTerm => {
+                            return Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
+                              if (otherId === schemaId) return false;
+                              return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && mappings[reqTerm];
+                            });
+                          });
+
+                          // Mapped schemas collapsed; search results open if small
+                          const shouldBeOpen = !hasMappings && (searchTerm.length > 0 && totalVisible <= 15);
                           
                           return (
                             <details
                               key={schemaId}
-                              open={hasMappings || (searchTerm.length > 0 && totalVisible <= 15)}
+                              open={shouldBeOpen}
                               className={`rounded-xl border transition-colors ${
                                 isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
                                 hasMappings ? 'border-green-500/30 bg-green-500/5' :
