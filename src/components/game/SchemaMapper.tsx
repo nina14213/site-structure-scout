@@ -1769,6 +1769,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               className={`rounded-xl border transition-colors ${
                                 isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
                                 hasMappings ? 'border-green-500/30 bg-green-500/5' :
+                                isOptionalSchema ? 'border-amber-500/30 bg-amber-500/5' :
+                                'border-border bg-muted/20'
+                              }`}
+                                isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
+                                hasMappings ? 'border-green-500/30 bg-green-500/5' :
                                 'border-border bg-muted/20'
                               }`}
                             >
