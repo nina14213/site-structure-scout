@@ -1632,6 +1632,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optimales Tabellenlayout',
     'schema.optimalDescription': 'Minimale Anzahl von Tabellen, die alle zugeordneten Felder abdecken',
     'schema.fieldsCount': 'Felder',
+    'schema.dismissSchema': 'Klicken Sie, um den Vorschlag zu entfernen',
+    'schema.dismissed': 'Ausgeblendete Tabellen',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Daten-Escape Room',
