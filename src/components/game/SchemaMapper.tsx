@@ -1161,6 +1161,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [convertDatesToISO, setConvertDatesToISO] = useState(true);
   const [showAutoMatch, setShowAutoMatch] = useState(false);
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
+  const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
 
   // Auto-detect matches on mount
   useEffect(() => {
