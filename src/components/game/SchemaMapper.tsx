@@ -1161,6 +1161,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [convertDatesToISO, setConvertDatesToISO] = useState(true);
   const [showAutoMatch, setShowAutoMatch] = useState(false);
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
+  const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
 
   // Auto-detect matches on mount
   useEffect(() => {
@@ -1845,7 +1846,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           return 0;
                         });
                         
-                        return sorted.map(({ schemaId, schemaName, required: req, optional: opt }) => {
+                        const dismissed = sorted.filter(s => dismissedSchemas.has(s.schemaId));
+                        const visible = sorted.filter(s => !dismissedSchemas.has(s.schemaId));
+                        
+                        return (<>
+                        {visible.map(({ schemaId, schemaName, required: req, optional: opt }) => {
                           const info = schemaTypes.find(s => s.id === schemaId);
                           const isOptimal = optimalIds.has(schemaId);
                           const hasMappings = mappedIds.has(schemaId);
@@ -1913,13 +1918,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                   </>
                                 )}
                                 {hasMappings && fullSchema && fullSchema.required.length === 0 && (
-                                  <Badge className="bg-sky-500/20 text-sky-400 border-sky-500/30 text-[10px] h-4 px-1">
-                                    {t('schema.optionalTable')}
+                                  <Badge 
+                                    className="bg-sky-500/20 text-sky-400 border-sky-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+                                    title={t('schema.dismissSchema')}
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
+                                  >
+                                    {t('schema.optionalTable')} ✕
                                   </Badge>
                                 )}
                                 {isOptimal && fullSchema && fullSchema.required.length > 0 && (
-                                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1">
-                                    ✓ {t('schema.optimal')}
+                                  <Badge 
+                                    className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+                                    title={t('schema.dismissSchema')}
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
+                                  >
+                                    ✓ {t('schema.optimal')} ✕
                                   </Badge>
                                 )}
                                 {mappedCount > 0 && (
@@ -1977,7 +1990,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               </div>
                             </details>
                           );
-                        });
+                        })}
+                        {dismissed.length > 0 && (
+                          <div className="pt-2 border-t border-border/50">
+                            <p className="text-[10px] text-muted-foreground mb-1">{t('schema.dismissed')} ({dismissed.length}):</p>
+                            <div className="flex flex-wrap gap-1">
+                              {dismissed.map(({ schemaId, schemaName }) => (
+                                <Badge 
+                                  key={schemaId}
+                                  variant="outline" 
+                                  className="text-[10px] h-5 px-1.5 cursor-pointer text-muted-foreground hover:text-foreground hover:border-emerald-500/50 transition-colors"
+                                  onClick={() => setDismissedSchemas(prev => { const next = new Set(prev); next.delete(schemaId); return next; })}
+                                >
+                                  + {schemaName}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        </>);
                       })()}
                       {searchTerm && (
                         <p className="text-xs text-muted-foreground text-center pt-2">

@@ -297,6 +297,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optymalny układ tabel',
     'schema.optimalDescription': 'Minimalna liczba tabel pokrywająca wszystkie zmapowane pola',
     'schema.fieldsCount': 'pól',
+    'schema.dismissSchema': 'Kliknij aby usunąć sugestię',
+    'schema.dismissed': 'Ukryte tabele',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
@@ -740,6 +742,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optimal table layout',
     'schema.optimalDescription': 'Minimum number of tables covering all mapped fields',
     'schema.fieldsCount': 'fields',
+    'schema.dismissSchema': 'Click to dismiss suggestion',
+    'schema.dismissed': 'Hidden tables',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
@@ -1183,6 +1187,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Disposition optimale des tables',
     'schema.optimalDescription': 'Nombre minimum de tables couvrant tous les champs mappés',
     'schema.fieldsCount': 'champs',
+    'schema.dismissSchema': 'Cliquez pour masquer la suggestion',
+    'schema.dismissed': 'Tables masquées',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
@@ -1626,6 +1632,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optimales Tabellenlayout',
     'schema.optimalDescription': 'Minimale Anzahl von Tabellen, die alle zugeordneten Felder abdecken',
     'schema.fieldsCount': 'Felder',
+    'schema.dismissSchema': 'Klicken Sie, um den Vorschlag zu entfernen',
+    'schema.dismissed': 'Ausgeblendete Tabellen',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Daten-Escape Room',
