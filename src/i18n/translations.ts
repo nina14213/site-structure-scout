@@ -1572,6 +1572,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.yourColumns': 'Deine Spalten',
     'schema.rows': 'Zeilen',
     'schema.searchFields': 'Felder suchen...',
+    'schema.allSchemas': 'alle Schemas',
     'schema.required': 'Erforderlich',
     'schema.optional': 'Optional',
     'schema.mapRequired': 'Erforderliche Felder zuordnen',
