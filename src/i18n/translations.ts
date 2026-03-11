@@ -698,6 +698,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.yourColumns': 'Your Columns',
     'schema.rows': 'rows',
     'schema.searchFields': 'Search fields...',
+    'schema.allSchemas': 'all schemas',
     'schema.required': 'Required',
     'schema.optional': 'Optional',
     'schema.mapRequired': 'Map Required Fields',
