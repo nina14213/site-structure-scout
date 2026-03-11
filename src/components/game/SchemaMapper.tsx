@@ -1555,6 +1555,26 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     URL.revokeObjectURL(url);
   }, []);
 
+  // Classify schemas as optimal or optional
+  const classifySchemas = useCallback(() => {
+    const optimalIds = new Set(optimalLayout.map(o => o.schemaId));
+    const optimal: string[] = [];
+    const optional: string[] = [];
+    
+    schemasWithMappings.forEach(schemaId => {
+      const fullSchema = schemaTerms[schemaId];
+      if (!fullSchema) { optional.push(schemaId); return; }
+      const hasReqFields = fullSchema.required.length > 0;
+      const allReqMapped = hasReqFields && fullSchema.required.every(t => mappings[t]);
+      if (optimalIds.has(schemaId) && allReqMapped) {
+        optimal.push(schemaId);
+      } else {
+        optional.push(schemaId);
+      }
+    });
+    return { optimal, optional };
+  }, [optimalLayout, schemasWithMappings, mappings]);
+
   // Download all DwC files as separate CSVs
   const handleDownloadAll = useCallback(() => {
     const grouped = getMappingsBySchema();
@@ -1568,6 +1588,24 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       delay += 300;
     });
   }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
+
+  // Download filtered schemas
+  const handleDownloadFiltered = useCallback((filter: 'optimal' | 'optional') => {
+    const grouped = getMappingsBySchema();
+    const { optimal, optional } = classifySchemas();
+    const ids = filter === 'optimal' ? optimal : optional;
+    const baseName = fileName.replace(/\.[^/.]+$/, "");
+    let delay = 0;
+    ids.forEach(schemaId => {
+      const termMappings = grouped[schemaId];
+      if (!termMappings) return;
+      const csv = generateCSV(termMappings);
+      setTimeout(() => {
+        downloadFile(csv, `${schemaId}_${baseName}.csv`);
+      }, delay);
+      delay += 300;
+    });
+  }, [getMappingsBySchema, classifySchemas, generateCSV, downloadFile, fileName]);
 
   // Download single schema CSV
   const handleDownloadSchema = useCallback(
