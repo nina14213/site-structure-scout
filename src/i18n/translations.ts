@@ -1187,6 +1187,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Disposition optimale des tables',
     'schema.optimalDescription': 'Nombre minimum de tables couvrant tous les champs mappés',
     'schema.fieldsCount': 'champs',
+    'schema.dismissSchema': 'Cliquez pour masquer la suggestion',
+    'schema.dismissed': 'Tables masquées',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
