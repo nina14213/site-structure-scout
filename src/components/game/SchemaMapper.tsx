@@ -1990,7 +1990,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               </div>
                             </details>
                           );
-                        });
+                        })}
+                        {dismissed.length > 0 && (
+                          <div className="pt-2 border-t border-border/50">
+                            <p className="text-[10px] text-muted-foreground mb-1">{t('schema.dismissed')} ({dismissed.length}):</p>
+                            <div className="flex flex-wrap gap-1">
+                              {dismissed.map(({ schemaId, schemaName }) => (
+                                <Badge 
+                                  key={schemaId}
+                                  variant="outline" 
+                                  className="text-[10px] h-5 px-1.5 cursor-pointer text-muted-foreground hover:text-foreground hover:border-emerald-500/50 transition-colors"
+                                  onClick={() => setDismissedSchemas(prev => { const next = new Set(prev); next.delete(schemaId); return next; })}
+                                >
+                                  + {schemaName}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        </>);
                       })()}
                       {searchTerm && (
                         <p className="text-xs text-muted-foreground text-center pt-2">
