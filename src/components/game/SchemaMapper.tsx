@@ -1846,7 +1846,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           return 0;
                         });
                         
-                        return sorted.map(({ schemaId, schemaName, required: req, optional: opt }) => {
+                        const dismissed = sorted.filter(s => dismissedSchemas.has(s.schemaId));
+                        const visible = sorted.filter(s => !dismissedSchemas.has(s.schemaId));
+                        
+                        return (<>
+                        {visible.map(({ schemaId, schemaName, required: req, optional: opt }) => {
                           const info = schemaTypes.find(s => s.id === schemaId);
                           const isOptimal = optimalIds.has(schemaId);
                           const hasMappings = mappedIds.has(schemaId);
