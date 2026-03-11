@@ -32,6 +32,8 @@ import AutoMatchDialog, { findAutoMatches } from "./AutoMatchDialog";
 const schemaTypes = [
   { id: "event", name: "Event", icon: Grid3X3, color: "bg-purple-600" },
   { id: "occurrence", name: "Occurrence", icon: Target, color: "bg-rose-600" },
+  { id: "occurrence-agent-role", name: "Occurrence Agent Role", icon: Users, color: "bg-rose-500" },
+  { id: "occurrence-assertion", name: "Occurrence Assertion", icon: FileText, color: "bg-rose-400" },
   { id: "organism", name: "Organism", icon: Users, color: "bg-emerald-600" },
   { id: "material", name: "Material Entity", icon: Calendar, color: "bg-amber-600" },
   { id: "material-agent-role", name: "Material Agent Role", icon: Users, color: "bg-amber-500" },
