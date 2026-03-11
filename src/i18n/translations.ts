@@ -1178,6 +1178,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Mappez tous les champs requis pour continuer',
     'schema.samplePrefix': 'ex :',
     'schema.examplePrefix': 'Exemple :',
+    'schema.optimal': 'optimal',
+    'schema.optionalTable': 'facultatif',
+    'schema.optimalLayout': 'Disposition optimale des tables',
+    'schema.optimalDescription': 'Nombre minimum de tables couvrant tous les champs mappés',
+    'schema.fieldsCount': 'champs',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
