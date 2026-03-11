@@ -1188,23 +1188,100 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const currentSchema = schemaTerms[selectedSchema];
   const allTerms = [...currentSchema.required, ...currentSchema.optional];
 
-  // Filter terms by search (name + description)
+  // Cross-schema search: when searching, find matches across ALL schemas
+  const crossSchemaResults = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return null;
+    
+    const results: { schemaId: string; schemaName: string; term: string; isRequired: boolean }[] = [];
+    
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      const schemaInfo = schemaTypes.find(s => s.id === schemaId);
+      const schemaName = schemaInfo?.name || schemaId;
+      
+      for (const term of schema.required) {
+        if (matchesTermSearch(term, q)) {
+          results.push({ schemaId, schemaName, term, isRequired: true });
+        }
+      }
+      for (const term of schema.optional) {
+        if (matchesTermSearch(term, q)) {
+          results.push({ schemaId, schemaName, term, isRequired: false });
+        }
+      }
+    }
+    
+    return results;
+  }, [searchTerm]);
+
+  // Helper: check if a term matches a search query
+  function matchesTermSearch(term: string, q: string): boolean {
+    if (term.toLowerCase().includes(q)) return true;
+    const info = dwcTerms[term];
+    if (!info) return false;
+    return [info.description, info.descriptionEN, info.descriptionFR, info.descriptionDE, info.category]
+      .filter(Boolean)
+      .some((text) => text!.toLowerCase().includes(q));
+  }
+
+  // Filter terms by search (name + description) — for current schema view
   const matchesTerm = useCallback(
     (term: string) => {
       const q = searchTerm.toLowerCase();
       if (!q) return true;
-      if (term.toLowerCase().includes(q)) return true;
-      const info = dwcTerms[term];
-      if (!info) return false;
-      return [info.description, info.descriptionEN, info.descriptionFR, info.descriptionDE, info.category]
-        .filter(Boolean)
-        .some((text) => text!.toLowerCase().includes(q));
+      return matchesTermSearch(term, q);
     },
     [searchTerm],
   );
 
   const filteredRequired = currentSchema.required.filter(matchesTerm);
   const filteredOptional = currentSchema.optional.filter(matchesTerm);
+
+  // Compute optimal table layout from current mappings
+  const optimalLayout = useMemo(() => {
+    const mapped = Object.keys(mappings);
+    if (mapped.length === 0) return [];
+    
+    // Find which schemas each mapped term belongs to
+    const schemaForTerm: Record<string, string[]> = {};
+    mapped.forEach(term => {
+      const schemas: string[] = [];
+      for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+        if (schema.required.includes(term) || schema.optional.includes(term)) {
+          schemas.push(schemaId);
+        }
+      }
+      schemaForTerm[term] = schemas;
+    });
+    
+    // Greedy set-cover: pick schemas that cover the most unmapped terms
+    const uncovered = new Set(mapped);
+    const chosen: { schemaId: string; terms: string[]; required: string[] }[] = [];
+    
+    while (uncovered.size > 0) {
+      let bestSchema = '';
+      let bestTerms: string[] = [];
+      let bestRequired: string[] = [];
+      let bestCount = 0;
+      
+      for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+        const allSchemaTerms = [...schema.required, ...schema.optional];
+        const covered = allSchemaTerms.filter(t => uncovered.has(t));
+        if (covered.length > bestCount) {
+          bestCount = covered.length;
+          bestSchema = schemaId;
+          bestTerms = covered;
+          bestRequired = schema.required.filter(t => !mappings[t]);
+        }
+      }
+      
+      if (bestCount === 0) break;
+      chosen.push({ schemaId: bestSchema, terms: bestTerms, required: bestRequired });
+      bestTerms.forEach(t => uncovered.delete(t));
+    }
+    
+    return chosen;
+  }, [mappings]);
 
   // Get sample values for a column
   const getSampleValues = useCallback(
