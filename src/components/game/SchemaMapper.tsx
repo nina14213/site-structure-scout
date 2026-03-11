@@ -1781,9 +1781,35 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 )}
                                 <span className="font-semibold text-sm text-foreground flex-1">{schemaName}</span>
                                 {isOptionalSchema && (
-                                  <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px] h-4 px-1">
-                                    opcjonalna
-                                  </Badge>
+                                  <>
+                                    <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px] h-4 px-1">
+                                      opcjonalna
+                                    </Badge>
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        updateMappings((prev) => {
+                                          const newMappings = { ...prev };
+                                          const allTerms = [...fullSchema.required, ...fullSchema.optional];
+                                          allTerms.forEach((term) => {
+                                            if (!newMappings[term]) {
+                                              const match = columns.find(
+                                                (col) =>
+                                                  col.toLowerCase().includes(term.toLowerCase()) ||
+                                                  term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, "")),
+                                              );
+                                              if (match) newMappings[term] = match;
+                                            }
+                                          });
+                                          return newMappings;
+                                        });
+                                      }}
+                                      className="text-[10px] h-4 px-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/40 hover:text-amber-200 transition-colors"
+                                    >
+                                      ⚡ Mapuj
+                                    </button>
+                                  </>
                                 )}
                                 {isOptimal && (
                                   <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1">
@@ -1805,7 +1831,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               <div className="px-3 pb-3 space-y-2">
                                 {isOptionalSchema && (
                                   <p className="text-[10px] text-amber-400 mb-1">
-                                    ℹ Wymagane pola ({missingRequired.join(', ')}) są już zmapowane w innych tabelach. Mapuj tę tabelę na życzenie.
+                                    ℹ Wymagane pola ({missingRequired.join(', ')}) są już zmapowane w innych tabelach. Kliknij „⚡ Mapuj" aby automapować.
                                   </p>
                                 )}
                                 {req.length > 0 && (
