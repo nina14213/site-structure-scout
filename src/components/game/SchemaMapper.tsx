@@ -1352,8 +1352,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   };
 
   // Check if column is mapped
+  // Get first mapping for a column
   const getColumnMapping = (columnName: string) => {
     return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
+  };
+
+  // Get ALL mappings for a column (for ID multi-map display)
+  const getAllColumnMappings = (columnName: string) => {
+    return Object.entries(mappings).filter(([, col]) => col === columnName).map(([term]) => term);
   };
 
   // Auto-map across ALL schemas (not just current)
