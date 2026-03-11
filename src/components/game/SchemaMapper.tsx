@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
+import AutoMatchDialog, { findAutoMatches } from "./AutoMatchDialog";
 
 // Darwin Core Data Package schema types based on https://gbif.github.io/dwc-dp/qrg/
 const schemaTypes = [
@@ -469,8 +470,9 @@ interface SchemaMapperProps {
 }
 
 export default function SchemaMapper({ columns, data, fileName, onBack, onComplete }: SchemaMapperProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const storageKey = `dwc-mappings-${fileName}`;
+  const autoMatchShown = useRef(false);
   const [selectedSchema, setSelectedSchema] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -496,6 +498,22 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
   const [previewSchemaId, setPreviewSchemaId] = useState<string | null>(null);
   const [convertDatesToISO, setConvertDatesToISO] = useState(true);
+  const [showAutoMatch, setShowAutoMatch] = useState(false);
+  const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
+
+  // Auto-detect matches on mount
+  useEffect(() => {
+    if (autoMatchShown.current) return;
+    // Only show if no existing mappings
+    if (Object.keys(mappings).length > 0) return;
+    
+    const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language);
+    if (matches.length > 0) {
+      autoMatchShown.current = true;
+      setAutoMatchResults(matches);
+      setShowAutoMatch(true);
+    }
+  }, [columns, data, language, mappings]);
 
   // Persist mappings to localStorage
   const saveMappings = useCallback(
@@ -513,6 +531,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     },
     [storageKey, selectedSchema, columns],
   );
+
+  const handleAutoMatchApply = useCallback((selectedMatches: typeof autoMatchResults) => {
+    const newMappings: Record<string, string> = { ...mappings };
+    
+    const schemaCounts: Record<string, number> = {};
+    selectedMatches.forEach(m => {
+      schemaCounts[m.schemaId] = (schemaCounts[m.schemaId] || 0) + 1;
+      newMappings[m.termName] = m.column;
+    });
+    
+    const topSchema = Object.entries(schemaCounts).sort((a, b) => b[1] - a[1])[0];
+    if (topSchema) {
+      setSelectedSchema(topSchema[0]);
+      saveMappings(newMappings, topSchema[0]);
+    }
+    
+    setMappings(newMappings);
+    setShowAutoMatch(false);
+  }, [mappings, saveMappings]);
 
   // Wrap setMappings to also persist
   const updateMappings = useCallback(
@@ -805,6 +842,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
   return (
+    <>
+      <AnimatePresence>
+        {showAutoMatch && autoMatchResults.length > 0 && (
+          <AutoMatchDialog
+            matches={autoMatchResults}
+            onApply={handleAutoMatchApply}
+            onDismiss={() => setShowAutoMatch(false)}
+          />
+        )}
+      </AnimatePresence>
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -1226,6 +1273,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
 
