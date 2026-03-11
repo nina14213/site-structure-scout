@@ -75,6 +75,12 @@ const schemaTypes = [
   { id: "event-protocol", name: "Event Protocol", icon: FileText, color: "bg-purple-100" },
   { id: "event-provenance", name: "Event Provenance", icon: FileText, color: "bg-violet-500" },
   { id: "event-reference", name: "Event Reference", icon: FileText, color: "bg-violet-400" },
+  { id: "molecular-protocol", name: "Molecular Protocol", icon: FileSpreadsheet, color: "bg-lime-600" },
+  { id: "molecular-protocol-agent-role", name: "Mol. Protocol Agent Role", icon: Users, color: "bg-lime-500" },
+  { id: "molecular-protocol-assertion", name: "Mol. Protocol Assertion", icon: FileText, color: "bg-lime-400" },
+  { id: "molecular-protocol-reference", name: "Mol. Protocol Reference", icon: FileText, color: "bg-lime-300" },
+  { id: "nucleotide-analysis", name: "Nucleotide Analysis", icon: FileSpreadsheet, color: "bg-green-600" },
+  { id: "nucleotide-analysis-assertion", name: "Nucleotide Analysis Assertion", icon: FileText, color: "bg-green-500" },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
