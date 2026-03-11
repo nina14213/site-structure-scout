@@ -1567,47 +1567,57 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           </div>
         </motion.div>
 
-        {/* Schema Selector */}
+        {/* Schema Selector - Dropdown */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <Card className="bg-card/90 border-border backdrop-blur">
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground mb-4">{t("schema.selectSchema")}</p>
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                {schemaTypes.map((schema) => {
-                  const Icon = schema.icon;
-                  const isSelected = selectedSchema === schema.id;
-                  return (
-                    <button
-                      key={schema.id}
-                      onClick={() => handleSchemaChange(schema.id)}
-                      className={`
-                                                flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all
-                                                ${
-                                                  isSelected
-                                                    ? "border-purple-500 bg-purple-500/20"
-                                                    : "border-border bg-muted/50 hover:border-muted-foreground"
-                                                }
-                                            `}
-                    >
-                      <div className={`p-2 rounded-lg ${schema.color}`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
-                      <span
-                        className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
-                      >
-                        {schema.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-3">
+            <Select value={selectedSchema} onValueChange={handleSchemaChange}>
+              <SelectTrigger className="w-full md:w-96 bg-card/90 border-border text-foreground">
+                <div className="flex items-center gap-2">
+                  {selectedSchemaInfo && (
+                    <div className={`p-1 rounded ${selectedSchemaInfo.color}`}>
+                      <selectedSchemaInfo.icon className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                  <SelectValue placeholder={t("schema.selectSchema")} />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                {/* Group schemas by category */}
+                {(() => {
+                  const groups: Record<string, typeof schemaTypes> = {};
+                  schemaTypes.forEach(s => {
+                    const base = s.id.split('-')[0];
+                    const groupName = base.charAt(0).toUpperCase() + base.slice(1);
+                    if (!groups[groupName]) groups[groupName] = [];
+                    groups[groupName].push(s);
+                  });
+                  return Object.entries(groups).map(([groupName, schemas]) => (
+                    <SelectGroup key={groupName}>
+                      <SelectLabel className="text-xs text-muted-foreground">{groupName}</SelectLabel>
+                      {schemas.map(schema => (
+                        <SelectItem key={schema.id} value={schema.id}>
+                          <span className="flex items-center gap-2">
+                            <div className={`p-0.5 rounded ${schema.color}`}>
+                              <schema.icon className="w-3 h-3 text-white" />
+                            </div>
+                            {schema.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ));
+                })()}
+              </SelectContent>
+            </Select>
+            <Badge variant="secondary" className="whitespace-nowrap">
+              {currentSchema.required.length + currentSchema.optional.length} {t("schema.columns")}
+            </Badge>
+          </div>
         </motion.div>
 
         {/* Main Content - Two Columns */}
