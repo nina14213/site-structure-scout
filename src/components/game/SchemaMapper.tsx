@@ -1031,6 +1031,52 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
     required: ["agentID", "surveyID"],
     optional: ["agentRole", "agentRoleIRI", "agentRoleSource", "agentRoleOrder", "agentRoleDate"],
   },
+  "survey-assertion": {
+    required: ["surveyID"],
+    optional: [
+      "assertionID", "verbatimAssertionType",
+      "assertionType", "assertionTypeIRI", "assertionTypeSource",
+      "assertionMadeDate", "assertionEffectiveDate",
+      "assertionValue", "assertionValueIRI", "assertionValueSource",
+      "assertionValueNumeric",
+      "assertionUnit", "assertionUnitIRI", "assertionUnitSource",
+      "assertionError",
+      "assertionBy", "assertionByID",
+      "assertionProtocols", "assertionProtocolID",
+      "assertionReferences", "assertionRemarks",
+    ],
+  },
+  "survey-identifier": {
+    required: ["surveyID", "identifier"],
+    optional: ["identifierType", "identifierTypeIRI", "identifierTypeSource", "identifierLanguage"],
+  },
+  "survey-protocol": {
+    required: ["protocolID", "surveyID"],
+    optional: [],
+  },
+  "survey-reference": {
+    required: ["referenceID", "surveyID"],
+    optional: ["relationshipType"],
+  },
+  "survey-target": {
+    required: ["surveyTargetID", "surveyID", "includeOrExclude", "isSurveyTargetFullyReported"],
+    optional: [
+      "surveyTargetType", "surveyTargetTypeIRI", "surveyTargetTypeSource",
+      "surveyTargetValue", "surveyTargetValueIRI", "surveyTargetValueSource",
+      "surveyTargetUnit", "surveyTargetUnitIRI", "surveyTargetUnitSource",
+    ],
+  },
+  "usage-policy": {
+    required: ["usagePolicyID"],
+    optional: [
+      "rights", "rightsIRI", "rightsHolder", "rightsHolderID",
+      "owner", "ownerID",
+      "usageTerms", "webStatement",
+      "accessRights", "license", "licenseLogoURL",
+      "licensingException", "credit",
+      "attributionLogoURL", "attributionLinkURL",
+    ],
+  },
 };
 
 interface SchemaMapperProps {
