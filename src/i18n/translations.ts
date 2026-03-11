@@ -292,6 +292,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Zmapuj wymagane pola, aby kontynuować',
     'schema.samplePrefix': 'np:',
     'schema.examplePrefix': 'Przykład:',
+    'schema.optimal': 'optymalny',
+    'schema.optionalTable': 'opcjonalnie',
+    'schema.optimalLayout': 'Optymalny układ tabel',
+    'schema.optimalDescription': 'Minimalna liczba tabel pokrywająca wszystkie zmapowane pola',
+    'schema.fieldsCount': 'pól',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
@@ -730,6 +735,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Map all required fields to continue',
     'schema.samplePrefix': 'e.g:',
     'schema.examplePrefix': 'Example:',
+    'schema.optimal': 'optimal',
+    'schema.optionalTable': 'optional',
+    'schema.optimalLayout': 'Optimal table layout',
+    'schema.optimalDescription': 'Minimum number of tables covering all mapped fields',
+    'schema.fieldsCount': 'fields',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
@@ -1168,6 +1178,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Mappez tous les champs requis pour continuer',
     'schema.samplePrefix': 'ex :',
     'schema.examplePrefix': 'Exemple :',
+    'schema.optimal': 'optimal',
+    'schema.optionalTable': 'facultatif',
+    'schema.optimalLayout': 'Disposition optimale des tables',
+    'schema.optimalDescription': 'Nombre minimum de tables couvrant tous les champs mappés',
+    'schema.fieldsCount': 'champs',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
@@ -1606,6 +1621,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Ordne alle erforderlichen Felder zu, um fortzufahren',
     'schema.samplePrefix': 'z.B.:',
     'schema.examplePrefix': 'Beispiel:',
+    'schema.optimal': 'optimal',
+    'schema.optionalTable': 'optional',
+    'schema.optimalLayout': 'Optimales Tabellenlayout',
+    'schema.optimalDescription': 'Minimale Anzahl von Tabellen, die alle zugeordneten Felder abdecken',
+    'schema.fieldsCount': 'Felder',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Daten-Escape Room',

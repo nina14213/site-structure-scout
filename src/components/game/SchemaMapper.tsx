@@ -1913,8 +1913,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                   </>
                                 )}
                                 {isOptimal && (
-                                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1">
-                                    ✓ optymalny
+                                  <Badge className={`${
+                                    fullSchema && fullSchema.required.length > 0
+                                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                      : 'bg-sky-500/20 text-sky-400 border-sky-500/30'
+                                  } text-[10px] h-4 px-1`}>
+                                    {fullSchema && fullSchema.required.length > 0 ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')}
                                   </Badge>
                                 )}
                                 {mappedCount > 0 && (
@@ -2014,10 +2018,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               <CardHeader className="border-b border-border pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
                   <Minimize2 className="w-5 h-5 text-emerald-400" />
-                  Optymalny układ tabel
+                  {t('schema.optimalLayout')}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Minimalna liczba tabel pokrywająca wszystkie zmapowane pola ({Object.keys(mappings).length} pól → {optimalLayout.length} {optimalLayout.length === 1 ? 'tabela' : optimalLayout.length < 5 ? 'tabele' : 'tabel'})
+                  {t('schema.optimalDescription', { fields: Object.keys(mappings).length, tables: optimalLayout.length })}
                 </p>
               </CardHeader>
               <CardContent className="pt-4">
@@ -2037,7 +2041,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             </div>
                           )}
                           <span className="font-semibold text-sm text-foreground">{info?.name || schemaId}</span>
-                          <Badge variant="secondary" className="text-[10px] h-4 px-1 ml-auto">{terms.length} pól</Badge>
+                          {(() => {
+                            const schema = schemaTerms[schemaId];
+                            const hasReqFields = schema && schema.required.length > 0;
+                            return (
+                              <Badge className={`text-[10px] h-4 px-1 ${hasReqFields ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-sky-500/20 text-sky-400 border-sky-500/30'}`}>
+                                {hasReqFields ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')}
+                              </Badge>
+                            );
+                          })()}
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1 ml-auto">{terms.length} {t('schema.fieldsCount')}</Badge>
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {terms.slice(0, 8).map(term => (
