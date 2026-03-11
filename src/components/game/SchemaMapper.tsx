@@ -553,6 +553,19 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
       "bed",
     ],
   },
+  "geological-context-media": {
+    required: ["mediaID", "geologicalContextID"],
+    optional: [
+      "subjectCategory",
+      "subjectCategoryIRI",
+      "subjectCategorySource",
+      "subjectPartLiteral",
+      "subjectPart",
+      "subjectOrientationLiteral",
+      "subjectOrientation",
+      "physicalSetting",
+    ],
+  },
   "event-agent-role": {
     required: ["agentID", "eventID"],
     optional: ["agentRole", "agentRoleIRI", "agentRoleSource", "agentRoleOrder", "agentRoleDate"],
