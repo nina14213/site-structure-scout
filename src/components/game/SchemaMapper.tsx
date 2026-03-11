@@ -1335,9 +1335,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     if (!selectedColumn) return;
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      Object.keys(newMappings).forEach((key) => {
-        if (newMappings[key] === selectedColumn) delete newMappings[key];
-      });
+      // Only remove previous mappings if NOT an ID column
+      if (!isMultiMapColumn(selectedColumn)) {
+        Object.keys(newMappings).forEach((key) => {
+          if (newMappings[key] === selectedColumn) delete newMappings[key];
+        });
+      }
       newMappings[termName] = selectedColumn;
       return newMappings;
     });
