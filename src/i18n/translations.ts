@@ -719,6 +719,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadPackage': 'Download Data Package',
     'schema.downloadPackageDesc': 'CSV files split by Darwin Core tables (UTF-8, WGS-84)',
     'schema.downloadAll': 'Download all files',
+    'schema.downloadOptimal': 'Optimal only',
+    'schema.downloadOptional': 'Optional only',
     'schema.files': 'files',
     'schema.columns': 'columns',
     'schema.preview': 'Preview',
