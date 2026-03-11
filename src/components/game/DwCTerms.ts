@@ -2795,6 +2795,8 @@ export const termCategories: Record<string, { name: Record<string, string>; icon
   multimedia: { name: { pl: "Multimedia", en: "Multimedia", fr: "Multimédia", de: "Multimedia" }, icon: "Image", color: "#ec4899" },
   extension: { name: { pl: "Rozszerzenia", en: "Extensions", fr: "Extensions", de: "Erweiterungen" }, icon: "Link", color: "#6366f1" },
   agent: { name: { pl: "Agent", en: "Agent", fr: "Agent", de: "Agent" }, icon: "Users", color: "#14b8a6" },
+  material: { name: { pl: "Materiał", en: "Material Entity", fr: "Entité matérielle", de: "Materielle Einheit" }, icon: "Package", color: "#d97706" },
+  identification: { name: { pl: "Oznaczenie", en: "Identification", fr: "Identification", de: "Bestimmung" }, icon: "Search", color: "#06b6d4" },
   reference: { name: { pl: "Bibliografia", en: "Bibliography", fr: "Bibliographie", de: "Bibliographie" }, icon: "BookOpen", color: "#f97316" },
   chronometric: { name: { pl: "Wiek chronometryczny", en: "Chronometric Age", fr: "Âge chronométrique", de: "Chronometrisches Alter" }, icon: "Clock", color: "#6366f1" },
   assertion: { name: { pl: "Asercja", en: "Assertion", fr: "Assertion", de: "Aussage" }, icon: "CheckSquare", color: "#8b5cf6" },
