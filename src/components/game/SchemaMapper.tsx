@@ -1780,6 +1780,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                   </div>
                                 )}
                                 <span className="font-semibold text-sm text-foreground flex-1">{schemaName}</span>
+                                {isOptionalSchema && (
+                                  <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px] h-4 px-1">
+                                    opcjonalna
+                                  </Badge>
+                                )}
                                 {isOptimal && (
                                   <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1">
                                     ✓ optymalny
@@ -1790,11 +1795,19 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                     {mappedCount} zmapowanych
                                   </Badge>
                                 )}
+                                {hasMappings && (
+                                  <ChevronDown className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                                )}
                                 <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground">
                                   {req.length}+{opt.length}
                                 </Badge>
                               </summary>
                               <div className="px-3 pb-3 space-y-2">
+                                {isOptionalSchema && (
+                                  <p className="text-[10px] text-amber-400 mb-1">
+                                    ℹ Wymagane pola ({missingRequired.join(', ')}) są już zmapowane w innych tabelach. Mapuj tę tabelę na życzenie.
+                                  </p>
+                                )}
                                 {req.length > 0 && (
                                   <div>
                                     <p className="text-[10px] text-orange-400 font-semibold mb-1 uppercase tracking-wider">Wymagane</p>
