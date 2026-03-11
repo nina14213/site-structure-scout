@@ -1657,14 +1657,23 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
                           {allMappedTo.length > 0 && !isSelected && (
                             <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
-                              {allMappedTo.slice(0, 3).map(term => (
-                                <Badge key={term} variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
-                                  → {term}
+                              {allMappedTo.slice(0, 5).map(term => (
+                                <Badge
+                                  key={term}
+                                  variant="outline"
+                                  className="text-green-400 border-green-500/50 text-[10px] px-1 cursor-pointer hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveMapping(term);
+                                  }}
+                                  title={`Kliknij aby usunąć mapowanie → ${term}`}
+                                >
+                                  → {term} ✕
                                 </Badge>
                               ))}
-                              {allMappedTo.length > 3 && (
+                              {allMappedTo.length > 5 && (
                                 <Badge variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
-                                  +{allMappedTo.length - 3}
+                                  +{allMappedTo.length - 5}
                                 </Badge>
                               )}
                             </div>
