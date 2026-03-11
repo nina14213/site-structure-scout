@@ -1919,7 +1919,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 )}
                                 {hasMappings && fullSchema && fullSchema.required.length === 0 && (
                                   <Badge 
-                                    className="bg-sky-500/20 text-sky-400 border-sky-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+                                    className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
                                     title={t('schema.dismissSchema')}
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDismissedSchemas(prev => new Set([...prev, schemaId])); }}
                                   >
