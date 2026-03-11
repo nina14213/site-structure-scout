@@ -22,6 +22,59 @@ interface AutoMatchDialogProps {
   onDismiss: () => void;
 }
 
+// Normalize header: lowercase, remove diacritics, collapse separators
+export function normalizeHeader(header: string): string {
+  return header
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+    .replace(/[_\s\-./]+/g, '');     // collapse separators
+}
+
+// Common aliases for DwC terms (term -> alternative column names)
+export const termAliases: Record<string, string[]> = {
+  decimalLatitude: ['lat', 'latitude', 'szerokoscgeograficzna', 'breitengrad', 'latdec', 'y'],
+  decimalLongitude: ['lon', 'lng', 'long', 'longitude', 'dlugoscgeograficzna', 'laengengrad', 'londec', 'x'],
+  scientificName: ['species', 'taxon', 'gatunek', 'nazwalacinska', 'art', 'espece', 'speciesname', 'taxonname'],
+  eventDate: ['date', 'data', 'datum', 'obsdate', 'observationdate', 'dateobservation', 'samplingdate', 'dataobserwacji'],
+  eventID: ['eventid', 'event_id', 'idevento', 'idevenement'],
+  occurrenceID: ['occurrenceid', 'occurrence_id', 'obsid', 'recordid', 'id'],
+  recordedBy: ['observer', 'collector', 'obserwator', 'beobachter', 'observateur', 'collectedby'],
+  locality: ['location', 'site', 'miejscowosc', 'ort', 'localite', 'sitename', 'stanowisko'],
+  country: ['kraj', 'land', 'pays', 'countryname'],
+  countryCode: ['countrycode', 'kodkraju', 'laendercode'],
+  basisOfRecord: ['basisofrecord', 'recordtype', 'typ', 'type'],
+  coordinateUncertaintyInMeters: ['accuracy', 'gpsaccuracy', 'uncertainty', 'dokladnosc', 'coorduncertainty'],
+  individualCount: ['count', 'abundance', 'liczebnosc', 'anzahl', 'nombre', 'numberofindividuals', 'qty'],
+  habitat: ['habitat', 'siedlisko', 'lebensraum', 'habitattype'],
+  samplingProtocol: ['method', 'protocol', 'metoda', 'methode', 'samplingmethod'],
+  kingdom: ['kingdom', 'krolestwo', 'regne'],
+  family: ['family', 'rodzina', 'familie', 'famille'],
+  genus: ['genus', 'rodzaj', 'gattung', 'genre'],
+  specificEpithet: ['specificepithet', 'epithet', 'epitetgatunkowy'],
+  vernacularName: ['commonname', 'vernacularname', 'nazwazwyczajowa', 'volksname', 'nomcommun', 'polishname', 'englishname'],
+  lifeStage: ['lifestage', 'stadium', 'lebensstadium', 'stade', 'age'],
+  sex: ['sex', 'plec', 'geschlecht', 'sexe', 'gender'],
+  reproductiveCondition: ['reproductivecondition', 'breeding', 'rozrod'],
+  occurrenceRemarks: ['remarks', 'notes', 'uwagi', 'bemerkungen', 'remarques', 'comment', 'comments'],
+  minimumElevationInMeters: ['elevation', 'altitude', 'wysokosc', 'hoehe', 'elev', 'alt'],
+  minimumDepthInMeters: ['depth', 'glebokosc', 'tiefe', 'profondeur'],
+  waterBody: ['waterbody', 'lake', 'river', 'jezioro', 'rzeka', 'gewaesser'],
+  stateProvince: ['province', 'state', 'region', 'wojewodztwo', 'bundesland', 'voivodeship'],
+  municipality: ['municipality', 'gmina', 'gemeinde', 'commune', 'city', 'town', 'miasto'],
+  geodeticDatum: ['datum', 'geodeticdatum', 'crs', 'srs', 'epsg'],
+  sampleSizeValue: ['samplesize', 'effortsample', 'samplesizevalue'],
+  samplingEffort: ['effort', 'samplingeffort', 'wysilek'],
+  year: ['year', 'rok', 'jahr', 'annee'],
+  month: ['month', 'miesiac', 'monat', 'mois'],
+  day: ['day', 'dzien', 'tag', 'jour'],
+  identifiedBy: ['identifiedby', 'determinator', 'identifier', 'oznaczyl'],
+  dateIdentified: ['dateidentified', 'identificationdate', 'dataoznaczenia'],
+  taxonRank: ['rank', 'taxonrank', 'ranggatunku'],
+  materialEntityID: ['materialid', 'sampleid', 'specimenid', 'voucherid', 'cataloguenumber', 'catalognumber'],
+};
+
 export function findAutoMatches(
   columns: string[],
   data: any[],
@@ -33,42 +86,93 @@ export function findAutoMatches(
   const matchedColumns = new Set<string>();
   const matchedTerms = new Set<string>();
 
-  for (const col of columns) {
-    const colLower = col.toLowerCase().replace(/[_\s-]/g, '');
+  const normalizedColumns = columns.map(normalizeHeader);
 
-    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
-      const allTerms = [...schema.required, ...schema.optional];
-      for (const term of allTerms) {
-        if (matchedTerms.has(`${schemaId}:${term}`)) continue;
-        const termLower = term.toLowerCase();
+  // Build a flat list of (schemaId, term) for iteration with priority (required first)
+  const allEntries: { schemaId: string; term: string; priority: number }[] = [];
+  for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+    for (const term of schema.required) allEntries.push({ schemaId, term, priority: 0 });
+    for (const term of schema.optional) allEntries.push({ schemaId, term, priority: 1 });
+  }
 
-        // Exact match (case-insensitive, ignoring separators)
-        if (colLower === termLower) {
-          const info = dwcTerms[term];
-          const schemaInfo = schemaTypes.find(s => s.id === schemaId);
-          const sample = data.slice(0, 3).map(r => r[col]).filter(Boolean).join(', ');
-          const description = info
-            ? (language === 'en' && info.descriptionEN) || 
-              (language === 'fr' && info.descriptionFR) || 
-              (language === 'de' && info.descriptionDE) || 
-              info.description
-            : term;
+  function addResult(col: string, term: string, schemaId: string) {
+    const info = dwcTerms[term];
+    const schemaInfo = schemaTypes.find(s => s.id === schemaId);
+    const sample = data.slice(0, 3).map(r => r[col]).filter(Boolean).join(', ');
+    const description = info
+      ? (language === 'en' && info.descriptionEN) ||
+        (language === 'fr' && info.descriptionFR) ||
+        (language === 'de' && info.descriptionDE) ||
+        info.description
+      : term;
+    results.push({
+      column: col,
+      termName: term,
+      schemaId,
+      schemaName: schemaInfo?.name || schemaId,
+      sample: sample || '—',
+      description: description || '',
+    });
+    matchedColumns.add(col);
+    matchedTerms.add(`${schemaId}:${term}`);
+  }
 
-          results.push({
-            column: col,
-            termName: term,
-            schemaId,
-            schemaName: schemaInfo?.name || schemaId,
-            sample: sample || '—',
-            description: description || '',
-          });
-
-          matchedColumns.add(col);
-          matchedTerms.add(`${schemaId}:${term}`);
-          break; // one column -> first matching term across schemas
-        }
+  // Pass 1: Exact normalized match
+  for (let ci = 0; ci < columns.length; ci++) {
+    if (matchedColumns.has(columns[ci])) continue;
+    const colNorm = normalizedColumns[ci];
+    for (const { schemaId, term } of allEntries) {
+      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
+      if (colNorm === normalizeHeader(term)) {
+        addResult(columns[ci], term, schemaId);
+        break;
       }
-      if (matchedColumns.has(col)) break; // found match for this column
+    }
+  }
+
+  // Pass 2: Alias match
+  for (let ci = 0; ci < columns.length; ci++) {
+    if (matchedColumns.has(columns[ci])) continue;
+    const colNorm = normalizedColumns[ci];
+    for (const { schemaId, term } of allEntries) {
+      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
+      const aliases = termAliases[term];
+      if (aliases && aliases.some(a => normalizeHeader(a) === colNorm)) {
+        addResult(columns[ci], term, schemaId);
+        break;
+      }
+    }
+  }
+
+  // Pass 3: Starts-with match (column starts with term or term starts with column, min 4 chars)
+  for (let ci = 0; ci < columns.length; ci++) {
+    if (matchedColumns.has(columns[ci])) continue;
+    const colNorm = normalizedColumns[ci];
+    if (colNorm.length < 4) continue;
+    for (const { schemaId, term } of allEntries) {
+      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
+      const termNorm = normalizeHeader(term);
+      if (termNorm.length < 4) continue;
+      if (termNorm.startsWith(colNorm) || colNorm.startsWith(termNorm)) {
+        addResult(columns[ci], term, schemaId);
+        break;
+      }
+    }
+  }
+
+  // Pass 4: Contains match (for longer column names, min 5 chars overlap)
+  for (let ci = 0; ci < columns.length; ci++) {
+    if (matchedColumns.has(columns[ci])) continue;
+    const colNorm = normalizedColumns[ci];
+    if (colNorm.length < 5) continue;
+    for (const { schemaId, term } of allEntries) {
+      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
+      const termNorm = normalizeHeader(term);
+      if (termNorm.length < 5) continue;
+      if (termNorm.includes(colNorm) || colNorm.includes(termNorm)) {
+        addResult(columns[ci], term, schemaId);
+        break;
+      }
     }
   }
 
