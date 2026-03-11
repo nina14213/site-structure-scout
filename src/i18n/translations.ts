@@ -261,6 +261,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.yourColumns': 'Twoje kolumny',
     'schema.rows': 'wierszy',
     'schema.searchFields': 'Szukaj pól...',
+    'schema.allSchemas': 'wszystkie schematy',
     'schema.required': 'Wymagane',
     'schema.optional': 'Opcjonalne',
     'schema.mapRequired': 'Mapuj wymagane pola',
