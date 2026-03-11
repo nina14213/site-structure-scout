@@ -33,6 +33,7 @@ export function normalizeHeader(header: string): string {
 }
 
 // Common aliases for DwC terms (term -> alternative column names)
+export { termAliases };
 const termAliases: Record<string, string[]> = {
   decimalLatitude: ['lat', 'latitude', 'szerokoscgeograficzna', 'breitengrad', 'latdec', 'y'],
   decimalLongitude: ['lon', 'lng', 'long', 'longitude', 'dlugoscgeograficzna', 'laengengrad', 'londec', 'x'],
