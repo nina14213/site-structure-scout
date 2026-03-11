@@ -1408,13 +1408,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     for (const [, schema] of Object.entries(schemaTerms)) {
       [...schema.required, ...schema.optional].forEach((term) => {
         if (!newMappings[term]) {
-          const matchingColumn = columns.find(
-            (col) =>
-              col.toLowerCase().includes(term.toLowerCase()) ||
-              term.toLowerCase().includes(col.toLowerCase().replace(/[^a-z]/g, "")),
-          );
-          if (matchingColumn) {
-            newMappings[term] = matchingColumn;
+          const match = findBestColumnMatch(term, columns);
+          if (match) {
+            newMappings[term] = match;
           }
         }
       });
