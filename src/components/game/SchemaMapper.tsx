@@ -90,6 +90,16 @@ const schemaTypes = [
   { id: "molecular-protocol-reference", name: "Mol. Protocol Reference", icon: FileText, color: "bg-lime-300" },
   { id: "nucleotide-analysis", name: "Nucleotide Analysis", icon: FileSpreadsheet, color: "bg-green-600" },
   { id: "nucleotide-analysis-assertion", name: "Nucleotide Analysis Assertion", icon: FileText, color: "bg-green-500" },
+  { id: "organism-interaction-media", name: "Org. Interaction Media", icon: Image, color: "bg-emerald-50" },
+  { id: "organism-interaction-reference", name: "Org. Interaction Reference", icon: FileText, color: "bg-teal-100" },
+  { id: "organism-reference", name: "Organism Reference", icon: FileText, color: "bg-teal-50" },
+  { id: "organism-relationship", name: "Organism Relationship", icon: Users, color: "bg-cyan-100" },
+  { id: "protocol", name: "Protocol", icon: FileText, color: "bg-gray-600" },
+  { id: "protocol-reference", name: "Protocol Reference", icon: FileText, color: "bg-gray-500" },
+  { id: "provenance", name: "Provenance", icon: FileText, color: "bg-slate-600" },
+  { id: "resource-relationship", name: "Resource Relationship", icon: Users, color: "bg-slate-500" },
+  { id: "survey", name: "Survey", icon: Target, color: "bg-sky-600" },
+  { id: "survey-agent-role", name: "Survey Agent Role", icon: Users, color: "bg-sky-500" },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
