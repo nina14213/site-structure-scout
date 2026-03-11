@@ -1616,7 +1616,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 )}
                 {columns.map((column, idx) => {
                   const mappedTo = getColumnMapping(column);
+                  const allMappedTo = getAllColumnMappings(column);
                   const isSelected = selectedColumn === column;
+                  const isIdColumn = isMultiMapColumn(column);
                   return (
                     <motion.div
                       key={column}
@@ -1646,12 +1648,26 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           <div className="flex items-center gap-2">
                             <MousePointerClick className="w-4 h-4 text-muted-foreground md:hidden flex-shrink-0" />
                             <span className="font-semibold text-foreground">{column}</span>
+                            {isIdColumn && allMappedTo.length > 1 && (
+                              <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                                ×{allMappedTo.length}
+                              </Badge>
+                            )}
                           </div>
                           {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
-                          {mappedTo && !isSelected && (
-                            <Badge variant="outline" className="text-green-400 border-green-500/50 text-xs">
-                              → {mappedTo}
-                            </Badge>
+                          {allMappedTo.length > 0 && !isSelected && (
+                            <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                              {allMappedTo.slice(0, 3).map(term => (
+                                <Badge key={term} variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
+                                  → {term}
+                                </Badge>
+                              ))}
+                              {allMappedTo.length > 3 && (
+                                <Badge variant="outline" className="text-green-400 border-green-500/50 text-[10px] px-1">
+                                  +{allMappedTo.length - 3}
+                                </Badge>
+                              )}
+                            </div>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
