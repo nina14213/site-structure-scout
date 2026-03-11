@@ -1772,10 +1772,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 isOptionalSchema ? 'border-amber-500/30 bg-amber-500/5' :
                                 'border-border bg-muted/20'
                               }`}
-                                isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
-                                hasMappings ? 'border-green-500/30 bg-green-500/5' :
-                                'border-border bg-muted/20'
-                              }`}
                             >
                               <summary className="flex items-center gap-2 p-3 cursor-pointer select-none hover:bg-muted/30 rounded-xl">
                                 {info && (
