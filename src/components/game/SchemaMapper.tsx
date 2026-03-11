@@ -1703,17 +1703,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             </Card>
           </motion.div>
 
-          {/* Right: Schema Terms */}
+          {/* Right: All Schema Terms */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
             <Card className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
               <CardHeader className="border-b border-border">
                 <CardTitle className="text-card-foreground flex items-center gap-2">
-                  {selectedSchemaInfo && (
-                    <div className={`p-1.5 rounded-lg ${selectedSchemaInfo.color}`}>
-                      <selectedSchemaInfo.icon className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  {searchTerm ? `🔍 ${t("schema.searchFields")}` : `${selectedSchemaInfo?.name} Schema`}
+                  <Layers className="w-5 h-5 text-purple-400" />
+                  Wszystkie schematy DwC-DP
+                  <Badge variant="secondary" className="ml-auto text-xs">
+                    {Object.keys(schemaTerms).length} schematów
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 flex-1 flex flex-col">
@@ -1738,110 +1737,112 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   )}
                 </div>
 
-                {/* Cross-schema results when searching */}
-                {crossSchemaResults && crossSchemaResults.length > 0 ? (
-                  <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
-                    {(() => {
-                      // Group by schema
-                      const grouped: Record<string, typeof crossSchemaResults> = {};
-                      crossSchemaResults.forEach(r => {
-                        if (!grouped[r.schemaId]) grouped[r.schemaId] = [];
-                        grouped[r.schemaId].push(r);
-                      });
-                      return Object.entries(grouped).map(([schemaId, results]) => {
-                        const info = schemaTypes.find(s => s.id === schemaId);
-                        return (
-                          <div key={schemaId}>
-                            <button
-                              onClick={() => { handleSchemaChange(schemaId); setSearchTerm(""); }}
-                              className="flex items-center gap-2 mb-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                {/* All schemas, grouped, filterable */}
+                <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
+                  {allSchemasFiltered.length > 0 ? (
+                    <>
+                      {/* Show schemas prioritized by optimal layout */}
+                      {(() => {
+                        // Sort: schemas with mappings first, then optimal layout order, then rest
+                        const optimalIds = new Set(optimalLayout.map(o => o.schemaId));
+                        const mappedIds = new Set(schemasWithMappings);
+                        
+                        const sorted = [...allSchemasFiltered].sort((a, b) => {
+                          const aScore = (mappedIds.has(a.schemaId) ? 100 : 0) + (optimalIds.has(a.schemaId) ? 50 : 0);
+                          const bScore = (mappedIds.has(b.schemaId) ? 100 : 0) + (optimalIds.has(b.schemaId) ? 50 : 0);
+                          return bScore - aScore;
+                        });
+                        
+                        return sorted.map(({ schemaId, schemaName, required: req, optional: opt }) => {
+                          const info = schemaTypes.find(s => s.id === schemaId);
+                          const isOptimal = optimalIds.has(schemaId);
+                          const hasMappings = mappedIds.has(schemaId);
+                          const mappedCount = [...req, ...opt].filter(t => mappings[t]).length;
+                          const totalVisible = req.length + opt.length;
+                          
+                          return (
+                            <details
+                              key={schemaId}
+                              open={hasMappings || (searchTerm.length > 0 && totalVisible <= 15)}
+                              className={`rounded-xl border transition-colors ${
+                                isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
+                                hasMappings ? 'border-green-500/30 bg-green-500/5' :
+                                'border-border bg-muted/20'
+                              }`}
                             >
-                              {info && (
-                                <div className={`p-0.5 rounded ${info.color}`}>
-                                  <info.icon className="w-3 h-3 text-white" />
-                                </div>
-                              )}
-                              {info?.name || schemaId}
-                              <Badge variant="secondary" className="text-[10px] h-4 px-1">{results.length}</Badge>
-                            </button>
-                            <div className="space-y-2">
-                              {results.slice(0, 5).map(r => (
-                                <TermDropZone
-                                  key={`${schemaId}-${r.term}`}
-                                  termName={r.term}
-                                  mappedColumn={mappings[r.term]}
-                                  isRequired={r.isRequired}
-                                  onDrop={handleDrop}
-                                  onRemove={handleRemoveMapping}
-                                  onTapAssign={handleTapAssignTerm}
-                                  hasSelectedColumn={!!selectedColumn}
-                                />
-                              ))}
-                              {results.length > 5 && (
-                                <p className="text-xs text-muted-foreground pl-2">
-                                  +{results.length - 5} more…
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
-                    <p className="text-xs text-muted-foreground text-center pt-2">
-                      {crossSchemaResults.length} wyników w {new Set(crossSchemaResults.map(r => r.schemaId)).size} schematach
-                    </p>
-                  </div>
-                ) : crossSchemaResults && crossSchemaResults.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-                    Brak wyników dla „{searchTerm}"
-                  </div>
-                ) : (
-                  /* Normal schema view - tabs */
-                  <>
-                    <Tabs defaultValue="required" className="flex-1 flex flex-col">
-                      <TabsList className="w-full bg-muted mb-4">
-                        <TabsTrigger value="required" className="flex-1">
-                          {t("schema.required")} ({currentSchema.required.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="optional" className="flex-1">
-                          {t("schema.optional")} ({currentSchema.optional.length})
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <div className="flex-1 max-h-[40vh] overflow-y-auto">
-                        <TabsContent value="required" className="mt-0 space-y-3">
-                          {filteredRequired.map((term) => (
-                            <TermDropZone
-                              key={term}
-                              termName={term}
-                              mappedColumn={mappings[term]}
-                              isRequired={true}
-                              onDrop={handleDrop}
-                              onRemove={handleRemoveMapping}
-                              onTapAssign={handleTapAssignTerm}
-                              hasSelectedColumn={!!selectedColumn}
-                            />
-                          ))}
-                        </TabsContent>
-
-                        <TabsContent value="optional" className="mt-0 space-y-3">
-                          {filteredOptional.map((term) => (
-                            <TermDropZone
-                              key={term}
-                              termName={term}
-                              mappedColumn={mappings[term]}
-                              isRequired={false}
-                              onDrop={handleDrop}
-                              onRemove={handleRemoveMapping}
-                              onTapAssign={handleTapAssignTerm}
-                              hasSelectedColumn={!!selectedColumn}
-                            />
-                          ))}
-                        </TabsContent>
-                      </div>
-                    </Tabs>
-                  </>
-                )}
+                              <summary className="flex items-center gap-2 p-3 cursor-pointer select-none hover:bg-muted/30 rounded-xl">
+                                {info && (
+                                  <div className={`p-1 rounded ${info.color} flex-shrink-0`}>
+                                    <info.icon className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                                <span className="font-semibold text-sm text-foreground flex-1">{schemaName}</span>
+                                {isOptimal && (
+                                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] h-4 px-1">
+                                    ✓ optymalny
+                                  </Badge>
+                                )}
+                                {mappedCount > 0 && (
+                                  <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                                    {mappedCount} zmapowanych
+                                  </Badge>
+                                )}
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground">
+                                  {req.length}+{opt.length}
+                                </Badge>
+                              </summary>
+                              <div className="px-3 pb-3 space-y-2">
+                                {req.length > 0 && (
+                                  <div>
+                                    <p className="text-[10px] text-orange-400 font-semibold mb-1 uppercase tracking-wider">Wymagane</p>
+                                    {req.map(term => (
+                                      <TermDropZone
+                                        key={`${schemaId}-${term}`}
+                                        termName={term}
+                                        mappedColumn={mappings[term]}
+                                        isRequired={true}
+                                        onDrop={handleDrop}
+                                        onRemove={handleRemoveMapping}
+                                        onTapAssign={handleTapAssignTerm}
+                                        hasSelectedColumn={!!selectedColumn}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                {opt.length > 0 && (
+                                  <div>
+                                    <p className="text-[10px] text-muted-foreground font-semibold mb-1 uppercase tracking-wider">Opcjonalne ({opt.length})</p>
+                                    {opt.map(term => (
+                                      <TermDropZone
+                                        key={`${schemaId}-${term}`}
+                                        termName={term}
+                                        mappedColumn={mappings[term]}
+                                        isRequired={false}
+                                        onDrop={handleDrop}
+                                        onRemove={handleRemoveMapping}
+                                        onTapAssign={handleTapAssignTerm}
+                                        hasSelectedColumn={!!selectedColumn}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </details>
+                          );
+                        });
+                      })()}
+                      {searchTerm && (
+                        <p className="text-xs text-muted-foreground text-center pt-2">
+                          {allSchemasFiltered.reduce((sum, s) => sum + s.required.length + s.optional.length, 0)} wyników w {allSchemasFiltered.length} schematach
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+                      Brak wyników dla „{searchTerm}"
+                    </div>
+                  )}
+                </div>
 
                 {/* Actions */}
                 <div className="flex gap-3 mt-4 pt-4 border-t border-border">
