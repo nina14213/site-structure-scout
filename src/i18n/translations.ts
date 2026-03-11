@@ -297,6 +297,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optimalLayout': 'Optymalny układ tabel',
     'schema.optimalDescription': 'Minimalna liczba tabel pokrywająca wszystkie zmapowane pola',
     'schema.fieldsCount': 'pól',
+    'schema.dismissSchema': 'Kliknij aby usunąć sugestię',
+    'schema.dismissed': 'Ukryte tabele',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
