@@ -1135,6 +1135,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.yourColumns': 'Vos Colonnes',
     'schema.rows': 'lignes',
     'schema.searchFields': 'Rechercher des champs...',
+    'schema.allSchemas': 'tous les schémas',
     'schema.required': 'Requis',
     'schema.optional': 'Optionnel',
     'schema.mapRequired': 'Mapper les Champs Requis',
