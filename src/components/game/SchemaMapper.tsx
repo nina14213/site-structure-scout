@@ -24,6 +24,9 @@ import {
   MousePointerClick,
   Eye,
   CalendarClock,
+  ChevronDown,
+  Layers,
+  Minimize2,
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
