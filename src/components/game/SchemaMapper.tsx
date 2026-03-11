@@ -100,6 +100,12 @@ const schemaTypes = [
   { id: "resource-relationship", name: "Resource Relationship", icon: Users, color: "bg-slate-500" },
   { id: "survey", name: "Survey", icon: Target, color: "bg-sky-600" },
   { id: "survey-agent-role", name: "Survey Agent Role", icon: Users, color: "bg-sky-500" },
+  { id: "survey-assertion", name: "Survey Assertion", icon: FileText, color: "bg-sky-400" },
+  { id: "survey-identifier", name: "Survey Identifier", icon: FileText, color: "bg-sky-300" },
+  { id: "survey-protocol", name: "Survey Protocol", icon: FileText, color: "bg-sky-200" },
+  { id: "survey-reference", name: "Survey Reference", icon: FileText, color: "bg-sky-100" },
+  { id: "survey-target", name: "Survey Target", icon: Target, color: "bg-sky-50" },
+  { id: "usage-policy", name: "Usage Policy", icon: FileText, color: "bg-fuchsia-600" },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
@@ -1024,6 +1030,52 @@ const schemaTerms: Record<string, { required: string[]; optional: string[] }> = 
   "survey-agent-role": {
     required: ["agentID", "surveyID"],
     optional: ["agentRole", "agentRoleIRI", "agentRoleSource", "agentRoleOrder", "agentRoleDate"],
+  },
+  "survey-assertion": {
+    required: ["surveyID"],
+    optional: [
+      "assertionID", "verbatimAssertionType",
+      "assertionType", "assertionTypeIRI", "assertionTypeSource",
+      "assertionMadeDate", "assertionEffectiveDate",
+      "assertionValue", "assertionValueIRI", "assertionValueSource",
+      "assertionValueNumeric",
+      "assertionUnit", "assertionUnitIRI", "assertionUnitSource",
+      "assertionError",
+      "assertionBy", "assertionByID",
+      "assertionProtocols", "assertionProtocolID",
+      "assertionReferences", "assertionRemarks",
+    ],
+  },
+  "survey-identifier": {
+    required: ["surveyID", "identifier"],
+    optional: ["identifierType", "identifierTypeIRI", "identifierTypeSource", "identifierLanguage"],
+  },
+  "survey-protocol": {
+    required: ["protocolID", "surveyID"],
+    optional: [],
+  },
+  "survey-reference": {
+    required: ["referenceID", "surveyID"],
+    optional: ["relationshipType"],
+  },
+  "survey-target": {
+    required: ["surveyTargetID", "surveyID", "includeOrExclude", "isSurveyTargetFullyReported"],
+    optional: [
+      "surveyTargetType", "surveyTargetTypeIRI", "surveyTargetTypeSource",
+      "surveyTargetValue", "surveyTargetValueIRI", "surveyTargetValueSource",
+      "surveyTargetUnit", "surveyTargetUnitIRI", "surveyTargetUnitSource",
+    ],
+  },
+  "usage-policy": {
+    required: ["usagePolicyID"],
+    optional: [
+      "rights", "rightsIRI", "rightsHolder", "rightsHolderID",
+      "owner", "ownerID",
+      "usageTerms", "webStatement",
+      "accessRights", "license", "licenseLogoURL",
+      "licensingException", "credit",
+      "attributionLogoURL", "attributionLinkURL",
+    ],
   },
 };
 
