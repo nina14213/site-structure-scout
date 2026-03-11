@@ -2018,10 +2018,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               <CardHeader className="border-b border-border pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
                   <Minimize2 className="w-5 h-5 text-emerald-400" />
-                  Optymalny układ tabel
+                  {t('schema.optimalLayout')}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Minimalna liczba tabel pokrywająca wszystkie zmapowane pola ({Object.keys(mappings).length} pól → {optimalLayout.length} {optimalLayout.length === 1 ? 'tabela' : optimalLayout.length < 5 ? 'tabele' : 'tabel'})
+                  {t('schema.optimalDescription', { fields: Object.keys(mappings).length, tables: optimalLayout.length })}
                 </p>
               </CardHeader>
               <CardContent className="pt-4">
