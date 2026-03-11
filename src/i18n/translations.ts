@@ -1621,6 +1621,11 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.mapAllRequired': 'Ordne alle erforderlichen Felder zu, um fortzufahren',
     'schema.samplePrefix': 'z.B.:',
     'schema.examplePrefix': 'Beispiel:',
+    'schema.optimal': 'optimal',
+    'schema.optionalTable': 'optional',
+    'schema.optimalLayout': 'Optimales Tabellenlayout',
+    'schema.optimalDescription': 'Minimale Anzahl von Tabellen, die alle zugeordneten Felder abdecken',
+    'schema.fieldsCount': 'Felder',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Daten-Escape Room',
