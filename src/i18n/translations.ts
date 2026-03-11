@@ -1121,6 +1121,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.error.unsupported': 'Formats supportés : CSV, TXT, XLSX, XLS',
     'import.error.readFile': 'Erreur lors de la lecture du fichier',
     'import.error.parse': 'Erreur d\'analyse',
+    'import.error.fewColumns': 'Une seule colonne détectée — essayez de changer le séparateur (ex. point-virgule, tabulation)',
     'import.error.import': 'Erreur d\'import',
     'import.sep.comma': 'Virgule (,)',
     'import.sep.semicolon': 'Point-virgule (;)',
