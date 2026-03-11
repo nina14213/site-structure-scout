@@ -45,6 +45,15 @@ const schemaTypes = [
   { id: "chronometric-age-assertion", name: "Chrono Age Assertion", icon: FileText, color: "bg-indigo-400" },
   { id: "chronometric-age-media", name: "Chrono Age Media", icon: Image, color: "bg-indigo-300" },
   { id: "chronometric-age-protocol", name: "Chrono Age Protocol", icon: FileText, color: "bg-indigo-200" },
+  { id: "chronometric-age-reference", name: "Chrono Age Reference", icon: FileText, color: "bg-indigo-100" },
+  { id: "geological-context", name: "Geological Context", icon: Grid3X3, color: "bg-stone-600" },
+  { id: "event-agent-role", name: "Event Agent Role", icon: Users, color: "bg-purple-500" },
+  { id: "event-assertion", name: "Event Assertion", icon: FileText, color: "bg-purple-400" },
+  { id: "event-identifier", name: "Event Identifier", icon: FileText, color: "bg-purple-300" },
+  { id: "event-media", name: "Event Media", icon: Image, color: "bg-purple-200" },
+  { id: "event-protocol", name: "Event Protocol", icon: FileText, color: "bg-purple-100" },
+  { id: "event-provenance", name: "Event Provenance", icon: FileText, color: "bg-violet-500" },
+  { id: "event-reference", name: "Event Reference", icon: FileText, color: "bg-violet-400" },
 ];
 
 // Schema-specific required/optional terms based on DwC-DP Quick Reference Guide
