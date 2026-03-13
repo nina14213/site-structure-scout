@@ -1163,6 +1163,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [showAutoMatch, setShowAutoMatch] = useState(false);
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
+  const [showTutorial, setShowTutorial] = useState(() => {
+    try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
+  });
 
   // Auto-detect matches on mount
   useEffect(() => {
