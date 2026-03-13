@@ -1342,7 +1342,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           bestCount = covered.length;
           bestSchema = schemaId;
           bestTerms = covered;
-          bestRequired = schema.required.filter(t => !mappings[t]);
+          bestRequired = schema.required.filter(t => !mappings[t] && !generatedIdValues[t]);
         }
       }
       
