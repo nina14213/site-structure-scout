@@ -32,6 +32,7 @@ import {
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog, { findAutoMatches, normalizeHeader, termAliases } from "./AutoMatchDialog";
+import JSZip from "jszip";
 
 // Find best matching column for a DwC term using multi-tier matching
 function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
