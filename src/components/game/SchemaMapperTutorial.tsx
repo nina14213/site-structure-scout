@@ -28,12 +28,12 @@ interface TutorialStep {
   position: 'center' | 'left' | 'right' | 'bottom';
 }
 
-export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMapperTutorialProps) {
+export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: SchemaMapperTutorialProps) {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
-  const steps: TutorialStep[] = [
+  const allSteps: TutorialStep[] = [
     {
       titleKey: 'mapperTutorial.step0.title',
       descKey: 'mapperTutorial.step0.desc',
