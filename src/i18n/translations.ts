@@ -1206,6 +1206,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optional': 'Optionnel',
     'schema.mapRequired': 'Mapper les Champs Requis',
     'schema.reset': 'Réinitialiser',
+    'schema.detectHeaders': 'Détecter les en-têtes automatiquement',
     'schema.dragHere': 'Glissez une colonne ici',
     'schema.downloadCSV': 'Télécharger CSV (UTF-8, WGS-84)',
     'schema.downloadPackage': 'Télécharger le Data Package',
