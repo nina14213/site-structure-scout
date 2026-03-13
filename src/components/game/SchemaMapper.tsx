@@ -1452,6 +1452,32 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   };
 
   // Group mappings by schema type
+  // Compute required ID terms that are unmapped across all schemas with mappings
+  const unmappedRequiredIdTerms = useMemo(() => {
+    const idTerms = new Set<string>();
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      // Only check schemas that have at least one mapped field
+      const hasMapped = [...schema.required, ...schema.optional].some(t => mappings[t]);
+      if (!hasMapped) continue;
+      for (const req of schema.required) {
+        if (req.toLowerCase().endsWith('id') && !mappings[req]) {
+          idTerms.add(req);
+        }
+      }
+    }
+    return [...idTerms];
+  }, [mappings]);
+
+  // Pre-computed generated ID values per term
+  const generatedIdValues = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    for (const config of generatedIdConfigs) {
+      if (config.mode === 'skip') continue;
+      result[config.term] = generateAllIds(config, data);
+    }
+    return result;
+  }, [generatedIdConfigs, data]);
+
   const getMappingsBySchema = useCallback(() => {
     const grouped: Record<string, Record<string, string>> = {};
     Object.entries(mappings).forEach(([term, col]) => {
