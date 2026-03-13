@@ -1697,12 +1697,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     <>
       {showTutorial && (
         <SchemaMapperTutorial
+          phase={tutorialPhase}
           onComplete={() => {
-            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            if (tutorialPhase === 1) {
+              try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            } else {
+              try { localStorage.setItem('dwc-mapper-tutorial-phase2-seen', '1'); } catch {}
+            }
             setShowTutorial(false);
           }}
           onSkip={() => {
-            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            if (tutorialPhase === 1) {
+              try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            } else {
+              try { localStorage.setItem('dwc-mapper-tutorial-phase2-seen', '1'); } catch {}
+            }
             setShowTutorial(false);
           }}
         />
