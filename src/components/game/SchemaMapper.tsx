@@ -33,6 +33,7 @@ import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog, { findAutoMatches, normalizeHeader, termAliases } from "./AutoMatchDialog";
 import JSZip from "jszip";
+import IdGeneratorDialog, { generateAllIds, type IdFieldConfig } from "./IdGeneratorDialog";
 
 // Find best matching column for a DwC term — exact normalized match or alias only
 function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
