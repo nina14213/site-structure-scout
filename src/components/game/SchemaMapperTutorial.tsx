@@ -18,7 +18,8 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
   '[data-tour="download-panel"]',
-  null, // step 6: outro
+  '[data-tour="download-panel"]', // step 6: ID gen (same panel)
+  null, // step 7: outro
 ];
 
 interface TutorialStep {
