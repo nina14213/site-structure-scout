@@ -1824,8 +1824,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             columns={columns}
             data={data}
             existingMappings={mappings}
+            existingConfigs={generatedIdConfigs}
             onApply={(configs) => {
-              setGeneratedIdConfigs(configs);
+              saveIdConfigs(configs);
               setShowIdGenerator(false);
             }}
             onDismiss={() => setShowIdGenerator(false)}
