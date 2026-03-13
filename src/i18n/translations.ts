@@ -1322,8 +1322,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step4.desc': 'Après le mappage, un panneau montre la disposition optimale des tables.\n\n✅ Optimal (vert) — la table a tous les champs requis mappés et fait partie de l\'ensemble minimal. Prête pour la publication.\n\n🟠 Optionnel (orange) — la table a des champs mappés mais il manque des champs requis OU elle ne fait pas partie de l\'ensemble optimal.',
     'mapperTutorial.step5.title': 'Télécharger le Data Package',
     'mapperTutorial.step5.desc': 'Une fois le mappage terminé, téléchargez vos fichiers CSV. Vous pouvez télécharger toutes les tables, uniquement les optimales ou les optionnelles.',
-    'mapperTutorial.step6.title': 'C\'est tout !',
-    'mapperTutorial.step6.desc': 'À vous de jouer ! Commencez par l\'auto-mappage, affinez manuellement et téléchargez votre Data Package. Bonne chance ! 🦎✨',
+    'mapperTutorial.step6.title': 'Génération d\'ID',
+    'mapperTutorial.step6.desc': 'Si une table nécessite un champ ID (ex. eventID) mais vos données n\'en ont pas — utilisez le Générateur d\'ID 🔑.\n\nChoisissez un format par champ :\n🔢 Préfixe + numéro (ex. EVT-001)\n🆔 UUID (aléatoire unique)\n📋 Composer depuis les colonnes existantes\n⏭ Ignorer\n\nLe système vérifie les doublons — chaque ID doit être unique !',
+    'mapperTutorial.step7.title': 'C\'est tout !',
+    'mapperTutorial.step7.desc': 'À vous de jouer ! Commencez par l\'auto-mappage, affinez manuellement et téléchargez votre Data Package. Bonne chance ! 🦎✨',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room des Données',
