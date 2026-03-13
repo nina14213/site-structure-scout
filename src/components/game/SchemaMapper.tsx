@@ -1630,6 +1630,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
   return (
     <>
+      {showTutorial && (
+        <SchemaMapperTutorial
+          onComplete={() => {
+            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            setShowTutorial(false);
+          }}
+          onSkip={() => {
+            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            setShowTutorial(false);
+          }}
+        />
+      )}
       <AnimatePresence>
         {showAutoMatch && autoMatchResults.length > 0 && (
           <AutoMatchDialog
