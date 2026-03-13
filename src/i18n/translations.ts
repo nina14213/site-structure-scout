@@ -1676,6 +1676,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optional': 'Optional',
     'schema.mapRequired': 'Erforderliche Felder zuordnen',
     'schema.reset': 'Zurücksetzen',
+    'schema.detectHeaders': 'Spalten automatisch erkennen',
     'schema.dragHere': 'Spalte hierher ziehen',
     'schema.downloadCSV': 'CSV herunterladen (UTF-8, WGS-84)',
     'schema.downloadPackage': 'Data Package herunterladen',
