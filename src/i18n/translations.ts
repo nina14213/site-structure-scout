@@ -1709,6 +1709,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.dismissSchema': 'Klicken Sie, um den Vorschlag zu entfernen',
     'schema.dismissed': 'Ausgeblendete Tabellen',
 
+    // === SchemaMapper Tutorial ===
+    'mapperTutorial.stepLabel': 'Schritt {current} von {total}',
+    'mapperTutorial.skip': 'Tutorial überspringen',
+    'mapperTutorial.prev': 'Zurück',
+    'mapperTutorial.next': 'Weiter',
+    'mapperTutorial.finish': 'Los geht\'s! 🚀',
+    'mapperTutorial.replay': '🦎 Tutorial',
+    'mapperTutorial.step0.title': 'Willkommen im Data Package Creator!',
+    'mapperTutorial.step0.desc': 'Ich bin Ihr Guide 🦎 — ich zeige Ihnen Schritt für Schritt, wie Sie Ihre Daten ins Darwin Core Data Package-Format umwandeln. Bereit?',
+    'mapperTutorial.step1.title': 'Ihre Spalten',
+    'mapperTutorial.step1.desc': 'Hier sehen Sie die Spalten Ihrer Datei. Klicken Sie auf eine Spalte und dann auf ein DwC-Feld rechts, um sie zuzuordnen.',
+    'mapperTutorial.step2.title': 'DwC-DP Schemas',
+    'mapperTutorial.step2.desc': 'Hier finden Sie alle Darwin Core Data Package-Tabellen. Erweitern Sie eine Tabelle und ordnen Sie Ihre Spalte zu. Pflichtfelder haben einen orangenen Rahmen.',
+    'mapperTutorial.step3.title': 'Auto-Zuordnung',
+    'mapperTutorial.step3.desc': 'Klicken Sie auf „Pflichtfelder zuordnen" — das System erkennt Ihre Spalten automatisch und ordnet sie DwC-Feldern zu.',
+    'mapperTutorial.step4.title': 'Optimales Tabellenlayout',
+    'mapperTutorial.step4.desc': 'Nach der Zuordnung zeigt ein Panel die optimale Anzahl von Tabellen — die minimale Anzahl von CSV-Dateien, die alle Daten abdecken.',
+    'mapperTutorial.step5.title': 'Data Package herunterladen',
+    'mapperTutorial.step5.desc': 'Wenn Sie fertig sind, laden Sie Ihre CSV-Dateien herunter. Sie können alle, nur optimale oder nur optionale Tabellen herunterladen.',
+    'mapperTutorial.step6.title': 'Das war\'s!',
+    'mapperTutorial.step6.desc': 'Jetzt sind Sie dran! Starten Sie mit Auto-Zuordnung, passen Sie manuell an und laden Sie Ihr Data Package herunter. Viel Erfolg! 🦎✨',
+
     // === EscapeRoom ===
     'escape.title': '🔐 Daten-Escape Room',
     'escape.subtitle': 'Löse Rätsel, um Darwin Core-Geheimnisse freizuschalten',
