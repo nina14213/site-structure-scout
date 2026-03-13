@@ -1164,6 +1164,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [showAutoMatch, setShowAutoMatch] = useState(false);
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
+  const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
   const [showTutorial, setShowTutorial] = useState(() => {
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
@@ -1667,6 +1668,31 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       .filter(Boolean) as { name: string; content: string }[];
     downloadZip(files, `${baseName}_${filter}.zip`);
   }, [getMappingsBySchema, classifiedSchemas, generateCSV, downloadZip, fileName]);
+
+  // Download selected schemas as ZIP
+  const handleDownloadSelected = useCallback(() => {
+    if (selectedForDownload.size === 0) return;
+    const grouped = getMappingsBySchema();
+    const baseName = fileName.replace(/\.[^/.]+$/, "");
+    const files = [...selectedForDownload]
+      .map(schemaId => {
+        const termMappings = grouped[schemaId];
+        if (!termMappings) return null;
+        return { name: `${schemaId}_${baseName}.csv`, content: generateCSV(termMappings) };
+      })
+      .filter(Boolean) as { name: string; content: string }[];
+    downloadZip(files, `${baseName}_selected.zip`);
+  }, [selectedForDownload, getMappingsBySchema, generateCSV, downloadZip, fileName]);
+
+  // Toggle schema selection for download
+  const toggleSchemaSelection = useCallback((schemaId: string) => {
+    setSelectedForDownload(prev => {
+      const next = new Set(prev);
+      if (next.has(schemaId)) next.delete(schemaId);
+      else next.add(schemaId);
+      return next;
+    });
+  }, []);
 
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
@@ -2276,11 +2302,24 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     const info = schemaTypes.find((s) => s.id === schemaId);
                     const termCount = Object.keys(groupedMappings[schemaId]).length;
                     const isPreviewOpen = previewSchemaId === schemaId;
+                    const isSelected = selectedForDownload.has(schemaId);
                     return (
                       <div key={schemaId} className="flex flex-col gap-1">
                         <div
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isPreviewOpen ? "border-cyan-500/50 bg-cyan-500/10" : "border-border bg-muted/50"}`}
+                          onClick={() => toggleSchemaSelection(schemaId)}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-primary bg-primary/10 ring-2 ring-primary/30"
+                              : isPreviewOpen
+                                ? "border-cyan-500/50 bg-cyan-500/10"
+                                : "border-border bg-muted/50 hover:border-muted-foreground/30"
+                          }`}
                         >
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                            isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/40'
+                          }`}>
+                            {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                          </div>
                           {info && (
                             <div className={`p-1.5 rounded-lg ${info.color}`}>
                               <info.icon className="w-4 h-4 text-white" />
@@ -2405,7 +2444,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     <Download className="w-5 h-5 mr-2" />
                     {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
                   </Button>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Button
                       onClick={() => handleDownloadFiltered('optimal')}
                       variant="outline"
@@ -2423,6 +2462,15 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     >
                       <Download className="w-4 h-4 mr-1.5" />
                       {t("schema.downloadOptional")} ({classifiedSchemas.optional.length})
+                    </Button>
+                    <Button
+                      onClick={handleDownloadSelected}
+                      variant="outline"
+                      disabled={selectedForDownload.size === 0}
+                      className="py-3 text-sm border-primary/50 text-primary hover:bg-primary/10 disabled:opacity-40"
+                    >
+                      <Download className="w-4 h-4 mr-1.5" />
+                      {t("schema.downloadSelected")} ({selectedForDownload.size})
                     </Button>
                   </div>
                 </div>
