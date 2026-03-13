@@ -24,6 +24,7 @@ interface IdGeneratorDialogProps {
   columns: string[];
   data: any[];
   existingMappings: Record<string, string>;
+  existingConfigs?: IdFieldConfig[];
   onApply: (configs: IdFieldConfig[]) => void;
   onDismiss: () => void;
 }
