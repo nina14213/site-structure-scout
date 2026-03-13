@@ -771,6 +771,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.dismissSchema': 'Click to dismiss suggestion',
     'schema.dismissed': 'Hidden tables',
 
+    // === SchemaMapper Tutorial ===
+    'mapperTutorial.stepLabel': 'Step {current} of {total}',
+    'mapperTutorial.skip': 'Skip tutorial',
+    'mapperTutorial.prev': 'Back',
+    'mapperTutorial.next': 'Next',
+    'mapperTutorial.finish': 'Let\'s go! 🚀',
+    'mapperTutorial.replay': '🦎 Tutorial',
+    'mapperTutorial.step0.title': 'Welcome to Data Package Creator!',
+    'mapperTutorial.step0.desc': 'I\'m your guide 🦎 — I\'ll show you step by step how to transform your data into Darwin Core Data Package format. Ready?',
+    'mapperTutorial.step1.title': 'Your columns',
+    'mapperTutorial.step1.desc': 'Here you see columns from your file. Click a column to select it, then click a DwC field on the right to map them. On desktop you can also drag & drop!',
+    'mapperTutorial.step2.title': 'DwC-DP Schemas',
+    'mapperTutorial.step2.desc': 'Here you\'ll find all Darwin Core Data Package tables. Expand a table and drop your column onto a field. Required fields have an orange border. Use search to quickly find fields.',
+    'mapperTutorial.step3.title': 'Auto-mapping',
+    'mapperTutorial.step3.desc': 'Click "Map required fields" — the system will automatically recognize your columns and assign them to DwC fields. Saves tons of time!',
+    'mapperTutorial.step4.title': 'Optimal table layout',
+    'mapperTutorial.step4.desc': 'After mapping fields, a panel shows the optimal set of tables — the minimum number of CSV files covering all your data. Green border = optimal, orange = optional.',
+    'mapperTutorial.step5.title': 'Download Data Package',
+    'mapperTutorial.step5.desc': 'When done mapping, download your CSV files. You can download all tables, only optimal (complete fields) or optional (with missing required fields).',
+    'mapperTutorial.step6.title': 'That\'s it!',
+    'mapperTutorial.step6.desc': 'Now it\'s your turn! Start with auto-mapping, fine-tune manually, and download your Data Package. Good luck, Data Ranger! 🦎✨',
+
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
     'escape.subtitle': 'Solve puzzles to unlock Darwin Core secrets',
