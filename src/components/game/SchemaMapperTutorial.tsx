@@ -121,11 +121,13 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
 
     const padding = 20;
     const tooltipWidth = 380;
+    const tooltipHeight = 320; // approximate max height
+    const maxTop = window.innerHeight - tooltipHeight - padding;
 
     if (step.position === 'right') {
       return {
         position: 'fixed',
-        top: Math.max(padding, highlightRect.top),
+        top: Math.min(Math.max(padding, highlightRect.top), maxTop),
         left: Math.min(highlightRect.right + padding, window.innerWidth - tooltipWidth - padding),
         zIndex: 10002,
       };
@@ -133,7 +135,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
     if (step.position === 'left') {
       return {
         position: 'fixed',
-        top: Math.max(padding, highlightRect.top),
+        top: Math.min(Math.max(padding, highlightRect.top), maxTop),
         left: Math.max(padding, highlightRect.left - tooltipWidth - padding),
         zIndex: 10002,
       };
@@ -141,7 +143,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
     // bottom
     return {
       position: 'fixed',
-      top: highlightRect.bottom + padding,
+      top: Math.min(highlightRect.bottom + padding, maxTop),
       left: Math.max(padding, highlightRect.left),
       zIndex: 10002,
     };
