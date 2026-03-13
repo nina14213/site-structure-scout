@@ -2099,13 +2099,24 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 </div>
 
                 {/* Actions */}
-                <div data-tour="auto-map-btn" className="flex gap-3 mt-4 pt-4 border-t border-border">
-                  <Button onClick={handleAutoMap} variant="outline" className="flex-1">
-                    {t("schema.mapRequired")}
-                  </Button>
-                  <Button onClick={handleReset} variant="ghost" className="text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4 mr-1" />
-                    {t("schema.reset")}
+                <div data-tour="auto-map-btn" className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+                  <div className="flex gap-3">
+                    <Button onClick={handleAutoMap} variant="outline" className="flex-1">
+                      {t("schema.mapRequired")}
+                    </Button>
+                    <Button onClick={handleReset} variant="ghost" className="text-muted-foreground hover:text-foreground">
+                      <X className="w-4 h-4 mr-1" />
+                      {t("schema.reset")}
+                    </Button>
+                  </div>
+                  <Button
+                    onClick={handleDetectHeaders}
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 hover:text-cyan-400"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                    {t("schema.detectHeaders")}
                   </Button>
                 </div>
               </CardContent>
