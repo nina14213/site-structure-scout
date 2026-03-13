@@ -1679,7 +1679,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Your Columns */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-card/90 border-border backdrop-blur h-full">
+            <Card data-tour="columns-panel" className="bg-card/90 border-border backdrop-blur h-full">
               <CardHeader className="border-b border-border">
                 <CardTitle className="text-card-foreground flex items-center justify-between">
                   <span className="flex items-center gap-2">
