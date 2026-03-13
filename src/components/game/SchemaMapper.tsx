@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1162,6 +1163,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [showAutoMatch, setShowAutoMatch] = useState(false);
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
+  const [showTutorial, setShowTutorial] = useState(() => {
+    try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
+  });
 
   // Auto-detect matches on mount
   useEffect(() => {
@@ -1626,6 +1630,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
   return (
     <>
+      {showTutorial && (
+        <SchemaMapperTutorial
+          onComplete={() => {
+            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            setShowTutorial(false);
+          }}
+          onSkip={() => {
+            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            setShowTutorial(false);
+          }}
+        />
+      )}
       <AnimatePresence>
         {showAutoMatch && autoMatchResults.length > 0 && (
           <AutoMatchDialog
@@ -1644,10 +1660,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <Sparkles className="w-8 h-8 text-purple-400" />
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("schema.title")}</h1>
               <p className="text-muted-foreground">{t("schema.subtitle")}</p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTutorial(true)}
+              className="text-xs border-primary/30 text-primary hover:bg-primary/10"
+            >
+              {t("mapperTutorial.replay")}
+            </Button>
           </div>
         </motion.div>
 
@@ -1655,7 +1679,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Your Columns */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-card/90 border-border backdrop-blur h-full">
+            <Card data-tour="columns-panel" className="bg-card/90 border-border backdrop-blur h-full">
               <CardHeader className="border-b border-border">
                 <CardTitle className="text-card-foreground flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -1765,7 +1789,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
           {/* Right: All Schema Terms */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
+            <Card data-tour="schemas-panel" className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
               <CardHeader className="border-b border-border">
                 <CardTitle className="text-card-foreground flex items-center gap-2">
                   <Layers className="w-5 h-5 text-purple-400" />
@@ -2066,7 +2090,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 mt-4 pt-4 border-t border-border">
+                <div data-tour="auto-map-btn" className="flex gap-3 mt-4 pt-4 border-t border-border">
                   <Button onClick={handleAutoMap} variant="outline" className="flex-1">
                     {t("schema.mapRequired")}
                   </Button>
@@ -2088,7 +2112,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             transition={{ delay: 0.32 }}
             className="mt-6"
           >
-            <Card className="bg-card/90 border-border backdrop-blur">
+            <Card data-tour="optimal-layout" className="bg-card/90 border-border backdrop-blur">
               <CardHeader className="border-b border-border pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
                   <Minimize2 className="w-5 h-5 text-emerald-400" />
@@ -2160,7 +2184,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             transition={{ delay: 0.35 }}
             className="mt-6"
           >
-            <Card className="bg-card/90 border-border backdrop-blur">
+            <Card data-tour="download-panel" className="bg-card/90 border-border backdrop-blur">
               <CardHeader className="border-b border-border pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
                   <Download className="w-5 h-5 text-amber-400" />
