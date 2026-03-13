@@ -275,6 +275,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadAll': 'Pobierz wszystkie pliki',
     'schema.downloadOptimal': 'Tylko optymalne',
     'schema.downloadOptional': 'Tylko opcjonalne',
+    'schema.downloadSelected': 'Wybrane',
     'schema.files': 'plików',
     'schema.columns': 'kolumn',
     'schema.preview': 'Podgląd',
