@@ -1352,7 +1352,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     }
     
     return chosen;
-  }, [mappings, generatedIdValues]);
+  }, [mappings, generatedIdConfigs]);
 
   // Get sample values for a column
   const getSampleValues = useCallback(
