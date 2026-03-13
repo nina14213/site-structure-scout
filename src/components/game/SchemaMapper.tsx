@@ -1545,14 +1545,31 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const getPreviewRows = useCallback(
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
-      return data.slice(0, 5).map((row) => {
+      // Find generated ID terms relevant to this schema
+      const genTermsForSchema = generatedIdConfigs
+        .filter(c => c.mode !== 'skip' && !dwcHeaders.includes(c.term))
+        .filter(c => {
+          // Only add if this term belongs to a schema that has other mapped terms here
+          for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+            if ((schema.required.includes(c.term) || schema.optional.includes(c.term)) &&
+                dwcHeaders.some(h => schema.required.includes(h) || schema.optional.includes(h))) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+      return data.slice(0, 5).map((row, rowIdx) => {
         const previewRow: Record<string, string> = {};
+        // Add generated ID columns first
+        genTermsForSchema.forEach(config => {
+          const vals = generatedIdValues[config.term];
+          previewRow[config.term] = vals?.[rowIdx] ?? '';
+        });
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
           const rawValue = String(row[sourceCol] ?? "");
-          // Always show original value first
           previewRow[term] = rawValue;
-          // Add converted ISO column when conversion is enabled and value changed
           if (convertDatesToISO && isDateTerm(term)) {
             const converted = maybeConvertDate(rawValue, term);
             if (converted !== rawValue && rawValue.trim() !== "") {
