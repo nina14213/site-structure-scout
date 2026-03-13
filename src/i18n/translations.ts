@@ -319,7 +319,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step3.title': 'Auto-mapowanie',
     'mapperTutorial.step3.desc': 'Kliknij „Mapuj wymagane pola" — system automatycznie rozpozna Twoje kolumny i przypisze je do odpowiednich pól DwC. Oszczędzisz mnóstwo czasu!',
     'mapperTutorial.step4.title': 'Optymalny układ tabel',
-    'mapperTutorial.step4.desc': 'Po zmapowaniu pól pojawi się panel z optymalnym zestawem tabel — minimalną liczbą plików CSV pokrywającą wszystkie Twoje dane. Zielona ramka = optymalny, pomarańczowa = opcjonalny.',
+    'mapperTutorial.step4.desc': 'Po zmapowaniu pól pojawi się panel z optymalnym zestawem tabel.\n\n✅ Optymalny (zielony) — tabela ma wszystkie wymagane pola zmapowane i należy do minimalnego zestawu tabel pokrywającego Twoje dane. Gotowa do publikacji.\n\n🟠 Opcjonalny (pomarańczowy) — tabela ma zmapowane pola, ale brakuje jej wymaganych pól LUB nie jest częścią optymalnego zestawu. Dane są poprawne, ale tabela wymaga uzupełnienia lub jest redundantna.',
     'mapperTutorial.step5.title': 'Pobierz Data Package',
     'mapperTutorial.step5.desc': 'Gdy skończysz mapowanie, pobierz gotowe pliki CSV. Możesz pobrać wszystkie tabele, tylko optymalne (z pełnymi polami) lub opcjonalne (z brakującymi polami wymaganymi).',
     'mapperTutorial.step6.title': 'To wszystko!',
