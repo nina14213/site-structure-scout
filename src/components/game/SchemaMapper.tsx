@@ -2090,7 +2090,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 mt-4 pt-4 border-t border-border">
+                <div data-tour="auto-map-btn" className="flex gap-3 mt-4 pt-4 border-t border-border">
                   <Button onClick={handleAutoMap} variant="outline" className="flex-1">
                     {t("schema.mapRequired")}
                   </Button>
