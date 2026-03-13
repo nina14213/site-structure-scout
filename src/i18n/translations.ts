@@ -1258,7 +1258,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step3.title': 'Auto-mappage',
     'mapperTutorial.step3.desc': 'Cliquez sur « Mapper les champs requis » — le système reconnaît automatiquement vos colonnes et les assigne aux champs DwC.',
     'mapperTutorial.step4.title': 'Disposition optimale',
-    'mapperTutorial.step4.desc': 'Après le mappage, un panneau montre l\'ensemble optimal de tables — le minimum de fichiers CSV couvrant toutes vos données.',
+    'mapperTutorial.step4.desc': 'Après le mappage, un panneau montre la disposition optimale des tables.\n\n✅ Optimal (vert) — la table a tous les champs requis mappés et fait partie de l\'ensemble minimal. Prête pour la publication.\n\n🟠 Optionnel (orange) — la table a des champs mappés mais il manque des champs requis OU elle ne fait pas partie de l\'ensemble optimal.',
     'mapperTutorial.step5.title': 'Télécharger le Data Package',
     'mapperTutorial.step5.desc': 'Une fois le mappage terminé, téléchargez vos fichiers CSV. Vous pouvez télécharger toutes les tables, uniquement les optimales ou les optionnelles.',
     'mapperTutorial.step6.title': 'C\'est tout !',
