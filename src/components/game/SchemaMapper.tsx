@@ -1741,7 +1741,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowTutorial(true)}
+              onClick={() => { setTutorialPhase(1); setShowTutorial(true); }}
               className="text-xs border-primary/30 text-primary hover:bg-primary/10"
             >
               {t("mapperTutorial.replay")}
