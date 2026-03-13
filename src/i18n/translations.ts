@@ -831,8 +831,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step4.desc': 'After mapping fields, a panel shows the optimal table layout.\n\n✅ Optimal (green) — table has all required fields mapped and belongs to the minimal set of tables covering your data. Ready for publication.\n\n🟠 Optional (orange) — table has mapped fields but is missing required fields OR is not part of the optimal set. Data is valid but the table needs completion or is redundant.',
     'mapperTutorial.step5.title': 'Download Data Package',
     'mapperTutorial.step5.desc': 'When done mapping, download your CSV files. You can download all tables, only optimal (complete fields) or optional (with missing required fields).',
-    'mapperTutorial.step6.title': 'That\'s it!',
-    'mapperTutorial.step6.desc': 'Now it\'s your turn! Start with auto-mapping, fine-tune manually, and download your Data Package. Good luck, Data Ranger! 🦎✨',
+    'mapperTutorial.step6.title': 'ID Generation',
+    'mapperTutorial.step6.desc': 'If a table requires an ID field (e.g. eventID) but your data doesn\'t have one — use the ID Generator 🔑.\n\nYou can choose a format for each field:\n🔢 Prefix + number (e.g. EVT-001)\n🆔 UUID (unique random)\n📋 Compose from existing columns\n⏭ Skip\n\nThe system checks for duplicates — every ID must be unique!',
+    'mapperTutorial.step7.title': 'That\'s it!',
+    'mapperTutorial.step7.desc': 'Now it\'s your turn! Start with auto-mapping, fine-tune manually, and download your Data Package. Good luck, Data Ranger! 🦎✨',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Data Escape Room',
