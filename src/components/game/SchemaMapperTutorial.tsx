@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X } from 'lucide-react';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 interface SchemaMapperTutorialProps {
@@ -18,7 +18,8 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
   '[data-tour="download-panel"]',
-  null, // step 6: outro
+  '[data-tour="download-panel"]', // step 6: ID gen (same panel)
+  null, // step 7: outro
 ];
 
 interface TutorialStep {
@@ -73,13 +74,19 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
+      icon: <Key className="w-8 h-8" />,
+      position: 'center',
+    },
+    {
+      titleKey: 'mapperTutorial.step7.title',
+      descKey: 'mapperTutorial.step7.desc',
       icon: <span className="text-5xl">🦎</span>,
       position: 'center',
     },
   ];
 
   // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
-  // Phase 2: steps 4-6 (optimal layout, download, outro)
+  // Phase 2: steps 4-7 (optimal layout, download, ID gen, outro)
   const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
   const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
 
