@@ -1728,7 +1728,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step3.title': 'Auto-Zuordnung',
     'mapperTutorial.step3.desc': 'Klicken Sie auf „Pflichtfelder zuordnen" — das System erkennt Ihre Spalten automatisch und ordnet sie DwC-Feldern zu.',
     'mapperTutorial.step4.title': 'Optimales Tabellenlayout',
-    'mapperTutorial.step4.desc': 'Nach der Zuordnung zeigt ein Panel die optimale Anzahl von Tabellen — die minimale Anzahl von CSV-Dateien, die alle Daten abdecken.',
+    'mapperTutorial.step4.desc': 'Nach der Zuordnung zeigt ein Panel das optimale Tabellenlayout.\n\n✅ Optimal (grün) — Tabelle hat alle Pflichtfelder zugeordnet und gehört zum minimalen Tabellensatz. Bereit zur Veröffentlichung.\n\n🟠 Optional (orange) — Tabelle hat zugeordnete Felder, aber es fehlen Pflichtfelder ODER sie gehört nicht zum optimalen Satz.',
     'mapperTutorial.step5.title': 'Data Package herunterladen',
     'mapperTutorial.step5.desc': 'Wenn Sie fertig sind, laden Sie Ihre CSV-Dateien herunter. Sie können alle, nur optimale oder nur optionale Tabellen herunterladen.',
     'mapperTutorial.step6.title': 'Das war\'s!',
