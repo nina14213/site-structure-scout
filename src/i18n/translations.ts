@@ -267,6 +267,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.optional': 'Opcjonalne',
     'schema.mapRequired': 'Mapuj wymagane pola',
     'schema.reset': 'Reset',
+    'schema.detectHeaders': 'Automatycznie wykryj nagłówki',
     'schema.dragHere': 'Przeciągnij kolumnę tutaj',
     'schema.downloadCSV': 'Pobierz CSV (UTF-8, WGS-84)',
     'schema.downloadPackage': 'Pobierz Data Package',
