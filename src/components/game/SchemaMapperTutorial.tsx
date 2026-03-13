@@ -7,6 +7,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
 interface SchemaMapperTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
+  /** Phase 1 = intro steps (0-3), Phase 2 = post-mapping steps (4-6). Default: 1 */
+  phase?: 1 | 2;
 }
 
 const HIGHLIGHT_SELECTORS = [
