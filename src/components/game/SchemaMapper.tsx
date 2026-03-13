@@ -1580,7 +1580,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         return previewRow;
       });
     },
-    [data, maybeConvertDate, convertDatesToISO],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdConfigs, generatedIdValues],
   );
 
   // Generate CSV content for a given set of term->column mappings
