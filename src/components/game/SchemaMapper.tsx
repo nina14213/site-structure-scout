@@ -2331,37 +2331,54 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           </Button>
                         </div>
                         <div className="overflow-x-auto">
+                          {(() => {
+                            const previewRows = getPreviewRows(groupedMappings[previewSchemaId]);
+                            const allHeaders = previewRows.length > 0
+                              ? Object.keys(previewRows[0])
+                              : Object.keys(groupedMappings[previewSchemaId]);
+                            return (
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-border">
-                                {Object.keys(groupedMappings[previewSchemaId]).map((term) => (
+                                {allHeaders.map((term) => {
+                                  const isOriginal = term.endsWith('_original');
+                                  return (
                                   <th
                                     key={term}
-                                    className="px-3 py-2 text-left font-mono font-semibold text-foreground whitespace-nowrap"
+                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${isOriginal ? 'text-amber-400/70 italic' : 'text-foreground'}`}
                                   >
-                                    {term}
-                                    {isDateTerm(term) && convertDatesToISO && (
+                                    {isOriginal ? term.replace('_original', ' (oryginał)') : term}
+                                    {isDateTerm(term) && convertDatesToISO && !isOriginal && (
                                       <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
                                     )}
                                   </th>
-                                ))}
+                                  );
+                                })}
                               </tr>
                             </thead>
                             <tbody>
-                              {getPreviewRows(groupedMappings[previewSchemaId]).map((row, i) => (
+                              {previewRows.map((row, i) => (
                                 <tr key={i} className="border-b border-border/30">
-                                  {Object.entries(row).map(([term, val], j) => (
+                                  {allHeaders.map((term, j) => {
+                                    const isOriginal = term.endsWith('_original');
+                                    return (
                                     <td
                                       key={j}
-                                      className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${isDateTerm(term) && convertDatesToISO ? "text-cyan-500 font-medium" : "text-muted-foreground"}`}
+                                      className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
+                                        isOriginal ? 'text-amber-400/60 italic' :
+                                        isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
+                                      }`}
                                     >
-                                      {val || "—"}
+                                      {row[term] || "—"}
                                     </td>
-                                  ))}
+                                    );
+                                  })}
                                 </tr>
                               ))}
                             </tbody>
                           </table>
+                            );
+                          })()}
                         </div>
                       </div>
                     </motion.div>
