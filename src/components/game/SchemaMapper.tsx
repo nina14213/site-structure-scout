@@ -2507,14 +2507,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             <thead>
                               <tr className="border-b border-border">
                                 {allHeaders.map((term) => {
-                                  const isOriginal = term.endsWith('_original');
+                                  const isISO = term.endsWith('_ISO');
+                                  const isGenerated = generatedIdValues[term] !== undefined;
                                   return (
                                   <th
                                     key={term}
-                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${isOriginal ? 'text-amber-400/70 italic' : 'text-foreground'}`}
+                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${
+                                      isISO ? 'text-cyan-400/70 italic' :
+                                      isGenerated ? 'text-amber-400' :
+                                      'text-foreground'
+                                    }`}
                                   >
-                                    {isOriginal ? term.replace('_original', ' (oryginał)') : term}
-                                    {isDateTerm(term) && convertDatesToISO && !isOriginal && (
+                                    {isISO ? term.replace('_ISO', ' (ISO)') : term}
+                                    {isGenerated && <Key className="inline w-3 h-3 ml-1 text-amber-400" />}
+                                    {isDateTerm(term) && convertDatesToISO && !isISO && (
                                       <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
                                     )}
                                   </th>
@@ -2526,12 +2532,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               {previewRows.map((row, i) => (
                                 <tr key={i} className="border-b border-border/30">
                                   {allHeaders.map((term, j) => {
-                                    const isOriginal = term.endsWith('_original');
+                                    const isISO = term.endsWith('_ISO');
+                                    const isGenerated = generatedIdValues[term] !== undefined;
                                     return (
                                     <td
                                       key={j}
                                       className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
-                                        isOriginal ? 'text-amber-400/60 italic' :
+                                        isISO ? 'text-cyan-500 font-medium italic' :
+                                        isGenerated ? 'text-amber-400 font-mono' :
                                         isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
                                       }`}
                                     >
