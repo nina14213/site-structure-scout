@@ -2444,7 +2444,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     <Download className="w-5 h-5 mr-2" />
                     {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
                   </Button>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Button
                       onClick={() => handleDownloadFiltered('optimal')}
                       variant="outline"
@@ -2463,6 +2463,16 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                       <Download className="w-4 h-4 mr-1.5" />
                       {t("schema.downloadOptional")} ({classifiedSchemas.optional.length})
                     </Button>
+                    <Button
+                      onClick={handleDownloadSelected}
+                      variant="outline"
+                      disabled={selectedForDownload.size === 0}
+                      className="py-3 text-sm border-primary/50 text-primary hover:bg-primary/10 disabled:opacity-40"
+                    >
+                      <Download className="w-4 h-4 mr-1.5" />
+                      {t("schema.downloadSelected")} ({selectedForDownload.size})
+                    </Button>
+                  </div>
                   </div>
                 </div>
               </CardContent>
