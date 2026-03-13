@@ -1167,19 +1167,28 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
 
-  // Auto-detect matches on mount
+  // Auto-detect matches on mount (store results but don't show dialog automatically)
   useEffect(() => {
     if (autoMatchShown.current) return;
-    // Only show if no existing mappings
+    // Only detect if no existing mappings
     if (Object.keys(mappings).length > 0) return;
     
     const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language);
     if (matches.length > 0) {
       autoMatchShown.current = true;
       setAutoMatchResults(matches);
-      setShowAutoMatch(true);
+      // Don't auto-show — user triggers via button
     }
   }, [columns, data, language, mappings]);
+
+  // Manual trigger for auto-detect headers
+  const handleDetectHeaders = useCallback(() => {
+    const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language);
+    setAutoMatchResults(matches);
+    if (matches.length > 0) {
+      setShowAutoMatch(true);
+    }
+  }, [columns, data, language]);
 
   // Persist mappings to localStorage
   const saveMappings = useCallback(
