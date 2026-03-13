@@ -2473,7 +2473,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                       {t("schema.downloadSelected")} ({selectedForDownload.size})
                     </Button>
                   </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
