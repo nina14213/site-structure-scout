@@ -1220,9 +1220,17 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         );
       } catch {}
     },
-    [storageKey, selectedSchema, columns],
+    [storageKey, selectedSchema, columns, generatedIdConfigs],
   );
 
+  // Persist idConfigs separately when they change
+  const saveIdConfigs = useCallback((configs: import('./IdGeneratorDialog').IdFieldConfig[]) => {
+    setGeneratedIdConfigs(configs);
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      localStorage.setItem(storageKey, JSON.stringify({ ...existing, idConfigs: configs }));
+    } catch {}
+  }, [storageKey]);
   const handleAutoMatchApply = useCallback((selectedMatches: typeof autoMatchResults) => {
     const newMappings: Record<string, string> = { ...mappings };
     
