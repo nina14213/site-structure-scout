@@ -144,38 +144,6 @@ export function findAutoMatches(
     }
   }
 
-  // Pass 3: Starts-with match (column starts with term or term starts with column, min 4 chars)
-  for (let ci = 0; ci < columns.length; ci++) {
-    if (matchedColumns.has(columns[ci])) continue;
-    const colNorm = normalizedColumns[ci];
-    if (colNorm.length < 4) continue;
-    for (const { schemaId, term } of allEntries) {
-      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
-      const termNorm = normalizeHeader(term);
-      if (termNorm.length < 4) continue;
-      if (termNorm.startsWith(colNorm) || colNorm.startsWith(termNorm)) {
-        addResult(columns[ci], term, schemaId);
-        break;
-      }
-    }
-  }
-
-  // Pass 4: Contains match (for longer column names, min 5 chars overlap)
-  for (let ci = 0; ci < columns.length; ci++) {
-    if (matchedColumns.has(columns[ci])) continue;
-    const colNorm = normalizedColumns[ci];
-    if (colNorm.length < 5) continue;
-    for (const { schemaId, term } of allEntries) {
-      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
-      const termNorm = normalizeHeader(term);
-      if (termNorm.length < 5) continue;
-      if (termNorm.includes(colNorm) || colNorm.includes(termNorm)) {
-        addResult(columns[ci], term, schemaId);
-        break;
-      }
-    }
-  }
-
   return results;
 }
 
