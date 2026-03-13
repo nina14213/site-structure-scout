@@ -1741,7 +1741,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       }
     });
     return { optimal, optional };
-  }, [optimalLayout, schemasWithMappings, mappings]);
+  }, [optimalLayout, schemasWithMappings, mappings, generatedIdValues]);
 
   // Download filtered schemas as ZIP
   const handleDownloadFiltered = useCallback((filter: 'optimal' | 'optional') => {
