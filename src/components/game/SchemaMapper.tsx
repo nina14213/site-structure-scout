@@ -1521,30 +1521,52 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         const previewRow: Record<string, string> = {};
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
-          const rawValue = row[sourceCol] ?? "";
-          previewRow[term] = maybeConvertDate(String(rawValue), term);
+          const rawValue = String(row[sourceCol] ?? "");
+          const converted = maybeConvertDate(rawValue, term);
+          previewRow[term] = converted;
+          // Add original value column if date was converted
+          if (convertDatesToISO && isDateTerm(term) && converted !== rawValue && rawValue.trim() !== "") {
+            previewRow[`${term}_original`] = rawValue;
+          }
         });
         return previewRow;
       });
     },
-    [data, maybeConvertDate],
+    [data, maybeConvertDate, convertDatesToISO],
   );
 
   // Generate CSV content for a given set of term->column mappings
   const generateCSV = useCallback(
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
-      const csvRows: string[] = [dwcHeaders.join(",")];
+      
+      // Build headers: for date terms with conversion, add an _original column
+      const csvHeaders: string[] = [];
+      dwcHeaders.forEach((term) => {
+        csvHeaders.push(term);
+        if (convertDatesToISO && isDateTerm(term)) {
+          csvHeaders.push(`${term}_original`);
+        }
+      });
+      
+      const csvRows: string[] = [csvHeaders.join(",")];
 
       data.forEach((row) => {
-        const rowValues = dwcHeaders.map((dwcTerm) => {
+        const rowValues: string[] = [];
+        dwcHeaders.forEach((dwcTerm) => {
           const sourceColumn = termMappings[dwcTerm];
-          const rawValue = row[sourceColumn] ?? "";
-          const value = maybeConvertDate(String(rawValue), dwcTerm);
-          if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-            return `"${value.replace(/"/g, '""')}"`;
+          const rawValue = String(row[sourceColumn] ?? "");
+          const value = maybeConvertDate(rawValue, dwcTerm);
+          const escape = (v: string) => {
+            if (v.includes(",") || v.includes('"') || v.includes("\n")) {
+              return `"${v.replace(/"/g, '""')}"`;
+            }
+            return v;
+          };
+          rowValues.push(escape(value));
+          if (convertDatesToISO && isDateTerm(dwcTerm)) {
+            rowValues.push(escape(rawValue));
           }
-          return value;
         });
         csvRows.push(rowValues.join(","));
       });
@@ -1552,7 +1574,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       const BOM = "\uFEFF";
       return BOM + csvRows.join("\n");
     },
-    [data, maybeConvertDate],
+    [data, maybeConvertDate, convertDatesToISO],
   );
 
   // Download a single CSV file
@@ -2309,37 +2331,54 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                           </Button>
                         </div>
                         <div className="overflow-x-auto">
+                          {(() => {
+                            const previewRows = getPreviewRows(groupedMappings[previewSchemaId]);
+                            const allHeaders = previewRows.length > 0
+                              ? Object.keys(previewRows[0])
+                              : Object.keys(groupedMappings[previewSchemaId]);
+                            return (
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-border">
-                                {Object.keys(groupedMappings[previewSchemaId]).map((term) => (
+                                {allHeaders.map((term) => {
+                                  const isOriginal = term.endsWith('_original');
+                                  return (
                                   <th
                                     key={term}
-                                    className="px-3 py-2 text-left font-mono font-semibold text-foreground whitespace-nowrap"
+                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${isOriginal ? 'text-amber-400/70 italic' : 'text-foreground'}`}
                                   >
-                                    {term}
-                                    {isDateTerm(term) && convertDatesToISO && (
+                                    {isOriginal ? term.replace('_original', ' (oryginał)') : term}
+                                    {isDateTerm(term) && convertDatesToISO && !isOriginal && (
                                       <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
                                     )}
                                   </th>
-                                ))}
+                                  );
+                                })}
                               </tr>
                             </thead>
                             <tbody>
-                              {getPreviewRows(groupedMappings[previewSchemaId]).map((row, i) => (
+                              {previewRows.map((row, i) => (
                                 <tr key={i} className="border-b border-border/30">
-                                  {Object.entries(row).map(([term, val], j) => (
+                                  {allHeaders.map((term, j) => {
+                                    const isOriginal = term.endsWith('_original');
+                                    return (
                                     <td
                                       key={j}
-                                      className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${isDateTerm(term) && convertDatesToISO ? "text-cyan-500 font-medium" : "text-muted-foreground"}`}
+                                      className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
+                                        isOriginal ? 'text-amber-400/60 italic' :
+                                        isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
+                                      }`}
                                     >
-                                      {val || "—"}
+                                      {row[term] || "—"}
                                     </td>
-                                  ))}
+                                    );
+                                  })}
                                 </tr>
                               ))}
                             </tbody>
                           </table>
+                            );
+                          })()}
                         </div>
                       </div>
                     </motion.div>
