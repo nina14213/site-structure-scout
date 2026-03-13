@@ -1150,7 +1150,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
   const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
   const [showIdGenerator, setShowIdGenerator] = useState(false);
-  const [generatedIdConfigs, setGeneratedIdConfigs] = useState<import('./IdGeneratorDialog').IdFieldConfig[]>([]);
+  const [generatedIdConfigs, setGeneratedIdConfigs] = useState<import('./IdGeneratorDialog').IdFieldConfig[]>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.idConfigs && parsed.columns && JSON.stringify(parsed.columns.sort()) === JSON.stringify([...columns].sort())) {
+          return parsed.idConfigs;
+        }
+      }
+    } catch {}
+    return [];
+  });
   const [showTutorial, setShowTutorial] = useState(() => {
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
