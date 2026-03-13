@@ -341,8 +341,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step4.desc': 'Po zmapowaniu pól pojawi się panel z optymalnym zestawem tabel.\n\n✅ Optymalny (zielony) — tabela ma wszystkie wymagane pola zmapowane i należy do minimalnego zestawu tabel pokrywającego Twoje dane. Gotowa do publikacji.\n\n🟠 Opcjonalny (pomarańczowy) — tabela ma zmapowane pola, ale brakuje jej wymaganych pól LUB nie jest częścią optymalnego zestawu. Dane są poprawne, ale tabela wymaga uzupełnienia lub jest redundantna.',
     'mapperTutorial.step5.title': 'Pobierz Data Package',
     'mapperTutorial.step5.desc': 'Gdy skończysz mapowanie, pobierz gotowe pliki CSV. Możesz pobrać wszystkie tabele, tylko optymalne (z pełnymi polami) lub opcjonalne (z brakującymi polami wymaganymi).',
-    'mapperTutorial.step6.title': 'To wszystko!',
-    'mapperTutorial.step6.desc': 'Teraz Twoja kolej! Zacznij od auto-mapowania, popraw ręcznie i pobierz gotowy Data Package. Powodzenia, Data Rangerze! 🦎✨',
+    'mapperTutorial.step6.title': 'Generowanie ID',
+    'mapperTutorial.step6.desc': 'Jeśli tabela wymaga pola ID (np. eventID), ale Twoje dane go nie mają — użyj Generatora ID 🔑.\n\nMożesz wybrać format dla każdego pola osobno:\n🔢 Prefiks + numer (np. EVT-001)\n🆔 UUID (unikalne losowe)\n📋 Złożenie z istniejących kolumn\n⏭ Pominięcie\n\nSystem sprawdza duplikaty — każdy ID musi być unikalny!',
+    'mapperTutorial.step7.title': 'To wszystko!',
+    'mapperTutorial.step7.desc': 'Teraz Twoja kolej! Zacznij od auto-mapowania, popraw ręcznie i pobierz gotowy Data Package. Powodzenia, Data Rangerze! 🦎✨',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
