@@ -1542,12 +1542,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
       
-      // Build headers: for date terms with conversion, add an _original column
+      // Build headers: original column first, then _ISO converted column if enabled
       const csvHeaders: string[] = [];
       dwcHeaders.forEach((term) => {
         csvHeaders.push(term);
         if (convertDatesToISO && isDateTerm(term)) {
-          csvHeaders.push(`${term}_original`);
+          csvHeaders.push(`${term}_ISO`);
         }
       });
       
@@ -1558,16 +1558,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         dwcHeaders.forEach((dwcTerm) => {
           const sourceColumn = termMappings[dwcTerm];
           const rawValue = String(row[sourceColumn] ?? "");
-          const value = maybeConvertDate(rawValue, dwcTerm);
           const escape = (v: string) => {
             if (v.includes(",") || v.includes('"') || v.includes("\n")) {
               return `"${v.replace(/"/g, '""')}"`;
             }
             return v;
           };
-          rowValues.push(escape(value));
+          // Original value always first
+          rowValues.push(escape(rawValue));
+          // Converted ISO value added after if enabled
           if (convertDatesToISO && isDateTerm(dwcTerm)) {
-            rowValues.push(escape(rawValue));
+            const converted = maybeConvertDate(rawValue, dwcTerm);
+            rowValues.push(escape(converted));
           }
         });
         csvRows.push(rowValues.join(","));
