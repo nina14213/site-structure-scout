@@ -32,6 +32,7 @@ import {
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog, { findAutoMatches, normalizeHeader, termAliases } from "./AutoMatchDialog";
+import JSZip from "jszip";
 
 // Find best matching column for a DwC term using multi-tier matching
 function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
@@ -1590,21 +1591,33 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     URL.revokeObjectURL(url);
   }, []);
 
-  // Download all DwC files as separate CSVs
+  // Download as ZIP helper
+  const downloadZip = useCallback(async (files: { name: string; content: string }[], zipName: string) => {
+    const zip = new JSZip();
+    files.forEach(f => zip.file(f.name, f.content));
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = zipName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // Download all DwC files as ZIP
   const handleDownloadAll = useCallback(() => {
     const grouped = getMappingsBySchema();
     const baseName = fileName.replace(/\.[^/.]+$/, "");
-    let delay = 0;
-    Object.entries(grouped).forEach(([schemaId, termMappings]) => {
-      const csv = generateCSV(termMappings);
-      setTimeout(() => {
-        downloadFile(csv, `${schemaId}_${baseName}.csv`);
-      }, delay);
-      delay += 300;
-    });
-  }, [getMappingsBySchema, generateCSV, downloadFile, fileName]);
+    const files = Object.entries(grouped).map(([schemaId, termMappings]) => ({
+      name: `${schemaId}_${baseName}.csv`,
+      content: generateCSV(termMappings),
+    }));
+    downloadZip(files, `${baseName}_dwc-dp.zip`);
+  }, [getMappingsBySchema, generateCSV, downloadZip, fileName]);
 
-  // Download single schema CSV
+  // Download single schema CSV (keep as direct download)
   const handleDownloadSchema = useCallback(
     (schemaId: string) => {
       const grouped = getMappingsBySchema();
@@ -1640,22 +1653,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     return { optimal, optional };
   }, [optimalLayout, schemasWithMappings, mappings]);
 
-  // Download filtered schemas
+  // Download filtered schemas as ZIP
   const handleDownloadFiltered = useCallback((filter: 'optimal' | 'optional') => {
     const grouped = getMappingsBySchema();
     const ids = filter === 'optimal' ? classifiedSchemas.optimal : classifiedSchemas.optional;
     const baseName = fileName.replace(/\.[^/.]+$/, "");
-    let delay = 0;
-    ids.forEach(schemaId => {
-      const termMappings = grouped[schemaId];
-      if (!termMappings) return;
-      const csv = generateCSV(termMappings);
-      setTimeout(() => {
-        downloadFile(csv, `${schemaId}_${baseName}.csv`);
-      }, delay);
-      delay += 300;
-    });
-  }, [getMappingsBySchema, classifiedSchemas, generateCSV, downloadFile, fileName]);
+    const files = ids
+      .map(schemaId => {
+        const termMappings = grouped[schemaId];
+        if (!termMappings) return null;
+        return { name: `${schemaId}_${baseName}.csv`, content: generateCSV(termMappings) };
+      })
+      .filter(Boolean) as { name: string; content: string }[];
+    downloadZip(files, `${baseName}_${filter}.zip`);
+  }, [getMappingsBySchema, classifiedSchemas, generateCSV, downloadZip, fileName]);
 
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
@@ -2392,7 +2403,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     className="w-full py-5 text-base border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"
                   >
                     <Download className="w-5 h-5 mr-2" />
-                    {t("schema.downloadAll")} ({schemasWithMappings.length} {t("schema.files")})
+                    {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
                   </Button>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
