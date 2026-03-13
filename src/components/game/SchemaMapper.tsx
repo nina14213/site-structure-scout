@@ -1669,6 +1669,31 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     downloadZip(files, `${baseName}_${filter}.zip`);
   }, [getMappingsBySchema, classifiedSchemas, generateCSV, downloadZip, fileName]);
 
+  // Download selected schemas as ZIP
+  const handleDownloadSelected = useCallback(() => {
+    if (selectedForDownload.size === 0) return;
+    const grouped = getMappingsBySchema();
+    const baseName = fileName.replace(/\.[^/.]+$/, "");
+    const files = [...selectedForDownload]
+      .map(schemaId => {
+        const termMappings = grouped[schemaId];
+        if (!termMappings) return null;
+        return { name: `${schemaId}_${baseName}.csv`, content: generateCSV(termMappings) };
+      })
+      .filter(Boolean) as { name: string; content: string }[];
+    downloadZip(files, `${baseName}_selected.zip`);
+  }, [selectedForDownload, getMappingsBySchema, generateCSV, downloadZip, fileName]);
+
+  // Toggle schema selection for download
+  const toggleSchemaSelection = useCallback((schemaId: string) => {
+    setSelectedForDownload(prev => {
+      const next = new Set(prev);
+      if (next.has(schemaId)) next.delete(schemaId);
+      else next.add(schemaId);
+      return next;
+    });
+  }, []);
+
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
   return (
