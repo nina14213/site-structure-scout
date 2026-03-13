@@ -2403,7 +2403,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     className="w-full py-5 text-base border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"
                   >
                     <Download className="w-5 h-5 mr-2" />
-                    {t("schema.downloadAll")} ({schemasWithMappings.length} {t("schema.files")})
+                    {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
                   </Button>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
