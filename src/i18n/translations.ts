@@ -788,7 +788,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step3.title': 'Auto-mapping',
     'mapperTutorial.step3.desc': 'Click "Map required fields" — the system will automatically recognize your columns and assign them to DwC fields. Saves tons of time!',
     'mapperTutorial.step4.title': 'Optimal table layout',
-    'mapperTutorial.step4.desc': 'After mapping fields, a panel shows the optimal set of tables — the minimum number of CSV files covering all your data. Green border = optimal, orange = optional.',
+    'mapperTutorial.step4.desc': 'After mapping fields, a panel shows the optimal table layout.\n\n✅ Optimal (green) — table has all required fields mapped and belongs to the minimal set of tables covering your data. Ready for publication.\n\n🟠 Optional (orange) — table has mapped fields but is missing required fields OR is not part of the optimal set. Data is valid but the table needs completion or is redundant.',
     'mapperTutorial.step5.title': 'Download Data Package',
     'mapperTutorial.step5.desc': 'When done mapping, download your CSV files. You can download all tables, only optimal (complete fields) or optional (with missing required fields).',
     'mapperTutorial.step6.title': 'That\'s it!',
