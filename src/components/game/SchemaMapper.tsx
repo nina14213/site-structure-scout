@@ -1789,7 +1789,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
           {/* Right: All Schema Terms */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
+            <Card data-tour="schemas-panel" className="bg-card/90 border-border backdrop-blur h-full flex flex-col">
               <CardHeader className="border-b border-border">
                 <CardTitle className="text-card-foreground flex items-center gap-2">
                   <Layers className="w-5 h-5 text-purple-400" />
