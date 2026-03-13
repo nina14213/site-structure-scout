@@ -28,11 +28,13 @@ import {
   ChevronDown,
   Layers,
   Minimize2,
+  Key,
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog, { findAutoMatches, normalizeHeader, termAliases } from "./AutoMatchDialog";
 import JSZip from "jszip";
+import IdGeneratorDialog, { generateAllIds, type IdFieldConfig } from "./IdGeneratorDialog";
 
 // Find best matching column for a DwC term — exact normalized match or alias only
 function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
@@ -1147,6 +1149,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [autoMatchResults, setAutoMatchResults] = useState<ReturnType<typeof findAutoMatches>>([]);
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
   const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
+  const [showIdGenerator, setShowIdGenerator] = useState(false);
+  const [generatedIdConfigs, setGeneratedIdConfigs] = useState<import('./IdGeneratorDialog').IdFieldConfig[]>([]);
   const [showTutorial, setShowTutorial] = useState(() => {
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
@@ -1449,6 +1453,32 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   };
 
   // Group mappings by schema type
+  // Compute required ID terms that are unmapped across all schemas with mappings
+  const unmappedRequiredIdTerms = useMemo(() => {
+    const idTerms = new Set<string>();
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      // Only check schemas that have at least one mapped field
+      const hasMapped = [...schema.required, ...schema.optional].some(t => mappings[t]);
+      if (!hasMapped) continue;
+      for (const req of schema.required) {
+        if (req.toLowerCase().endsWith('id') && !mappings[req]) {
+          idTerms.add(req);
+        }
+      }
+    }
+    return [...idTerms];
+  }, [mappings]);
+
+  // Pre-computed generated ID values per term
+  const generatedIdValues = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    for (const config of generatedIdConfigs) {
+      if (config.mode === 'skip') continue;
+      result[config.term] = generateAllIds(config, data);
+    }
+    return result;
+  }, [generatedIdConfigs, data]);
+
   const getMappingsBySchema = useCallback(() => {
     const grouped: Record<string, Record<string, string>> = {};
     Object.entries(mappings).forEach(([term, col]) => {
@@ -1516,14 +1546,31 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const getPreviewRows = useCallback(
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
-      return data.slice(0, 5).map((row) => {
+      // Find generated ID terms relevant to this schema
+      const genTermsForSchema = generatedIdConfigs
+        .filter(c => c.mode !== 'skip' && !dwcHeaders.includes(c.term))
+        .filter(c => {
+          // Only add if this term belongs to a schema that has other mapped terms here
+          for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+            if ((schema.required.includes(c.term) || schema.optional.includes(c.term)) &&
+                dwcHeaders.some(h => schema.required.includes(h) || schema.optional.includes(h))) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+      return data.slice(0, 5).map((row, rowIdx) => {
         const previewRow: Record<string, string> = {};
+        // Add generated ID columns first
+        genTermsForSchema.forEach(config => {
+          const vals = generatedIdValues[config.term];
+          previewRow[config.term] = vals?.[rowIdx] ?? '';
+        });
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
           const rawValue = String(row[sourceCol] ?? "");
-          // Always show original value first
           previewRow[term] = rawValue;
-          // Add converted ISO column when conversion is enabled and value changed
           if (convertDatesToISO && isDateTerm(term)) {
             const converted = maybeConvertDate(rawValue, term);
             if (converted !== rawValue && rawValue.trim() !== "") {
@@ -1534,7 +1581,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         return previewRow;
       });
     },
-    [data, maybeConvertDate, convertDatesToISO],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdConfigs, generatedIdValues],
   );
 
   // Generate CSV content for a given set of term->column mappings
@@ -1542,8 +1589,22 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
       
-      // Build headers: original column first, then _ISO converted column if enabled
+      // Find generated ID terms for this schema
+      const genTermsForSchema = generatedIdConfigs
+        .filter(c => c.mode !== 'skip' && !dwcHeaders.includes(c.term))
+        .filter(c => {
+          for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+            if ((schema.required.includes(c.term) || schema.optional.includes(c.term)) &&
+                dwcHeaders.some(h => schema.required.includes(h) || schema.optional.includes(h))) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+      // Build headers: generated IDs first, then mapped columns
       const csvHeaders: string[] = [];
+      genTermsForSchema.forEach(c => csvHeaders.push(c.term));
       dwcHeaders.forEach((term) => {
         csvHeaders.push(term);
         if (convertDatesToISO && isDateTerm(term)) {
@@ -1553,20 +1614,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       
       const csvRows: string[] = [csvHeaders.join(",")];
 
-      data.forEach((row) => {
+      const escape = (v: string) => {
+        if (v.includes(",") || v.includes('"') || v.includes("\n")) {
+          return `"${v.replace(/"/g, '""')}"`;
+        }
+        return v;
+      };
+
+      data.forEach((row, rowIdx) => {
         const rowValues: string[] = [];
+        // Generated IDs
+        genTermsForSchema.forEach(config => {
+          const vals = generatedIdValues[config.term];
+          rowValues.push(escape(vals?.[rowIdx] ?? ''));
+        });
+        // Mapped columns
         dwcHeaders.forEach((dwcTerm) => {
           const sourceColumn = termMappings[dwcTerm];
           const rawValue = String(row[sourceColumn] ?? "");
-          const escape = (v: string) => {
-            if (v.includes(",") || v.includes('"') || v.includes("\n")) {
-              return `"${v.replace(/"/g, '""')}"`;
-            }
-            return v;
-          };
-          // Original value always first
           rowValues.push(escape(rawValue));
-          // Converted ISO value added after if enabled
           if (convertDatesToISO && isDateTerm(dwcTerm)) {
             const converted = maybeConvertDate(rawValue, dwcTerm);
             rowValues.push(escape(converted));
@@ -1578,7 +1644,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       const BOM = "\uFEFF";
       return BOM + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdConfigs, generatedIdValues],
   );
 
   // Download a single CSV file
@@ -1727,6 +1793,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             matches={autoMatchResults}
             onApply={handleAutoMatchApply}
             onDismiss={() => setShowAutoMatch(false)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showIdGenerator && unmappedRequiredIdTerms.length > 0 && (
+          <IdGeneratorDialog
+            requiredIdTerms={unmappedRequiredIdTerms}
+            columns={columns}
+            data={data}
+            existingMappings={mappings}
+            onApply={(configs) => {
+              setGeneratedIdConfigs(configs);
+              setShowIdGenerator(false);
+            }}
+            onDismiss={() => setShowIdGenerator(false)}
           />
         )}
       </AnimatePresence>
@@ -2307,6 +2388,30 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   </Button>
                 </div>
 
+                {/* ID Generator button */}
+                {unmappedRequiredIdTerms.length > 0 && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-amber-500/30">
+                    <Key className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{t('schema.generateIds')}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {unmappedRequiredIdTerms.join(', ')}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={generatedIdConfigs.length > 0 ? "default" : "outline"}
+                      onClick={() => setShowIdGenerator(true)}
+                      className={generatedIdConfigs.length > 0 ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-amber-500/50 text-amber-400"}
+                    >
+                      <Key className="w-4 h-4 mr-1" />
+                      {generatedIdConfigs.length > 0
+                        ? `${generatedIdConfigs.filter(c => c.mode !== 'skip').length} ${t('idGen.generated')}`
+                        : t('schema.generateIds')}
+                    </Button>
+                  </div>
+                )}
+
                 {/* File cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {schemasWithMappings.map((schemaId) => {
@@ -2402,14 +2507,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                             <thead>
                               <tr className="border-b border-border">
                                 {allHeaders.map((term) => {
-                                  const isOriginal = term.endsWith('_original');
+                                  const isISO = term.endsWith('_ISO');
+                                  const isGenerated = generatedIdValues[term] !== undefined;
                                   return (
                                   <th
                                     key={term}
-                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${isOriginal ? 'text-amber-400/70 italic' : 'text-foreground'}`}
+                                    className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${
+                                      isISO ? 'text-cyan-400/70 italic' :
+                                      isGenerated ? 'text-amber-400' :
+                                      'text-foreground'
+                                    }`}
                                   >
-                                    {isOriginal ? term.replace('_original', ' (oryginał)') : term}
-                                    {isDateTerm(term) && convertDatesToISO && !isOriginal && (
+                                    {isISO ? term.replace('_ISO', ' (ISO)') : term}
+                                    {isGenerated && <Key className="inline w-3 h-3 ml-1 text-amber-400" />}
+                                    {isDateTerm(term) && convertDatesToISO && !isISO && (
                                       <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
                                     )}
                                   </th>
@@ -2421,12 +2532,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                               {previewRows.map((row, i) => (
                                 <tr key={i} className="border-b border-border/30">
                                   {allHeaders.map((term, j) => {
-                                    const isOriginal = term.endsWith('_original');
+                                    const isISO = term.endsWith('_ISO');
+                                    const isGenerated = generatedIdValues[term] !== undefined;
                                     return (
                                     <td
                                       key={j}
                                       className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
-                                        isOriginal ? 'text-amber-400/60 italic' :
+                                        isISO ? 'text-cyan-500 font-medium italic' :
+                                        isGenerated ? 'text-amber-400 font-mono' :
                                         isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
                                       }`}
                                     >
