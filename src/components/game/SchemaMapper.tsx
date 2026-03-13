@@ -1796,6 +1796,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {showIdGenerator && unmappedRequiredIdTerms.length > 0 && (
+          <IdGeneratorDialog
+            requiredIdTerms={unmappedRequiredIdTerms}
+            columns={columns}
+            data={data}
+            existingMappings={mappings}
+            onApply={(configs) => {
+              setGeneratedIdConfigs(configs);
+              setShowIdGenerator(false);
+            }}
+            onDismiss={() => setShowIdGenerator(false)}
+          />
+        )}
+      </AnimatePresence>
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
