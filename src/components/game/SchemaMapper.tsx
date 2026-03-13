@@ -2184,7 +2184,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             transition={{ delay: 0.35 }}
             className="mt-6"
           >
-            <Card className="bg-card/90 border-border backdrop-blur">
+            <Card data-tour="download-panel" className="bg-card/90 border-border backdrop-blur">
               <CardHeader className="border-b border-border pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
                   <Download className="w-5 h-5 text-amber-400" />
