@@ -78,8 +78,13 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     },
   ];
 
+  // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
+  // Phase 2: steps 4-6 (optimal layout, download, outro)
+  const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
+  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
+
   const updateHighlight = useCallback(() => {
-    const selector = HIGHLIGHT_SELECTORS[currentStep];
+    const selector = highlightSelectors[currentStep];
     if (!selector) {
       setHighlightRect(null);
       return;
@@ -92,7 +97,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     } else {
       setHighlightRect(null);
     }
-  }, [currentStep]);
+  }, [currentStep, highlightSelectors]);
 
   useEffect(() => {
     updateHighlight();
