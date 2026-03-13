@@ -1208,12 +1208,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const saveMappings = useCallback(
     (newMappings: Record<string, string>, schema?: string) => {
       try {
+        const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
         localStorage.setItem(
           storageKey,
           JSON.stringify({
             mappings: newMappings,
             schema: schema || selectedSchema,
             columns,
+            idConfigs: existing.idConfigs || generatedIdConfigs,
           }),
         );
       } catch {}
