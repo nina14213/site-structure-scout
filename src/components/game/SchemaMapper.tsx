@@ -28,6 +28,7 @@ import {
   ChevronDown,
   Layers,
   Minimize2,
+  Key,
 } from "lucide-react";
 import { dwcTerms } from "./DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
