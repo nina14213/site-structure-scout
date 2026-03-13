@@ -7,6 +7,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
 interface SchemaMapperTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
+  /** Phase 1 = intro steps (0-3), Phase 2 = post-mapping steps (4-6). Default: 1 */
+  phase?: 1 | 2;
 }
 
 const HIGHLIGHT_SELECTORS = [
@@ -26,12 +28,12 @@ interface TutorialStep {
   position: 'center' | 'left' | 'right' | 'bottom';
 }
 
-export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMapperTutorialProps) {
+export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: SchemaMapperTutorialProps) {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
-  const steps: TutorialStep[] = [
+  const allSteps: TutorialStep[] = [
     {
       titleKey: 'mapperTutorial.step0.title',
       descKey: 'mapperTutorial.step0.desc',
@@ -76,8 +78,13 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
     },
   ];
 
+  // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
+  // Phase 2: steps 4-6 (optimal layout, download, outro)
+  const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
+  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
+
   const updateHighlight = useCallback(() => {
-    const selector = HIGHLIGHT_SELECTORS[currentStep];
+    const selector = highlightSelectors[currentStep];
     if (!selector) {
       setHighlightRect(null);
       return;
@@ -90,7 +97,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
     } else {
       setHighlightRect(null);
     }
-  }, [currentStep]);
+  }, [currentStep, highlightSelectors]);
 
   useEffect(() => {
     updateHighlight();

@@ -1150,6 +1150,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [showTutorial, setShowTutorial] = useState(() => {
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
+  const [tutorialPhase, setTutorialPhase] = useState<1 | 2>(1);
+  const phase2ShownRef = useRef(false);
+
+  // Show tutorial phase 2 when first mapping is made
+  useEffect(() => {
+    if (phase2ShownRef.current) return;
+    const hasMappings = Object.keys(mappings).length > 0;
+    const phase1Done = localStorage.getItem('dwc-mapper-tutorial-seen') === '1';
+    const phase2Done = localStorage.getItem('dwc-mapper-tutorial-phase2-seen');
+    if (hasMappings && phase1Done && !phase2Done && !showTutorial) {
+      phase2ShownRef.current = true;
+      setTutorialPhase(2);
+      setShowTutorial(true);
+    }
+  }, [mappings, showTutorial]);
 
   // Auto-detect matches on mount (store results but don't show dialog automatically)
   useEffect(() => {
@@ -1682,12 +1697,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     <>
       {showTutorial && (
         <SchemaMapperTutorial
+          phase={tutorialPhase}
           onComplete={() => {
-            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            if (tutorialPhase === 1) {
+              try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            } else {
+              try { localStorage.setItem('dwc-mapper-tutorial-phase2-seen', '1'); } catch {}
+            }
             setShowTutorial(false);
           }}
           onSkip={() => {
-            try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            if (tutorialPhase === 1) {
+              try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+            } else {
+              try { localStorage.setItem('dwc-mapper-tutorial-phase2-seen', '1'); } catch {}
+            }
             setShowTutorial(false);
           }}
         />
@@ -1717,7 +1741,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowTutorial(true)}
+              onClick={() => { setTutorialPhase(1); setShowTutorial(true); }}
               className="text-xs border-primary/30 text-primary hover:bg-primary/10"
             >
               {t("mapperTutorial.replay")}
