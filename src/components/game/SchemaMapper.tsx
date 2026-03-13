@@ -1521,11 +1521,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
           const rawValue = String(row[sourceCol] ?? "");
-          const converted = maybeConvertDate(rawValue, term);
-          previewRow[term] = converted;
-          // Add original value column if date was converted
-          if (convertDatesToISO && isDateTerm(term) && converted !== rawValue && rawValue.trim() !== "") {
-            previewRow[`${term}_original`] = rawValue;
+          // Always show original value first
+          previewRow[term] = rawValue;
+          // Add converted ISO column when conversion is enabled and value changed
+          if (convertDatesToISO && isDateTerm(term)) {
+            const converted = maybeConvertDate(rawValue, term);
+            if (converted !== rawValue && rawValue.trim() !== "") {
+              previewRow[`${term}_ISO`] = converted;
+            }
           }
         });
         return previewRow;
