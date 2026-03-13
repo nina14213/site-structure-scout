@@ -1660,10 +1660,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <Sparkles className="w-8 h-8 text-purple-400" />
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("schema.title")}</h1>
               <p className="text-muted-foreground">{t("schema.subtitle")}</p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTutorial(true)}
+              className="text-xs border-primary/30 text-primary hover:bg-primary/10"
+            >
+              {t("mapperTutorial.replay")}
+            </Button>
           </div>
         </motion.div>
 
