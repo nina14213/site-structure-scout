@@ -1588,8 +1588,22 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
       
-      // Build headers: original column first, then _ISO converted column if enabled
+      // Find generated ID terms for this schema
+      const genTermsForSchema = generatedIdConfigs
+        .filter(c => c.mode !== 'skip' && !dwcHeaders.includes(c.term))
+        .filter(c => {
+          for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+            if ((schema.required.includes(c.term) || schema.optional.includes(c.term)) &&
+                dwcHeaders.some(h => schema.required.includes(h) || schema.optional.includes(h))) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+      // Build headers: generated IDs first, then mapped columns
       const csvHeaders: string[] = [];
+      genTermsForSchema.forEach(c => csvHeaders.push(c.term));
       dwcHeaders.forEach((term) => {
         csvHeaders.push(term);
         if (convertDatesToISO && isDateTerm(term)) {
@@ -1599,20 +1613,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       
       const csvRows: string[] = [csvHeaders.join(",")];
 
-      data.forEach((row) => {
+      const escape = (v: string) => {
+        if (v.includes(",") || v.includes('"') || v.includes("\n")) {
+          return `"${v.replace(/"/g, '""')}"`;
+        }
+        return v;
+      };
+
+      data.forEach((row, rowIdx) => {
         const rowValues: string[] = [];
+        // Generated IDs
+        genTermsForSchema.forEach(config => {
+          const vals = generatedIdValues[config.term];
+          rowValues.push(escape(vals?.[rowIdx] ?? ''));
+        });
+        // Mapped columns
         dwcHeaders.forEach((dwcTerm) => {
           const sourceColumn = termMappings[dwcTerm];
           const rawValue = String(row[sourceColumn] ?? "");
-          const escape = (v: string) => {
-            if (v.includes(",") || v.includes('"') || v.includes("\n")) {
-              return `"${v.replace(/"/g, '""')}"`;
-            }
-            return v;
-          };
-          // Original value always first
           rowValues.push(escape(rawValue));
-          // Converted ISO value added after if enabled
           if (convertDatesToISO && isDateTerm(dwcTerm)) {
             const converted = maybeConvertDate(rawValue, dwcTerm);
             rowValues.push(escape(converted));
@@ -1624,7 +1643,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       const BOM = "\uFEFF";
       return BOM + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdConfigs, generatedIdValues],
   );
 
   // Download a single CSV file
