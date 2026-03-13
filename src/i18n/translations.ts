@@ -302,6 +302,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.dismissSchema': 'Kliknij aby usunąć sugestię',
     'schema.dismissed': 'Ukryte tabele',
 
+    // === SchemaMapper Tutorial ===
+    'mapperTutorial.stepLabel': 'Krok {current} z {total}',
+    'mapperTutorial.skip': 'Pomiń samouczek',
+    'mapperTutorial.prev': 'Wstecz',
+    'mapperTutorial.next': 'Dalej',
+    'mapperTutorial.finish': 'Zaczynamy! 🚀',
+    'mapperTutorial.replay': '🦎 Samouczek',
+    'mapperTutorial.step0.title': 'Witaj w kreatorze Data Package!',
+    'mapperTutorial.step0.desc': 'Jestem Twoim przewodnikiem 🦎 — pokażę Ci krok po kroku jak przekształcić Twoje dane w format Darwin Core Data Package. Gotowy?',
+    'mapperTutorial.step1.title': 'Twoje kolumny',
+    'mapperTutorial.step1.desc': 'Tu widzisz kolumny z Twojego pliku. Kliknij kolumnę aby ją zaznaczyć, a potem kliknij pole DwC po prawej stronie, aby je połączyć. Na desktopie możesz też przeciągać!',
+    'mapperTutorial.step2.title': 'Schematy DwC-DP',
+    'mapperTutorial.step2.desc': 'Tu znajdziesz wszystkie tabele Darwin Core Data Package. Rozwiń tabelę i upuść na nią swoją kolumnę. Wymagane pola mają pomarańczową ramkę. Użyj wyszukiwania, aby szybko znaleźć pole.',
+    'mapperTutorial.step3.title': 'Auto-mapowanie',
+    'mapperTutorial.step3.desc': 'Kliknij „Mapuj wymagane pola" — system automatycznie rozpozna Twoje kolumny i przypisze je do odpowiednich pól DwC. Oszczędzisz mnóstwo czasu!',
+    'mapperTutorial.step4.title': 'Optymalny układ tabel',
+    'mapperTutorial.step4.desc': 'Po zmapowaniu pól pojawi się panel z optymalnym zestawem tabel — minimalną liczbą plików CSV pokrywającą wszystkie Twoje dane. Zielona ramka = optymalny, pomarańczowa = opcjonalny.',
+    'mapperTutorial.step5.title': 'Pobierz Data Package',
+    'mapperTutorial.step5.desc': 'Gdy skończysz mapowanie, pobierz gotowe pliki CSV. Możesz pobrać wszystkie tabele, tylko optymalne (z pełnymi polami) lub opcjonalne (z brakującymi polami wymaganymi).',
+    'mapperTutorial.step6.title': 'To wszystko!',
+    'mapperTutorial.step6.desc': 'Teraz Twoja kolej! Zacznij od auto-mapowania, popraw ręcznie i pobierz gotowy Data Package. Powodzenia, Data Rangerze! 🦎✨',
+
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
     'escape.subtitle': 'Rozwiąż zagadki, aby odblokować sekrety Darwin Core',
