@@ -2031,7 +2031,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 {mappedCount > 0 && !isOptionalSchema && (
                                   (() => {
                                     const hasReqFields = fullSchema && fullSchema.required.length > 0;
-                                    const allReqMapped = hasReqFields && fullSchema.required.every(t => mappings[t]);
+                                    const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t]);
                                     const showOptimal = isOptimal && allReqMapped;
                                     return (
                                       <Badge 
