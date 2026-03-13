@@ -232,7 +232,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip }: SchemaMappe
             </div>
 
             {/* Description */}
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t(step.descKey)}</p>
+            <div className="text-sm text-muted-foreground leading-relaxed mb-4 whitespace-pre-line">{t(step.descKey)}</div>
 
             {/* Navigation */}
             <div className="flex items-center justify-between pt-3 border-t border-border">
