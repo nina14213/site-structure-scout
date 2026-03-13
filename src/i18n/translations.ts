@@ -1687,6 +1687,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.downloadAll': 'Alle Dateien herunterladen',
     'schema.downloadOptimal': 'Nur optimale',
     'schema.downloadOptional': 'Nur optionale',
+    'schema.downloadSelected': 'Ausgewählte',
     'schema.files': 'Dateien',
     'schema.columns': 'Spalten',
     'schema.preview': 'Vorschau',
