@@ -1626,7 +1626,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       const fullSchema = schemaTerms[schemaId];
       if (!fullSchema) { optional.push(schemaId); return; }
       const hasReqFields = fullSchema.required.length > 0;
-      const allReqMapped = hasReqFields && fullSchema.required.every(t => mappings[t]);
+      const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t]);
       if (optimalIds.has(schemaId) && allReqMapped) {
         optimal.push(schemaId);
       } else {
@@ -2031,7 +2031,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                                 {mappedCount > 0 && !isOptionalSchema && (
                                   (() => {
                                     const hasReqFields = fullSchema && fullSchema.required.length > 0;
-                                    const allReqMapped = hasReqFields && fullSchema.required.every(t => mappings[t]);
+                                    const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t]);
                                     const showOptimal = isOptimal && allReqMapped;
                                     return (
                                       <Badge 
