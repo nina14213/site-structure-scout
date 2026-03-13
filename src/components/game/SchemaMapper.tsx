@@ -1521,11 +1521,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
           const rawValue = String(row[sourceCol] ?? "");
-          const converted = maybeConvertDate(rawValue, term);
-          previewRow[term] = converted;
-          // Add original value column if date was converted
-          if (convertDatesToISO && isDateTerm(term) && converted !== rawValue && rawValue.trim() !== "") {
-            previewRow[`${term}_original`] = rawValue;
+          // Always show original value first
+          previewRow[term] = rawValue;
+          // Add converted ISO column when conversion is enabled and value changed
+          if (convertDatesToISO && isDateTerm(term)) {
+            const converted = maybeConvertDate(rawValue, term);
+            if (converted !== rawValue && rawValue.trim() !== "") {
+              previewRow[`${term}_ISO`] = converted;
+            }
           }
         });
         return previewRow;
@@ -1539,12 +1542,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
       
-      // Build headers: for date terms with conversion, add an _original column
+      // Build headers: original column first, then _ISO converted column if enabled
       const csvHeaders: string[] = [];
       dwcHeaders.forEach((term) => {
         csvHeaders.push(term);
         if (convertDatesToISO && isDateTerm(term)) {
-          csvHeaders.push(`${term}_original`);
+          csvHeaders.push(`${term}_ISO`);
         }
       });
       
@@ -1555,16 +1558,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         dwcHeaders.forEach((dwcTerm) => {
           const sourceColumn = termMappings[dwcTerm];
           const rawValue = String(row[sourceColumn] ?? "");
-          const value = maybeConvertDate(rawValue, dwcTerm);
           const escape = (v: string) => {
             if (v.includes(",") || v.includes('"') || v.includes("\n")) {
               return `"${v.replace(/"/g, '""')}"`;
             }
             return v;
           };
-          rowValues.push(escape(value));
+          // Original value always first
+          rowValues.push(escape(rawValue));
+          // Converted ISO value added after if enabled
           if (convertDatesToISO && isDateTerm(dwcTerm)) {
-            rowValues.push(escape(rawValue));
+            const converted = maybeConvertDate(rawValue, dwcTerm);
+            rowValues.push(escape(converted));
           }
         });
         csvRows.push(rowValues.join(","));
