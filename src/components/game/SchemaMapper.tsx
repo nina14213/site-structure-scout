@@ -1150,7 +1150,18 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
   const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
   const [showIdGenerator, setShowIdGenerator] = useState(false);
-  const [generatedIdConfigs, setGeneratedIdConfigs] = useState<import('./IdGeneratorDialog').IdFieldConfig[]>([]);
+  const [generatedIdConfigs, setGeneratedIdConfigs] = useState<import('./IdGeneratorDialog').IdFieldConfig[]>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.idConfigs && parsed.columns && JSON.stringify(parsed.columns.sort()) === JSON.stringify([...columns].sort())) {
+          return parsed.idConfigs;
+        }
+      }
+    } catch {}
+    return [];
+  });
   const [showTutorial, setShowTutorial] = useState(() => {
     try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
   });
@@ -1197,19 +1208,29 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   const saveMappings = useCallback(
     (newMappings: Record<string, string>, schema?: string) => {
       try {
+        const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
         localStorage.setItem(
           storageKey,
           JSON.stringify({
             mappings: newMappings,
             schema: schema || selectedSchema,
             columns,
+            idConfigs: existing.idConfigs || generatedIdConfigs,
           }),
         );
       } catch {}
     },
-    [storageKey, selectedSchema, columns],
+    [storageKey, selectedSchema, columns, generatedIdConfigs],
   );
 
+  // Persist idConfigs separately when they change
+  const saveIdConfigs = useCallback((configs: import('./IdGeneratorDialog').IdFieldConfig[]) => {
+    setGeneratedIdConfigs(configs);
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      localStorage.setItem(storageKey, JSON.stringify({ ...existing, idConfigs: configs }));
+    } catch {}
+  }, [storageKey]);
   const handleAutoMatchApply = useCallback((selectedMatches: typeof autoMatchResults) => {
     const newMappings: Record<string, string> = { ...mappings };
     
@@ -1321,7 +1342,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           bestCount = covered.length;
           bestSchema = schemaId;
           bestTerms = covered;
-          bestRequired = schema.required.filter(t => !mappings[t]);
+          bestRequired = schema.required.filter(t => !mappings[t] && !generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
         }
       }
       
@@ -1331,7 +1352,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     }
     
     return chosen;
-  }, [mappings]);
+  }, [mappings, generatedIdConfigs]);
 
   // Get sample values for a column
   const getSampleValues = useCallback(
@@ -1712,7 +1733,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       const fullSchema = schemaTerms[schemaId];
       if (!fullSchema) { optional.push(schemaId); return; }
       const hasReqFields = fullSchema.required.length > 0;
-      const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t]);
+      const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t] || generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
       if (optimalIds.has(schemaId) && allReqMapped) {
         optimal.push(schemaId);
       } else {
@@ -1720,7 +1741,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       }
     });
     return { optimal, optional };
-  }, [optimalLayout, schemasWithMappings, mappings]);
+  }, [optimalLayout, schemasWithMappings, mappings, generatedIdConfigs]);
 
   // Download filtered schemas as ZIP
   const handleDownloadFiltered = useCallback((filter: 'optimal' | 'optional') => {
@@ -1803,8 +1824,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             columns={columns}
             data={data}
             existingMappings={mappings}
+            existingConfigs={generatedIdConfigs}
             onApply={(configs) => {
-              setGeneratedIdConfigs(configs);
+              saveIdConfigs(configs);
               setShowIdGenerator(false);
             }}
             onDismiss={() => setShowIdGenerator(false)}

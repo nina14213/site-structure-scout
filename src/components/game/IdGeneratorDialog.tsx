@@ -24,6 +24,7 @@ interface IdGeneratorDialogProps {
   columns: string[];
   data: any[];
   existingMappings: Record<string, string>;
+  existingConfigs?: IdFieldConfig[];
   onApply: (configs: IdFieldConfig[]) => void;
   onDismiss: () => void;
 }
@@ -71,21 +72,27 @@ export default function IdGeneratorDialog({
   columns,
   data,
   existingMappings,
+  existingConfigs,
   onApply,
   onDismiss,
 }: IdGeneratorDialogProps) {
   const { t } = useLanguage();
 
   const [configs, setConfigs] = useState<IdFieldConfig[]>(() =>
-    requiredIdTerms.map(term => ({
-      term,
-      mode: 'prefix-auto' as IdMode,
-      prefix: term.replace(/ID$/i, '').toUpperCase(),
-      startNum: 1,
-      padding: Math.max(3, String(data.length).length),
-      separator: '-',
-      sourceColumns: [],
-    }))
+    requiredIdTerms.map(term => {
+      // Restore existing config if available
+      const existing = existingConfigs?.find(c => c.term === term);
+      if (existing) return existing;
+      return {
+        term,
+        mode: 'prefix-auto' as IdMode,
+        prefix: term.replace(/ID$/i, '').toUpperCase(),
+        startNum: 1,
+        padding: Math.max(3, String(data.length).length),
+        separator: '-',
+        sourceColumns: [],
+      };
+    })
   );
 
   const updateConfig = useCallback((index: number, updates: Partial<IdFieldConfig>) => {
