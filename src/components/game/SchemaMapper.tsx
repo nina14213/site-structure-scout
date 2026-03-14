@@ -1820,7 +1820,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       <AnimatePresence>
         {showIdGenerator && (unmappedRequiredIdTerms.length > 0 || generatedIdConfigs.length > 0) && (
           <IdGeneratorDialog
-            requiredIdTerms={unmappedRequiredIdTerms}
+            requiredIdTerms={[...new Set([...unmappedRequiredIdTerms, ...generatedIdConfigs.map(c => c.term)])]}
             columns={columns}
             data={data}
             existingMappings={mappings}
