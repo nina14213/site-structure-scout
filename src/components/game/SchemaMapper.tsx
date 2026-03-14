@@ -1818,7 +1818,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {showIdGenerator && unmappedRequiredIdTerms.length > 0 && (
+        {showIdGenerator && (unmappedRequiredIdTerms.length > 0 || generatedIdConfigs.length > 0) && (
           <IdGeneratorDialog
             requiredIdTerms={unmappedRequiredIdTerms}
             columns={columns}
