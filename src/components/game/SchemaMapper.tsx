@@ -2411,7 +2411,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 </div>
 
                 {/* ID Generator button */}
-                {unmappedRequiredIdTerms.length > 0 && (
+                {(unmappedRequiredIdTerms.length > 0 || generatedIdConfigs.length > 0) && (
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-amber-500/30">
                     <Key className="w-5 h-5 text-amber-400 flex-shrink-0" />
                     <div className="flex-1">
