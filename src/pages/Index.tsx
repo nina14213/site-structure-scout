@@ -1,288 +1,105 @@
-import { useState, useCallback, useRef } from 'react';
-import { useToast } from '@/hooks/use-toast';
+/**
+ * @file Index.tsx
+ * @description Główna strona gry DwC Data Quest — orkiestruje ekrany gry.
+ *
+ * Logika jest wydzielona do hooków:
+ * - useGameProgress — stan gry, postęp, odznaki, leaderboard
+ * - useGameSounds — efekty dźwiękowe (Web Audio API)
+ * - useGameNavigation — nawigacja, przejścia ekranów, dark mode
+ */
+
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useGameSounds } from '@/hooks/useGameSounds';
+import { useGameNavigation } from '@/hooks/useGameNavigation';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
 import DataImport from '@/components/game/DataImport';
 import SchemaMapper from '@/components/game/SchemaMapper';
 import QuizModal from '@/components/game/QuizModal';
 
-type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMapper' | 'quiz';
-
 const Index = () => {
-  const { toast } = useToast();
-  const { t } = useLanguage();
-  const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
-  const [currentLevel, setCurrentLevel] = useState<number | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      const saved = localStorage.getItem('dwc-dark-mode');
-      if (saved === 'false') {
-        document.documentElement.classList.remove('dark');
-        return false;
-      }
-    } catch {}
-    document.documentElement.classList.add('dark');
-    return true;
-  });
-  const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
-  const [quizLevel, setQuizLevel] = useState<number | null>(null);
-  const [pendingScore, setPendingScore] = useState<number>(0);
-  const transitioning = useRef(false);
+  const progress = useGameProgress();
+  const sounds = useGameSounds();
+  const nav = useGameNavigation(progress);
 
-  const {
-    gameState,
-    leaderboard,
-    startNewGame,
-    addScore,
-    completeLevel,
-    startLevelTimer,
-    saveQuizScore,
-    updateLeaderboard,
-    resetProgress,
-    isLevelUnlocked,
-  } = useGameProgress();
+  // ─── Screen rendering ─────────────────────────────────────────────
 
-  // Sound effects (simple beeps)
-  const playSound = useCallback((type: 'success' | 'fail' | 'drop' | 'levelComplete' | 'badgeUnlock') => {
-    if (!soundEnabled) return;
-    
-    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    const sounds: Record<string, { freq: number; duration: number; type: OscillatorType }> = {
-      success: { freq: 880, duration: 0.1, type: 'sine' },
-      fail: { freq: 220, duration: 0.2, type: 'square' },
-      drop: { freq: 440, duration: 0.05, type: 'sine' },
-      levelComplete: { freq: 660, duration: 0.3, type: 'triangle' },
-      badgeUnlock: { freq: 1000, duration: 0.4, type: 'sine' },
-    };
-    
-    const sound = sounds[type];
-    oscillator.frequency.value = sound.freq;
-    oscillator.type = sound.type;
-    gainNode.gain.value = 0.1;
-    
-    oscillator.start();
-    setTimeout(() => {
-      oscillator.stop();
-      audioContext.close();
-    }, sound.duration * 1000);
-  }, [soundEnabled]);
-
-  const playSuccess = useCallback(() => playSound('success'), [playSound]);
-  const playFail = useCallback(() => playSound('fail'), [playSound]);
-  const playDrop = useCallback(() => playSound('drop'), [playSound]);
-  const playLevelComplete = useCallback(() => playSound('levelComplete'), [playSound]);
-  const playBadgeUnlock = useCallback(() => playSound('badgeUnlock'), [playSound]);
-
-  // Handle game start
-  const handleStartGame = useCallback((playerName: string) => {
-    startNewGame(playerName);
-    toast({
-      title: t('toast.welcome', { name: playerName }),
-      description: t('toast.welcomeDesc'),
-    });
-  }, [startNewGame, toast, t]);
-
-  // Handle level selection from start screen
-  const handleLevelClick = useCallback((levelId: number) => {
-    if (isLevelUnlocked(levelId) && gameState.playerName) {
-      setCurrentLevel(levelId);
-      setCurrentScreen('playing');
-      startLevelTimer();
-    }
-  }, [isLevelUnlocked, gameState.playerName, startLevelTimer]);
-
-  // Level names for toast messages
-  const levelNames: Record<number, string> = {
-    1: t('level.1.name'),
-    2: t('level.2.name'),
-    3: t('level.3.name'),
-    4: t('level.4.name'),
-    5: t('level.5.name'),
-  };
-
-  // Handle level completion - auto-progress to next stage
-  const handleLevelComplete = useCallback((score: number, data?: unknown) => {
-    if (currentLevel === null || transitioning.current) return;
-    transitioning.current = true;
-
-    if (data) {
-      setLevelData(prev => ({ ...prev, [currentLevel]: data }));
-    }
-
-    completeLevel(currentLevel, score);
-    updateLeaderboard();
-    setPendingScore(score);
-    setQuizLevel(currentLevel);
-    setCurrentScreen('quiz');
-  }, [currentLevel, completeLevel, updateLeaderboard]);
-
-  // Handle quiz completion — progress to next level or finish
-  const handleQuizComplete = useCallback((quizScore: number) => {
-    if (quizLevel === null) return;
-    saveQuizScore(quizLevel, quizScore);
-  }, [quizLevel, saveQuizScore]);
-
-  const handleQuizClose = useCallback(() => {
-    if (quizLevel === null) return;
-    transitioning.current = false;
-    const nextLevel = quizLevel + 1;
-
-    if (quizLevel >= 5) {
-      toast({
-        title: t('toast.allComplete', { level: levelNames[quizLevel] }),
-        description: t('toast.allCompleteDesc'),
-      });
-      setCurrentScreen('complete');
-    } else {
-      toast({
-        title: t('toast.levelComplete', { level: levelNames[quizLevel] }),
-        description: t('toast.nextLevel', { next: levelNames[nextLevel] }),
-      });
-      setCurrentLevel(nextLevel);
-      setCurrentScreen('playing');
-      startLevelTimer();
-    }
-    setQuizLevel(null);
-  }, [quizLevel, toast, startLevelTimer, t]);
-
-  // Handle going back to menu
-  const handleBackToMenu = useCallback(() => {
-    setCurrentScreen('start');
-    setCurrentLevel(null);
-  }, []);
-
-  // Handle restart game
-  const handleRestart = useCallback(() => {
-    resetProgress();
-    setCurrentScreen('start');
-    setCurrentLevel(null);
-    setLevelData({});
-    setQuizLevel(null);
-  }, [resetProgress]);
-
-  // Toggle functions
-  const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode(prev => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      try { localStorage.setItem('dwc-dark-mode', String(next)); } catch {}
-      return next;
-    });
-  }, []);
-
-  // Handle data import
-  const handleDataImport = useCallback(() => {
-    setCurrentScreen('dataImport');
-  }, []);
-
-  const handleImportComplete = useCallback((data: any[], columns: string[], fileName: string) => {
-    setLevelData(prev => ({ ...prev, customImport: { data, columns, fileName } }));
-    toast({
-      title: t('toast.dataImported'),
-      description: t('toast.dataImportedDesc', { count: String(data.length), file: fileName }),
-    });
-    setCurrentScreen('schemaMapper');
-  }, [toast, t]);
-
-  const handleSchemaMappingComplete = useCallback((mappings: Record<string, string>, schema: string) => {
-    setLevelData(prev => ({ ...prev, schemaMappings: mappings, selectedSchema: schema }));
-    toast({
-      title: t('toast.mappingComplete'),
-      description: t('toast.mappingCompleteDesc', { schema }),
-    });
-  }, [toast, t]);
-
-  // Render based on current screen
-  if (currentScreen === 'complete') {
+  if (nav.currentScreen === 'complete') {
     return (
       <GameComplete
-        gameState={gameState}
+        gameState={progress.gameState}
         badges={BADGES}
-        onRestart={handleRestart}
-        playBadgeUnlock={playBadgeUnlock}
+        onRestart={nav.handleRestart}
+        playBadgeUnlock={sounds.playBadgeUnlock}
       />
     );
   }
 
-  if (currentScreen === 'dataImport') {
+  if (nav.currentScreen === 'dataImport') {
     return (
       <DataImport
-        onBack={handleBackToMenu}
-        onImportComplete={handleImportComplete}
+        onBack={nav.handleBackToMenu}
+        onImportComplete={nav.handleImportComplete}
       />
     );
   }
 
-  if (currentScreen === 'schemaMapper') {
-    const importData = levelData.customImport as { data: any[]; columns: string[]; fileName: string } | undefined;
+  if (nav.currentScreen === 'schemaMapper') {
+    const importData = nav.levelData.customImport as { data: any[]; columns: string[]; fileName: string } | undefined;
     if (importData) {
       return (
         <SchemaMapper
           columns={importData.columns}
           data={importData.data}
           fileName={importData.fileName}
-          onBack={() => setCurrentScreen('dataImport')}
-          onComplete={handleSchemaMappingComplete}
+          onBack={nav.handleBackToDataImport}
+          onComplete={nav.handleSchemaMappingComplete}
         />
       );
     }
   }
 
-  if (currentScreen === 'quiz' && quizLevel !== null) {
+  if (nav.currentScreen === 'quiz' && nav.quizLevel !== null) {
     return (
       <QuizModal
-        levelNumber={quizLevel}
-        onComplete={handleQuizComplete}
-        onClose={handleQuizClose}
+        levelNumber={nav.quizLevel}
+        onComplete={nav.handleQuizComplete}
+        onClose={nav.handleQuizClose}
       />
     );
   }
 
-  if (currentScreen === 'playing' && currentLevel !== null) {
+  if (nav.currentScreen === 'playing' && nav.currentLevel !== null) {
     return (
       <GameLauncher
-        levelId={currentLevel}
-        gameState={gameState}
-        onComplete={handleLevelComplete}
-        onClose={handleBackToMenu}
-        addScore={addScore}
-        playSuccess={playSuccess}
-        playFail={playFail}
-        playDrop={playDrop}
-        playLevelComplete={playLevelComplete}
-        startLevelTimer={startLevelTimer}
-        saveQuizScore={saveQuizScore}
-        previousLevelData={levelData[currentLevel - 1] || levelData.customImport}
+        levelId={nav.currentLevel}
+        gameState={progress.gameState}
+        onComplete={nav.handleLevelComplete}
+        onClose={nav.handleBackToMenu}
+        addScore={progress.addScore}
+        playSuccess={sounds.playSuccess}
+        playFail={sounds.playFail}
+        playDrop={sounds.playDrop}
+        playLevelComplete={sounds.playLevelComplete}
+        startLevelTimer={progress.startLevelTimer}
+        saveQuizScore={progress.saveQuizScore}
+        previousLevelData={nav.levelData[nav.currentLevel - 1] || nav.levelData.customImport}
       />
     );
   }
 
-  // Start screen
+  // ─── Start screen (default) ───────────────────────────────────────
   return (
     <StartScreen
-      onStart={handleStartGame}
-      gameState={gameState}
-      leaderboard={leaderboard}
-      soundEnabled={soundEnabled}
-      toggleSound={toggleSound}
-      darkMode={darkMode}
-      toggleDarkMode={toggleDarkMode}
-      onLevelClick={handleLevelClick}
-      isLevelUnlocked={isLevelUnlocked}
-      onDataImport={handleDataImport}
+      onStart={nav.handleStartGame}
+      gameState={progress.gameState}
+      leaderboard={progress.leaderboard}
+      soundEnabled={sounds.soundEnabled}
+      toggleSound={sounds.toggleSound}
+      darkMode={nav.darkMode}
+      toggleDarkMode={nav.toggleDarkMode}
+      onLevelClick={nav.handleLevelClick}
+      isLevelUnlocked={progress.isLevelUnlocked}
+      onDataImport={nav.handleDataImport}
     />
   );
 };

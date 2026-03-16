@@ -85,7 +85,7 @@ export default function TermDropZone({
       onDrop={handleDrop}
       onClick={handleClick}
       className={`
-        p-4 rounded-xl border-2 transition-all
+        p-3 md:p-4 rounded-xl border-2 transition-all min-h-[44px]
         ${isOver ? "border-purple-500 bg-purple-500/20 scale-[1.02]" : ""}
         ${hasSelectedColumn && !mappedColumn ? "border-indigo-400 bg-indigo-500/20 border-dashed animate-pulse cursor-pointer" : ""}
         ${
