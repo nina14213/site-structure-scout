@@ -262,7 +262,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
           {/* Complete button */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="mt-4 flex gap-4"
