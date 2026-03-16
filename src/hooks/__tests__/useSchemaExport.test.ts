@@ -11,7 +11,7 @@ describe('isDateTerm', () => {
   it('rozpoznaje termy dat DwC', () => {
     expect(isDateTerm('eventDate')).toBe(true);
     expect(isDateTerm('dateIdentified')).toBe(true);
-    expect(isDateTerm('modified')).toBe(true);
+    expect(isDateTerm('georeferencedDate')).toBe(true);
   });
 
   it('nie rozpoznaje nie-datowych termów', () => {

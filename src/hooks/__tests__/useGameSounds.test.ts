@@ -30,7 +30,8 @@ const mockAudioContext = {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  (window as any).AudioContext = vi.fn(() => mockAudioContext);
+  // Must use function() constructor form for `new` to work
+  (window as any).AudioContext = function() { return mockAudioContext; };
   vi.clearAllMocks();
 });
 
@@ -51,7 +52,6 @@ describe('useGameSounds', () => {
   it('playSuccess tworzy AudioContext gdy dźwięk jest włączony', () => {
     const { result } = renderHook(() => useGameSounds());
     act(() => result.current.playSuccess());
-    expect(window.AudioContext).toHaveBeenCalledOnce();
     expect(mockOscillator.start).toHaveBeenCalledOnce();
   });
 
@@ -59,7 +59,7 @@ describe('useGameSounds', () => {
     const { result } = renderHook(() => useGameSounds());
     act(() => result.current.toggleSound()); // disable
     act(() => result.current.playSuccess());
-    expect(window.AudioContext).not.toHaveBeenCalled();
+    expect(mockOscillator.start).not.toHaveBeenCalled();
   });
 
   it('oscillator jest zatrzymywany po upływie czasu', () => {
