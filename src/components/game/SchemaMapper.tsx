@@ -43,7 +43,11 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
   // ─── Tutorial state ────────────────────────────────────────────────
   const [showTutorial, setShowTutorial] = useState(() => {
-    try { return !localStorage.getItem('dwc-mapper-tutorial-seen'); } catch { return true; }
+    try {
+      return !localStorage.getItem("dwc-mapper-tutorial-seen");
+    } catch {
+      return true;
+    }
   });
   const [tutorialPhase, setTutorialPhase] = useState<1 | 2>(1);
   const phase2ShownRef = useRef(false);
@@ -67,8 +71,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
   useEffect(() => {
     if (phase2ShownRef.current) return;
     const hasMappings = Object.keys(state.mappings).length > 0;
-    const phase1Done = localStorage.getItem('dwc-mapper-tutorial-seen') === '1';
-    const phase2Done = localStorage.getItem('dwc-mapper-tutorial-phase2-seen');
+    const phase1Done = localStorage.getItem("dwc-mapper-tutorial-seen") === "1";
+    const phase2Done = localStorage.getItem("dwc-mapper-tutorial-phase2-seen");
     if (hasMappings && phase1Done && !phase2Done && !showTutorial) {
       phase2ShownRef.current = true;
       setTutorialPhase(2);
@@ -78,9 +82,13 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
   const handleTutorialComplete = useCallback(() => {
     if (tutorialPhase === 1) {
-      try { localStorage.setItem('dwc-mapper-tutorial-seen', '1'); } catch {}
+      try {
+        localStorage.setItem("dwc-mapper-tutorial-seen", "1");
+      } catch {}
     } else {
-      try { localStorage.setItem('dwc-mapper-tutorial-phase2-seen', '1'); } catch {}
+      try {
+        localStorage.setItem("dwc-mapper-tutorial-phase2-seen", "1");
+      } catch {}
     }
     setShowTutorial(false);
   }, [tutorialPhase]);
@@ -91,14 +99,17 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     }
   }, [state.allRequiredMapped, state.mappings, state.selectedSchema, onComplete]);
 
-  const toggleSchemaSelection = useCallback((schemaId: string) => {
-    state.setSelectedForDownload(prev => {
-      const next = new Set(prev);
-      if (next.has(schemaId)) next.delete(schemaId);
-      else next.add(schemaId);
-      return next;
-    });
-  }, [state.setSelectedForDownload]);
+  const toggleSchemaSelection = useCallback(
+    (schemaId: string) => {
+      state.setSelectedForDownload((prev) => {
+        const next = new Set(prev);
+        if (next.has(schemaId)) next.delete(schemaId);
+        else next.add(schemaId);
+        return next;
+      });
+    },
+    [state.setSelectedForDownload],
+  );
 
   return (
     <>
@@ -126,7 +137,9 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       <AnimatePresence>
         {state.showIdGenerator && (state.unmappedRequiredIdTerms.length > 0 || state.generatedIdConfigs.length > 0) && (
           <IdGeneratorDialog
-            requiredIdTerms={[...new Set([...state.unmappedRequiredIdTerms, ...state.generatedIdConfigs.map(c => c.term)])]}
+            requiredIdTerms={[
+              ...new Set([...state.unmappedRequiredIdTerms, ...state.generatedIdConfigs.map((c) => c.term)]),
+            ]}
             columns={columns}
             data={data}
             existingMappings={state.mappings}
@@ -146,7 +159,12 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <Button onClick={onBack} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button
+                onClick={onBack}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <Sparkles className="w-8 h-8 text-purple-400" />
@@ -157,7 +175,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { setTutorialPhase(1); setShowTutorial(true); }}
+                onClick={() => {
+                  setTutorialPhase(1);
+                  setShowTutorial(true);
+                }}
                 className="text-xs border-primary/30 text-primary hover:bg-primary/10"
               >
                 {t("mapperTutorial.replay")}
@@ -241,7 +262,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
 
           {/* Complete button */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="mt-4 flex gap-4"
