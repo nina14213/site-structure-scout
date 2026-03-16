@@ -210,7 +210,7 @@ export default function SchemasPanel({
           )}
 
           {/* Schema list */}
-          <div className="flex-1 max-h-[50vh] overflow-y-auto space-y-4">
+          <div className="flex-1 max-h-[40vh] md:max-h-[50vh] overflow-y-auto space-y-4">
             {allSchemasFiltered.length > 0 ? (
               <>
                 {visible.map(({ schemaId, schemaName, required: req, optional: opt }) => {

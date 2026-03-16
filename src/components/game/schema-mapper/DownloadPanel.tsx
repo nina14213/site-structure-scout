@@ -281,7 +281,7 @@ export default function DownloadPanel({
               <Download className="w-5 h-5 mr-2" />
               {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
             </Button>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Button
                 onClick={() => onDownloadFiltered('optimal')}
                 variant="outline"

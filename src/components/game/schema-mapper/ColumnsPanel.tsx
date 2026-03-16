@@ -63,7 +63,7 @@ export default function ColumnsPanel({
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 max-h-[60vh] overflow-y-auto space-y-2">
+        <CardContent className="pt-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto space-y-2">
           {/* Mobile hint */}
           <p className="text-xs text-muted-foreground md:hidden mb-2 flex items-center gap-1">
             👆 {t("core.tapToSelect")}
