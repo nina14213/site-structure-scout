@@ -127,7 +127,7 @@ export default function DownloadPanel({
           )}
 
           {/* Schema file cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {schemasWithMappings.map((schemaId) => {
               const info = schemaTypes.find((s) => s.id === schemaId);
               const termCount = Object.keys(groupedMappings[schemaId]).length;
