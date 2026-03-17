@@ -1,10 +1,24 @@
+/**
+ * @file IdGeneratorDialog.tsx
+ * @description Dialog do generowania unikalnych identyfikatorów dla wymaganych pól ID w DwC-DP.
+ * Obsługuje tryby: prefix-auto, UUID, from-columns, skip.
+ * Używa Radix Dialog dla poprawnego renderowania jako pop-up.
+ */
+
 import React, { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Key, AlertTriangle, Check, SkipForward, Hash } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Key, AlertTriangle, Check, SkipForward, Hash } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 export type IdMode = 'prefix-auto' | 'uuid' | 'from-columns' | 'skip';
@@ -20,6 +34,7 @@ export interface IdFieldConfig {
 }
 
 interface IdGeneratorDialogProps {
+  open: boolean;
   requiredIdTerms: string[];
   columns: string[];
   data: any[];
@@ -68,6 +83,7 @@ function checkDuplicates(values: string[]): { hasDuplicates: boolean; duplicateC
 }
 
 export default function IdGeneratorDialog({
+  open,
   requiredIdTerms,
   columns,
   data,
@@ -80,7 +96,6 @@ export default function IdGeneratorDialog({
 
   const [configs, setConfigs] = useState<IdFieldConfig[]>(() =>
     requiredIdTerms.map(term => {
-      // Restore existing config if available
       const existing = existingConfigs?.find(c => c.term === term);
       if (existing) return existing;
       return {
@@ -99,62 +114,34 @@ export default function IdGeneratorDialog({
     setConfigs(prev => prev.map((c, i) => i === index ? { ...c, ...updates } : c));
   }, []);
 
-  // Full duplicate check per field
   const validationResults = useMemo(() => {
     return configs.map(config => {
       if (config.mode === 'skip') return { hasDuplicates: false, duplicateCount: 0 };
-
-      // Check if already mapped column has duplicates
       const existingCol = existingMappings[config.term];
       if (existingCol) {
         const vals = data.map(row => String(row[existingCol] ?? '').trim()).filter(Boolean);
         return checkDuplicates(vals);
       }
-
-      // Check generated values for duplicates
-      const allValues = generatePreviewValues(
-        { ...config, startNum: config.startNum },
-        data,
-        data.length
-      );
+      const allValues = generatePreviewValues(config, data, data.length);
       return checkDuplicates(allValues);
     });
   }, [configs, data, existingMappings]);
 
-  const availableColumns = columns.filter(c => !Object.values(existingMappings).includes(c));
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onDismiss(); }}
-    >
-      <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="bg-card border border-border rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border">
-          <div className="flex items-center gap-3">
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onDismiss(); }}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-primary/10">
               <Key className="w-5 h-5 text-primary" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">{t('idGen.title')}</h2>
-              <p className="text-sm text-muted-foreground">{t('idGen.subtitle')}</p>
-            </div>
-          </div>
-          <button onClick={onDismiss} className="p-2 rounded-full hover:bg-muted transition-colors">
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </div>
+            {t('idGen.title')}
+          </DialogTitle>
+          <DialogDescription>{t('idGen.subtitle')}</DialogDescription>
+        </DialogHeader>
 
         {/* Fields */}
-        <div className="p-5 space-y-4">
+        <div className="space-y-4 py-2">
           {configs.map((config, idx) => {
             const validation = validationResults[idx];
             const previews = generatePreviewValues(config, data, 3);
@@ -167,17 +154,17 @@ export default function IdGeneratorDialog({
                   config.mode === 'skip'
                     ? 'border-muted bg-muted/20 opacity-60'
                     : validation.hasDuplicates
-                      ? 'border-red-500/50 bg-red-500/5'
+                      ? 'border-destructive/50 bg-destructive/5'
                       : 'border-border bg-muted/30'
                 }`}
               >
                 {/* Term header */}
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <Hash className="w-4 h-4 text-primary" />
                   <span className="font-mono font-semibold text-foreground">{config.term}</span>
                   <Badge variant="destructive" className="text-[10px] h-4 px-1">{t('common.required')}</Badge>
                   {isAlreadyMapped && (
-                    <Badge className="text-[10px] h-4 px-1 bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                    <Badge className="text-[10px] h-4 px-1 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
                       {t('idGen.alreadyMapped')}: {existingMappings[config.term]}
                     </Badge>
                   )}
@@ -191,7 +178,7 @@ export default function IdGeneratorDialog({
                       size="sm"
                       variant={config.mode === mode ? 'default' : 'outline'}
                       onClick={() => updateConfig(idx, { mode })}
-                      className={`text-xs ${config.mode === mode ? 'bg-primary text-primary-foreground' : ''}`}
+                      className="text-xs"
                     >
                       {mode === 'prefix-auto' && `🔢 ${t('idGen.prefixAuto')}`}
                       {mode === 'uuid' && `🆔 UUID`}
@@ -264,9 +251,7 @@ export default function IdGeneratorDialog({
                             key={col}
                             variant={isSelected ? 'default' : 'outline'}
                             className={`cursor-pointer text-xs transition-colors ${
-                              isSelected
-                                ? 'bg-primary text-primary-foreground'
-                                : 'text-muted-foreground hover:text-foreground hover:border-primary/50'
+                              isSelected ? '' : 'text-muted-foreground hover:text-foreground hover:border-primary/50'
                             }`}
                             onClick={() => {
                               const newCols = isSelected
@@ -313,7 +298,7 @@ export default function IdGeneratorDialog({
 
                 {/* Duplicate warning */}
                 {validation.hasDuplicates && config.mode !== 'skip' && (
-                  <div className="flex items-center gap-2 mt-2 text-red-400 text-xs">
+                  <div className="flex items-center gap-2 mt-2 text-destructive text-xs">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                     <span>{t('idGen.duplicateWarning', { count: String(validation.duplicateCount) })}</span>
                   </div>
@@ -324,7 +309,7 @@ export default function IdGeneratorDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-5 border-t border-border">
+        <DialogFooter className="flex items-center justify-between sm:justify-between">
           <p className="text-xs text-muted-foreground">
             {configs.filter(c => c.mode !== 'skip').length} / {configs.length} {t('idGen.fieldsToGenerate')}
           </p>
@@ -334,20 +319,19 @@ export default function IdGeneratorDialog({
             </Button>
             <Button
               onClick={() => onApply(configs)}
-              className="bg-primary text-primary-foreground"
               disabled={validationResults.some((v, i) => v.hasDuplicates && configs[i].mode !== 'skip')}
             >
               <Check className="w-4 h-4 mr-1.5" />
               {t('idGen.apply')}
             </Button>
           </div>
-        </div>
-      </motion.div>
-    </motion.div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-// Utility: generate all ID values for export
+/** Utility: generate all ID values for export */
 export function generateAllIds(
   config: IdFieldConfig,
   data: any[],

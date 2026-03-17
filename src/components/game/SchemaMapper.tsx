@@ -134,24 +134,21 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       </AnimatePresence>
 
       {/* ID Generator dialog */}
-      <AnimatePresence>
-        {state.showIdGenerator && (state.unmappedRequiredIdTerms.length > 0 || state.generatedIdConfigs.length > 0) && (
-          <IdGeneratorDialog
-            requiredIdTerms={[
-              ...new Set([...state.unmappedRequiredIdTerms, ...state.generatedIdConfigs.map((c) => c.term)]),
-            ]}
-            columns={columns}
-            data={data}
-            existingMappings={state.mappings}
-            existingConfigs={state.generatedIdConfigs}
-            onApply={(configs) => {
-              state.saveIdConfigs(configs);
-              state.setShowIdGenerator(false);
-            }}
-            onDismiss={() => state.setShowIdGenerator(false)}
-          />
-        )}
-      </AnimatePresence>
+      <IdGeneratorDialog
+        open={state.showIdGenerator && (state.unmappedRequiredIdTerms.length > 0 || state.generatedIdConfigs.length > 0)}
+        requiredIdTerms={[
+          ...new Set([...state.unmappedRequiredIdTerms, ...state.generatedIdConfigs.map((c) => c.term)]),
+        ]}
+        columns={columns}
+        data={data}
+        existingMappings={state.mappings}
+        existingConfigs={state.generatedIdConfigs}
+        onApply={(configs) => {
+          state.saveIdConfigs(configs);
+          state.setShowIdGenerator(false);
+        }}
+        onDismiss={() => state.setShowIdGenerator(false)}
+      />
 
       {/* Main layout */}
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
