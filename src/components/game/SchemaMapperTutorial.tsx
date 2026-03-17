@@ -93,7 +93,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   ];
 
   // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
-  // Phase 2: steps 4-7 (optimal layout, download, ID gen, outro)
+  // Phase 2: steps 4-8 (optimal layout, dismiss, download, ID gen, outro)
   const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
   const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
 
