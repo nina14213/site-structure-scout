@@ -17,9 +17,10 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="schemas-panel"]',
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
+  '[data-tour="schemas-panel"]', // step 5: dismiss schemas
   '[data-tour="download-panel"]',
-  '[data-tour="download-panel"]', // step 6: ID gen (same panel)
-  null, // step 7: outro
+  '[data-tour="download-panel"]', // step 7: ID gen (same panel)
+  null, // step 8: outro
 ];
 
 interface TutorialStep {
@@ -68,25 +69,31 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step5.title',
       descKey: 'mapperTutorial.step5.desc',
-      icon: <Download className="w-8 h-8" />,
-      position: 'center',
+      icon: <X className="w-8 h-8" />,
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
-      icon: <Key className="w-8 h-8" />,
+      icon: <Download className="w-8 h-8" />,
       position: 'center',
     },
     {
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
+      icon: <Key className="w-8 h-8" />,
+      position: 'center',
+    },
+    {
+      titleKey: 'mapperTutorial.step8.title',
+      descKey: 'mapperTutorial.step8.desc',
       icon: <span className="text-5xl">🦎</span>,
       position: 'center',
     },
   ];
 
   // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
-  // Phase 2: steps 4-7 (optimal layout, download, ID gen, outro)
+  // Phase 2: steps 4-8 (optimal layout, dismiss, download, ID gen, outro)
   const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
   const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
 
