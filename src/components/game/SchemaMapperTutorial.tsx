@@ -69,18 +69,24 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step5.title',
       descKey: 'mapperTutorial.step5.desc',
-      icon: <Download className="w-8 h-8" />,
-      position: 'center',
+      icon: <X className="w-8 h-8" />,
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
-      icon: <Key className="w-8 h-8" />,
+      icon: <Download className="w-8 h-8" />,
       position: 'center',
     },
     {
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
+      icon: <Key className="w-8 h-8" />,
+      position: 'center',
+    },
+    {
+      titleKey: 'mapperTutorial.step8.title',
+      descKey: 'mapperTutorial.step8.desc',
       icon: <span className="text-5xl">🦎</span>,
       position: 'center',
     },
