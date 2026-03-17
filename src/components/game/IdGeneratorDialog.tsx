@@ -202,7 +202,7 @@ export default function IdGeneratorDialog({
                     </div>
                     <div>
                       <label className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('idGen.separator')}</label>
-                      <Select value={config.separator} onValueChange={(v) => updateConfig(idx, { separator: v })}>
+                      <Select value={config.separator || "none"} onValueChange={(v) => updateConfig(idx, { separator: v === "none" ? "" : v })}>
                         <SelectTrigger className="h-8 text-sm mt-1">
                           <SelectValue />
                         </SelectTrigger>
@@ -210,7 +210,7 @@ export default function IdGeneratorDialog({
                           <SelectItem value="-">- (myślnik)</SelectItem>
                           <SelectItem value="_">_ (podkreślenie)</SelectItem>
                           <SelectItem value=":">: (dwukropek)</SelectItem>
-                          <SelectItem value="">brak</SelectItem>
+                          <SelectItem value="none">brak</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
