@@ -17,9 +17,10 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="schemas-panel"]',
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
+  '[data-tour="schemas-panel"]', // step 5: dismiss schemas
   '[data-tour="download-panel"]',
-  '[data-tour="download-panel"]', // step 6: ID gen (same panel)
-  null, // step 7: outro
+  '[data-tour="download-panel"]', // step 7: ID gen (same panel)
+  null, // step 8: outro
 ];
 
 interface TutorialStep {
