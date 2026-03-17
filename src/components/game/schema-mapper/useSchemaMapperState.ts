@@ -296,10 +296,11 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   const currentSchema = schemaTerms[selectedSchema];
 
-  /** Wymagane ID-termy niezamapowane w schematach z mapowaniami */
+  /** Wymagane ID-termy niezamapowane — tylko w schematach wybranych (nie-dismissed) z mapowaniami */
   const unmappedRequiredIdTerms = useMemo(() => {
     const idTerms = new Set<string>();
-    for (const [, schema] of Object.entries(schemaTerms)) {
+    for (const [schemaId, schema] of Object.entries(schemaTerms)) {
+      if (dismissedSchemas.has(schemaId)) continue;
       const hasMapped = [...schema.required, ...schema.optional].some(t => mappings[t]);
       if (!hasMapped) continue;
       for (const req of schema.required) {
@@ -309,7 +310,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       }
     }
     return [...idTerms];
-  }, [mappings]);
+  }, [mappings, dismissedSchemas]);
 
   /** Wygenerowane wartości ID na cały dataset */
   const generatedIdValues = useMemo(() => {
