@@ -237,7 +237,7 @@ export function useSchemaExport({
       const grouped = getMappingsBySchema();
       const termMappings = grouped[schemaId];
       if (!termMappings) return;
-      downloadFile(generateCSV(termMappings), `${schemaId}_${baseName}.csv`);
+      downloadFile(generateCSV(termMappings, schemaId), `${schemaId}_${baseName}.csv`);
     },
     [getMappingsBySchema, generateCSV, downloadFile, baseName],
   );
