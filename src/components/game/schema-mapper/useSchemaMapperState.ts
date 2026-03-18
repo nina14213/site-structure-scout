@@ -393,6 +393,12 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     schemasWithMappings.forEach(schemaId => {
       const fullSchema = schemaTerms[schemaId];
       if (!fullSchema) { optional.push(schemaId); return; }
+
+      // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID
+      const schemaMappedTerms = Object.keys(groupedMappings[schemaId] || {});
+      const hasNonIdMapped = schemaMappedTerms.some(t => !t.toLowerCase().endsWith('id'));
+      if (!hasNonIdMapped) return;
+
       const hasReqFields = fullSchema.required.length > 0;
       const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t] || generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
       if (optimalIds.has(schemaId) && allReqMapped) {
