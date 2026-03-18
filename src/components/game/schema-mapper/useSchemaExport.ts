@@ -264,7 +264,7 @@ export function useSchemaExport({
       .map(schemaId => {
         const termMappings = grouped[schemaId];
         if (!termMappings) return null;
-        return { name: `${schemaId}_${baseName}.csv`, content: generateCSV(termMappings) };
+        return { name: `${schemaId}_${baseName}.csv`, content: generateCSV(termMappings, schemaId) };
       })
       .filter(Boolean) as { name: string; content: string }[];
     downloadZip(files, `${baseName}_selected.zip`);
