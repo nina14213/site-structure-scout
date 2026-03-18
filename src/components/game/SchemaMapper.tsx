@@ -1,28 +1,17 @@
 /**
  * @file SchemaMapper.tsx
  * @description Główny komponent Schema Mappera — orkiestruje pod-komponenty i hooki.
- *
- * Architektura po refaktoryzacji:
- * - schemaData.ts — definicje schematów i termów DwC-DP
- * - useSchemaMapperState.ts — stan, persystencja, logika mapowania
- * - useSchemaExport.ts — generowanie CSV, podgląd, pobieranie ZIP
- * - ColumnsPanel.tsx — panel kolumn źródłowych (lewy)
- * - SchemasPanel.tsx — panel schematów DwC-DP (prawy)
- * - OptimalLayoutPanel.tsx — wizualizacja optymalnego układu tabel
- * - DownloadPanel.tsx — eksport i pobieranie danych
- * - TermDropZone.tsx — strefa upuszczania dla pojedynczego termu
  */
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Check } from "lucide-react";
+import { ArrowLeft, Sparkles, Check, AlertTriangle, Key } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
 
-// Extracted modules
 import { useSchemaMapperState } from "./schema-mapper/useSchemaMapperState";
 import { useSchemaExport } from "./schema-mapper/useSchemaExport";
 import ColumnsPanel from "./schema-mapper/ColumnsPanel";
@@ -133,12 +122,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         )}
       </AnimatePresence>
 
-      {/* ID Generator dialog */}
+      {/* ID Generator dialog - TYLKO po przycisku */}
       <IdGeneratorDialog
-        open={state.showIdGenerator && (state.unmappedRequiredIdTerms.length > 0 || state.generatedIdConfigs.length > 0)}
-        requiredIdTerms={[
-          ...new Set([...state.unmappedRequiredIdTerms, ...state.generatedIdConfigs.map((c) => c.term)]),
-        ]}
+        open={state.showIdGenerator}
+        requiredIdTerms={state.unmappedRequiredIdTerms}
         columns={columns}
         data={data}
         existingMappings={state.mappings}
@@ -222,6 +209,30 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               classifiedSchemas={state.classifiedSchemas}
             />
           </div>
+
+          {/* ID Generator warning + button */}
+          {state.unmappedRequiredIdTerms.length > 0 && (
+            <div className="lg:col-span-2 mb-6 p-4 bg-destructive/5 border border-destructive/20 rounded-xl">
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-destructive">
+                      {t("idGen.missingRequired", { count: state.unmappedRequiredIdTerms.length })}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {state.unmappedRequiredIdTerms.slice(0, 2).join(", ")}
+                      {state.unmappedRequiredIdTerms.length > 2 && ` +${state.unmappedRequiredIdTerms.length - 2}`}
+                    </p>
+                  </div>
+                </div>
+                <Button onClick={() => state.setShowIdGenerator(true)} className="shrink-0">
+                  <Key className="w-4 h-4 mr-2" />
+                  Ustaw generatory ID
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Optimal layout panel */}
           <OptimalLayoutPanel
