@@ -219,6 +219,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               updateMappings={state.updateMappings}
               findBestColumnMatch={state.findBestColumnMatch}
               generatedIdConfigs={state.generatedIdConfigs}
+              classifiedSchemas={state.classifiedSchemas}
             />
           </div>
 

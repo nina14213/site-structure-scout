@@ -135,17 +135,26 @@ export function useSchemaExport({
     [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
   );
 
-  /** Generuje pełną treść CSV dla zestawu mapowań */
+  /** Generuje pełną treść CSV dla zestawu mapowań — nagłówki obejmują WSZYSTKIE termy schematu */
   const generateCSV = useCallback(
-    (termMappings: Record<string, string>) => {
+    (termMappings: Record<string, string>, schemaId?: string) => {
       const dwcHeaders = Object.keys(termMappings);
       const genTerms = getGenTermsForSchema(dwcHeaders);
 
+      // Pełna lista termów schematu (wymagane + opcjonalne), nie tylko zmapowane
+      let allSchemaTerms: string[] = dwcHeaders;
+      if (schemaId && schemaTerms[schemaId]) {
+        const schema = schemaTerms[schemaId];
+        allSchemaTerms = [...schema.required, ...schema.optional];
+      }
+
       const csvHeaders: string[] = [];
       genTerms.forEach(c => csvHeaders.push(c.term));
-      dwcHeaders.forEach((term) => {
-        csvHeaders.push(term);
-        if (convertDatesToISO && isDateTerm(term)) {
+      allSchemaTerms.forEach((term) => {
+        if (!csvHeaders.includes(term)) {
+          csvHeaders.push(term);
+        }
+        if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
           csvHeaders.push(`${term}_ISO`);
         }
       });
@@ -164,12 +173,13 @@ export function useSchemaExport({
           const vals = generatedIdValues[config.term];
           rowValues.push(escape(vals?.[rowIdx] ?? ''));
         });
-        dwcHeaders.forEach((dwcTerm) => {
-          const sourceColumn = termMappings[dwcTerm];
-          const rawValue = String(row[sourceColumn] ?? "");
+        allSchemaTerms.forEach((term) => {
+          if (genTerms.some(c => c.term === term)) return; // already added as generated
+          const sourceColumn = termMappings[term];
+          const rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
           rowValues.push(escape(rawValue));
-          if (convertDatesToISO && isDateTerm(dwcTerm)) {
-            const converted = maybeConvertDate(rawValue, dwcTerm);
+          if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
+            const converted = maybeConvertDate(rawValue, term);
             rowValues.push(escape(converted));
           }
         });
