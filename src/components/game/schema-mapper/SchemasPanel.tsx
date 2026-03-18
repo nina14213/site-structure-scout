@@ -77,6 +77,7 @@ export default function SchemasPanel({
   updateMappings,
   findBestColumnMatch,
   generatedIdConfigs,
+  classifiedSchemas,
 }: SchemasPanelProps) {
   const { t } = useLanguage();
 
