@@ -24,7 +24,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { dwcTerms } from "../DwCTerms";
 import { schemaTerms, schemaTypes } from "./schemaData";
 import TermDropZone from "./TermDropZone";
-import type { OptimalLayoutItem } from "./useSchemaMapperState";
+import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
 
 /** Sprawdza czy term pasuje do zapytania wyszukiwania */
 function matchesTermSearch(term: string, q: string): boolean {
@@ -55,6 +55,7 @@ interface SchemasPanelProps {
   updateMappings: (updater: (prev: Record<string, string>) => Record<string, string>) => void;
   findBestColumnMatch: (term: string) => string | undefined;
   generatedIdConfigs: { term: string; mode: string }[];
+  classifiedSchemas: ClassifiedSchemas;
 }
 
 export default function SchemasPanel({
@@ -76,6 +77,7 @@ export default function SchemasPanel({
   updateMappings,
   findBestColumnMatch,
   generatedIdConfigs,
+  classifiedSchemas,
 }: SchemasPanelProps) {
   const { t } = useLanguage();
 
@@ -97,32 +99,31 @@ export default function SchemasPanel({
 
   const optimalIds = new Set(optimalLayout.map(o => o.schemaId));
   const mappedIds = new Set(schemasWithMappings);
+  const optimalSet = new Set(classifiedSchemas.optimal);
+  const optionalSet = new Set(classifiedSchemas.optional);
 
-  /** Sortowanie schematów wg relevancji */
+  /** Sortowanie schematów: optymalne → opcjonalne → inne (z mapowaniami na górze) */
   const sorted = useMemo(() => {
     return [...allSchemasFiltered].sort((a, b) => {
-      const aMapped = [...a.required, ...a.optional].filter(t => mappings[t]).length;
-      const bMapped = [...b.required, ...b.optional].filter(t => mappings[t]).length;
+      const aOptimal = optimalSet.has(a.schemaId);
+      const bOptimal = optimalSet.has(b.schemaId);
+      const aOptional = optionalSet.has(a.schemaId);
+      const bOptional = optionalSet.has(b.schemaId);
       const aHasMappings = mappedIds.has(a.schemaId);
       const bHasMappings = mappedIds.has(b.schemaId);
-      const aFullSchema = schemaTerms[a.schemaId];
-      const bFullSchema = schemaTerms[b.schemaId];
-      const aMissingReq = aFullSchema?.required.filter(t => !mappings[t]).length || 0;
-      const bMissingReq = bFullSchema?.required.filter(t => !mappings[t]).length || 0;
-      const aReqOk = aMissingReq === 0;
-      const bReqOk = bMissingReq === 0;
 
-      if (aHasMappings !== bHasMappings) return bHasMappings ? 1 : -1;
-      if (aHasMappings && bHasMappings) {
-        if (aReqOk !== bReqOk) return aReqOk ? -1 : 1;
-        return bMapped - aMapped;
-      }
-      const aOptimal = optimalIds.has(a.schemaId);
-      const bOptimal = optimalIds.has(b.schemaId);
+      // Tier 1: optimal first
       if (aOptimal !== bOptimal) return aOptimal ? -1 : 1;
-      return 0;
+      // Tier 2: optional (classified) second
+      if (aOptional !== bOptional) return aOptional ? -1 : 1;
+      // Tier 3: has any mappings
+      if (aHasMappings !== bHasMappings) return aHasMappings ? -1 : 1;
+      // Tier 4: by mapped count
+      const aMapped = [...a.required, ...a.optional].filter(t => mappings[t]).length;
+      const bMapped = [...b.required, ...b.optional].filter(t => mappings[t]).length;
+      return bMapped - aMapped;
     });
-  }, [allSchemasFiltered, mappings, mappedIds, optimalIds]);
+  }, [allSchemasFiltered, mappings, mappedIds, optimalSet, optionalSet]);
 
   const dismissed = sorted.filter(s => dismissedSchemas.has(s.schemaId));
   const visible = sorted.filter(s => !dismissedSchemas.has(s.schemaId));
