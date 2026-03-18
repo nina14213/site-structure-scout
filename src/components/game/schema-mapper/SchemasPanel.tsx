@@ -55,6 +55,7 @@ interface SchemasPanelProps {
   updateMappings: (updater: (prev: Record<string, string>) => Record<string, string>) => void;
   findBestColumnMatch: (term: string) => string | undefined;
   generatedIdConfigs: { term: string; mode: string }[];
+  classifiedSchemas: ClassifiedSchemas;
 }
 
 export default function SchemasPanel({
