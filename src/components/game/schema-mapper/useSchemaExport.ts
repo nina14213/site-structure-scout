@@ -226,7 +226,7 @@ export function useSchemaExport({
     const grouped = getMappingsBySchema();
     const files = Object.entries(grouped).map(([schemaId, termMappings]) => ({
       name: `${schemaId}_${baseName}.csv`,
-      content: generateCSV(termMappings),
+      content: generateCSV(termMappings, schemaId),
     }));
     downloadZip(files, `${baseName}_dwc-dp.zip`);
   }, [getMappingsBySchema, generateCSV, downloadZip, baseName]);
