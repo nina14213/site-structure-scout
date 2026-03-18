@@ -24,7 +24,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { dwcTerms } from "../DwCTerms";
 import { schemaTerms, schemaTypes } from "./schemaData";
 import TermDropZone from "./TermDropZone";
-import type { OptimalLayoutItem } from "./useSchemaMapperState";
+import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
 
 /** Sprawdza czy term pasuje do zapytania wyszukiwania */
 function matchesTermSearch(term: string, q: string): boolean {
