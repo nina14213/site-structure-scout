@@ -301,8 +301,12 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     const idTerms = new Set<string>();
     for (const [schemaId, schema] of Object.entries(schemaTerms)) {
       if (dismissedSchemas.has(schemaId)) continue;
-      const hasMapped = [...schema.required, ...schema.optional].some(t => mappings[t]);
-      if (!hasMapped) continue;
+      const allTerms = [...schema.required, ...schema.optional];
+      const mappedTerms = allTerms.filter(t => mappings[t]);
+      if (mappedTerms.length === 0) continue;
+      // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID
+      const hasNonIdMapped = mappedTerms.some(t => !t.toLowerCase().endsWith('id'));
+      if (!hasNonIdMapped) continue;
       for (const req of schema.required) {
         if (req.toLowerCase().endsWith('id') && !mappings[req]) {
           idTerms.add(req);
