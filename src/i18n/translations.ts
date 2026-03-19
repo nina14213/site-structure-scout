@@ -1281,6 +1281,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'idGen.apply': 'Appliquer',
     'idGen.alreadyMapped': 'Mappé',
     'idGen.generated': 'généré',
+    'schema.missingIdsWarning': '⚠ Champs ID requis manquants ({terms}). Les fichiers seront téléchargés sans eux.',
     'schema.files': 'fichiers',
     'schema.columns': 'colonnes',
     'schema.preview': 'Aperçu',
