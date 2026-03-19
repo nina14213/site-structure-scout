@@ -294,6 +294,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'idGen.apply': 'Zastosuj',
     'idGen.alreadyMapped': 'Zmapowane',
     'idGen.generated': 'wygenerowane',
+    'schema.missingIdsWarning': '⚠ Brakuje wymaganych pól ID ({terms}). Pliki zostaną pobrane bez nich.',
     'schema.files': 'plików',
     'schema.columns': 'kolumn',
     'schema.preview': 'Podgląd',
