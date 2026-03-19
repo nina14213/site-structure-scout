@@ -16,7 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Download, CalendarClock, Key, Eye, Check, X,
+  Download, CalendarClock, Key, Eye, Check, X, AlertTriangle,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes } from "./schemaData";
