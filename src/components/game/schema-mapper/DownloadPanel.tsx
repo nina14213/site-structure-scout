@@ -16,7 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Download, CalendarClock, Key, Eye, Check, X,
+  Download, CalendarClock, Key, Eye, Check, X, AlertTriangle,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes } from "./schemaData";
@@ -270,6 +270,16 @@ export default function DownloadPanel({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Missing IDs warning */}
+          {unmappedRequiredIdTerms.length > 0 && generatedIdConfigs.filter(c => c.mode !== 'skip').length === 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+              <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+              <p className="text-sm text-destructive">
+                {t('schema.missingIdsWarning').replace('{terms}', unmappedRequiredIdTerms.join(', '))}
+              </p>
+            </div>
+          )}
 
           {/* Download buttons */}
           <div className="space-y-2">
