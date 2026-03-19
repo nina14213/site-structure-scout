@@ -1775,6 +1775,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'idGen.apply': 'Anwenden',
     'idGen.alreadyMapped': 'Zugeordnet',
     'idGen.generated': 'generiert',
+    'schema.missingIdsWarning': '⚠ Erforderliche ID-Felder fehlen ({terms}). Dateien werden ohne sie heruntergeladen.',
     'schema.files': 'Dateien',
     'schema.columns': 'Spalten',
     'schema.preview': 'Vorschau',
