@@ -787,6 +787,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'idGen.apply': 'Apply',
     'idGen.alreadyMapped': 'Mapped',
     'idGen.generated': 'generated',
+    'schema.missingIdsWarning': '⚠ Required ID fields missing ({terms}). Files will be downloaded without them.',
     'schema.files': 'files',
     'schema.columns': 'columns',
     'schema.preview': 'Preview',
