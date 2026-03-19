@@ -271,6 +271,16 @@ export default function DownloadPanel({
             )}
           </AnimatePresence>
 
+          {/* Missing IDs warning */}
+          {unmappedRequiredIdTerms.length > 0 && generatedIdConfigs.filter(c => c.mode !== 'skip').length === 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
+              <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+              <p className="text-sm text-destructive">
+                {t('schema.missingIdsWarning').replace('{terms}', unmappedRequiredIdTerms.join(', '))}
+              </p>
+            </div>
+          )}
+
           {/* Download buttons */}
           <div className="space-y-2">
             <Button
