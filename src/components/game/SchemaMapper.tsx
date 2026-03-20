@@ -207,6 +207,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               findBestColumnMatch={state.findBestColumnMatch}
               generatedIdConfigs={state.generatedIdConfigs}
               classifiedSchemas={state.classifiedSchemas}
+              forcedSchemas={state.forcedSchemas}
+              onToggleForceSchema={state.toggleForcedSchema}
             />
           </div>
 
