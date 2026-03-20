@@ -125,7 +125,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       {/* ID Generator dialog - TYLKO po przycisku */}
       <IdGeneratorDialog
         open={state.showIdGenerator}
-        requiredIdTerms={state.unmappedRequiredIdTerms}
+        requiredIdTerms={state.allRequiredIdTerms}
         columns={columns}
         data={data}
         existingMappings={state.mappings}
