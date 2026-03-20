@@ -451,6 +451,8 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     setSelectedForDownload,
     showIdGenerator,
     setShowIdGenerator,
+    forcedSchemas,
+    toggleForcedSchema,
 
     // Derived
     currentSchema,
