@@ -297,7 +297,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   const currentSchema = schemaTerms[selectedSchema];
 
-  /** Wymagane ID-termy niezamapowane — w schematach wybranych (nie-dismissed) z jakimikolwiek mapowaniami */
+  /** Wymagane ID-termy niezamapowane — w schematach z nie-ID mapowaniami LUB wymuszonych ręcznie */
   const unmappedRequiredIdTerms = useMemo(() => {
     const idTerms = new Set<string>();
     for (const [schemaId, schema] of Object.entries(schemaTerms)) {
@@ -305,6 +305,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       const allTerms = [...schema.required, ...schema.optional];
       const mappedTerms = allTerms.filter(t => mappings[t]);
       if (mappedTerms.length === 0) continue;
+      // Restrictive: require at least one non-ID field mapped, unless manually forced
+      const hasNonIdMapped = mappedTerms.some(t => !t.toLowerCase().endsWith('id'));
+      if (!hasNonIdMapped && !forcedSchemas.has(schemaId)) continue;
       for (const req of schema.required) {
         if (req.toLowerCase().endsWith('id') && !mappings[req]) {
           idTerms.add(req);
@@ -312,7 +315,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       }
     }
     return [...idTerms];
-  }, [mappings, dismissedSchemas]);
+  }, [mappings, dismissedSchemas, forcedSchemas]);
 
   /** Wygenerowane wartości ID na cały dataset */
   const generatedIdValues = useMemo(() => {
