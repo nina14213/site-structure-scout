@@ -116,6 +116,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const [dismissedSchemas, setDismissedSchemas] = useState<Set<string>>(new Set());
   const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
   const [showIdGenerator, setShowIdGenerator] = useState(false);
+  const [forcedSchemas, setForcedSchemas] = useState<Set<string>>(new Set());
 
   // ─── Persistence ───────────────────────────────────────────────────
 
@@ -296,7 +297,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   const currentSchema = schemaTerms[selectedSchema];
 
-  /** Wymagane ID-termy niezamapowane — w schematach wybranych (nie-dismissed) z jakimikolwiek mapowaniami */
+  /** Wymagane ID-termy niezamapowane — w schematach z nie-ID mapowaniami LUB wymuszonych ręcznie */
   const unmappedRequiredIdTerms = useMemo(() => {
     const idTerms = new Set<string>();
     for (const [schemaId, schema] of Object.entries(schemaTerms)) {
@@ -304,6 +305,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       const allTerms = [...schema.required, ...schema.optional];
       const mappedTerms = allTerms.filter(t => mappings[t]);
       if (mappedTerms.length === 0) continue;
+      // Restrictive: require at least one non-ID field mapped, unless manually forced
+      const hasNonIdMapped = mappedTerms.some(t => !t.toLowerCase().endsWith('id'));
+      if (!hasNonIdMapped && !forcedSchemas.has(schemaId)) continue;
       for (const req of schema.required) {
         if (req.toLowerCase().endsWith('id') && !mappings[req]) {
           idTerms.add(req);
@@ -311,7 +315,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       }
     }
     return [...idTerms];
-  }, [mappings, dismissedSchemas]);
+  }, [mappings, dismissedSchemas, forcedSchemas]);
 
   /** Wygenerowane wartości ID na cały dataset */
   const generatedIdValues = useMemo(() => {
@@ -398,7 +402,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID
       const schemaMappedTerms = Object.keys(groupedMappings[schemaId] || {});
       const hasNonIdMapped = schemaMappedTerms.some(t => !t.toLowerCase().endsWith('id'));
-      if (!hasNonIdMapped) return;
+      if (!hasNonIdMapped && !forcedSchemas.has(schemaId)) return;
 
       const hasReqFields = fullSchema.required.length > 0;
       const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t] || generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
@@ -409,7 +413,16 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       }
     });
     return { optimal, optional };
-  }, [optimalLayout, schemasWithMappings, mappings, generatedIdConfigs]);
+  }, [optimalLayout, schemasWithMappings, mappings, generatedIdConfigs, forcedSchemas]);
+
+  const toggleForcedSchema = useCallback((schemaId: string) => {
+    setForcedSchemas(prev => {
+      const next = new Set(prev);
+      if (next.has(schemaId)) next.delete(schemaId);
+      else next.add(schemaId);
+      return next;
+    });
+  }, []);
 
   const allRequiredMapped = currentSchema.required.every((term) => mappings[term]);
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
@@ -438,6 +451,8 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     setSelectedForDownload,
     showIdGenerator,
     setShowIdGenerator,
+    forcedSchemas,
+    toggleForcedSchema,
 
     // Derived
     currentSchema,

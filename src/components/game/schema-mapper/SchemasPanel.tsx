@@ -56,6 +56,8 @@ interface SchemasPanelProps {
   findBestColumnMatch: (term: string) => string | undefined;
   generatedIdConfigs: { term: string; mode: string }[];
   classifiedSchemas: ClassifiedSchemas;
+  forcedSchemas: Set<string>;
+  onToggleForceSchema: (schemaId: string) => void;
 }
 
 export default function SchemasPanel({
@@ -78,6 +80,8 @@ export default function SchemasPanel({
   findBestColumnMatch,
   generatedIdConfigs,
   classifiedSchemas,
+  forcedSchemas,
+  onToggleForceSchema,
 }: SchemasPanelProps) {
   const { t } = useLanguage();
 
@@ -230,12 +234,16 @@ export default function SchemasPanel({
                     })
                   );
                   const shouldBeOpen = !hasMappings && (searchTerm.length > 0 && totalVisible <= 15);
+                  const isForced = forcedSchemas.has(schemaId);
+                  const hasOnlyIdMappings = mappedCount > 0 && [...req, ...opt].filter(t => mappings[t]).every(t => t.toLowerCase().endsWith('id'));
+                  const hasMissingIdTerms = fullSchema?.required.some(t => t.toLowerCase().endsWith('id') && !mappings[t]);
 
                   return (
                     <details
                       key={schemaId}
                       open={shouldBeOpen}
                       className={`rounded-xl border transition-colors ${
+                        isForced ? 'border-primary/50 bg-primary/5' :
                         isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
                         hasMappings ? 'border-green-500/30 bg-green-500/5' :
                         isOptionalSchema ? 'border-amber-500/30 bg-amber-500/5' :
@@ -248,7 +256,20 @@ export default function SchemasPanel({
                             <info.icon className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <span className="font-semibold text-sm text-foreground flex-1">{schemaName}</span>
+                        <span
+                          className={`font-semibold text-sm flex-1 ${isForced ? 'text-primary' : 'text-foreground'}`}
+                          onClick={(e) => {
+                            if (hasMissingIdTerms) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onToggleForceSchema(schemaId);
+                            }
+                          }}
+                          title={hasMissingIdTerms ? (isForced ? 'Kliknij aby wyłączyć z eksportu ID' : 'Kliknij aby włączyć do eksportu ID') : undefined}
+                        >
+                          {schemaName}
+                          {isForced && ' 📌'}
+                        </span>
                         {isOptionalSchema && (
                           <>
                             <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px] h-4 px-1">
