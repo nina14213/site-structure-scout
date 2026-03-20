@@ -415,6 +415,15 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     return { optimal, optional };
   }, [optimalLayout, schemasWithMappings, mappings, generatedIdConfigs, forcedSchemas]);
 
+  const toggleForcedSchema = useCallback((schemaId: string) => {
+    setForcedSchemas(prev => {
+      const next = new Set(prev);
+      if (next.has(schemaId)) next.delete(schemaId);
+      else next.add(schemaId);
+      return next;
+    });
+  }, []);
+
   const allRequiredMapped = currentSchema.required.every((term) => mappings[term]);
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
