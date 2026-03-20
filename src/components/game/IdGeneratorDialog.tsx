@@ -94,21 +94,27 @@ export default function IdGeneratorDialog({
 }: IdGeneratorDialogProps) {
   const { t } = useLanguage();
 
-  const [configs, setConfigs] = useState<IdFieldConfig[]>(() =>
-    requiredIdTerms.map(term => {
-      const existing = existingConfigs?.find(c => c.term === term);
-      if (existing) return existing;
-      return {
-        term,
-        mode: 'prefix-auto' as IdMode,
-        prefix: term.replace(/ID$/i, '').toUpperCase(),
-        startNum: 1,
-        padding: Math.max(3, String(data.length).length),
-        separator: '-',
-        sourceColumns: [],
-      };
-    })
-  );
+  const [configs, setConfigs] = useState<IdFieldConfig[]>([]);
+
+  // Re-sync configs when dialog opens or terms change
+  React.useEffect(() => {
+    if (!open) return;
+    setConfigs(
+      requiredIdTerms.map(term => {
+        const existing = existingConfigs?.find(c => c.term === term);
+        if (existing) return existing;
+        return {
+          term,
+          mode: 'prefix-auto' as IdMode,
+          prefix: term.replace(/ID$/i, '').toUpperCase(),
+          startNum: 1,
+          padding: Math.max(3, String(data.length).length),
+          separator: '-',
+          sourceColumns: [],
+        };
+      })
+    );
+  }, [open, requiredIdTerms, existingConfigs, data.length]);
 
   const updateConfig = useCallback((index: number, updates: Partial<IdFieldConfig>) => {
     setConfigs(prev => prev.map((c, i) => i === index ? { ...c, ...updates } : c));
