@@ -402,7 +402,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID
       const schemaMappedTerms = Object.keys(groupedMappings[schemaId] || {});
       const hasNonIdMapped = schemaMappedTerms.some(t => !t.toLowerCase().endsWith('id'));
-      if (!hasNonIdMapped) return;
+      if (!hasNonIdMapped && !forcedSchemas.has(schemaId)) return;
 
       const hasReqFields = fullSchema.required.length > 0;
       const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t] || generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
