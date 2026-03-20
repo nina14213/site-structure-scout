@@ -56,6 +56,8 @@ interface SchemasPanelProps {
   findBestColumnMatch: (term: string) => string | undefined;
   generatedIdConfigs: { term: string; mode: string }[];
   classifiedSchemas: ClassifiedSchemas;
+  forcedSchemas: Set<string>;
+  onToggleForceSchema: (schemaId: string) => void;
 }
 
 export default function SchemasPanel({
