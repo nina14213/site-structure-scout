@@ -80,6 +80,8 @@ export default function SchemasPanel({
   findBestColumnMatch,
   generatedIdConfigs,
   classifiedSchemas,
+  forcedSchemas,
+  onToggleForceSchema,
 }: SchemasPanelProps) {
   const { t } = useLanguage();
 
