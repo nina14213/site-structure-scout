@@ -46,7 +46,7 @@ describe('useSchemaExport', () => {
     expect(rows[0].scientificName).toBe('Test Species');
   });
 
-  it('getPreviewRows zwraca max 5 wierszy', () => {
+  it('getPreviewRows zwraca max 10+1 wierszy (5 pierwszych + separator + 5 ostatnich)', () => {
     const bigData = Array.from({ length: 20 }, (_, i) => ({ name: `Sp ${i}` }));
     const { result } = renderHook(() =>
       useSchemaExport({
@@ -62,6 +62,8 @@ describe('useSchemaExport', () => {
     );
 
     const rows = result.current.getPreviewRows({ scientificName: 'name' });
-    expect(rows.length).toBeLessThanOrEqual(5);
+    // 5 first + 1 separator + 5 last = 11
+    expect(rows.length).toBe(11);
+    expect((rows[5] as any).__separator).toBe(true);
   });
 });
