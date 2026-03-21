@@ -1288,6 +1288,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.columns': 'colonnes',
     'schema.preview': 'Aperçu',
     'schema.previewFirst5': '5 premières lignes',
+    'schema.previewFirstLast': '5 premières et dernières lignes',
     'schema.dateConversion': 'Convertir les dates en ISO 8601',
     'schema.dateConversionDesc': 'Conversion automatique des dates (JJ-MM-AAAA, numéros Excel) au format AAAA-MM-JJ',
     'schema.convertDates': 'Convertir les dates',
