@@ -404,10 +404,16 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
       const fullSchema = schemaTerms[schemaId];
       if (!fullSchema) { optional.push(schemaId); return; }
 
-      // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID
+      // Pomijaj schematy, gdzie jedyne zmapowane pola to pola ID (chyba że wymuszone)
       const schemaMappedTerms = Object.keys(groupedMappings[schemaId] || {});
       const hasNonIdMapped = schemaMappedTerms.some(t => !t.toLowerCase().endsWith('id'));
       if (!hasNonIdMapped && !forcedSchemas.has(schemaId)) return;
+
+      // Wymuszone schematy (📌) zawsze trafiają do optymalnych
+      if (forcedSchemas.has(schemaId)) {
+        optimal.push(schemaId);
+        return;
+      }
 
       const hasReqFields = fullSchema.required.length > 0;
       const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t] || generatedIdConfigs.some(c => c.term === t && c.mode !== 'skip'));
