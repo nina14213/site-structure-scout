@@ -793,6 +793,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.columns': 'columns',
     'schema.preview': 'Preview',
     'schema.previewFirst5': 'first 5 rows',
+    'schema.previewFirstLast': 'first & last 5 rows',
     'schema.dateConversion': 'Convert dates to ISO 8601',
     'schema.dateConversionDesc': 'Auto-convert dates (DD-MM-YYYY, Excel serials) to YYYY-MM-DD format',
     'schema.convertDates': 'Convert dates',
