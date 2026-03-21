@@ -106,13 +106,13 @@ export function useSchemaExport({
     [generatedIdConfigs],
   );
 
-  /** Generuje wiersze podglądu (max 5) dla danego zestawu mapowań */
+  /** Generuje wiersze podglądu (pierwsze 5 + ostatnie 5) dla danego zestawu mapowań */
   const getPreviewRows = useCallback(
     (termMappings: Record<string, string>) => {
       const dwcHeaders = Object.keys(termMappings);
       const genTerms = getGenTermsForSchema(dwcHeaders);
 
-      return data.slice(0, 5).map((row, rowIdx) => {
+      const buildRow = (row: any, rowIdx: number) => {
         const previewRow: Record<string, string> = {};
         genTerms.forEach(config => {
           const vals = generatedIdValues[config.term];
@@ -130,7 +130,15 @@ export function useSchemaExport({
           }
         });
         return previewRow;
-      });
+      };
+
+      if (data.length <= 10) {
+        return data.map((row, i) => buildRow(row, i));
+      }
+
+      const firstRows = data.slice(0, 5).map((row, i) => buildRow(row, i));
+      const lastRows = data.slice(-5).map((row, i) => buildRow(row, data.length - 5 + i));
+      return [...firstRows, { __separator: true } as any, ...lastRows];
     },
     [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
   );

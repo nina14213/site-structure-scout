@@ -197,7 +197,7 @@ export default function DownloadPanel({
                 <div className="rounded-xl border border-border bg-muted/30 overflow-x-auto">
                   <div className="flex items-center justify-between px-4 py-2 border-b border-border">
                     <p className="text-sm font-medium text-foreground">
-                      {previewSchemaId}.csv — {t("schema.previewFirst5")}
+                      {previewSchemaId}.csv — {t("schema.previewFirstLast")}
                     </p>
                     <Button
                       variant="ghost"
@@ -211,8 +211,9 @@ export default function DownloadPanel({
                   <div className="overflow-x-auto">
                     {(() => {
                       const previewRows = getPreviewRows(groupedMappings[previewSchemaId]);
-                      const allHeaders = previewRows.length > 0
-                        ? Object.keys(previewRows[0])
+                      const nonSeparatorRows = previewRows.filter((r: any) => !r.__separator);
+                      const allHeaders = nonSeparatorRows.length > 0
+                        ? Object.keys(nonSeparatorRows[0])
                         : Object.keys(groupedMappings[previewSchemaId]);
                       return (
                         <table className="w-full text-xs">
@@ -241,26 +242,40 @@ export default function DownloadPanel({
                             </tr>
                           </thead>
                           <tbody>
-                            {previewRows.map((row, i) => (
-                              <tr key={i} className="border-b border-border/30">
-                                {allHeaders.map((term, j) => {
-                                  const isISO = term.endsWith('_ISO');
-                                  const isGenerated = generatedIdValues[term] !== undefined;
-                                  return (
+                            {previewRows.map((row: any, i: number) => {
+                              if (row.__separator) {
+                                return (
+                                  <tr key="separator" className="border-b border-border/30">
                                     <td
-                                      key={j}
-                                      className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
-                                        isISO ? 'text-cyan-500 font-medium italic' :
-                                        isGenerated ? 'text-amber-400 font-mono' :
-                                        isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
-                                      }`}
+                                      colSpan={allHeaders.length}
+                                      className="px-3 py-1.5 text-center text-muted-foreground italic text-[11px]"
                                     >
-                                      {row[term] || "—"}
+                                      ⋯
                                     </td>
-                                  );
-                                })}
-                              </tr>
-                            ))}
+                                  </tr>
+                                );
+                              }
+                              return (
+                                <tr key={i} className="border-b border-border/30">
+                                  {allHeaders.map((term, j) => {
+                                    const isISO = term.endsWith('_ISO');
+                                    const isGenerated = generatedIdValues[term] !== undefined;
+                                    return (
+                                      <td
+                                        key={j}
+                                        className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
+                                          isISO ? 'text-cyan-500 font-medium italic' :
+                                          isGenerated ? 'text-amber-400 font-mono' :
+                                          isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
+                                        }`}
+                                      >
+                                        {row[term] || "—"}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       );
