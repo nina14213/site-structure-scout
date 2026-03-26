@@ -7,19 +7,20 @@
  * - Przypisywanie kolumn kliknięciem (tap-to-assign na mobile)
  * - Wyświetlanie opisu termu w odpowiednim języku
  * - Wizualne rozróżnienie pól wymaganych vs opcjonalnych
+ * - Mapowanie wielu kolumn (pipe join) z możliwością usuwania i zmiany kolejności
  */
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Check, Target, MousePointerClick } from "lucide-react";
+import { X, Check, Target, MousePointerClick, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
 import { dwcTerms } from "../DwCTerms";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 interface TermDropZoneProps {
   /** Nazwa termu DwC (np. "eventID") */
   termName: string;
-  /** Zmapowana kolumna źródłowa (jeśli istnieje) */
+  /** Zmapowana kolumna źródłowa (jeśli istnieje) — może być pipe-separated */
   mappedColumn?: string;
   /** Czy pole jest wymagane w schemacie */
   isRequired: boolean;
@@ -31,6 +32,8 @@ interface TermDropZoneProps {
   onTapAssign?: (termName: string) => void;
   /** Czy jakaś kolumna jest aktualnie zaznaczona */
   hasSelectedColumn?: boolean;
+  /** Handler aktualizacji mapowań (do reorderu / usuwania pojedynczej kolumny) */
+  onUpdateMapping?: (termName: string, newValue: string) => void;
 }
 
 export default function TermDropZone({
@@ -41,9 +44,14 @@ export default function TermDropZone({
   onRemove,
   onTapAssign,
   hasSelectedColumn = false,
+  onUpdateMapping,
 }: TermDropZoneProps) {
   const { t, language } = useLanguage();
   const [isOver, setIsOver] = useState(false);
+
+  // Parse pipe-separated columns
+  const mappedColumns = mappedColumn ? mappedColumn.split(' | ') : [];
+  const isMultiColumn = mappedColumns.length > 1;
 
   // Pobierz opis termu w odpowiednim języku
   const term = dwcTerms[termName];
@@ -75,7 +83,27 @@ export default function TermDropZone({
   const handleClick = () => {
     if (hasSelectedColumn && !mappedColumn) {
       onTapAssign?.(termName);
+    } else if (hasSelectedColumn && mappedColumn) {
+      // Allow adding more columns via tap when already mapped
+      onTapAssign?.(termName);
     }
+  };
+
+  const removeColumn = (idx: number) => {
+    if (mappedColumns.length === 1) {
+      onRemove(termName);
+    } else {
+      const updated = mappedColumns.filter((_, i) => i !== idx).join(' | ');
+      onUpdateMapping?.(termName, updated);
+    }
+  };
+
+  const moveColumn = (idx: number, direction: -1 | 1) => {
+    const newIdx = idx + direction;
+    if (newIdx < 0 || newIdx >= mappedColumns.length) return;
+    const arr = [...mappedColumns];
+    [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+    onUpdateMapping?.(termName, arr.join(' | '));
   };
 
   return (
@@ -88,6 +116,7 @@ export default function TermDropZone({
         p-3 md:p-4 rounded-xl border-2 transition-all min-h-[44px]
         ${isOver ? "border-purple-500 bg-purple-500/20 scale-[1.02]" : ""}
         ${hasSelectedColumn && !mappedColumn ? "border-indigo-400 bg-indigo-500/20 border-dashed animate-pulse cursor-pointer" : ""}
+        ${hasSelectedColumn && mappedColumn ? "border-indigo-400/50 bg-indigo-500/10 cursor-pointer" : ""}
         ${
           !isOver && !hasSelectedColumn && mappedColumn
             ? "border-green-500/50 bg-green-500/10"
@@ -109,13 +138,18 @@ export default function TermDropZone({
                 {term.category === "core" ? "Core IDs" : term.category}
               </Badge>
             )}
+            {isMultiColumn && (
+              <Badge variant="outline" className="text-purple-400 border-purple-500/50 text-[10px]">
+                {mappedColumns.length} cols → pipe
+              </Badge>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">{termDescription || term?.description || "Darwin Core term"}</p>
         </div>
         {hasSelectedColumn && !mappedColumn && (
           <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce flex-shrink-0" />
         )}
-        {mappedColumn && (
+        {mappedColumn && !isMultiColumn && (
           <Button
             variant="ghost"
             size="sm"
@@ -132,10 +166,56 @@ export default function TermDropZone({
 
       {mappedColumn ? (
         <div className="mt-2 pt-2 border-t border-border/50">
-          <p className="text-sm text-green-400 flex items-center gap-1">
-            <Check className="w-3 h-3" />
-            {mappedColumn}
-          </p>
+          {isMultiColumn ? (
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground mb-1">{t('schema.columnsJoined')}</p>
+              {mappedColumns.map((col, idx) => (
+                <div key={`${col}-${idx}`} className="flex items-center gap-1 group">
+                  <span className="text-[10px] text-muted-foreground w-4 text-right">{idx + 1}.</span>
+                  <span className="text-sm text-green-400 flex-1">{col}</span>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => { e.stopPropagation(); moveColumn(idx, -1); }}
+                      disabled={idx === 0}
+                      className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => { e.stopPropagation(); moveColumn(idx, 1); }}
+                      disabled={idx === mappedColumns.length - 1}
+                      className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => { e.stopPropagation(); removeColumn(idx); }}
+                      className="h-5 w-5 p-0 text-muted-foreground hover:text-red-400"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  {idx < mappedColumns.length - 1 && (
+                    <span className="text-[10px] text-purple-400 font-mono">|</span>
+                  )}
+                </div>
+              ))}
+              {hasSelectedColumn && (
+                <p className="text-[10px] text-indigo-400 mt-1">+ {t('schema.addMoreColumns')}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-green-400 flex items-center gap-1">
+              <Check className="w-3 h-3" />
+              {mappedColumn}
+            </p>
+          )}
         </div>
       ) : (
         <div className="mt-2 pt-2 border-t border-border/50">

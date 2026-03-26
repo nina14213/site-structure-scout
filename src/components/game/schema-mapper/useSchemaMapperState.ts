@@ -217,12 +217,20 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     const columnName = e.dataTransfer.getData("text/plain");
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      if (!isMultiMapColumn(columnName)) {
-        Object.keys(newMappings).forEach((key) => {
-          if (newMappings[key] === columnName) delete newMappings[key];
-        });
+      // If the term already has a mapping, append the column (multi-column / pipe join)
+      if (newMappings[termName]) {
+        const existing = newMappings[termName].split(' | ');
+        if (!existing.includes(columnName)) {
+          newMappings[termName] = [...existing, columnName].join(' | ');
+        }
+      } else {
+        if (!isMultiMapColumn(columnName)) {
+          Object.keys(newMappings).forEach((key) => {
+            if (newMappings[key] === columnName) delete newMappings[key];
+          });
+        }
+        newMappings[termName] = columnName;
       }
-      newMappings[termName] = columnName;
       return newMappings;
     });
     setDraggedColumn(null);
@@ -244,12 +252,20 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     if (!selectedColumn) return;
     updateMappings((prev) => {
       const newMappings = { ...prev };
-      if (!isMultiMapColumn(selectedColumn)) {
-        Object.keys(newMappings).forEach((key) => {
-          if (newMappings[key] === selectedColumn) delete newMappings[key];
-        });
+      // If the term already has a mapping, append (multi-column / pipe join)
+      if (newMappings[termName]) {
+        const existing = newMappings[termName].split(' | ');
+        if (!existing.includes(selectedColumn)) {
+          newMappings[termName] = [...existing, selectedColumn].join(' | ');
+        }
+      } else {
+        if (!isMultiMapColumn(selectedColumn)) {
+          Object.keys(newMappings).forEach((key) => {
+            if (newMappings[key] === selectedColumn) delete newMappings[key];
+          });
+        }
+        newMappings[termName] = selectedColumn;
       }
-      newMappings[termName] = selectedColumn;
       return newMappings;
     });
     setSelectedColumn(null);

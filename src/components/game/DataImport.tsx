@@ -37,6 +37,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
     const [file, setFile] = useState<File | null>(null);
     const [fileType, setFileType] = useState<'csv' | 'txt' | 'xlsx' | null>(null);
     const [delimiter, setDelimiter] = useState(',');
+    const [customDelimiter, setCustomDelimiter] = useState('');
     const [decimalSign, setDecimalSign] = useState('.');
     const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
 
     const getActualDelimiter = (delim: string): string => {
         if (delim === '\\t') return '\t';
+        if (delim === '__custom__') return customDelimiter || ',';
         return delim;
     };
 
@@ -139,7 +141,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         });
         
         return { columns: headers, rows };
-    }, [decimalSign, t]);
+    }, [decimalSign, customDelimiter, t]);
 
     const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -325,8 +327,32 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 <SelectItem value="\t">{t('import.sep.tab')}</SelectItem>
                                                 <SelectItem value="|">{t('import.sep.pipe')}</SelectItem>
                                                 <SelectItem value=" ">{t('import.sep.space')}</SelectItem>
+                                                <SelectItem value="__custom__">{t('import.sep.other')}</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {delimiter === '__custom__' && (
+                                            <Input
+                                                value={customDelimiter}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setCustomDelimiter(val);
+                                                    if (val && file && (fileType === 'csv' || fileType === 'txt')) {
+                                                        file.text().then(text => {
+                                                            try {
+                                                                const parsed = parseTextFile(text, '__custom__');
+                                                                setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
+                                                                setError(null);
+                                                            } catch (err: any) {
+                                                                setError(err.message);
+                                                            }
+                                                        });
+                                                    }
+                                                }}
+                                                placeholder={t('import.sep.otherPlaceholder')}
+                                                maxLength={3}
+                                                className="bg-muted/50 border-border text-foreground w-24 mt-1"
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">

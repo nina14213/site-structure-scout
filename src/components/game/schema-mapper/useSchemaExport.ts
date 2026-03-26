@@ -120,7 +120,14 @@ export function useSchemaExport({
         });
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
-          const rawValue = String(row[sourceCol] ?? "");
+          let rawValue: string;
+          // Handle pipe-joined multi-column mappings
+          if (sourceCol && sourceCol.includes(' | ')) {
+            const cols = sourceCol.split(' | ');
+            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+          } else {
+            rawValue = String(row[sourceCol] ?? "");
+          }
           previewRow[term] = rawValue;
           if (convertDatesToISO && isDateTerm(term)) {
             const converted = maybeConvertDate(rawValue, term);
@@ -135,9 +142,13 @@ export function useSchemaExport({
       // Filter rows that have at least one non-empty mapped value
       const mappedCols = Object.values(termMappings);
       const rowHasData = (row: any) =>
-        mappedCols.some(col => {
-          const v = row[col];
-          return v !== undefined && v !== null && String(v).trim() !== '';
+        mappedCols.some(colSpec => {
+          // Handle pipe-joined multi-column specs
+          const cols = colSpec.includes(' | ') ? colSpec.split(' | ') : [colSpec];
+          return cols.some(col => {
+            const v = row[col];
+            return v !== undefined && v !== null && String(v).trim() !== '';
+          });
         });
 
       const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
@@ -195,7 +206,14 @@ export function useSchemaExport({
         allSchemaTerms.forEach((term) => {
           if (genTerms.some(c => c.term === term)) return; // already added as generated
           const sourceColumn = termMappings[term];
-          const rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
+          let rawValue: string;
+          // Handle pipe-joined multi-column mappings
+          if (sourceColumn && sourceColumn.includes(' | ')) {
+            const cols = sourceColumn.split(' | ');
+            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+          } else {
+            rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
+          }
           rowValues.push(escape(rawValue));
           if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
             const converted = maybeConvertDate(rawValue, term);

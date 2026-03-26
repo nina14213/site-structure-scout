@@ -252,8 +252,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.sep.tab': 'Tab',
     'import.sep.pipe': 'Pipe (|)',
     'import.sep.space': 'Spacja ( )',
+    'import.sep.other': 'Inne...',
+    'import.sep.otherPlaceholder': 'Wpisz separator',
     'import.dec.dot': 'Kropka (.)',
     'import.dec.comma': 'Przecinek (,)',
+    'schema.addMoreColumns': 'Przeciągnij kolejną kolumnę aby połączyć',
+    'schema.columnsJoined': 'Połączone kolumny (separator |)',
 
     // === SchemaMapper ===
     'schema.title': 'Stwórz swoją Data Package',
@@ -747,8 +751,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.sep.tab': 'Tab',
     'import.sep.pipe': 'Pipe (|)',
     'import.sep.space': 'Space ( )',
+    'import.sep.other': 'Other...',
+    'import.sep.otherPlaceholder': 'Enter separator',
     'import.dec.dot': 'Dot (.)',
     'import.dec.comma': 'Comma (,)',
+    'schema.addMoreColumns': 'Drop another column to concatenate',
+    'schema.columnsJoined': 'Joined columns (pipe separator)',
 
     // === SchemaMapper ===
     'schema.title': 'Create Your Data Package',
@@ -1241,8 +1249,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.sep.tab': 'Tabulation',
     'import.sep.pipe': 'Barre verticale (|)',
     'import.sep.space': 'Espace ( )',
+    'import.sep.other': 'Autre...',
+    'import.sep.otherPlaceholder': 'Entrez le séparateur',
     'import.dec.dot': 'Point (.)',
     'import.dec.comma': 'Virgule (,)',
+    'schema.addMoreColumns': 'Glissez une autre colonne pour concaténer',
+    'schema.columnsJoined': 'Colonnes jointes (séparateur |)',
 
     // === SchemaMapper ===
     'schema.title': 'Créez votre Data Package',
@@ -1736,8 +1748,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'import.sep.tab': 'Tab',
     'import.sep.pipe': 'Pipe (|)',
     'import.sep.space': 'Leerzeichen ( )',
+    'import.sep.other': 'Andere...',
+    'import.sep.otherPlaceholder': 'Trennzeichen eingeben',
     'import.dec.dot': 'Punkt (.)',
     'import.dec.comma': 'Komma (,)',
+    'schema.addMoreColumns': 'Weitere Spalte ziehen zum Verknüpfen',
+    'schema.columnsJoined': 'Verbundene Spalten (Pipe-Trennzeichen)',
 
     // === SchemaMapper ===
     'schema.title': 'Erstelle dein Data Package',

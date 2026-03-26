@@ -347,6 +347,7 @@ export default function SchemasPanel({
                                 onRemove={onRemoveMapping}
                                 onTapAssign={onTapAssignTerm}
                                 hasSelectedColumn={!!selectedColumn}
+                                onUpdateMapping={(term, val) => updateMappings(prev => ({ ...prev, [term]: val }))}
                               />
                             ))}
                           </div>
@@ -368,6 +369,7 @@ export default function SchemasPanel({
                                 onRemove={onRemoveMapping}
                                 onTapAssign={onTapAssignTerm}
                                 hasSelectedColumn={!!selectedColumn}
+                                onUpdateMapping={(term, val) => updateMappings(prev => ({ ...prev, [term]: val }))}
                               />
                             ))}
                           </div>
