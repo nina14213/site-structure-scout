@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key } from 'lucide-react';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key, GitMerge } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 interface SchemaMapperTutorialProps {
@@ -15,12 +15,13 @@ const HIGHLIGHT_SELECTORS = [
   null, // step 0: intro, no highlight
   '[data-tour="columns-panel"]',
   '[data-tour="schemas-panel"]',
+  '[data-tour="schemas-panel"]', // step 3: multi-column pipe (same panel)
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
-  '[data-tour="schemas-panel"]', // step 5: dismiss schemas
+  '[data-tour="schemas-panel"]', // step 6: dismiss schemas
   '[data-tour="download-panel"]',
-  '[data-tour="download-panel"]', // step 7: ID gen (same panel)
-  null, // step 8: outro
+  '[data-tour="download-panel"]', // step 8: ID gen (same panel)
+  null, // step 9: outro
 ];
 
 interface TutorialStep {
@@ -57,45 +58,51 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step3.title',
       descKey: 'mapperTutorial.step3.desc',
-      icon: <Sparkles className="w-8 h-8" />,
-      position: 'right',
+      icon: <GitMerge className="w-8 h-8" />,
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step4.title',
       descKey: 'mapperTutorial.step4.desc',
-      icon: <Minimize2 className="w-8 h-8" />,
-      position: 'center',
+      icon: <Sparkles className="w-8 h-8" />,
+      position: 'right',
     },
     {
       titleKey: 'mapperTutorial.step5.title',
       descKey: 'mapperTutorial.step5.desc',
-      icon: <X className="w-8 h-8" />,
-      position: 'left',
+      icon: <Minimize2 className="w-8 h-8" />,
+      position: 'center',
     },
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
-      icon: <Download className="w-8 h-8" />,
-      position: 'center',
+      icon: <X className="w-8 h-8" />,
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
-      icon: <Key className="w-8 h-8" />,
+      icon: <Download className="w-8 h-8" />,
       position: 'center',
     },
     {
       titleKey: 'mapperTutorial.step8.title',
       descKey: 'mapperTutorial.step8.desc',
+      icon: <Key className="w-8 h-8" />,
+      position: 'center',
+    },
+    {
+      titleKey: 'mapperTutorial.step9.title',
+      descKey: 'mapperTutorial.step9.desc',
       icon: <span className="text-5xl">🦎</span>,
       position: 'center',
     },
   ];
 
-  // Phase 1: steps 0-3 (intro, columns, schemas, auto-map)
-  // Phase 2: steps 4-8 (optimal layout, dismiss, download, ID gen, outro)
-  const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
-  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
+  // Phase 1: steps 0-4 (intro, columns, schemas, multi-column, auto-map)
+  // Phase 2: steps 5-9 (optimal layout, dismiss, download, ID gen, outro)
+  const steps = phase === 1 ? allSteps.slice(0, 5) : allSteps.slice(5);
+  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 5) : HIGHLIGHT_SELECTORS.slice(5);
 
   const updateHighlight = useCallback(() => {
     const selector = highlightSelectors[currentStep];
