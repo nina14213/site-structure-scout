@@ -141,7 +141,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         });
         
         return { columns: headers, rows };
-    }, [decimalSign, t]);
+    }, [decimalSign, customDelimiter, t]);
 
     const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
