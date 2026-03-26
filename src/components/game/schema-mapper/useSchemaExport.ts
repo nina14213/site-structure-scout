@@ -120,7 +120,14 @@ export function useSchemaExport({
         });
         dwcHeaders.forEach((term) => {
           const sourceCol = termMappings[term];
-          const rawValue = String(row[sourceCol] ?? "");
+          let rawValue: string;
+          // Handle pipe-joined multi-column mappings
+          if (sourceCol && sourceCol.includes(' | ')) {
+            const cols = sourceCol.split(' | ');
+            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+          } else {
+            rawValue = String(row[sourceCol] ?? "");
+          }
           previewRow[term] = rawValue;
           if (convertDatesToISO && isDateTerm(term)) {
             const converted = maybeConvertDate(rawValue, term);
