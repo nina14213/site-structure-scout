@@ -338,6 +338,39 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     return allRequiredIdTerms.filter(t => !mappings[t] && !configuredTerms.has(t));
   }, [allRequiredIdTerms, mappings, generatedIdConfigs]);
 
+  /** Detect non-ISO dates in eventDate mapping */
+  const eventDateIsoSuggestion = useMemo(() => {
+    const eventDateCol = mappings['eventDate'];
+    if (!eventDateCol) return null;
+    // Already have verbatimEventDate mapped to same column — suggestion was applied
+    if (mappings['verbatimEventDate'] === eventDateCol) return null;
+
+    const isoRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/;
+    const sampleSize = Math.min(data.length, 50);
+    let nonIsoCount = 0;
+    let totalNonEmpty = 0;
+    for (let i = 0; i < sampleSize; i++) {
+      const cols = eventDateCol.includes(' | ') ? eventDateCol.split(' | ') : [eventDateCol];
+      const val = String(cols.map(c => data[i]?.[c] ?? '').join('')).trim();
+      if (!val) continue;
+      totalNonEmpty++;
+      if (!isoRegex.test(val)) nonIsoCount++;
+    }
+    if (totalNonEmpty === 0 || nonIsoCount === 0) return null;
+    return { column: eventDateCol, nonIsoCount, totalNonEmpty };
+  }, [mappings, data]);
+
+  /** Apply suggestion: copy eventDate → verbatimEventDate */
+  const applyEventDateIsoSuggestion = useCallback(() => {
+    const eventDateCol = mappings['eventDate'];
+    if (!eventDateCol) return;
+    updateMappings(prev => ({
+      ...prev,
+      verbatimEventDate: eventDateCol,
+    }));
+    setConvertDatesToISO(true);
+  }, [mappings, updateMappings]);
+
   /** Wygenerowane wartości ID na cały dataset */
   const generatedIdValues = useMemo(() => {
     const result: Record<string, string[]> = {};
@@ -488,6 +521,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
      unmappedRequiredIdTerms,
      allRequiredIdTerms,
     generatedIdValues,
+    eventDateIsoSuggestion,
     groupedMappings,
     schemasWithMappings,
     optimalLayout,
@@ -510,6 +544,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     saveMappings,
     saveIdConfigs,
     updateMappings,
+    applyEventDateIsoSuggestion,
     getMappingsBySchema,
 
     // Helpers
