@@ -327,8 +327,32 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                 <SelectItem value="\t">{t('import.sep.tab')}</SelectItem>
                                                 <SelectItem value="|">{t('import.sep.pipe')}</SelectItem>
                                                 <SelectItem value=" ">{t('import.sep.space')}</SelectItem>
+                                                <SelectItem value="__custom__">{t('import.sep.other')}</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {delimiter === '__custom__' && (
+                                            <Input
+                                                value={customDelimiter}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setCustomDelimiter(val);
+                                                    if (val && file && (fileType === 'csv' || fileType === 'txt')) {
+                                                        file.text().then(text => {
+                                                            try {
+                                                                const parsed = parseTextFile(text, '__custom__');
+                                                                setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
+                                                                setError(null);
+                                                            } catch (err: any) {
+                                                                setError(err.message);
+                                                            }
+                                                        });
+                                                    }
+                                                }}
+                                                placeholder={t('import.sep.otherPlaceholder')}
+                                                maxLength={3}
+                                                className="bg-muted/50 border-border text-foreground w-24 mt-1"
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">
