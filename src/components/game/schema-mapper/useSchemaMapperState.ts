@@ -521,6 +521,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
      unmappedRequiredIdTerms,
      allRequiredIdTerms,
     generatedIdValues,
+    eventDateIsoSuggestion,
     groupedMappings,
     schemasWithMappings,
     optimalLayout,
@@ -543,6 +544,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     saveMappings,
     saveIdConfigs,
     updateMappings,
+    applyEventDateIsoSuggestion,
     getMappingsBySchema,
 
     // Helpers

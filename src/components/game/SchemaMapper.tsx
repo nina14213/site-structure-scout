@@ -7,7 +7,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Check, AlertTriangle, Key } from "lucide-react";
+import { ArrowLeft, Sparkles, Check, AlertTriangle, Key, CalendarClock } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -231,6 +231,37 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 <Button onClick={() => state.setShowIdGenerator(true)} className="shrink-0">
                   <Key className="w-4 h-4 mr-2" />
                   Ustaw generatory ID
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* eventDate ISO conversion suggestion */}
+          {state.eventDateIsoSuggestion && (
+            <div className="lg:col-span-2 mb-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CalendarClock className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-amber-600 dark:text-amber-400">
+                      {t("schema.eventDateNotIso")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("schema.eventDateNotIsoDesc", {
+                        count: state.eventDateIsoSuggestion.nonIsoCount,
+                        total: state.eventDateIsoSuggestion.totalNonEmpty,
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={state.applyEventDateIsoSuggestion}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                >
+                  <CalendarClock className="w-4 h-4 mr-2" />
+                  {t("schema.applyDateSuggestion")}
                 </Button>
               </div>
             </div>
