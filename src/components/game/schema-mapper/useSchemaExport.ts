@@ -15,8 +15,9 @@ import JSZip from "jszip";
 import { schemaTerms } from "./schemaData";
 import type { IdFieldConfig } from "../IdGeneratorDialog";
 
-/** Sprawdza czy term jest termem daty */
+/** Sprawdza czy term jest termem daty (wyklucza verbatim*) */
 export function isDateTerm(term: string) {
+  if (/^verbatim/i.test(term)) return false;
   return /date|Date|day|Day|eventDate|dateIdentified|georeferencedDate|CreateDate|agentRoleDate/.test(term);
 }
 
