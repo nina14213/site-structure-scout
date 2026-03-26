@@ -37,6 +37,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
     const [file, setFile] = useState<File | null>(null);
     const [fileType, setFileType] = useState<'csv' | 'txt' | 'xlsx' | null>(null);
     const [delimiter, setDelimiter] = useState(',');
+    const [customDelimiter, setCustomDelimiter] = useState('');
     const [decimalSign, setDecimalSign] = useState('.');
     const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
 
     const getActualDelimiter = (delim: string): string => {
         if (delim === '\\t') return '\t';
+        if (delim === '__custom__') return customDelimiter || ',';
         return delim;
     };
 
