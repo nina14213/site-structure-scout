@@ -80,7 +80,8 @@ export function findAutoMatches(
   data: any[],
   schemaTerms: Record<string, { required: string[]; optional: string[] }>,
   schemaTypes: { id: string; name: string }[],
-  language: string
+  language: string,
+  exactOnly: boolean = false
 ): AutoMatchResult[] {
   const results: AutoMatchResult[] = [];
   const matchedColumns = new Set<string>();
@@ -130,16 +131,18 @@ export function findAutoMatches(
     }
   }
 
-  // Pass 2: Alias match
-  for (let ci = 0; ci < columns.length; ci++) {
-    if (matchedColumns.has(columns[ci])) continue;
-    const colNorm = normalizedColumns[ci];
-    for (const { schemaId, term } of allEntries) {
-      if (matchedTerms.has(`${schemaId}:${term}`)) continue;
-      const aliases = termAliases[term];
-      if (aliases && aliases.some(a => normalizeHeader(a) === colNorm)) {
-        addResult(columns[ci], term, schemaId);
-        break;
+  // Pass 2: Alias match (skipped in exactOnly mode)
+  if (!exactOnly) {
+    for (let ci = 0; ci < columns.length; ci++) {
+      if (matchedColumns.has(columns[ci])) continue;
+      const colNorm = normalizedColumns[ci];
+      for (const { schemaId, term } of allEntries) {
+        if (matchedTerms.has(`${schemaId}:${term}`)) continue;
+        const aliases = termAliases[term];
+        if (aliases && aliases.some(a => normalizeHeader(a) === colNorm)) {
+          addResult(columns[ci], term, schemaId);
+          break;
+        }
       }
     }
   }

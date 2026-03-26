@@ -181,7 +181,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   /** Ręczne uruchomienie detekcji nagłówków */
   const handleDetectHeaders = useCallback(() => {
-    const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language);
+    const matches = findAutoMatches(columns, data, schemaTerms, schemaTypes, language, true);
     setAutoMatchResults(matches);
     if (matches.length > 0) {
       setShowAutoMatch(true);
