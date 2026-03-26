@@ -132,12 +132,23 @@ export function useSchemaExport({
         return previewRow;
       };
 
-      if (data.length <= 10) {
-        return data.map((row, i) => buildRow(row, i));
+      // Filter rows that have at least one non-empty mapped value
+      const mappedCols = Object.values(termMappings);
+      const rowHasData = (row: any) =>
+        mappedCols.some(col => {
+          const v = row[col];
+          return v !== undefined && v !== null && String(v).trim() !== '';
+        });
+
+      const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
+      const nonEmptyRows = dataWithIndex.filter(r => rowHasData(r.row));
+
+      if (nonEmptyRows.length <= 10) {
+        return nonEmptyRows.map(r => buildRow(r.row, r.idx));
       }
 
-      const firstRows = data.slice(0, 5).map((row, i) => buildRow(row, i));
-      const lastRows = data.slice(-5).map((row, i) => buildRow(row, data.length - 5 + i));
+      const firstRows = nonEmptyRows.slice(0, 5).map(r => buildRow(r.row, r.idx));
+      const lastRows = nonEmptyRows.slice(-5).map(r => buildRow(r.row, r.idx));
       return [...firstRows, { __separator: true } as any, ...lastRows];
     },
     [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
