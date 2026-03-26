@@ -142,9 +142,13 @@ export function useSchemaExport({
       // Filter rows that have at least one non-empty mapped value
       const mappedCols = Object.values(termMappings);
       const rowHasData = (row: any) =>
-        mappedCols.some(col => {
-          const v = row[col];
-          return v !== undefined && v !== null && String(v).trim() !== '';
+        mappedCols.some(colSpec => {
+          // Handle pipe-joined multi-column specs
+          const cols = colSpec.includes(' | ') ? colSpec.split(' | ') : [colSpec];
+          return cols.some(col => {
+            const v = row[col];
+            return v !== undefined && v !== null && String(v).trim() !== '';
+          });
         });
 
       const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
