@@ -1872,7 +1872,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step0.title': 'Willkommen im Data Package Creator!',
     'mapperTutorial.step0.desc': 'Ich bin Ihr Guide 🦎 — ich zeige Ihnen Schritt für Schritt, wie Sie Ihre Daten ins Darwin Core Data Package-Format umwandeln. Bereit?',
     'mapperTutorial.step1.title': 'Ihre Spalten',
-    'mapperTutorial.step1.desc': 'Hier sehen Sie die Spalten Ihrer Datei. Unter jedem Spaltennamen schlägt das System ein passendes DwC-Feld vor (💡) — basierend auf der offiziellen Darwin Core-Terminologieliste.\n\nKlicken Sie auf „Zuordnung vorschlagen" unter der Spaltenliste, um alle vorgeschlagenen Felder mit einem Klick zuzuordnen.\n\nSie können auch manuell auf eine Spalte klicken und sie einem DwC-Feld rechts zuordnen.',
+    'mapperTutorial.step1.desc': 'Hier sehen Sie die Spalten Ihrer Datei.\n\nKlicken Sie auf „Zuordnung vorschlagen" unter der Spaltenliste — ein Popup öffnet sich mit Zuordnungsvorschlägen. Für jede Spalte sehen Sie die DwC-Felddefinition, einen Beispielwert und Daten aus Ihrer Datei. Sie können wählen, welche Vorschläge Sie übernehmen möchten.\n\nSie können auch manuell auf eine Spalte klicken und sie einem DwC-Feld rechts zuordnen.',
     'mapperTutorial.step2.title': 'DwC-DP Schemas',
     'mapperTutorial.step2.desc': 'Hier finden Sie alle Darwin Core Data Package-Tabellen. Erweitern Sie eine Tabelle und ordnen Sie Ihre Spalte zu. Pflichtfelder haben einen orangenen Rahmen.',
     'mapperTutorial.step3.title': 'Multi-Spalten-Zuordnung (Pipe)',
