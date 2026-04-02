@@ -126,6 +126,8 @@ export function useSchemaExport({
           if (sourceCol && sourceCol.includes(' | ')) {
             const cols = sourceCol.split(' | ');
             rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            // Add legend column with source column names
+            previewRow[`${term}_legenda`] = cols.join(' | ');
           } else {
             rawValue = String(row[sourceCol] ?? "");
           }
@@ -185,6 +187,10 @@ export function useSchemaExport({
         if (!csvHeaders.includes(term)) {
           csvHeaders.push(term);
         }
+        // Add legend column for multi-mapped terms
+        if (termMappings[term] && termMappings[term].includes(' | ')) {
+          csvHeaders.push(`${term}_legenda`);
+        }
         if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
           csvHeaders.push(`${term}_ISO`);
         }
@@ -216,6 +222,11 @@ export function useSchemaExport({
             rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
           }
           rowValues.push(escape(rawValue));
+          // Add legend value for multi-mapped terms
+          if (sourceColumn && sourceColumn.includes(' | ')) {
+            const cols = sourceColumn.split(' | ');
+            rowValues.push(escape(cols.join(' | ')));
+          }
           if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
             const converted = maybeConvertDate(rawValue, term);
             rowValues.push(escape(converted));
