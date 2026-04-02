@@ -846,7 +846,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step0.title': 'Welcome to Data Package Creator!',
     'mapperTutorial.step0.desc': 'I\'m your guide 🦎 — I\'ll show you step by step how to transform your data into Darwin Core Data Package format. Ready?',
     'mapperTutorial.step1.title': 'Your columns',
-    'mapperTutorial.step1.desc': 'Here you see columns from your file. Click a column to select it, then click a DwC field on the right to map them. On desktop you can also drag & drop!',
+    'mapperTutorial.step1.desc': 'Here you see columns from your file. Under each column name, the system suggests a matching DwC field (💡) — based on the official Darwin Core terms list.\n\nClick "Suggest mapping" below the column list to auto-map all suggested fields in one click.\n\nYou can also manually click a column and assign it to a DwC field on the right, or drag & drop on desktop!',
     'mapperTutorial.step2.title': 'DwC-DP Schemas',
     'mapperTutorial.step2.desc': 'Here you\'ll find all Darwin Core Data Package tables. Expand a table and drop your column onto a field. Required fields have an orange border. Use search to quickly find fields.',
     'mapperTutorial.step3.title': 'Multi-column mapping (pipe)',
