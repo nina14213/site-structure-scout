@@ -155,13 +155,6 @@ export default function ColumnsPanel({
                   <p className="text-xs text-muted-foreground truncate">
                     {t("schema.samplePrefix")} {getSampleValues(column) || "—"}
                   </p>
-                  {/* DwC term suggestion */}
-                  {columnSuggestions[column] && !mappedTo && (
-                    <p className="text-[11px] text-amber-500/80 mt-1 flex items-center gap-1 truncate">
-                      <Lightbulb className="w-3 h-3 flex-shrink-0" />
-                      <span>→ <code className="font-mono">{columnSuggestions[column]}</code></span>
-                    </p>
-                  )}
                 </div>
               </motion.div>
             );
