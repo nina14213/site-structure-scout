@@ -1778,6 +1778,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.subtitle': 'Lade Daten hoch und ordne sie dem Darwin Core-Standard zu',
     'schema.selectSchema': 'Darwin Core-Schema auswählen',
     'schema.yourColumns': 'Deine Spalten',
+    'schema.suggestMapping': 'Zuordnung vorschlagen',
     'schema.rows': 'Zeilen',
     'schema.searchFields': 'Felder suchen...',
     'schema.allSchemas': 'alle Schemas',
