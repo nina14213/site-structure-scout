@@ -53,29 +53,6 @@ export default function ColumnsPanel({
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
-  // Compute DwC term suggestion for each column (only official terms)
-  const columnSuggestions = useMemo(() => {
-    const suggestions: Record<string, string> = {};
-    for (const col of columns) {
-      const colNorm = normalizeHeader(col);
-      // 1. Exact match with official term
-      const exactMatch = OFFICIAL_DWC_TERMS.find(term => normalizeHeader(term) === colNorm);
-      if (exactMatch) {
-        suggestions[col] = exactMatch;
-        continue;
-      }
-      // 2. Alias match — but only if the target term is official
-      for (const [term, aliases] of Object.entries(termAliases)) {
-        if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-        if (aliases.some(a => normalizeHeader(a) === colNorm)) {
-          suggestions[col] = term;
-          break;
-        }
-      }
-    }
-    return suggestions;
-  }, [columns]);
-
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
       <Card data-tour="columns-panel" className="bg-card/90 border-border backdrop-blur h-full">
