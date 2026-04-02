@@ -9,9 +9,9 @@ import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles, Check, AlertTriangle, Key, CalendarClock } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
-import AutoMatchDialog, { normalizeHeader, termAliases } from "./AutoMatchDialog";
+import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
-import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from "./officialDwCTerms";
+import SuggestMappingDialog, { buildSuggestions, SuggestionItem } from "./SuggestMappingDialog";
 
 import { useSchemaMapperState } from "./schema-mapper/useSchemaMapperState";
 import { useSchemaExport } from "./schema-mapper/useSchemaExport";
