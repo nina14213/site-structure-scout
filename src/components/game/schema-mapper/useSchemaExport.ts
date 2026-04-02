@@ -126,6 +126,8 @@ export function useSchemaExport({
           if (sourceCol && sourceCol.includes(' | ')) {
             const cols = sourceCol.split(' | ');
             rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            // Add legend column with source column names
+            previewRow[`${term}_legenda`] = cols.join(' | ');
           } else {
             rawValue = String(row[sourceCol] ?? "");
           }
