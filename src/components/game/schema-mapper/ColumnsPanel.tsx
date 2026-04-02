@@ -33,6 +33,8 @@ interface ColumnsPanelProps {
   getAllColumnMappings: (col: string) => string[];
   getSampleValues: (col: string) => string;
   onRemoveMapping: (term: string) => void;
+  onSuggestMapping?: () => void;
+  hasSuggestions?: boolean;
 }
 
 export default function ColumnsPanel({
