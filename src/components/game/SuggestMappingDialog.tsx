@@ -11,9 +11,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Lightbulb, CheckSquare, Square } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { normalizeHeader, termAliases } from '../AutoMatchDialog';
-import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from '../officialDwCTerms';
-import { dwcTerms } from '../DwCTerms';
+import { normalizeHeader, termAliases } from './AutoMatchDialog';
+import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from './officialDwCTerms';
+import { dwcTerms } from './DwCTerms';
 
 export interface SuggestionItem {
   column: string;
