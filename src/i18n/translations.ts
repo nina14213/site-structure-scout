@@ -342,7 +342,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step0.title': 'Witaj w kreatorze Data Package!',
     'mapperTutorial.step0.desc': 'Jestem Twoim przewodnikiem 🦎 — pokażę Ci krok po kroku jak przekształcić Twoje dane w format Darwin Core Data Package. Gotowy?',
     'mapperTutorial.step1.title': 'Twoje kolumny',
-    'mapperTutorial.step1.desc': 'Tu widzisz kolumny z Twojego pliku. Kliknij kolumnę aby ją zaznaczyć, a potem kliknij pole DwC po prawej stronie, aby je połączyć. Na desktopie możesz też przeciągać!',
+    'mapperTutorial.step1.desc': 'Tu widzisz kolumny z Twojego pliku. Pod nazwą każdej kolumny system sugeruje pasujące pole DwC (💡) — korzysta z oficjalnej listy terminów Darwin Core.\n\nKliknij „Zasugeruj mapowanie" pod listą kolumn, aby automatycznie zmapować wszystkie sugerowane pola jednym kliknięciem.\n\nMożesz też ręcznie kliknąć kolumnę i przypisać ją do pola DwC po prawej stronie, lub przeciągnij na desktopie!',
     'mapperTutorial.step2.title': 'Schematy DwC-DP',
     'mapperTutorial.step2.desc': 'Tu znajdziesz wszystkie tabele Darwin Core Data Package. Rozwiń tabelę i upuść na nią swoją kolumnę. Wymagane pola mają pomarańczową ramkę. Użyj wyszukiwania, aby szybko znaleźć pole.',
     'mapperTutorial.step3.title': 'Łączenie kolumn (pipe)',
