@@ -49,7 +49,7 @@ export default function ColumnsPanel({
   getSampleValues,
   onRemoveMapping,
   onSuggestMapping,
-  hasSuggestions,
+  suggestionsCount = 0,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
