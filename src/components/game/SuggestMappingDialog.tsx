@@ -44,7 +44,7 @@ export function buildSuggestions(
     } else {
       for (const [term, aliases] of Object.entries(termAliases)) {
         if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-        if (aliases.some(a => normalizeHeader(a) === colNorm)) {
+        if ((aliases as string[]).some(a => normalizeHeader(a) === colNorm)) {
           match = term;
           break;
         }

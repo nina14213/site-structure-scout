@@ -9,7 +9,7 @@
  * - Pozwala usuwać mapowania kliknięciem w badge
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, MousePointerClick, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { isMultiMapColumn } from "./useSchemaMapperState";
-import { normalizeHeader, termAliases } from "../AutoMatchDialog";
-import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from "../officialDwCTerms";
 
 interface ColumnsPanelProps {
   columns: string[];
