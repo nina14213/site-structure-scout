@@ -1363,7 +1363,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.step0.title': 'Bienvenue dans le créateur de Data Package !',
     'mapperTutorial.step0.desc': 'Je suis votre guide 🦎 — je vais vous montrer étape par étape comment transformer vos données au format Darwin Core Data Package. Prêt ?',
     'mapperTutorial.step1.title': 'Vos colonnes',
-    'mapperTutorial.step1.desc': 'Ici vous voyez les colonnes de votre fichier. Sous chaque nom de colonne, le système suggère un champ DwC correspondant (💡) — basé sur la liste officielle des termes Darwin Core.\n\nCliquez sur « Suggérer le mappage » sous la liste des colonnes pour auto-mapper tous les champs suggérés en un clic.\n\nVous pouvez aussi cliquer manuellement sur une colonne et l\'assigner à un champ DwC à droite.',
+    'mapperTutorial.step1.desc': 'Ici vous voyez les colonnes de votre fichier.\n\nCliquez sur « Suggérer le mappage » sous la liste des colonnes — une fenêtre s\'ouvrira avec les propositions de mappage. Pour chaque colonne, vous verrez la définition du champ DwC, une valeur exemple et les données de votre fichier. Vous pouvez choisir quelles suggestions accepter.\n\nVous pouvez aussi cliquer manuellement sur une colonne et l\'assigner à un champ DwC à droite.',
     'mapperTutorial.step2.title': 'Schémas DwC-DP',
     'mapperTutorial.step2.desc': 'Ici vous trouverez toutes les tables Darwin Core Data Package. Développez une table et déposez votre colonne. Les champs requis ont une bordure orange.',
     'mapperTutorial.step3.title': 'Mappage multi-colonnes (pipe)',
