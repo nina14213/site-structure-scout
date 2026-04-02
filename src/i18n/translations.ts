@@ -264,6 +264,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.subtitle': 'Wgraj dane i zmapuj na standard Darwin Core',
     'schema.selectSchema': 'Wybierz schemat Darwin Core',
     'schema.yourColumns': 'Twoje kolumny',
+    'schema.suggestMapping': 'Zasugeruj mapowanie',
     'schema.rows': 'wierszy',
     'schema.searchFields': 'Szukaj pól...',
     'schema.allSchemas': 'wszystkie schematy',
