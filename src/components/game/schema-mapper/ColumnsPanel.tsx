@@ -32,7 +32,7 @@ interface ColumnsPanelProps {
   getSampleValues: (col: string) => string;
   onRemoveMapping: (term: string) => void;
   onSuggestMapping?: () => void;
-  hasSuggestions?: boolean;
+  suggestionsCount?: number;
 }
 
 export default function ColumnsPanel({
