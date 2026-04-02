@@ -205,42 +205,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               getAllColumnMappings={state.getAllColumnMappings}
               getSampleValues={state.getSampleValues}
               onRemoveMapping={state.handleRemoveMapping}
-              onSuggestMapping={() => {
-                // Apply all column suggestions that aren't already mapped
-                state.updateMappings(prev => {
-                  const next = { ...prev };
-                  for (const col of columns) {
-                    const colNorm = normalizeHeader(col);
-                    // Find matching official term
-                    let match: string | null = null;
-                    for (const term of OFFICIAL_DWC_TERMS) {
-                      if (normalizeHeader(term) === colNorm) { match = term; break; }
-                    }
-                    if (!match) {
-                      for (const [term, aliases] of Object.entries(termAliases)) {
-                        if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-                        if (aliases.some(a => normalizeHeader(a) === colNorm)) { match = term; break; }
-                      }
-                    }
-                    if (match && !next[match]) {
-                      next[match] = col;
-                    }
-                  }
-                  return next;
-                });
-              }}
-              hasSuggestions={columns.some(col => {
-                const colNorm = normalizeHeader(col);
-                const mapped = state.getColumnMapping(col);
-                if (mapped) return false;
-                const exact = OFFICIAL_DWC_TERMS.find(t => normalizeHeader(t) === colNorm);
-                if (exact) return true;
-                for (const [term, aliases] of Object.entries(termAliases)) {
-                  if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-                  if (aliases.some(a => normalizeHeader(a) === colNorm)) return true;
-                }
-                return false;
-              })}
+              onSuggestMapping={openSuggestDialog}
+              hasSuggestions={buildSuggestions(columns, data, state.getColumnMapping).length > 0}
             />
 
             <SchemasPanel
