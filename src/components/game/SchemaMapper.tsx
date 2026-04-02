@@ -142,6 +142,17 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
         )}
       </AnimatePresence>
 
+      {/* Suggest mapping dialog */}
+      <AnimatePresence>
+        {suggestDialogItems && suggestDialogItems.length > 0 && (
+          <SuggestMappingDialog
+            suggestions={suggestDialogItems}
+            onApply={handleSuggestApply}
+            onDismiss={() => setSuggestDialogItems(null)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ID Generator dialog - TYLKO po przycisku */}
       <IdGeneratorDialog
         open={state.showIdGenerator}
