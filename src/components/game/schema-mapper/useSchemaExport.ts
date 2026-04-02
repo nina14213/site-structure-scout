@@ -222,6 +222,11 @@ export function useSchemaExport({
             rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
           }
           rowValues.push(escape(rawValue));
+          // Add legend value for multi-mapped terms
+          if (sourceColumn && sourceColumn.includes(' | ')) {
+            const cols = sourceColumn.split(' | ');
+            rowValues.push(escape(cols.join(' | ')));
+          }
           if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
             const converted = maybeConvertDate(rawValue, term);
             rowValues.push(escape(converted));
