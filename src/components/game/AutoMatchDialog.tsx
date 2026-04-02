@@ -63,6 +63,7 @@ export const termAliases: Record<string, string[]> = {
   minimumDepthInMeters: ['depth', 'glebokosc', 'tiefe', 'profondeur'],
   waterBody: ['waterbody', 'lake', 'river', 'jezioro', 'rzeka', 'gewaesser'],
   stateProvince: ['province', 'state', 'region', 'wojewodztwo', 'bundesland', 'voivodeship'],
+  county: ['county', 'powiat', 'kreis', 'landkreis', 'district'],
   municipality: ['municipality', 'gmina', 'gemeinde', 'commune', 'city', 'town', 'miasto'],
   geodeticDatum: ['datum', 'geodeticdatum', 'crs', 'srs', 'epsg'],
   sampleSizeValue: ['samplesize', 'effortsample', 'samplesizevalue'],
