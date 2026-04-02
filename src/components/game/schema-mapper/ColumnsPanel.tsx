@@ -33,6 +33,8 @@ interface ColumnsPanelProps {
   getAllColumnMappings: (col: string) => string[];
   getSampleValues: (col: string) => string;
   onRemoveMapping: (term: string) => void;
+  onSuggestMapping?: () => void;
+  hasSuggestions?: boolean;
 }
 
 export default function ColumnsPanel({
@@ -48,6 +50,8 @@ export default function ColumnsPanel({
   getAllColumnMappings,
   getSampleValues,
   onRemoveMapping,
+  onSuggestMapping,
+  hasSuggestions,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
@@ -188,6 +192,21 @@ export default function ColumnsPanel({
             );
           })}
         </CardContent>
+        {/* Suggest mapping button */}
+        {hasSuggestions && onSuggestMapping && (
+          <div className="px-4 pb-4 pt-2 border-t border-border">
+            <Button
+              data-tour="suggest-mapping-btn"
+              variant="outline"
+              size="sm"
+              onClick={onSuggestMapping}
+              className="w-full gap-2 text-amber-500 border-amber-500/50 hover:bg-amber-500/10"
+            >
+              <Lightbulb className="w-4 h-4" />
+              {t("schema.suggestMapping")}
+            </Button>
+          </div>
+        )}
       </Card>
     </motion.div>
   );
