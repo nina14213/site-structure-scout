@@ -1273,6 +1273,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.subtitle': 'Chargez vos données et mappez-les au standard Darwin Core',
     'schema.selectSchema': 'Sélectionner le Schéma Darwin Core',
     'schema.yourColumns': 'Vos Colonnes',
+    'schema.suggestMapping': 'Suggérer le mappage',
     'schema.rows': 'lignes',
     'schema.searchFields': 'Rechercher des champs...',
     'schema.allSchemas': 'tous les schémas',
