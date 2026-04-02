@@ -32,7 +32,7 @@ interface ColumnsPanelProps {
   getSampleValues: (col: string) => string;
   onRemoveMapping: (term: string) => void;
   onSuggestMapping?: () => void;
-  hasSuggestions?: boolean;
+  suggestionsCount?: number;
 }
 
 export default function ColumnsPanel({
@@ -49,7 +49,7 @@ export default function ColumnsPanel({
   getSampleValues,
   onRemoveMapping,
   onSuggestMapping,
-  hasSuggestions,
+  suggestionsCount = 0,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
@@ -160,18 +160,18 @@ export default function ColumnsPanel({
             );
           })}
         </CardContent>
-        {/* Suggest mapping button */}
-        {hasSuggestions && onSuggestMapping && (
+        {/* Suggest mapping button — always visible */}
+        {onSuggestMapping && (
           <div className="px-4 pb-4 pt-2 border-t border-border">
             <Button
               data-tour="suggest-mapping-btn"
               variant="outline"
               size="sm"
               onClick={onSuggestMapping}
-              className="w-full gap-2 text-amber-500 border-amber-500/50 hover:bg-amber-500/10"
+              className={`w-full gap-2 ${suggestionsCount > 0 ? 'text-amber-500 border-amber-500/50 hover:bg-amber-500/10' : 'text-muted-foreground border-border hover:bg-muted/50'}`}
             >
               <Lightbulb className="w-4 h-4" />
-              {t("schema.suggestMapping")}
+              {t("schema.suggestMapping")} ({suggestionsCount})
             </Button>
           </div>
         )}

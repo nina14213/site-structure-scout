@@ -217,7 +217,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
               getSampleValues={state.getSampleValues}
               onRemoveMapping={state.handleRemoveMapping}
               onSuggestMapping={openSuggestDialog}
-              hasSuggestions={buildSuggestions(columns, data, state.getColumnMapping).length > 0}
+              suggestionsCount={buildSuggestions(columns, data, state.getColumnMapping).length}
             />
 
             <SchemasPanel
