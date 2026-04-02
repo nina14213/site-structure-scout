@@ -9,7 +9,7 @@
  * - Pozwala usuwać mapowania kliknięciem w badge
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, MousePointerClick, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { isMultiMapColumn } from "./useSchemaMapperState";
-import { normalizeHeader, termAliases } from "../AutoMatchDialog";
-import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from "../officialDwCTerms";
 
 interface ColumnsPanelProps {
   columns: string[];
@@ -54,29 +52,6 @@ export default function ColumnsPanel({
   hasSuggestions,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
-
-  // Compute DwC term suggestion for each column (only official terms)
-  const columnSuggestions = useMemo(() => {
-    const suggestions: Record<string, string> = {};
-    for (const col of columns) {
-      const colNorm = normalizeHeader(col);
-      // 1. Exact match with official term
-      const exactMatch = OFFICIAL_DWC_TERMS.find(term => normalizeHeader(term) === colNorm);
-      if (exactMatch) {
-        suggestions[col] = exactMatch;
-        continue;
-      }
-      // 2. Alias match — but only if the target term is official
-      for (const [term, aliases] of Object.entries(termAliases)) {
-        if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-        if (aliases.some(a => normalizeHeader(a) === colNorm)) {
-          suggestions[col] = term;
-          break;
-        }
-      }
-    }
-    return suggestions;
-  }, [columns]);
 
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
@@ -180,13 +155,6 @@ export default function ColumnsPanel({
                   <p className="text-xs text-muted-foreground truncate">
                     {t("schema.samplePrefix")} {getSampleValues(column) || "—"}
                   </p>
-                  {/* DwC term suggestion */}
-                  {columnSuggestions[column] && !mappedTo && (
-                    <p className="text-[11px] text-amber-500/80 mt-1 flex items-center gap-1 truncate">
-                      <Lightbulb className="w-3 h-3 flex-shrink-0" />
-                      <span>→ <code className="font-mono">{columnSuggestions[column]}</code></span>
-                    </p>
-                  )}
                 </div>
               </motion.div>
             );
