@@ -769,6 +769,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.subtitle': 'Upload data and map to Darwin Core standards',
     'schema.selectSchema': 'Select Darwin Core Schema',
     'schema.yourColumns': 'Your Columns',
+    'schema.suggestMapping': 'Suggest mapping',
     'schema.rows': 'rows',
     'schema.searchFields': 'Search fields...',
     'schema.allSchemas': 'all schemas',
