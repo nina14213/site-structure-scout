@@ -101,6 +101,25 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     [state.setSelectedForDownload],
   );
 
+  // ─── Suggest mapping dialog state ─────────────────────────────────
+  const [suggestDialogItems, setSuggestDialogItems] = useState<SuggestionItem[] | null>(null);
+
+  const openSuggestDialog = useCallback(() => {
+    const items = buildSuggestions(columns, data, state.getColumnMapping);
+    if (items.length > 0) setSuggestDialogItems(items);
+  }, [columns, data, state.getColumnMapping]);
+
+  const handleSuggestApply = useCallback((selected: SuggestionItem[]) => {
+    state.updateMappings(prev => {
+      const next = { ...prev };
+      for (const item of selected) {
+        if (!next[item.term]) next[item.term] = item.column;
+      }
+      return next;
+    });
+    setSuggestDialogItems(null);
+  }, [state.updateMappings]);
+
   return (
     <>
       {/* Tutorial overlay */}
