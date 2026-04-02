@@ -23,13 +23,14 @@ interface AutoMatchDialogProps {
 }
 
 // Normalize header: lowercase, remove diacritics, collapse separators
-export function normalizeHeader(header: string): string {
+export function normalizeHeader(header: string | undefined | null): string {
+  if (!header) return '';
   return header
     .trim()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
-    .replace(/[_\s\-./]+/g, '');     // collapse separators
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_\s\-./]+/g, '');
 }
 
 // Common aliases for DwC terms (term -> alternative column names)
