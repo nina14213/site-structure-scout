@@ -187,6 +187,10 @@ export function useSchemaExport({
         if (!csvHeaders.includes(term)) {
           csvHeaders.push(term);
         }
+        // Add legend column for multi-mapped terms
+        if (termMappings[term] && termMappings[term].includes(' | ')) {
+          csvHeaders.push(`${term}_legenda`);
+        }
         if (convertDatesToISO && isDateTerm(term) && termMappings[term]) {
           csvHeaders.push(`${term}_ISO`);
         }
