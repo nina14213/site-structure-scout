@@ -325,15 +325,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   schemasWithMappings={state.schemasWithMappings}
                   groupedMappings={state.groupedMappings}
                   convertDatesToISO={state.convertDatesToISO}
-                  onToggleDateConversion={() => {
-                    state.setConvertDatesToISO((prev) => !prev);
-                    if (!state.convertDatesToISO && state.schemasWithMappings.length > 0 && !state.previewSchemaId) {
-                      state.setPreviewSchemaId(state.schemasWithMappings[0]);
-                    }
-                  }}
-                  unmappedRequiredIdTerms={state.unmappedRequiredIdTerms}
-                  generatedIdConfigs={state.generatedIdConfigs}
-                  onOpenIdGenerator={() => state.setShowIdGenerator(true)}
                   classifiedSchemas={state.classifiedSchemas}
                   previewSchemaId={state.previewSchemaId}
                   onSetPreviewSchemaId={state.setPreviewSchemaId}
