@@ -241,7 +241,11 @@ export function useSchemaExport({
           }
         });
         csvRows.push(rowValues.join(","));
-      });
+        });
+        // Add extra columns values
+        extras.forEach(col => {
+          rowValues.push(escape(String(row[col] ?? '')));
+        });
 
       return "\uFEFF" + csvRows.join("\n");
     },
