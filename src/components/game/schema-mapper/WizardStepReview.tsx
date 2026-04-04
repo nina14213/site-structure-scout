@@ -156,31 +156,42 @@ export default function WizardStepReview({
 
               {/* Date conversion preview */}
               {eventDateIsoSuggestion.samples.length > 0 && (
-                <div className="rounded-lg border border-border overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
+                        <th className="px-2 py-1.5 text-right font-medium text-muted-foreground w-10">#</th>
                         <th className="px-3 py-1.5 text-left font-medium text-muted-foreground">
                           {t("wizard.dateOriginal")}
                         </th>
-                        <th className="px-3 py-1.5 text-center text-muted-foreground w-8">→</th>
+                        <th className="px-2 py-1.5 text-center text-muted-foreground w-8">→</th>
                         <th className="px-3 py-1.5 text-left font-medium text-cyan-500">
                           ISO 8601
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {eventDateIsoSuggestion.samples.map((s, i) => (
-                        <tr key={i} className="border-b border-border/30 last:border-0">
-                          <td className="px-3 py-1.5 text-muted-foreground font-mono">{s.original}</td>
-                          <td className="px-3 py-1.5 text-center text-muted-foreground">→</td>
-                          <td className={`px-3 py-1.5 font-mono font-medium ${
-                            s.original !== s.converted ? 'text-cyan-500' : 'text-muted-foreground'
-                          }`}>
-                            {s.original !== s.converted ? s.converted : '—'}
-                          </td>
-                        </tr>
-                      ))}
+                      {eventDateIsoSuggestion.samples.map((s, i) => {
+                        if (s.idx === -1) {
+                          return (
+                            <tr key="sep" className="border-b border-border/30">
+                              <td colSpan={4} className="px-3 py-1 text-center text-muted-foreground italic text-[11px]">⋯</td>
+                            </tr>
+                          );
+                        }
+                        return (
+                          <tr key={i} className={`border-b border-border/30 last:border-0 ${s.wasConverted ? 'bg-cyan-500/5' : ''}`}>
+                            <td className="px-2 py-1.5 text-right text-muted-foreground font-mono">{s.idx}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground font-mono">{s.original}</td>
+                            <td className="px-2 py-1.5 text-center text-muted-foreground">{s.wasConverted ? '→' : ''}</td>
+                            <td className={`px-3 py-1.5 font-mono font-medium ${
+                              s.wasConverted ? 'text-cyan-500' : 'text-muted-foreground'
+                            }`}>
+                              {s.wasConverted ? s.converted : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
