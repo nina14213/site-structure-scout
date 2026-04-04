@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Layers, Search as SearchIcon, X, ChevronDown, Sparkles,
+  Layers, Search as SearchIcon, X, ChevronDown, Sparkles, Lightbulb,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { dwcTerms } from "../DwCTerms";
