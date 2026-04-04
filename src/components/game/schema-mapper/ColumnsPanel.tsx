@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { FileSpreadsheet, MousePointerClick } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { isMultiMapColumn } from "./useSchemaMapperState";
