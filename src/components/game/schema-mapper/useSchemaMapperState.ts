@@ -598,6 +598,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     applyEventDateIsoSuggestion,
     getMappingsBySchema,
     toggleExtraColumn,
+    selectAllExtraColumns,
 
     // Helpers
     findBestColumnMatch: (term: string) => findBestColumnMatch(term, columns),
