@@ -16,7 +16,7 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center justify-center gap-2 mb-6">
+    <div className="flex items-center justify-center gap-1 md:gap-2 mb-4 md:mb-6">
       {steps.map((step, i) => {
         const isDone = i < currentStep;
         const isActive = i === currentStep;
