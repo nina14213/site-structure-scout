@@ -333,6 +333,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'wizard.tableSelectionDesc': '{terms} termów zmapowanych w {schemas} schematach — zaznacz tabele do pobrania',
     'wizard.extraCols': 'extra',
     'wizard.addUnmappedCols': 'Dodaj niezmapowane kolumny oryginalne',
+    'wizard.dateOriginal': 'Oryginalna data',
     'autoMatch.title': 'Znalezione dopasowania kolumn',
     'autoMatch.found': 'Znaleziono {count} kolumn pasujących do pól Darwin Core',
     'autoMatch.selectAll': 'Zaznacz wszystko',
