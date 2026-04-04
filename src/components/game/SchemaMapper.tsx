@@ -201,20 +201,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-            <div className="flex items-center gap-3 mb-2">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 md:mb-4">
+            <div className="flex items-center gap-2 md:gap-3 mb-2">
               <Button
                 onClick={wizardStep === 0 ? onBack : goBack}
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground flex-shrink-0 p-1.5 md:p-2"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <Sparkles className="w-8 h-8 text-purple-400" />
-              <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("schema.title")}</h1>
-                <p className="text-muted-foreground">{t("schema.subtitle")}</p>
+              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
+                <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
               <Button
                 variant="outline"
@@ -223,9 +223,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   setTutorialPhase(1);
                   setShowTutorial(true);
                 }}
-                className="text-xs border-primary/30 text-primary hover:bg-primary/10"
+                className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0 px-2 md:px-3"
               >
-                {t("mapperTutorial.replay")}
+                <span className="hidden sm:inline">{t("mapperTutorial.replay")}</span>
+                <span className="sm:hidden">🦎</span>
               </Button>
             </div>
           </motion.div>
@@ -354,7 +355,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   <Button
                     onClick={handleComplete}
                     disabled={!state.allRequiredMapped}
-                    className={`w-full py-6 text-lg ${
+                    className={`w-full py-4 md:py-6 text-base md:text-lg ${
                       state.allRequiredMapped
                         ? "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
                         : "bg-muted text-muted-foreground"
@@ -374,40 +375,42 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             )}
           </AnimatePresence>
 
-          {/* Wizard navigation buttons */}
-          <div className="mt-6 flex justify-between items-center">
-            <div>
-              {wizardStep > 0 && (
-                <Button variant="outline" onClick={goBack} className="gap-2">
-                  <ChevronLeft className="w-4 h-4" />
-                  {t("wizard.back")}
-                </Button>
-              )}
+          {/* Wizard navigation buttons — sticky on mobile */}
+          <div className="sticky bottom-0 z-10 mt-4 md:mt-6 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-gradient-to-t from-indigo-50 via-indigo-50/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 md:bg-none md:static">
+            <div className="flex justify-between items-center">
+              <div>
+                {wizardStep > 0 && (
+                  <Button variant="outline" onClick={goBack} className="gap-1.5 md:gap-2 text-sm">
+                    <ChevronLeft className="w-4 h-4" />
+                    {t("wizard.back")}
+                  </Button>
+                )}
+              </div>
+              <div>
+                {wizardStep < 2 && (
+                  <Button
+                    onClick={goNext}
+                    disabled={!canGoNext}
+                    className={`gap-1.5 md:gap-2 text-sm ${
+                      canGoNext
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : ""
+                    }`}
+                  >
+                    {t("wizard.next")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-            <div>
-              {wizardStep < 2 && (
-                <Button
-                  onClick={goNext}
-                  disabled={!canGoNext}
-                  className={`gap-2 ${
-                    canGoNext
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : ""
-                  }`}
-                >
-                  {t("wizard.next")}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </div>
 
-          {/* Hint when no mappings */}
-          {wizardStep === 0 && !hasMappings && (
-            <p className="text-center text-sm text-muted-foreground mt-3">
-              {t("wizard.noMappingsYet")}
-            </p>
-          )}
+            {/* Hint when no mappings */}
+            {wizardStep === 0 && !hasMappings && (
+              <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">
+                {t("wizard.noMappingsYet")}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </>

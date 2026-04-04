@@ -16,7 +16,7 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center justify-center gap-2 mb-6">
+    <div className="flex items-center justify-center gap-1 md:gap-2 mb-4 md:mb-6">
       {steps.map((step, i) => {
         const isDone = i < currentStep;
         const isActive = i === currentStep;
@@ -24,14 +24,14 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
           <React.Fragment key={i}>
             {i > 0 && (
               <div
-                className={`h-0.5 w-8 md:w-16 transition-colors ${
+                className={`h-0.5 w-6 md:w-16 transition-colors ${
                   isDone ? "bg-primary" : "bg-border"
                 }`}
               />
             )}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 md:gap-1.5">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold transition-colors ${
                   isDone
                     ? "bg-primary text-primary-foreground"
                     : isActive
