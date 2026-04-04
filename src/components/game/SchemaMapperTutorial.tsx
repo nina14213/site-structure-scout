@@ -35,6 +35,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const allSteps: TutorialStep[] = [
     {
@@ -123,10 +124,14 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   useEffect(() => {
     updateHighlight();
     const timer = setTimeout(updateHighlight, 300);
-    window.addEventListener('resize', updateHighlight);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      updateHighlight();
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', updateHighlight);
+      window.removeEventListener('resize', handleResize);
     };
   }, [updateHighlight]);
 
@@ -136,8 +141,11 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const totalSteps = steps.length;
 
   // Calculate tooltip position based on highlighted element
+  const isMobile = windowWidth < 768;
+
   const getTooltipStyle = (): React.CSSProperties => {
-    if (!highlightRect || step.position === 'center') {
+    // On mobile, always center the tooltip
+    if (isMobile || !highlightRect || step.position === 'center') {
       return {
         position: 'fixed',
         top: '50%',
@@ -147,24 +155,44 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       };
     }
 
-    const padding = 20;
-    const tooltipWidth = 380;
-    const tooltipHeight = 320; // approximate max height
+    const padding = 16;
+    const tooltipWidth = Math.min(380, window.innerWidth - padding * 2);
+    const tooltipHeight = 320;
     const maxTop = window.innerHeight - tooltipHeight - padding;
 
     if (step.position === 'right') {
+      const leftPos = highlightRect.right + padding;
+      // If tooltip doesn't fit to the right, place below
+      if (leftPos + tooltipWidth > window.innerWidth - padding) {
+        return {
+          position: 'fixed',
+          top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
+          left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
+          zIndex: 10002,
+        };
+      }
       return {
         position: 'fixed',
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
-        left: Math.min(highlightRect.right + padding, window.innerWidth - tooltipWidth - padding),
+        left: leftPos,
         zIndex: 10002,
       };
     }
     if (step.position === 'left') {
+      const leftPos = highlightRect.left - tooltipWidth - padding;
+      // If tooltip doesn't fit to the left, place below
+      if (leftPos < padding) {
+        return {
+          position: 'fixed',
+          top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
+          left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
+          zIndex: 10002,
+        };
+      }
       return {
         position: 'fixed',
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
-        left: Math.max(padding, highlightRect.left - tooltipWidth - padding),
+        left: leftPos,
         zIndex: 10002,
       };
     }
@@ -172,7 +200,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     return {
       position: 'fixed',
       top: Math.min(highlightRect.bottom + padding, maxTop),
-      left: Math.max(padding, highlightRect.left),
+      left: Math.max(padding, Math.min(highlightRect.left, window.innerWidth - tooltipWidth - padding)),
       zIndex: 10002,
     };
   };
@@ -226,48 +254,48 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
           exit={{ opacity: 0, scale: 0.9, y: -10 }}
           transition={{ duration: 0.25 }}
           style={getTooltipStyle()}
-          className="w-[360px] max-w-[90vw]"
+          className="w-[360px] max-w-[calc(100vw-2rem)]"
         >
-          <div className="bg-card border border-border rounded-2xl shadow-2xl p-5 relative">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[80vh] flex flex-col">
             {/* Mascot floating */}
-            <div className="absolute -top-8 -right-4 text-4xl animate-bounce" style={{ animationDuration: '2s' }}>
+            <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>
               🦎
             </div>
 
             {/* Progress dots */}
-            <div className="flex gap-1.5 mb-4">
+            <div className="flex gap-1.5 mb-3 md:mb-4">
               {steps.map((_, i) => (
                 <div
                   key={i}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentStep ? 'w-8 bg-primary' : i < currentStep ? 'w-4 bg-primary/50' : 'w-4 bg-muted'
+                    i === currentStep ? 'w-6 md:w-8 bg-primary' : i < currentStep ? 'w-3 md:w-4 bg-primary/50' : 'w-3 md:w-4 bg-muted'
                   }`}
                 />
               ))}
             </div>
 
             {/* Icon + Title */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+              <div className="p-1.5 md:p-2 rounded-xl bg-primary/10 text-primary flex-shrink-0">
                 {step.icon}
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
                   {t('mapperTutorial.stepLabel', { current: String(currentStep + 1), total: String(totalSteps) })}
                 </p>
-                <h3 className="text-lg font-bold text-foreground leading-tight">{t(step.titleKey)}</h3>
+                <h3 className="text-base md:text-lg font-bold text-foreground leading-tight">{t(step.titleKey)}</h3>
               </div>
             </div>
 
-            {/* Description */}
-            <div className="text-sm text-muted-foreground leading-relaxed mb-4 whitespace-pre-line">{t(step.descKey)}</div>
+            {/* Description — scrollable on mobile */}
+            <div className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-3 md:mb-4 whitespace-pre-line overflow-y-auto max-h-[40vh] md:max-h-none">{t(step.descKey)}</div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between pt-3 border-t border-border">
+            <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border flex-shrink-0">
               <div className="flex gap-2">
                 {!isFirst && (
-                  <Button variant="ghost" size="sm" onClick={() => setCurrentStep(s => s - 1)} className="text-muted-foreground">
-                    <ArrowLeft className="w-4 h-4 mr-1" />
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentStep(s => s - 1)} className="text-muted-foreground text-xs md:text-sm">
+                    <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
                     {t('mapperTutorial.prev')}
                   </Button>
                 )}
@@ -280,10 +308,10 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
               <Button
                 size="sm"
                 onClick={() => isLast ? onComplete() : setCurrentStep(s => s + 1)}
-                className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white"
+                className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs md:text-sm"
               >
                 {isLast ? t('mapperTutorial.finish') : t('mapperTutorial.next')}
-                {!isLast && <ArrowRight className="w-4 h-4 ml-1" />}
+                {!isLast && <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1" />}
               </Button>
             </div>
           </div>
