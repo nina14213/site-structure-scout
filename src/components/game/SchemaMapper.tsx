@@ -65,6 +65,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     getMappingsBySchema: state.getMappingsBySchema,
     classifiedSchemas: state.classifiedSchemas,
     selectedForDownload: state.selectedForDownload,
+    extraColumnsPerSchema: state.extraColumnsPerSchema,
   });
 
   // ─── Tutorial phase 2 trigger ─────────────────────────────────────
