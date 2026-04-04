@@ -523,6 +523,8 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     setShowIdGenerator,
     forcedSchemas,
     toggleForcedSchema,
+    extraColumnsPerSchema,
+    setExtraColumnsPerSchema,
 
     // Derived
     currentSchema,
