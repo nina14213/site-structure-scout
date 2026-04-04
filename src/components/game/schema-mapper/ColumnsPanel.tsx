@@ -99,7 +99,11 @@ export default function ColumnsPanel({
             const allMappedTo = getAllColumnMappings(column);
             const isSelected = selectedColumn === column;
             const isIdColumn = isMultiMapColumn(column);
-            return (
+             const isPipeJoined = allMappedTo.some(term => {
+               const val = mappings?.[term];
+               return val && val.includes(' | ');
+             });
+             return (
               <motion.div
                 key={column}
                 initial={{ opacity: 0, x: -10 }}
