@@ -135,6 +135,17 @@ export default function WizardStepReview({
               </p>
             </div>
           )}
+
+          {/* Mapping summary — always visible */}
+          <div className="p-4 bg-muted/50 border border-border rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="w-4 h-4 text-muted-foreground" />
+              <p className="font-medium text-foreground text-sm">{t("wizard.mappingSummary")}</p>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("wizard.mappingSummaryDesc", { terms: mappingsCount, schemas: schemasWithMappingsCount })}
+            </p>
+          </div>
         </CardContent>
       </Card>
     </motion.div>

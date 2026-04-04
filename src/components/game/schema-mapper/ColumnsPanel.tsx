@@ -55,7 +55,7 @@ export default function ColumnsPanel({
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
       <Card data-tour="columns-panel" className="bg-card/90 border-border backdrop-blur h-full">
-        <CardHeader className="border-b border-border">
+        <CardHeader className="border-b border-border pb-3">
           <CardTitle className="text-card-foreground flex items-center justify-between">
             <span className="flex items-center gap-2">
               <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />
@@ -65,6 +65,14 @@ export default function ColumnsPanel({
               {dataRowCount} {t("schema.rows")}
             </Badge>
           </CardTitle>
+          {/* Mapping progress bar */}
+          <div className="mt-2 space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{t("wizard.mappedColumns", { mapped: mappedColumnsCount, total: columns.length })}</span>
+              <span className="font-mono">{Math.round((mappedColumnsCount / columns.length) * 100)}%</span>
+            </div>
+            <Progress value={(mappedColumnsCount / columns.length) * 100} className="h-2" />
+          </div>
         </CardHeader>
         <CardContent className="pt-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto space-y-2">
           {/* Mobile hint */}
