@@ -135,7 +135,7 @@ export default function ColumnsPanel({
                       )}
                     </div>
                     {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
-                    {allMappedTo.length > 0 && !isSelected && (
+                    {allMappedTo.length > 0 && (
                       <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
                         {allMappedTo.slice(0, 5).map(term => (
                           <Badge
