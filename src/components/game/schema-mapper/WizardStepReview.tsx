@@ -30,7 +30,11 @@ interface WizardStepReviewProps {
   unmappedRequiredIdTerms: string[];
   onOpenIdGenerator: () => void;
   generatedIdConfigs: { term: string; mode: string }[];
-  eventDateIsoSuggestion: { nonIsoCount: number; totalNonEmpty: number; samples: { original: string; converted: string }[] } | null;
+  eventDateIsoSuggestion: {
+    nonIsoCount: number;
+    totalNonEmpty: number;
+    samples: { idx: number; original: string; converted: string; wasConverted: boolean }[];
+  } | null;
   applyEventDateIsoSuggestion: () => void;
   // Table selection for export
   selectedForDownload: Set<string>;
