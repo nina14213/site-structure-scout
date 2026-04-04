@@ -247,6 +247,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   <ColumnsPanel
                     columns={columns}
                     dataRowCount={data.length}
+                    mappedColumnsCount={columns.filter(c => state.getColumnMapping(c) !== null).length}
                     selectedColumn={state.selectedColumn}
                     draggedColumn={state.draggedColumn}
                     onTapSelectColumn={state.handleTapSelectColumn}
