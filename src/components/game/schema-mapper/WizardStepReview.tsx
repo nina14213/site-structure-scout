@@ -39,6 +39,7 @@ interface WizardStepReviewProps {
   unmappedColumns: string[];
   extraColumnsPerSchema: Record<string, string[]>;
   onToggleExtraColumn: (schemaId: string, column: string) => void;
+  onSelectAllExtraColumns: (schemaId: string) => void;
   // Preview
   convertDatesToISO: boolean;
   generatedIdValues: Record<string, string[]>;
