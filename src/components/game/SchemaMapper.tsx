@@ -201,20 +201,20 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-            <div className="flex items-center gap-3 mb-2">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 md:mb-4">
+            <div className="flex items-center gap-2 md:gap-3 mb-2">
               <Button
                 onClick={wizardStep === 0 ? onBack : goBack}
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground flex-shrink-0 p-1.5 md:p-2"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <Sparkles className="w-8 h-8 text-purple-400" />
-              <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("schema.title")}</h1>
-                <p className="text-muted-foreground">{t("schema.subtitle")}</p>
+              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
+                <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
               <Button
                 variant="outline"
@@ -223,9 +223,10 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   setTutorialPhase(1);
                   setShowTutorial(true);
                 }}
-                className="text-xs border-primary/30 text-primary hover:bg-primary/10"
+                className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0 px-2 md:px-3"
               >
-                {t("mapperTutorial.replay")}
+                <span className="hidden sm:inline">{t("mapperTutorial.replay")}</span>
+                <span className="sm:hidden">🦎</span>
               </Button>
             </div>
           </motion.div>
