@@ -497,6 +497,31 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const allRequiredMapped = currentSchema.required.every((term) => mappings[term]);
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
+  /** Columns from original file that are NOT mapped to any DwC term */
+  const unmappedColumns = useMemo(() => {
+    const mappedCols = new Set<string>();
+    Object.values(mappings).forEach(val => {
+      if (val.includes(' | ')) {
+        val.split(' | ').forEach(c => mappedCols.add(c));
+      } else {
+        mappedCols.add(val);
+      }
+    });
+    return columns.filter(c => !mappedCols.has(c));
+  }, [columns, mappings]);
+
+  /** Toggle an extra (unmapped) column for a schema */
+  const toggleExtraColumn = useCallback((schemaId: string, column: string) => {
+    setExtraColumnsPerSchema(prev => {
+      const existing = prev[schemaId] || [];
+      const has = existing.includes(column);
+      return {
+        ...prev,
+        [schemaId]: has ? existing.filter(c => c !== column) : [...existing, column],
+      };
+    });
+  }, []);
+
   return {
     // State
     selectedSchema,
