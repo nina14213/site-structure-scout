@@ -78,6 +78,7 @@ export function useSchemaExport({
   getMappingsBySchema,
   classifiedSchemas,
   selectedForDownload,
+  extraColumnsPerSchema,
 }: UseSchemaExportProps) {
 
   /** Warunkowa konwersja daty na ISO */
