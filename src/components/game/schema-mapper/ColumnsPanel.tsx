@@ -22,6 +22,7 @@ import { isMultiMapColumn } from "./useSchemaMapperState";
 interface ColumnsPanelProps {
   columns: string[];
   dataRowCount: number;
+  mappedColumnsCount: number;
   selectedColumn: string | null;
   draggedColumn: string | null;
   onTapSelectColumn: (col: string) => void;
