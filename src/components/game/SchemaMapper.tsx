@@ -65,6 +65,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
     getMappingsBySchema: state.getMappingsBySchema,
     classifiedSchemas: state.classifiedSchemas,
     selectedForDownload: state.selectedForDownload,
+    extraColumnsPerSchema: state.extraColumnsPerSchema,
   });
 
   // ─── Tutorial phase 2 trigger ─────────────────────────────────────
@@ -300,6 +301,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   optimalLayout={state.optimalLayout}
                   mappingsCount={Object.keys(state.mappings).length}
                   schemasWithMappingsCount={state.schemasWithMappings.length}
+                  schemasWithMappings={state.schemasWithMappings}
+                  groupedMappings={state.groupedMappings}
                   onSelectSchema={(schemaId) => {
                     state.handleSchemaChange(schemaId);
                     setWizardStep(0);
@@ -310,6 +313,14 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   generatedIdConfigs={state.generatedIdConfigs}
                   eventDateIsoSuggestion={state.eventDateIsoSuggestion}
                   applyEventDateIsoSuggestion={state.applyEventDateIsoSuggestion}
+                  selectedForDownload={state.selectedForDownload}
+                  onToggleSchemaSelection={toggleSchemaSelection}
+                  unmappedColumns={state.unmappedColumns}
+                  extraColumnsPerSchema={state.extraColumnsPerSchema}
+                  onToggleExtraColumn={state.toggleExtraColumn}
+                  convertDatesToISO={state.convertDatesToISO}
+                  generatedIdValues={state.generatedIdValues}
+                  getPreviewRows={exportUtils.getPreviewRows}
                 />
               </motion.div>
             )}

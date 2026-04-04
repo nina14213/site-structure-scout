@@ -66,6 +66,7 @@ interface UseSchemaExportProps {
   getMappingsBySchema: () => Record<string, Record<string, string>>;
   classifiedSchemas: { optimal: string[]; optional: string[] };
   selectedForDownload: Set<string>;
+  extraColumnsPerSchema: Record<string, string[]>;
 }
 
 export function useSchemaExport({
@@ -77,6 +78,7 @@ export function useSchemaExport({
   getMappingsBySchema,
   classifiedSchemas,
   selectedForDownload,
+  extraColumnsPerSchema,
 }: UseSchemaExportProps) {
 
   /** Warunkowa konwersja daty na ISO */
@@ -196,6 +198,12 @@ export function useSchemaExport({
         }
       });
 
+      // Add extra (unmapped) columns
+      const extras = schemaId ? (extraColumnsPerSchema[schemaId] || []) : [];
+      extras.forEach(col => {
+        if (!csvHeaders.includes(col)) csvHeaders.push(col);
+      });
+
       const csvRows: string[] = [csvHeaders.join(",")];
       const escape = (v: string) => {
         if (v.includes(",") || v.includes('"') || v.includes("\n")) {
@@ -232,12 +240,16 @@ export function useSchemaExport({
             rowValues.push(escape(converted));
           }
         });
+        // Add extra columns values
+        extras.forEach(col => {
+          rowValues.push(escape(String(row[col] ?? '')));
+        });
         csvRows.push(rowValues.join(","));
       });
 
       return "\uFEFF" + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema],
   );
 
   // ─── Download helpers ──────────────────────────────────────────────
