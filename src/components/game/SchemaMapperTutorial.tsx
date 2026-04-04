@@ -124,10 +124,14 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   useEffect(() => {
     updateHighlight();
     const timer = setTimeout(updateHighlight, 300);
-    window.addEventListener('resize', updateHighlight);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      updateHighlight();
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', updateHighlight);
+      window.removeEventListener('resize', handleResize);
     };
   }, [updateHighlight]);
 
@@ -137,7 +141,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const totalSteps = steps.length;
 
   // Calculate tooltip position based on highlighted element
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = windowWidth < 768;
 
   const getTooltipStyle = (): React.CSSProperties => {
     // On mobile, always center the tooltip
