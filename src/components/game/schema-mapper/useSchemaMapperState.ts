@@ -15,6 +15,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { schemaTerms, schemaTypes } from "./schemaData";
 import { findAutoMatches, normalizeHeader, termAliases } from "../AutoMatchDialog";
+import { normalizeDate } from "./useSchemaExport";
 import { generateAllIds, type IdFieldConfig } from "../IdGeneratorDialog";
 
 /** Wyszukuje najlepiej pasującą kolumnę dla termu DwC — dopasowanie znormalizowane lub alias */
@@ -352,22 +353,30 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const eventDateIsoSuggestion = useMemo(() => {
     const eventDateCol = mappings['eventDate'];
     if (!eventDateCol) return null;
-    // Already have verbatimEventDate mapped to same column — suggestion was applied
     if (mappings['verbatimEventDate'] === eventDateCol) return null;
 
     const isoRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/;
     const sampleSize = Math.min(data.length, 50);
     let nonIsoCount = 0;
     let totalNonEmpty = 0;
+    const samples: { original: string; converted: string }[] = [];
+    const seenOriginals = new Set<string>();
+
     for (let i = 0; i < sampleSize; i++) {
       const cols = eventDateCol.includes(' | ') ? eventDateCol.split(' | ') : [eventDateCol];
       const val = String(cols.map(c => data[i]?.[c] ?? '').join('')).trim();
       if (!val) continue;
       totalNonEmpty++;
-      if (!isoRegex.test(val)) nonIsoCount++;
+      if (!isoRegex.test(val)) {
+        nonIsoCount++;
+        if (samples.length < 5 && !seenOriginals.has(val)) {
+          seenOriginals.add(val);
+          samples.push({ original: val, converted: normalizeDate(val) });
+        }
+      }
     }
     if (totalNonEmpty === 0 || nonIsoCount === 0) return null;
-    return { column: eventDateCol, nonIsoCount, totalNonEmpty };
+    return { column: eventDateCol, nonIsoCount, totalNonEmpty, samples };
   }, [mappings, data]);
 
   /** Apply suggestion: copy eventDate → verbatimEventDate */

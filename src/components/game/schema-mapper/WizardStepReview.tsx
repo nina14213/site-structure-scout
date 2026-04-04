@@ -30,7 +30,7 @@ interface WizardStepReviewProps {
   unmappedRequiredIdTerms: string[];
   onOpenIdGenerator: () => void;
   generatedIdConfigs: { term: string; mode: string }[];
-  eventDateIsoSuggestion: { nonIsoCount: number; totalNonEmpty: number } | null;
+  eventDateIsoSuggestion: { nonIsoCount: number; totalNonEmpty: number; samples: { original: string; converted: string }[] } | null;
   applyEventDateIsoSuggestion: () => void;
   // Table selection for export
   selectedForDownload: Set<string>;
@@ -123,7 +123,7 @@ export default function WizardStepReview({
 
           {/* Date conversion — always shown when there's a suggestion */}
           {hasDateIssues && eventDateIsoSuggestion && (
-            <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+            <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl space-y-3">
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CalendarClock className="w-5 h-5 text-amber-500 flex-shrink-0" />
@@ -149,6 +149,38 @@ export default function WizardStepReview({
                   {t("schema.applyDateSuggestion")}
                 </Button>
               </div>
+
+              {/* Date conversion preview */}
+              {eventDateIsoSuggestion.samples.length > 0 && (
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="px-3 py-1.5 text-left font-medium text-muted-foreground">
+                          {t("wizard.dateOriginal")}
+                        </th>
+                        <th className="px-3 py-1.5 text-center text-muted-foreground w-8">→</th>
+                        <th className="px-3 py-1.5 text-left font-medium text-cyan-500">
+                          ISO 8601
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {eventDateIsoSuggestion.samples.map((s, i) => (
+                        <tr key={i} className="border-b border-border/30 last:border-0">
+                          <td className="px-3 py-1.5 text-muted-foreground font-mono">{s.original}</td>
+                          <td className="px-3 py-1.5 text-center text-muted-foreground">→</td>
+                          <td className={`px-3 py-1.5 font-mono font-medium ${
+                            s.original !== s.converted ? 'text-cyan-500' : 'text-destructive'
+                          }`}>
+                            {s.original !== s.converted ? s.converted : '⚠ ?'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
