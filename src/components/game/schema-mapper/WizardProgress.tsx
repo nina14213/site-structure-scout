@@ -24,7 +24,7 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
           <React.Fragment key={i}>
             {i > 0 && (
               <div
-                className={`h-0.5 w-8 md:w-16 transition-colors ${
+                className={`h-0.5 w-6 md:w-16 transition-colors ${
                   isDone ? "bg-primary" : "bg-border"
                 }`}
               />
