@@ -66,6 +66,7 @@ interface UseSchemaExportProps {
   getMappingsBySchema: () => Record<string, Record<string, string>>;
   classifiedSchemas: { optimal: string[]; optional: string[] };
   selectedForDownload: Set<string>;
+  extraColumnsPerSchema: Record<string, string[]>;
 }
 
 export function useSchemaExport({
