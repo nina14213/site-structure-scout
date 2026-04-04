@@ -15,6 +15,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { schemaTerms, schemaTypes } from "./schemaData";
 import { findAutoMatches, normalizeHeader, termAliases } from "../AutoMatchDialog";
+import { normalizeDate } from "./useSchemaExport";
 import { generateAllIds, type IdFieldConfig } from "../IdGeneratorDialog";
 
 /** Wyszukuje najlepiej pasującą kolumnę dla termu DwC — dopasowanie znormalizowane lub alias */

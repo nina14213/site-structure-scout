@@ -34,7 +34,7 @@ function excelDateToISO(serial: number): string {
 }
 
 /** Normalizuje dowolny format daty do ISO 8601 */
-function normalizeDate(value: string): string {
+export function normalizeDate(value: string): string {
   if (!value || value.trim() === "") return value;
   const trimmed = value.trim();
   if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(trimmed)) return trimmed;
