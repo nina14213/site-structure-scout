@@ -858,6 +858,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'wizard.tableSelectionDesc': '{terms} terms mapped across {schemas} schemas — select tables to download',
     'wizard.extraCols': 'extra',
     'wizard.addUnmappedCols': 'Add unmapped original columns',
+    'wizard.dateOriginal': 'Original date',
     'autoMatch.title': 'Column matches found',
     'autoMatch.found': 'Found {count} columns matching Darwin Core fields',
     'autoMatch.selectAll': 'Select all',
