@@ -46,8 +46,6 @@ export default function ColumnsPanel({
   getAllColumnMappings,
   getSampleValues,
   onRemoveMapping,
-  onSuggestMapping,
-  suggestionsCount = 0,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
