@@ -318,6 +318,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   unmappedColumns={state.unmappedColumns}
                   extraColumnsPerSchema={state.extraColumnsPerSchema}
                   onToggleExtraColumn={state.toggleExtraColumn}
+                  onSelectAllExtraColumns={state.selectAllExtraColumns}
                   convertDatesToISO={state.convertDatesToISO}
                   generatedIdValues={state.generatedIdValues}
                   getPreviewRows={exportUtils.getPreviewRows}

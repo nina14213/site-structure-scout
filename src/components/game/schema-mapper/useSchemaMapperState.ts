@@ -522,6 +522,19 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     });
   }, []);
 
+  /** Select/deselect all unmapped columns for a schema */
+  const selectAllExtraColumns = useCallback((schemaId: string) => {
+    setExtraColumnsPerSchema(prev => {
+      const existing = prev[schemaId] || [];
+      // If all are selected, deselect all; otherwise select all
+      const allSelected = unmappedColumns.length > 0 && existing.length === unmappedColumns.length;
+      return {
+        ...prev,
+        [schemaId]: allSelected ? [] : [...unmappedColumns],
+      };
+    });
+  }, [unmappedColumns]);
+
   return {
     // State
     selectedSchema,
@@ -585,6 +598,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     applyEventDateIsoSuggestion,
     getMappingsBySchema,
     toggleExtraColumn,
+    selectAllExtraColumns,
 
     // Helpers
     findBestColumnMatch: (term: string) => findBestColumnMatch(term, columns),
