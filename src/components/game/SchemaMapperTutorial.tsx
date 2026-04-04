@@ -136,8 +136,11 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const totalSteps = steps.length;
 
   // Calculate tooltip position based on highlighted element
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   const getTooltipStyle = (): React.CSSProperties => {
-    if (!highlightRect || step.position === 'center') {
+    // On mobile, always center the tooltip
+    if (isMobile || !highlightRect || step.position === 'center') {
       return {
         position: 'fixed',
         top: '50%',
@@ -147,24 +150,44 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       };
     }
 
-    const padding = 20;
-    const tooltipWidth = 380;
-    const tooltipHeight = 320; // approximate max height
+    const padding = 16;
+    const tooltipWidth = Math.min(380, window.innerWidth - padding * 2);
+    const tooltipHeight = 320;
     const maxTop = window.innerHeight - tooltipHeight - padding;
 
     if (step.position === 'right') {
+      const leftPos = highlightRect.right + padding;
+      // If tooltip doesn't fit to the right, place below
+      if (leftPos + tooltipWidth > window.innerWidth - padding) {
+        return {
+          position: 'fixed',
+          top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
+          left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
+          zIndex: 10002,
+        };
+      }
       return {
         position: 'fixed',
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
-        left: Math.min(highlightRect.right + padding, window.innerWidth - tooltipWidth - padding),
+        left: leftPos,
         zIndex: 10002,
       };
     }
     if (step.position === 'left') {
+      const leftPos = highlightRect.left - tooltipWidth - padding;
+      // If tooltip doesn't fit to the left, place below
+      if (leftPos < padding) {
+        return {
+          position: 'fixed',
+          top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
+          left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
+          zIndex: 10002,
+        };
+      }
       return {
         position: 'fixed',
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
-        left: Math.max(padding, highlightRect.left - tooltipWidth - padding),
+        left: leftPos,
         zIndex: 10002,
       };
     }
@@ -172,7 +195,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     return {
       position: 'fixed',
       top: Math.min(highlightRect.bottom + padding, maxTop),
-      left: Math.max(padding, highlightRect.left),
+      left: Math.max(padding, Math.min(highlightRect.left, window.innerWidth - tooltipWidth - padding)),
       zIndex: 10002,
     };
   };
