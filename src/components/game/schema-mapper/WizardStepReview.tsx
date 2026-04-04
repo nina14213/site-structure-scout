@@ -15,6 +15,7 @@ import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperStat
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
   mappingsCount: number;
+  schemasWithMappingsCount: number;
   onSelectSchema: (schemaId: string) => void;
   onClearSearch: () => void;
   unmappedRequiredIdTerms: string[];
