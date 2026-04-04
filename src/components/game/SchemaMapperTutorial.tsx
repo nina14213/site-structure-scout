@@ -249,7 +249,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
           exit={{ opacity: 0, scale: 0.9, y: -10 }}
           transition={{ duration: 0.25 }}
           style={getTooltipStyle()}
-          className="w-[360px] max-w-[90vw]"
+          className="w-[360px] max-w-[calc(100vw-2rem)]"
         >
           <div className="bg-card border border-border rounded-2xl shadow-2xl p-5 relative">
             {/* Mascot floating */}
