@@ -171,9 +171,9 @@ export default function WizardStepReview({
                           <td className="px-3 py-1.5 text-muted-foreground font-mono">{s.original}</td>
                           <td className="px-3 py-1.5 text-center text-muted-foreground">→</td>
                           <td className={`px-3 py-1.5 font-mono font-medium ${
-                            s.original !== s.converted ? 'text-cyan-500' : 'text-destructive'
+                            s.original !== s.converted ? 'text-cyan-500' : 'text-muted-foreground'
                           }`}>
-                            {s.original !== s.converted ? s.converted : '⚠ ?'}
+                            {s.original !== s.converted ? s.converted : '—'}
                           </td>
                         </tr>
                       ))}
