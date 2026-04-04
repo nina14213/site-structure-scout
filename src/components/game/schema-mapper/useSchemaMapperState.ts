@@ -117,6 +117,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
   const [showIdGenerator, setShowIdGenerator] = useState(false);
   const [forcedSchemas, setForcedSchemas] = useState<Set<string>>(new Set());
+  const [extraColumnsPerSchema, setExtraColumnsPerSchema] = useState<Record<string, string[]>>({});
 
   // ─── Persistence ───────────────────────────────────────────────────
 
