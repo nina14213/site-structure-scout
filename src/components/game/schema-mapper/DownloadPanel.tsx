@@ -64,7 +64,7 @@ export default function DownloadPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="mt-6"
+      className="mt-2"
     >
       <Card data-tour="download-panel" className="bg-card/90 border-border backdrop-blur">
         <CardHeader className="border-b border-border pb-3">
