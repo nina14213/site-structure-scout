@@ -308,7 +308,6 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
                 {isLast ? t('mapperTutorial.finish') : t('mapperTutorial.next')}
                 {!isLast && <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1" />}
               </Button>
-              </Button>
             </div>
           </div>
         </motion.div>
