@@ -291,15 +291,24 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   // ─── Column helpers ────────────────────────────────────────────────
 
+  /** Sprawdza czy kolumna jest częścią mapowania (dokładne lub pipe-join) */
+  const colMatchesMappingValue = useCallback((mappingValue: string, columnName: string) => {
+    if (mappingValue === columnName) return true;
+    if (mappingValue.includes(' | ')) {
+      return mappingValue.split(' | ').includes(columnName);
+    }
+    return false;
+  }, []);
+
   /** Zwraca pierwsze mapowanie dla kolumny */
   const getColumnMapping = useCallback((columnName: string) => {
-    return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
-  }, [mappings]);
+    return Object.entries(mappings).find(([, col]) => colMatchesMappingValue(col, columnName))?.[0] || null;
+  }, [mappings, colMatchesMappingValue]);
 
-  /** Zwraca WSZYSTKIE mapowania dla kolumny (dla ID multi-map) */
+  /** Zwraca WSZYSTKIE mapowania dla kolumny (dla ID multi-map i pipe-join) */
   const getAllColumnMappings = useCallback((columnName: string) => {
-    return Object.entries(mappings).filter(([, col]) => col === columnName).map(([term]) => term);
-  }, [mappings]);
+    return Object.entries(mappings).filter(([, col]) => colMatchesMappingValue(col, columnName)).map(([term]) => term);
+  }, [mappings, colMatchesMappingValue]);
 
   /** Próbki wartości kolumny (max 3) */
   const getSampleValues = useCallback(
