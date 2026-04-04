@@ -10,13 +10,12 @@
  * - Przyciski pobierania: wszystkie / optymalne / opcjonalne / wybrane
  */
 
-import React, { useCallback } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Download, CalendarClock, Key, Eye, Check, X, AlertTriangle,
+  Download, CalendarClock, Key, Eye, Check, X,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes } from "./schemaData";
