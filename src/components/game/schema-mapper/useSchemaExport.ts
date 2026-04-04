@@ -198,6 +198,12 @@ export function useSchemaExport({
         }
       });
 
+      // Add extra (unmapped) columns
+      const extras = schemaId ? (extraColumnsPerSchema[schemaId] || []) : [];
+      extras.forEach(col => {
+        if (!csvHeaders.includes(col)) csvHeaders.push(col);
+      });
+
       const csvRows: string[] = [csvHeaders.join(",")];
       const escape = (v: string) => {
         if (v.includes(",") || v.includes('"') || v.includes("\n")) {
