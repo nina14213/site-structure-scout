@@ -355,7 +355,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                   <Button
                     onClick={handleComplete}
                     disabled={!state.allRequiredMapped}
-                    className={`w-full py-6 text-lg ${
+                    className={`w-full py-4 md:py-6 text-base md:text-lg ${
                       state.allRequiredMapped
                         ? "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
                         : "bg-muted text-muted-foreground"
