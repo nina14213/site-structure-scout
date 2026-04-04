@@ -84,6 +84,8 @@ export default function SchemasPanel({
   classifiedSchemas,
   forcedSchemas,
   onToggleForceSchema,
+  onSuggestMapping,
+  suggestionsCount = 0,
 }: SchemasPanelProps) {
   const { t } = useLanguage();
 
