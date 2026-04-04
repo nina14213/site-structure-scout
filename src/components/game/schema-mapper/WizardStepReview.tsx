@@ -279,9 +279,19 @@ export default function WizardStepReview({
                       className="overflow-hidden border-t border-border"
                     >
                       <div className="p-3 bg-muted/20">
-                        <p className="text-xs font-medium text-muted-foreground mb-2">
-                          {t("wizard.addUnmappedCols")}
-                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-medium text-muted-foreground">
+                            {t("wizard.addUnmappedCols")}
+                          </p>
+                          <button
+                            onClick={() => onSelectAllExtraColumns(schemaId)}
+                            className="text-[10px] px-2 py-0.5 rounded border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors"
+                          >
+                            {extras.length === unmappedColumns.length
+                              ? t("autoMatch.deselectAll")
+                              : t("autoMatch.selectAll")}
+                          </button>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {unmappedColumns.map(col => {
                             const isAdded = extras.includes(col);
