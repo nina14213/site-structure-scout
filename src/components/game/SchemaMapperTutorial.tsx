@@ -35,6 +35,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const allSteps: TutorialStep[] = [
     {
