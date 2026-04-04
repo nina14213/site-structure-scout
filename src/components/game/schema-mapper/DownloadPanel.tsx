@@ -10,13 +10,12 @@
  * - Przyciski pobierania: wszystkie / optymalne / opcjonalne / wybrane
  */
 
-import React, { useCallback } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Download, CalendarClock, Key, Eye, Check, X, AlertTriangle,
+  Download, CalendarClock, Key, Eye, Check, X,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes } from "./schemaData";
@@ -27,10 +26,6 @@ interface DownloadPanelProps {
   schemasWithMappings: string[];
   groupedMappings: Record<string, Record<string, string>>;
   convertDatesToISO: boolean;
-  onToggleDateConversion: () => void;
-  unmappedRequiredIdTerms: string[];
-  generatedIdConfigs: { term: string; mode: string }[];
-  onOpenIdGenerator: () => void;
   classifiedSchemas: ClassifiedSchemas;
   previewSchemaId: string | null;
   onSetPreviewSchemaId: (id: string | null) => void;
@@ -48,10 +43,6 @@ export default function DownloadPanel({
   schemasWithMappings,
   groupedMappings,
   convertDatesToISO,
-  onToggleDateConversion,
-  unmappedRequiredIdTerms,
-  generatedIdConfigs,
-  onOpenIdGenerator,
   classifiedSchemas,
   previewSchemaId,
   onSetPreviewSchemaId,
@@ -73,7 +64,7 @@ export default function DownloadPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="mt-6"
+      className="mt-2"
     >
       <Card data-tour="download-panel" className="bg-card/90 border-border backdrop-blur">
         <CardHeader className="border-b border-border pb-3">
@@ -84,48 +75,6 @@ export default function DownloadPanel({
           <p className="text-sm text-muted-foreground">{t("schema.downloadPackageDesc")}</p>
         </CardHeader>
         <CardContent className="pt-4 space-y-4">
-          {/* Date conversion toggle */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
-            <CalendarClock className="w-5 h-5 text-cyan-500 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{t("schema.dateConversion")}</p>
-              <p className="text-xs text-muted-foreground">{t("schema.dateConversionDesc")}</p>
-            </div>
-            <Button
-              size="sm"
-              variant={convertDatesToISO ? "default" : "outline"}
-              onClick={onToggleDateConversion}
-              className={convertDatesToISO ? "bg-cyan-600 hover:bg-cyan-700 text-white" : ""}
-            >
-              <CalendarClock className="w-4 h-4 mr-1" />
-              {convertDatesToISO ? t("schema.datesConverted") : t("schema.convertDates")}
-            </Button>
-          </div>
-
-          {/* ID Generator button — always visible */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-amber-500/30">
-            <Key className="w-5 h-5 text-amber-400 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{t('schema.generateIds')}</p>
-              {unmappedRequiredIdTerms.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {unmappedRequiredIdTerms.join(', ')}
-                </p>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant={generatedIdConfigs.length > 0 ? "default" : "outline"}
-              onClick={onOpenIdGenerator}
-              className={generatedIdConfigs.length > 0 ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-amber-500/50 text-amber-400"}
-            >
-              <Key className="w-4 h-4 mr-1" />
-              {generatedIdConfigs.length > 0
-                ? `${generatedIdConfigs.filter(c => c.mode !== 'skip').length} ${t('idGen.generated')}`
-                : t('schema.generateIds')}
-            </Button>
-          </div>
-
           {/* Schema file cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {schemasWithMappings.map((schemaId) => {
@@ -286,15 +235,6 @@ export default function DownloadPanel({
             )}
           </AnimatePresence>
 
-          {/* Missing IDs warning */}
-          {unmappedRequiredIdTerms.length > 0 && generatedIdConfigs.filter(c => c.mode !== 'skip').length === 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
-              <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
-              <p className="text-sm text-destructive">
-                {t('schema.missingIdsWarning').replace('{terms}', unmappedRequiredIdTerms.join(', '))}
-              </p>
-            </div>
-          )}
 
           {/* Download buttons */}
           <div className="space-y-2">

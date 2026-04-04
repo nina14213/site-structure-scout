@@ -7,7 +7,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Key, CalendarClock, CheckCircle } from "lucide-react";
+import { AlertTriangle, Key, CalendarClock, CheckCircle, Layers, FileSpreadsheet } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import OptimalLayoutPanel from "./OptimalLayoutPanel";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
@@ -15,6 +15,7 @@ import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperStat
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
   mappingsCount: number;
+  schemasWithMappingsCount: number;
   onSelectSchema: (schemaId: string) => void;
   onClearSearch: () => void;
   unmappedRequiredIdTerms: string[];
@@ -27,6 +28,7 @@ interface WizardStepReviewProps {
 export default function WizardStepReview({
   optimalLayout,
   mappingsCount,
+  schemasWithMappingsCount,
   onSelectSchema,
   onClearSearch,
   unmappedRequiredIdTerms,
@@ -133,6 +135,17 @@ export default function WizardStepReview({
               </p>
             </div>
           )}
+
+          {/* Mapping summary — always visible */}
+          <div className="p-4 bg-muted/50 border border-border rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="w-4 h-4 text-muted-foreground" />
+              <p className="font-medium text-foreground text-sm">{t("wizard.mappingSummary")}</p>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("wizard.mappingSummaryDesc", { terms: mappingsCount, schemas: schemasWithMappingsCount })}
+            </p>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
