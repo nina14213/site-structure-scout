@@ -28,6 +28,7 @@ interface WizardStepReviewProps {
 export default function WizardStepReview({
   optimalLayout,
   mappingsCount,
+  schemasWithMappingsCount,
   onSelectSchema,
   onClearSearch,
   unmappedRequiredIdTerms,
