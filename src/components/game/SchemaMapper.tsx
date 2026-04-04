@@ -256,8 +256,6 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     getAllColumnMappings={state.getAllColumnMappings}
                     getSampleValues={state.getSampleValues}
                     onRemoveMapping={state.handleRemoveMapping}
-                    onSuggestMapping={openSuggestDialog}
-                    suggestionsCount={buildSuggestions(columns, data, state.getColumnMapping).length}
                   />
 
                   <SchemasPanel
@@ -282,6 +280,8 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                     classifiedSchemas={state.classifiedSchemas}
                     forcedSchemas={state.forcedSchemas}
                     onToggleForceSchema={state.toggleForcedSchema}
+                    onSuggestMapping={openSuggestDialog}
+                    suggestionsCount={buildSuggestions(columns, data, state.getColumnMapping).length}
                   />
                 </div>
               </motion.div>
