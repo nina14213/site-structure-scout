@@ -356,27 +356,36 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     if (mappings['verbatimEventDate'] === eventDateCol) return null;
 
     const isoRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/;
-    const sampleSize = Math.min(data.length, 50);
-    let nonIsoCount = 0;
-    let totalNonEmpty = 0;
-    const samples: { original: string; converted: string }[] = [];
-    const seenOriginals = new Set<string>();
+    const cols = eventDateCol.includes(' | ') ? eventDateCol.split(' | ') : [eventDateCol];
 
-    for (let i = 0; i < sampleSize; i++) {
-      const cols = eventDateCol.includes(' | ') ? eventDateCol.split(' | ') : [eventDateCol];
+    // Collect all non-empty rows with their values
+    const allRows: { idx: number; original: string; converted: string; wasConverted: boolean }[] = [];
+    let nonIsoCount = 0;
+
+    for (let i = 0; i < data.length; i++) {
       const val = String(cols.map(c => data[i]?.[c] ?? '').join('')).trim();
       if (!val) continue;
-      totalNonEmpty++;
-      if (!isoRegex.test(val)) {
-        nonIsoCount++;
-        if (samples.length < 5 && !seenOriginals.has(val)) {
-          seenOriginals.add(val);
-          samples.push({ original: val, converted: normalizeDate(val) });
-        }
-      }
+      const converted = normalizeDate(val);
+      const isIso = isoRegex.test(val);
+      if (!isIso) nonIsoCount++;
+      allRows.push({ idx: i + 1, original: val, converted, wasConverted: !isIso && converted !== val });
     }
-    if (totalNonEmpty === 0 || nonIsoCount === 0) return null;
-    return { column: eventDateCol, nonIsoCount, totalNonEmpty, samples };
+
+    if (allRows.length === 0 || nonIsoCount === 0) return null;
+
+    // Build first 5 + last 5 preview
+    let samples: typeof allRows;
+    if (allRows.length <= 10) {
+      samples = allRows;
+    } else {
+      samples = [
+        ...allRows.slice(0, 5),
+        { idx: -1, original: '', converted: '', wasConverted: false }, // separator
+        ...allRows.slice(-5),
+      ];
+    }
+
+    return { column: eventDateCol, nonIsoCount, totalNonEmpty: allRows.length, samples };
   }, [mappings, data]);
 
   /** Apply suggestion: copy eventDate → verbatimEventDate */
