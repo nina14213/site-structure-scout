@@ -240,12 +240,12 @@ export function useSchemaExport({
             rowValues.push(escape(converted));
           }
         });
-        csvRows.push(rowValues.join(","));
-        });
         // Add extra columns values
         extras.forEach(col => {
           rowValues.push(escape(String(row[col] ?? '')));
         });
+        csvRows.push(rowValues.join(","));
+      });
 
       return "\uFEFF" + csvRows.join("\n");
     },
