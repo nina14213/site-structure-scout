@@ -1384,6 +1384,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'wizard.tableSelectionDesc': '{terms} termes mappés dans {schemas} schémas — sélectionnez les tables à télécharger',
     'wizard.extraCols': 'extra',
     'wizard.addUnmappedCols': 'Ajouter des colonnes originales non mappées',
+    'wizard.dateOriginal': 'Date originale',
     'autoMatch.title': 'Correspondances de colonnes trouvées',
     'autoMatch.found': '{count} colonnes correspondent aux champs Darwin Core',
     'autoMatch.selectAll': 'Tout sélectionner',
