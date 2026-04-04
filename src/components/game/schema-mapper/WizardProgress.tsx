@@ -29,9 +29,9 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
                 }`}
               />
             )}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 md:gap-1.5">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold transition-colors ${
                   isDone
                     ? "bg-primary text-primary-foreground"
                     : isActive
