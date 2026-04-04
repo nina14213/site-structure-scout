@@ -64,6 +64,7 @@ export default function WizardStepReview({
   unmappedColumns,
   extraColumnsPerSchema,
   onToggleExtraColumn,
+  onSelectAllExtraColumns,
   convertDatesToISO,
   generatedIdValues,
   getPreviewRows,
