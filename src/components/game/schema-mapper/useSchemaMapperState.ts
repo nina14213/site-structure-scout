@@ -563,6 +563,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     schemasWithMappings,
     optimalLayout,
     classifiedSchemas,
+    unmappedColumns,
 
     // Actions
     handleSchemaChange,
