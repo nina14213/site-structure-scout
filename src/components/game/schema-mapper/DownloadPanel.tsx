@@ -76,48 +76,6 @@ export default function DownloadPanel({
           <p className="text-sm text-muted-foreground">{t("schema.downloadPackageDesc")}</p>
         </CardHeader>
         <CardContent className="pt-4 space-y-4">
-          {/* Date conversion toggle */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
-            <CalendarClock className="w-5 h-5 text-cyan-500 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{t("schema.dateConversion")}</p>
-              <p className="text-xs text-muted-foreground">{t("schema.dateConversionDesc")}</p>
-            </div>
-            <Button
-              size="sm"
-              variant={convertDatesToISO ? "default" : "outline"}
-              onClick={onToggleDateConversion}
-              className={convertDatesToISO ? "bg-cyan-600 hover:bg-cyan-700 text-white" : ""}
-            >
-              <CalendarClock className="w-4 h-4 mr-1" />
-              {convertDatesToISO ? t("schema.datesConverted") : t("schema.convertDates")}
-            </Button>
-          </div>
-
-          {/* ID Generator button — always visible */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-amber-500/30">
-            <Key className="w-5 h-5 text-amber-400 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{t('schema.generateIds')}</p>
-              {unmappedRequiredIdTerms.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {unmappedRequiredIdTerms.join(', ')}
-                </p>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant={generatedIdConfigs.length > 0 ? "default" : "outline"}
-              onClick={onOpenIdGenerator}
-              className={generatedIdConfigs.length > 0 ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-amber-500/50 text-amber-400"}
-            >
-              <Key className="w-4 h-4 mr-1" />
-              {generatedIdConfigs.length > 0
-                ? `${generatedIdConfigs.filter(c => c.mode !== 'skip').length} ${t('idGen.generated')}`
-                : t('schema.generateIds')}
-            </Button>
-          </div>
-
           {/* Schema file cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             {schemasWithMappings.map((schemaId) => {
