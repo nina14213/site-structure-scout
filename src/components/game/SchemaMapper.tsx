@@ -299,6 +299,7 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
                 <WizardStepReview
                   optimalLayout={state.optimalLayout}
                   mappingsCount={Object.keys(state.mappings).length}
+                  schemasWithMappingsCount={state.schemasWithMappings.length}
                   onSelectSchema={(schemaId) => {
                     state.handleSchemaChange(schemaId);
                     setWizardStep(0);
