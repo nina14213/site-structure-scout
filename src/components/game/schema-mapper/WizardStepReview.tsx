@@ -7,7 +7,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Key, CalendarClock, CheckCircle } from "lucide-react";
+import { AlertTriangle, Key, CalendarClock, CheckCircle, Layers, FileSpreadsheet } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import OptimalLayoutPanel from "./OptimalLayoutPanel";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
