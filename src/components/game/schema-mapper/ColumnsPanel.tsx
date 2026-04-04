@@ -38,6 +38,7 @@ interface ColumnsPanelProps {
 export default function ColumnsPanel({
   columns,
   dataRowCount,
+  mappedColumnsCount,
   selectedColumn,
   draggedColumn,
   onTapSelectColumn,
