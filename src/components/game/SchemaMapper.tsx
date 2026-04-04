@@ -375,40 +375,42 @@ export default function SchemaMapper({ columns, data, fileName, onBack, onComple
             )}
           </AnimatePresence>
 
-          {/* Wizard navigation buttons */}
-          <div className="mt-6 flex justify-between items-center">
-            <div>
-              {wizardStep > 0 && (
-                <Button variant="outline" onClick={goBack} className="gap-2">
-                  <ChevronLeft className="w-4 h-4" />
-                  {t("wizard.back")}
-                </Button>
-              )}
+          {/* Wizard navigation buttons — sticky on mobile */}
+          <div className="sticky bottom-0 z-10 mt-4 md:mt-6 -mx-4 md:mx-0 px-4 md:px-0 py-3 md:py-0 bg-gradient-to-t from-indigo-50 via-indigo-50/95 to-transparent dark:from-slate-900 dark:via-slate-900/95 md:bg-none md:static">
+            <div className="flex justify-between items-center">
+              <div>
+                {wizardStep > 0 && (
+                  <Button variant="outline" onClick={goBack} className="gap-1.5 md:gap-2 text-sm">
+                    <ChevronLeft className="w-4 h-4" />
+                    {t("wizard.back")}
+                  </Button>
+                )}
+              </div>
+              <div>
+                {wizardStep < 2 && (
+                  <Button
+                    onClick={goNext}
+                    disabled={!canGoNext}
+                    className={`gap-1.5 md:gap-2 text-sm ${
+                      canGoNext
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : ""
+                    }`}
+                  >
+                    {t("wizard.next")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-            <div>
-              {wizardStep < 2 && (
-                <Button
-                  onClick={goNext}
-                  disabled={!canGoNext}
-                  className={`gap-2 ${
-                    canGoNext
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : ""
-                  }`}
-                >
-                  {t("wizard.next")}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </div>
 
-          {/* Hint when no mappings */}
-          {wizardStep === 0 && !hasMappings && (
-            <p className="text-center text-sm text-muted-foreground mt-3">
-              {t("wizard.noMappingsYet")}
-            </p>
-          )}
+            {/* Hint when no mappings */}
+            {wizardStep === 0 && !hasMappings && (
+              <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">
+                {t("wizard.noMappingsYet")}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </>
