@@ -249,7 +249,7 @@ export function useSchemaExport({
 
       return "\uFEFF" + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema],
   );
 
   // ─── Download helpers ──────────────────────────────────────────────
