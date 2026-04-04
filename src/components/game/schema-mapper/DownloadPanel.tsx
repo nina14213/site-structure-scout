@@ -27,10 +27,6 @@ interface DownloadPanelProps {
   schemasWithMappings: string[];
   groupedMappings: Record<string, Record<string, string>>;
   convertDatesToISO: boolean;
-  onToggleDateConversion: () => void;
-  unmappedRequiredIdTerms: string[];
-  generatedIdConfigs: { term: string; mode: string }[];
-  onOpenIdGenerator: () => void;
   classifiedSchemas: ClassifiedSchemas;
   previewSchemaId: string | null;
   onSetPreviewSchemaId: (id: string | null) => void;
