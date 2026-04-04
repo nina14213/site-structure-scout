@@ -59,6 +59,7 @@ describe('useSchemaExport', () => {
         getMappingsBySchema: () => ({}),
         classifiedSchemas: { optimal: [], optional: [] },
         selectedForDownload: new Set(),
+        extraColumnsPerSchema: {},
       })
     );
 
