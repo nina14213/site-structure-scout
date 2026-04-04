@@ -428,6 +428,18 @@ export default function SchemasPanel({
                 {t("schema.reset")}
               </Button>
             </div>
+            {onSuggestMapping && (
+              <Button
+                data-tour="suggest-mapping-btn"
+                variant="outline"
+                size="sm"
+                onClick={onSuggestMapping}
+                className={`w-full gap-2 ${suggestionsCount > 0 ? 'text-amber-500 border-amber-500/50 hover:bg-amber-500/10' : 'text-muted-foreground border-border hover:bg-muted/50'}`}
+              >
+                <Lightbulb className="w-4 h-4" />
+                {t("schema.suggestMapping")} ({suggestionsCount})
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
