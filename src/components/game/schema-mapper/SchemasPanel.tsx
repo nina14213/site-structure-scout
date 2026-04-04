@@ -58,6 +58,8 @@ interface SchemasPanelProps {
   classifiedSchemas: ClassifiedSchemas;
   forcedSchemas: Set<string>;
   onToggleForceSchema: (schemaId: string) => void;
+  onSuggestMapping?: () => void;
+  suggestionsCount?: number;
 }
 
 export default function SchemasPanel({
