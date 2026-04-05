@@ -992,9 +992,9 @@
 
     "tinyrainbow": ["tinyrainbow@3.1.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/tinyrainbow/-/tinyrainbow-3.1.0.tgz", {}, "sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw=="],
 
-    "tldts": ["tldts@7.0.27", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/tldts/-/tldts-7.0.27.tgz", { "dependencies": { "tldts-core": "^7.0.27" }, "bin": { "tldts": "bin/cli.js" } }, "sha512-I4FZcVFcqCRuT0ph6dCDpPuO4Xgzvh+spkcTr1gK7peIvxWauoloVO0vuy1FQnijT63ss6AsHB6+OIM4aXHbPg=="],
+    "tldts": ["tldts@7.0.28", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/tldts/-/tldts-7.0.28.tgz", { "dependencies": { "tldts-core": "^7.0.28" }, "bin": { "tldts": "bin/cli.js" } }, "sha512-+Zg3vWhRUv8B1maGSTFdev9mjoo8Etn2Ayfs4cnjlD3CsGkxXX4QyW3j2WJ0wdjYcYmy7Lx2RDsZMhgCWafKIw=="],
 
-    "tldts-core": ["tldts-core@7.0.27", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/tldts-core/-/tldts-core-7.0.27.tgz", {}, "sha512-YQ7uPjgWUibIK6DW5lrKujGwUKhLevU4hcGbP5O6TcIUb+oTjJYJVWPS4nZsIHrEEEG6myk/oqAJUEQmpZrHsg=="],
+    "tldts-core": ["tldts-core@7.0.28", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/tldts-core/-/tldts-core-7.0.28.tgz", {}, "sha512-7W5Efjhsc3chVdFhqtaU0KtK32J37Zcr9RKtID54nG+tIpcY79CQK/veYPODxtD/LJ4Lue66jvrQzIX2Z2/pUQ=="],
 
     "to-regex-range": ["to-regex-range@5.0.1", "", { "dependencies": { "is-number": "^7.0.0" } }, "sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ=="],
 
