@@ -476,6 +476,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === DataImport Tutorial ===
     'importTutorial.skip': 'Pomiń samouczek',
+    'importTutorial.replay': 'Samouczek importu',
     'importTutorial.prev': 'Wstecz',
     'importTutorial.next': 'Dalej',
     'importTutorial.start': 'Rozpocznij import 🚀',
@@ -1001,6 +1002,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === DataImport Tutorial ===
     'importTutorial.skip': 'Skip tutorial',
+    'importTutorial.replay': 'Import tutorial',
     'importTutorial.prev': 'Back',
     'importTutorial.next': 'Next',
     'importTutorial.start': 'Start import 🚀',
@@ -1527,6 +1529,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === DataImport Tutorial ===
     'importTutorial.skip': 'Passer le tutoriel',
+    'importTutorial.replay': 'Tutoriel d\'import',
     'importTutorial.prev': 'Retour',
     'importTutorial.next': 'Suivant',
     'importTutorial.start': 'Commencer l\'import 🚀',
@@ -2048,6 +2051,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === DataImport Tutorial ===
     'importTutorial.skip': 'Tutorial überspringen',
+    'importTutorial.replay': 'Import-Tutorial',
     'importTutorial.prev': 'Zurück',
     'importTutorial.next': 'Weiter',
     'importTutorial.start': 'Import starten 🚀',

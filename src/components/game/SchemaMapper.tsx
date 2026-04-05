@@ -9,8 +9,9 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
+import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -65,6 +66,20 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   });
   const [tutorialPhase, setTutorialPhase] = useState<1 | 2>(1);
   const phase2ShownRef = useRef(false);
+
+  // ─── Import tutorial state ────────────────────────────────────────
+  const [showImportTutorial, setShowImportTutorial] = useState(() => {
+    try {
+      return !hasExternalData && !localStorage.getItem("dwc-import-tutorial-seen");
+    } catch {
+      return !hasExternalData;
+    }
+  });
+
+  const handleImportTutorialDismiss = useCallback(() => {
+    try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch {}
+    setShowImportTutorial(false);
+  }, []);
 
   // ─── Core state hook (only active when data is loaded) ────────────
   const state = useSchemaMapperState({ columns, data, fileName, language });
@@ -260,7 +275,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
           {/* Step content */}
           <AnimatePresence mode="wait">
-            {/* Step 0: Import */}
+            {/* Step 0: Import (with optional tutorial overlay) */}
             {wizardStep === 0 && (
               <motion.div
                 key="step-import"
@@ -268,7 +283,28 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
               >
-                <ImportPanel onImportComplete={handleImportComplete} />
+                {showImportTutorial ? (
+                  <DataImportTutorial
+                    onComplete={handleImportTutorialDismiss}
+                    onSkip={handleImportTutorialDismiss}
+                  />
+                ) : (
+                  <>
+                    <div className="flex justify-end mb-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowImportTutorial(true)}
+                        className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 gap-1"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{t("importTutorial.replay")}</span>
+                        <span className="sm:hidden">?</span>
+                      </Button>
+                    </div>
+                    <ImportPanel onImportComplete={handleImportComplete} />
+                  </>
+                )}
               </motion.div>
             )}
 

@@ -182,7 +182,7 @@ export default function DataImportTutorial({ onComplete, onSkip }: DataImportTut
   const isLast = currentStep === steps.length - 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 p-4 md:p-8 flex items-center justify-center">
+    <div className="flex items-center justify-center py-4 md:py-8">
       <div className="w-full max-w-2xl">
         {/* Progress */}
         <div className="flex items-center justify-between mb-6">
