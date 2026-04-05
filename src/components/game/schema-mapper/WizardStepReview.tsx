@@ -495,6 +495,58 @@ export default function WizardStepReview({
           )}
         </CardContent>
       </Card>
+
+      {/* Download section */}
+      {schemasWithMappings.length > 0 && (
+        <Card className="bg-card/90 border-border backdrop-blur">
+          <CardHeader className="border-b border-border pb-3">
+            <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
+              <Download className="w-5 h-5 text-amber-400" />
+              {t("schema.downloadPackage")}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">{t("schema.downloadPackageDesc")}</p>
+          </CardHeader>
+          <CardContent className="pt-4 space-y-2">
+            <Button
+              onClick={onDownloadAll}
+              variant="outline"
+              className="w-full py-5 text-base border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              {t("schema.downloadAll")} ZIP ({schemasWithMappings.length} {t("schema.files")})
+            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Button
+                onClick={() => onDownloadFiltered('optimal')}
+                variant="outline"
+                disabled={classifiedSchemas.optimal.length === 0}
+                className="py-3 text-sm border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 disabled:opacity-40"
+              >
+                <Download className="w-4 h-4 mr-1.5" />
+                {t("schema.downloadOptimal")} ({classifiedSchemas.optimal.length})
+              </Button>
+              <Button
+                onClick={() => onDownloadFiltered('optional')}
+                variant="outline"
+                disabled={classifiedSchemas.optional.length === 0}
+                className="py-3 text-sm border-orange-500/50 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 disabled:opacity-40"
+              >
+                <Download className="w-4 h-4 mr-1.5" />
+                {t("schema.downloadOptional")} ({classifiedSchemas.optional.length})
+              </Button>
+              <Button
+                onClick={onDownloadSelected}
+                variant="outline"
+                disabled={selectedForDownload.size === 0}
+                className="py-3 text-sm border-primary/50 text-primary hover:bg-primary/10 disabled:opacity-40"
+              >
+                <Download className="w-4 h-4 mr-1.5" />
+                {t("schema.downloadSelected")} ({selectedForDownload.size})
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </motion.div>
   );
 }
