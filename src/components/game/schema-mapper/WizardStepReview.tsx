@@ -1,7 +1,7 @@
 /**
  * @file WizardStepReview.tsx
  * @description Step 2 of the wizard — review optimal layout, configure ID/dates,
- *   select tables for export, add unmapped columns, and preview data.
+ *   select tables for export, add unmapped columns, preview data, and download.
  */
 
 import React, { useState } from "react";
@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  AlertTriangle, Key, CalendarClock, CheckCircle, Layers,
+  AlertTriangle, Key, CalendarClock, CheckCircle, Layers, Download,
   Eye, X, Plus, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
-import type { OptimalLayoutItem } from "./useSchemaMapperState";
+import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
 
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
@@ -48,6 +48,12 @@ interface WizardStepReviewProps {
   convertDatesToISO: boolean;
   generatedIdValues: Record<string, string[]>;
   getPreviewRows: (termMappings: Record<string, string>) => Record<string, string>[];
+  // Download (merged from DownloadPanel)
+  classifiedSchemas: ClassifiedSchemas;
+  onDownloadAll: () => void;
+  onDownloadSchema: (schemaId: string) => void;
+  onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
+  onDownloadSelected: () => void;
 }
 
 export default function WizardStepReview({
