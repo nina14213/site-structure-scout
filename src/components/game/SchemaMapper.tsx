@@ -275,7 +275,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
           {/* Step content */}
           <AnimatePresence mode="wait">
-            {/* Step 0: Import */}
+            {/* Step 0: Import (with optional tutorial overlay) */}
             {wizardStep === 0 && (
               <motion.div
                 key="step-import"
@@ -283,7 +283,28 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -40 }}
               >
-                <ImportPanel onImportComplete={handleImportComplete} />
+                {showImportTutorial ? (
+                  <DataImportTutorial
+                    onComplete={handleImportTutorialDismiss}
+                    onSkip={handleImportTutorialDismiss}
+                  />
+                ) : (
+                  <>
+                    <div className="flex justify-end mb-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowImportTutorial(true)}
+                        className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 gap-1"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{t("importTutorial.replay")}</span>
+                        <span className="sm:hidden">?</span>
+                      </Button>
+                    </div>
+                    <ImportPanel onImportComplete={handleImportComplete} />
+                  </>
+                )}
               </motion.div>
             )}
 
