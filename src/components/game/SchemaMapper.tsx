@@ -9,8 +9,9 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
+import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -65,6 +66,20 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   });
   const [tutorialPhase, setTutorialPhase] = useState<1 | 2>(1);
   const phase2ShownRef = useRef(false);
+
+  // ─── Import tutorial state ────────────────────────────────────────
+  const [showImportTutorial, setShowImportTutorial] = useState(() => {
+    try {
+      return !hasExternalData && !localStorage.getItem("dwc-import-tutorial-seen");
+    } catch {
+      return !hasExternalData;
+    }
+  });
+
+  const handleImportTutorialDismiss = useCallback(() => {
+    try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch {}
+    setShowImportTutorial(false);
+  }, []);
 
   // ─── Core state hook (only active when data is loaded) ────────────
   const state = useSchemaMapperState({ columns, data, fileName, language });
