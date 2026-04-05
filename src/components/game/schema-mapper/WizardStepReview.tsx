@@ -78,6 +78,11 @@ export default function WizardStepReview({
   convertDatesToISO,
   generatedIdValues,
   getPreviewRows,
+  classifiedSchemas,
+  onDownloadAll,
+  onDownloadSchema,
+  onDownloadFiltered,
+  onDownloadSelected,
 }: WizardStepReviewProps) {
   const { t } = useLanguage();
 
