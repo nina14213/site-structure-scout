@@ -12,7 +12,6 @@ import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { useGameNavigation } from '@/hooks/useGameNavigation';
 import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
-import DataImport from '@/components/game/DataImport';
 import SchemaMapper from '@/components/game/SchemaMapper';
 import QuizModal from '@/components/game/QuizModal';
 
@@ -34,28 +33,17 @@ const Index = () => {
     );
   }
 
-  if (nav.currentScreen === 'dataImport') {
-    return (
-      <DataImport
-        onBack={nav.handleBackToMenu}
-        onImportComplete={nav.handleImportComplete}
-      />
-    );
-  }
-
   if (nav.currentScreen === 'schemaMapper') {
     const importData = nav.levelData.customImport as { data: any[]; columns: string[]; fileName: string } | undefined;
-    if (importData) {
-      return (
-        <SchemaMapper
-          columns={importData.columns}
-          data={importData.data}
-          fileName={importData.fileName}
-          onBack={nav.handleBackToDataImport}
-          onComplete={nav.handleSchemaMappingComplete}
-        />
-      );
-    }
+    return (
+      <SchemaMapper
+        columns={importData?.columns}
+        data={importData?.data}
+        fileName={importData?.fileName}
+        onBack={nav.handleBackToMenu}
+        onComplete={nav.handleSchemaMappingComplete}
+      />
+    );
   }
 
   if (nav.currentScreen === 'quiz' && nav.quizLevel !== null) {
