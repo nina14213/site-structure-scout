@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameState } from '@/hooks/useGameProgress';
 
-export type GameScreen = 'start' | 'playing' | 'complete' | 'dataImport' | 'schemaMapper' | 'quiz';
+export type GameScreen = 'start' | 'playing' | 'complete' | 'schemaMapper' | 'quiz';
 
 /** Nazwy poziomów indeksowane numerem */
 const LEVEL_NAME_KEYS: Record<number, string> = {
