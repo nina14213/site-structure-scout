@@ -166,7 +166,7 @@ export function useGameNavigation({
 
   // ─── Data import flow ─────────────────────────────────────────────
   const handleDataImport = useCallback(() => {
-    setCurrentScreen('dataImport');
+    setCurrentScreen('schemaMapper');
   }, []);
 
   const handleImportComplete = useCallback((data: any[], columns: string[], fileName: string) => {
@@ -187,7 +187,7 @@ export function useGameNavigation({
   }, [toast, t]);
 
   const handleBackToDataImport = useCallback(() => {
-    setCurrentScreen('dataImport');
+    setCurrentScreen('schemaMapper');
   }, []);
 
   return {
