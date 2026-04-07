@@ -96,7 +96,6 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   // ─── Import complete handler ──────────────────────────────────────
   const handleImportComplete = useCallback((importData: any[], importColumns: string[], importFileName: string) => {
     setImportedData({ data: importData, columns: importColumns, fileName: importFileName });
-    setWizardStep(2);
   }, []);
 
   // ─── Tutorial phase 2 trigger ─────────────────────────────────────
