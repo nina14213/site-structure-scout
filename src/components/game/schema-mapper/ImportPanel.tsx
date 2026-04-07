@@ -42,6 +42,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [importResult, setImportResult] = useState<{ rows: number; columns: number } | null>(null);
 
   const getActualDelimiter = (delim: string): string => {
     if (delim === "\\t") return "\t";
