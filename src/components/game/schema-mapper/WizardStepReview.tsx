@@ -496,6 +496,19 @@ export default function WizardStepReview({
         </CardContent>
       </Card>
 
+      {/* Validation section (inactive) */}
+      <Card className="bg-card/90 border-border backdrop-blur opacity-60">
+        <CardHeader className="border-b border-border pb-3">
+          <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
+            <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+            {t("wizard.validation")}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground italic">
+            {t("wizard.validationInactive")}
+          </p>
+        </CardHeader>
+      </Card>
+
       {/* Download section */}
       {schemasWithMappings.length > 0 && (
         <Card className="bg-card/90 border-border backdrop-blur">
