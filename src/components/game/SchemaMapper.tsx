@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -24,6 +24,7 @@ import SchemasPanel from "./schema-mapper/SchemasPanel";
 import ImportPanel from "./schema-mapper/ImportPanel";
 import WizardProgress from "./schema-mapper/WizardProgress";
 import WizardStepReview from "./schema-mapper/WizardStepReview";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface SchemaMapperProps {
   columns?: string[];
@@ -47,13 +48,14 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const fileName = importedData?.fileName || "";
 
   // ─── Wizard step ──────────────────────────────────────────────────
-  const TOTAL_STEPS = 3;
-  const [wizardStep, setWizardStep] = useState(hasExternalData ? 1 : 0);
+  const TOTAL_STEPS = 4;
+  const [wizardStep, setWizardStep] = useState(hasExternalData ? 2 : 0);
 
   const wizardSteps = useMemo(() => [
-    { label: t("wizard.step0"), icon: <Upload className="w-4 h-4" /> },
-    { label: t("wizard.step1"), icon: <Layers className="w-4 h-4" /> },
-    { label: t("wizard.step2"), icon: <Download className="w-4 h-4" /> },
+    { label: t("wizard.step0"), icon: <BookOpen className="w-4 h-4" /> },
+    { label: t("wizard.step1"), icon: <Upload className="w-4 h-4" /> },
+    { label: t("wizard.step2"), icon: <Layers className="w-4 h-4" /> },
+    { label: t("wizard.step3"), icon: <Download className="w-4 h-4" /> },
   ], [t]);
 
   // ─── Tutorial state ────────────────────────────────────────────────
@@ -68,13 +70,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const phase2ShownRef = useRef(false);
 
   // ─── Import tutorial state ────────────────────────────────────────
-  const [showImportTutorial, setShowImportTutorial] = useState(() => {
-    try {
-      return !hasExternalData && !localStorage.getItem("dwc-import-tutorial-seen");
-    } catch {
-      return !hasExternalData;
-    }
-  });
+  const [showImportTutorial, setShowImportTutorial] = useState(false);
 
   const handleImportTutorialDismiss = useCallback(() => {
     try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch {}
@@ -100,7 +96,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   // ─── Import complete handler ──────────────────────────────────────
   const handleImportComplete = useCallback((importData: any[], importColumns: string[], importFileName: string) => {
     setImportedData({ data: importData, columns: importColumns, fileName: importFileName });
-    setWizardStep(1);
+    setWizardStep(2);
   }, []);
 
   // ─── Tutorial phase 2 trigger ─────────────────────────────────────
