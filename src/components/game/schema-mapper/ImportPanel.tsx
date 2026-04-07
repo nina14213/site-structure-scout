@@ -42,6 +42,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [importResult, setImportResult] = useState<{ rows: number; columns: number } | null>(null);
 
   const getActualDelimiter = (delim: string): string => {
     if (delim === "\\t") return "\t";
@@ -206,6 +207,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         const parsed = parseTextFile(text, delimiter);
         allData = convertDates(parsed.rows, parsed.columns);
       }
+      setImportResult({ rows: allData.length, columns: preview.columns.length });
       onImportComplete(allData, preview.columns, file.name);
     } catch (err: any) {
       setError(err.message || t("import.error.import"));
@@ -329,6 +331,15 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
               </span>
             )}
           </Button>
+
+          {importResult && (
+            <div className="p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+              <Check className="w-4 h-4" />
+              <span className="text-sm">
+                {t("import.successMessage", { rows: importResult.rows, columns: importResult.columns })}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
