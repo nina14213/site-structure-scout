@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -24,6 +24,7 @@ import SchemasPanel from "./schema-mapper/SchemasPanel";
 import ImportPanel from "./schema-mapper/ImportPanel";
 import WizardProgress from "./schema-mapper/WizardProgress";
 import WizardStepReview from "./schema-mapper/WizardStepReview";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface SchemaMapperProps {
   columns?: string[];
@@ -47,13 +48,14 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const fileName = importedData?.fileName || "";
 
   // ─── Wizard step ──────────────────────────────────────────────────
-  const TOTAL_STEPS = 3;
-  const [wizardStep, setWizardStep] = useState(hasExternalData ? 1 : 0);
+  const TOTAL_STEPS = 4;
+  const [wizardStep, setWizardStep] = useState(hasExternalData ? 2 : 0);
 
   const wizardSteps = useMemo(() => [
-    { label: t("wizard.step0"), icon: <Upload className="w-4 h-4" /> },
-    { label: t("wizard.step1"), icon: <Layers className="w-4 h-4" /> },
-    { label: t("wizard.step2"), icon: <Download className="w-4 h-4" /> },
+    { label: t("wizard.step0"), icon: <BookOpen className="w-4 h-4" /> },
+    { label: t("wizard.step1"), icon: <Upload className="w-4 h-4" /> },
+    { label: t("wizard.step2"), icon: <Layers className="w-4 h-4" /> },
+    { label: t("wizard.step3"), icon: <Download className="w-4 h-4" /> },
   ], [t]);
 
   // ─── Tutorial state ────────────────────────────────────────────────
@@ -68,13 +70,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const phase2ShownRef = useRef(false);
 
   // ─── Import tutorial state ────────────────────────────────────────
-  const [showImportTutorial, setShowImportTutorial] = useState(() => {
-    try {
-      return !hasExternalData && !localStorage.getItem("dwc-import-tutorial-seen");
-    } catch {
-      return !hasExternalData;
-    }
-  });
+  const [showImportTutorial, setShowImportTutorial] = useState(false);
 
   const handleImportTutorialDismiss = useCallback(() => {
     try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch {}
@@ -100,7 +96,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   // ─── Import complete handler ──────────────────────────────────────
   const handleImportComplete = useCallback((importData: any[], importColumns: string[], importFileName: string) => {
     setImportedData({ data: importData, columns: importColumns, fileName: importFileName });
-    setWizardStep(1);
+    setWizardStep(2);
   }, []);
 
   // ─── Tutorial phase 2 trigger ─────────────────────────────────────
@@ -164,7 +160,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
   // ─── Wizard navigation ───────────────────────────────────────────
   const hasMappings = Object.keys(state.mappings).length > 0;
-  const canGoNext = wizardStep === 0 ? !!importedData : wizardStep === 1 ? hasMappings : true;
+  const canGoNext = wizardStep === 0 ? true : wizardStep === 1 ? !!importedData : wizardStep === 2 ? hasMappings : true;
 
   // Auto-skip review part logic (review is now merged with download in step 2)
   const hasReviewItems = state.unmappedRequiredIdTerms.length > 0 || !!state.eventDateIsoSuggestion || state.optimalLayout.length > 0;
@@ -176,8 +172,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   }, [wizardStep]);
 
   const goBack = useCallback(() => {
-    if (wizardStep === 1 && hasExternalData) {
-      // Don't go back to import if data was provided externally
+    if (wizardStep === 2 && hasExternalData) {
       onBack();
       return;
     }
@@ -189,7 +184,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   return (
     <>
       {/* Tutorial overlay */}
-      {showTutorial && wizardStep >= 1 && (
+      {showTutorial && wizardStep >= 2 && (
         <SchemaMapperTutorial
           phase={tutorialPhase}
           onComplete={handleTutorialComplete}
@@ -241,7 +236,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3 mb-2">
               <Button
-                onClick={wizardStep === 0 || (wizardStep === 1 && hasExternalData) ? onBack : goBack}
+                onClick={wizardStep === 0 || (wizardStep === 2 && hasExternalData) ? onBack : goBack}
                 variant="ghost"
                 size="sm"
                 className="text-muted-foreground hover:text-foreground flex-shrink-0 p-1.5 md:p-2"
@@ -253,7 +248,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
                 <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
-              {wizardStep >= 1 && (
+              {wizardStep >= 2 && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -308,8 +303,8 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               </motion.div>
             )}
 
-            {/* Step 1: Map columns */}
-            {wizardStep === 1 && importedData && (
+            {/* Step 2: Map columns */}
+            {wizardStep === 2 && importedData && (
               <motion.div
                 key="step-map"
                 initial={{ opacity: 0, x: -40 }}
@@ -362,8 +357,8 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               </motion.div>
             )}
 
-            {/* Step 2: Review & Download (merged) */}
-            {wizardStep === 2 && importedData && (
+            {/* Step 3: Review & Download (merged) */}
+            {wizardStep === 3 && importedData && (
               <motion.div
                 key="step-review-download"
                 initial={{ opacity: 0, x: 40 }}
@@ -378,7 +373,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   groupedMappings={state.groupedMappings}
                   onSelectSchema={(schemaId) => {
                     state.handleSchemaChange(schemaId);
-                    setWizardStep(1);
+                    setWizardStep(2);
                   }}
                   onClearSearch={() => state.setSearchTerm("")}
                   unmappedRequiredIdTerms={state.unmappedRequiredIdTerms}
@@ -465,7 +460,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
             </div>
 
             {/* Hint when no mappings */}
-            {wizardStep === 1 && !hasMappings && (
+            {wizardStep === 2 && !hasMappings && (
               <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">
                 {t("wizard.noMappingsYet")}
               </p>
