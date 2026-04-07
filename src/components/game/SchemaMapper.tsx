@@ -159,8 +159,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   }, [state.updateMappings]);
 
   // ─── Wizard navigation ───────────────────────────────────────────
-  const hasMappings = Object.keys(state.mappings).length > 0;
-  const canGoNext = wizardStep === 0 ? !!importedData : wizardStep === 1 ? hasMappings : true;
+  const canGoNext = wizardStep === 0 ? true : wizardStep === 1 ? !!importedData : wizardStep === 2 ? hasMappings : true;
 
   // Auto-skip review part logic (review is now merged with download in step 2)
   const hasReviewItems = state.unmappedRequiredIdTerms.length > 0 || !!state.eventDateIsoSuggestion || state.optimalLayout.length > 0;
@@ -172,8 +171,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   }, [wizardStep]);
 
   const goBack = useCallback(() => {
-    if (wizardStep === 1 && hasExternalData) {
-      // Don't go back to import if data was provided externally
+    if (wizardStep === 2 && hasExternalData) {
       onBack();
       return;
     }
