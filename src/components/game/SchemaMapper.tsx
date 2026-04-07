@@ -270,8 +270,63 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
           {/* Step content */}
           <AnimatePresence mode="wait">
-            {/* Step 0: Import (with optional tutorial overlay) */}
+            {/* Step 0: Intro */}
             {wizardStep === 0 && (
+              <motion.div
+                key="step-intro"
+                initial={{ opacity: 0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+              >
+                <div className="max-w-2xl mx-auto space-y-6">
+                  <Card className="bg-card/90 border-border backdrop-blur">
+                    <CardContent className="p-6 md:p-8">
+                      <div className="text-center mb-6">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                          <Sparkles className="w-8 h-8 text-primary" />
+                        </div>
+                        <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">{t("wizard.introTitle")}</h2>
+                        <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{t("wizard.introDesc")}</p>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <button
+                          onClick={() => setWizardStep(1)}
+                          className="group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all text-left"
+                        >
+                          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                            <Database className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="text-center">
+                            <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introHaveData")}</p>
+                            <p className="text-muted-foreground text-xs md:text-sm mt-1">{t("wizard.introHaveDataDesc")}</p>
+                          </div>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setShowImportTutorial(true);
+                            setWizardStep(1);
+                          }}
+                          className="group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-secondary hover:bg-secondary/5 transition-all text-left"
+                        >
+                          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
+                            <BookOpen className="w-6 h-6 text-secondary" />
+                          </div>
+                          <div className="text-center">
+                            <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introNoData")}</p>
+                            <p className="text-muted-foreground text-xs md:text-sm mt-1">{t("wizard.introNoDataDesc")}</p>
+                          </div>
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 1: Import (with optional tutorial overlay) */}
+            {wizardStep === 1 && (
               <motion.div
                 key="step-import"
                 initial={{ opacity: 0, x: -40 }}
