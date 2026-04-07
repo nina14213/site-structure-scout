@@ -184,7 +184,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   return (
     <>
       {/* Tutorial overlay */}
-      {showTutorial && wizardStep >= 1 && (
+      {showTutorial && wizardStep >= 2 && (
         <SchemaMapperTutorial
           phase={tutorialPhase}
           onComplete={handleTutorialComplete}
@@ -236,7 +236,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3 mb-2">
               <Button
-                onClick={wizardStep === 0 || (wizardStep === 1 && hasExternalData) ? onBack : goBack}
+                onClick={wizardStep === 0 || (wizardStep === 2 && hasExternalData) ? onBack : goBack}
                 variant="ghost"
                 size="sm"
                 className="text-muted-foreground hover:text-foreground flex-shrink-0 p-1.5 md:p-2"
@@ -248,7 +248,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
                 <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
-              {wizardStep >= 1 && (
+              {wizardStep >= 2 && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -303,8 +303,8 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               </motion.div>
             )}
 
-            {/* Step 1: Map columns */}
-            {wizardStep === 1 && importedData && (
+            {/* Step 2: Map columns */}
+            {wizardStep === 2 && importedData && (
               <motion.div
                 key="step-map"
                 initial={{ opacity: 0, x: -40 }}
@@ -357,8 +357,8 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               </motion.div>
             )}
 
-            {/* Step 2: Review & Download (merged) */}
-            {wizardStep === 2 && importedData && (
+            {/* Step 3: Review & Download (merged) */}
+            {wizardStep === 3 && importedData && (
               <motion.div
                 key="step-review-download"
                 initial={{ opacity: 0, x: 40 }}
@@ -373,7 +373,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   groupedMappings={state.groupedMappings}
                   onSelectSchema={(schemaId) => {
                     state.handleSchemaChange(schemaId);
-                    setWizardStep(1);
+                    setWizardStep(2);
                   }}
                   onClearSearch={() => state.setSearchTerm("")}
                   unmappedRequiredIdTerms={state.unmappedRequiredIdTerms}
@@ -460,7 +460,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
             </div>
 
             {/* Hint when no mappings */}
-            {wizardStep === 1 && !hasMappings && (
+            {wizardStep === 2 && !hasMappings && (
               <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">
                 {t("wizard.noMappingsYet")}
               </p>
