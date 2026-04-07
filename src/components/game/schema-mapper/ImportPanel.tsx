@@ -331,6 +331,15 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
               </span>
             )}
           </Button>
+
+          {importResult && (
+            <div className="p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+              <Check className="w-4 h-4" />
+              <span className="text-sm">
+                {t("import.successMessage", { rows: importResult.rows, columns: importResult.columns })}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
