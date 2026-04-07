@@ -207,6 +207,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         const parsed = parseTextFile(text, delimiter);
         allData = convertDates(parsed.rows, parsed.columns);
       }
+      setImportResult({ rows: allData.length, columns: preview.columns.length });
       onImportComplete(allData, preview.columns, file.name);
     } catch (err: any) {
       setError(err.message || t("import.error.import"));
