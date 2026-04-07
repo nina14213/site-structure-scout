@@ -325,7 +325,6 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Check className="w-4 h-4" />
                 {t("import.importContinue")}
               </span>
             )}
