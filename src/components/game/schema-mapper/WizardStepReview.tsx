@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertTriangle, Key, CalendarClock, CheckCircle, Layers, Download,
-  Eye, X, Plus, ChevronDown, ChevronUp,
+  Eye, X, Plus, ChevronDown, ChevronUp, ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
