@@ -159,6 +159,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   }, [state.updateMappings]);
 
   // ─── Wizard navigation ───────────────────────────────────────────
+  const hasMappings = Object.keys(state.mappings).length > 0;
   const canGoNext = wizardStep === 0 ? true : wizardStep === 1 ? !!importedData : wizardStep === 2 ? hasMappings : true;
 
   // Auto-skip review part logic (review is now merged with download in step 2)
