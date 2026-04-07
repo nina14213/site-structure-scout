@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertTriangle, Key, CalendarClock, CheckCircle, Layers, Download,
-  Eye, X, Plus, ChevronDown, ChevronUp,
+  Eye, X, Plus, ChevronDown, ChevronUp, ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
@@ -494,6 +494,19 @@ export default function WizardStepReview({
             </div>
           )}
         </CardContent>
+      </Card>
+
+      {/* Validation section (inactive) */}
+      <Card className="bg-card/90 border-border backdrop-blur opacity-60">
+        <CardHeader className="border-b border-border pb-3">
+          <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
+            <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+            {t("wizard.validation")}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground italic">
+            {t("wizard.validationInactive")}
+          </p>
+        </CardHeader>
       </Card>
 
       {/* Download section */}
