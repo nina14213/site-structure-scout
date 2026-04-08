@@ -85,7 +85,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
       icon: <PlusCircle className="w-8 h-8" />,
-      position: 'center',
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step8.title',
