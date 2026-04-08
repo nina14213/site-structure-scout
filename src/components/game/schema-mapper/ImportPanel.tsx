@@ -192,7 +192,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         setError(t("import.error.format"));
       }
     },
-    [delimiter, parseTextFile, t, convertDates]
+    [delimiter, parseTextFile, t, convertDates, loadSheetPreview]
   );
 
   const handleDelimiterChange = useCallback(
