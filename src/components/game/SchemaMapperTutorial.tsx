@@ -95,20 +95,20 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     },
     {
       titleKey: 'mapperTutorial.step9.title',
-      descKey: 'mapperTutorial.step8.desc',
+      descKey: 'mapperTutorial.step9.desc',
       icon: <Key className="w-8 h-8" />,
       position: 'center',
     },
     {
-      titleKey: 'mapperTutorial.step9.title',
-      descKey: 'mapperTutorial.step9.desc',
+      titleKey: 'mapperTutorial.step10.title',
+      descKey: 'mapperTutorial.step10.desc',
       icon: <span className="text-5xl">🦎</span>,
       position: 'center',
     },
   ];
 
   // Phase 1: steps 0-4 (intro, columns, schemas, multi-column, auto-map)
-  // Phase 2: steps 5-9 (optimal layout, dismiss, download, ID gen, outro)
+  // Phase 2: steps 5-10 (optimal layout, dismiss, extra cols, download, ID gen, outro)
   const steps = phase === 1 ? allSteps.slice(0, 5) : allSteps.slice(5);
   const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 5) : HIGHLIGHT_SELECTORS.slice(5);
 
