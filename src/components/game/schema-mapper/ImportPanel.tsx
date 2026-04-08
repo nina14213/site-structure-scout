@@ -43,6 +43,9 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ rows: number; columns: number } | null>(null);
+  const [sheetNames, setSheetNames] = useState<string[]>([]);
+  const [selectedSheet, setSelectedSheet] = useState<string>("");
+  const [workbookCache, setWorkbookCache] = useState<any>(null);
 
   const getActualDelimiter = (delim: string): string => {
     if (delim === "\\t") return "\t";
@@ -124,6 +127,38 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     [decimalSign, customDelimiter, t]
   );
 
+  const loadSheetPreview = useCallback(
+    (workbook: any, sheetName: string) => {
+      try {
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+        if (jsonData.length === 0) throw new Error(t("import.error.empty"));
+        const headers = jsonData[0].map(String);
+        const rows = jsonData.slice(1).map((row: any[]) => {
+          const obj: Record<string, string> = {};
+          headers.forEach((h, i) => { obj[h] = row[i] != null ? String(row[i]) : ""; });
+          return obj;
+        });
+        const convertedRows = convertDates(rows, headers);
+        setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
+        setError(null);
+      } catch (err: any) {
+        setError(err.message || t("import.error.parse"));
+      }
+    },
+    [t, convertDates]
+  );
+
+  const handleSheetChange = useCallback(
+    (sheetName: string) => {
+      setSelectedSheet(sheetName);
+      if (workbookCache) {
+        loadSheetPreview(workbookCache, sheetName);
+      }
+    },
+    [workbookCache, loadSheetPreview]
+  );
+
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0];
@@ -136,18 +171,11 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         try {
           const buffer = await selectedFile.arrayBuffer();
           const workbook = XLSX.read(buffer, { type: "array" });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-          if (jsonData.length === 0) throw new Error(t("import.error.empty"));
-          const headers = jsonData[0].map(String);
-          const rows = jsonData.slice(1).map((row) => {
-            const obj: Record<string, string> = {};
-            headers.forEach((h, i) => { obj[h] = row[i] != null ? String(row[i]) : ""; });
-            return obj;
-          });
-          const convertedRows = convertDates(rows, headers);
-          setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
+          setWorkbookCache(workbook);
+          setSheetNames(workbook.SheetNames);
+          const firstSheet = workbook.SheetNames[0];
+          setSelectedSheet(firstSheet);
+          loadSheetPreview(workbook, firstSheet);
         } catch (err: any) {
           setError(err.message || t("import.error.parse"));
         }
@@ -190,9 +218,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     try {
       let allData: any[];
       if (fileType === "xlsx") {
-        const buffer = await file.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
+        const workbook = workbookCache || XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const sheetName = selectedSheet || workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
         const headers = jsonData[0].map(String);
@@ -214,7 +241,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [file, fileType, preview, delimiter, parseTextFile, onImportComplete, t, convertDates]);
+  }, [file, fileType, preview, delimiter, parseTextFile, onImportComplete, t, convertDates, workbookCache, selectedSheet]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -245,6 +272,23 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
               </p>
             )}
           </div>
+
+          {/* Sheet selector for Excel */}
+          {fileType === "xlsx" && sheetNames.length > 1 && (
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">{t("import.sheetSelect")}</Label>
+              <Select value={selectedSheet} onValueChange={handleSheetChange}>
+                <SelectTrigger className="bg-muted/50 border-border text-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {sheetNames.map((name) => (
+                    <SelectItem key={name} value={name}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* CSV/TXT Options */}
           <div className={`p-4 rounded-lg bg-muted/50 border border-border space-y-4 ${fileType === "xlsx" ? "opacity-50" : ""}`}>
