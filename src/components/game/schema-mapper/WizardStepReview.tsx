@@ -316,6 +316,7 @@ export default function WizardStepReview({
                     <Button
                       variant="ghost"
                       size="sm"
+                      data-tour="extra-columns-btn"
                       onClick={() => setExpandedExtraSchema(isExtraOpen ? null : schemaId)}
                       className={`h-7 px-2 text-xs ${isExtraOpen ? 'text-cyan-400' : 'text-muted-foreground'}`}
                       disabled={unmappedColumns.length === 0}

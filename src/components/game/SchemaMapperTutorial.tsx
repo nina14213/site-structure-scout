@@ -19,7 +19,7 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
   '[data-tour="schemas-panel"]', // step 6: dismiss schemas
-  '[data-tour="download-panel"]', // step 7: extra columns
+  '[data-tour="extra-columns-btn"]', // step 7: extra columns
   '[data-tour="download-panel"]',
   '[data-tour="download-panel"]', // step 9: ID gen (same panel)
   null, // step 10: outro
