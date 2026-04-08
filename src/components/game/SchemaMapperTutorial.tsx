@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key, GitMerge } from 'lucide-react';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key, GitMerge, PlusCircle } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 interface SchemaMapperTutorialProps {
@@ -19,9 +19,10 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
   '[data-tour="schemas-panel"]', // step 6: dismiss schemas
+  '[data-tour="download-panel"]', // step 7: extra columns
   '[data-tour="download-panel"]',
-  '[data-tour="download-panel"]', // step 8: ID gen (same panel)
-  null, // step 9: outro
+  '[data-tour="download-panel"]', // step 9: ID gen (same panel)
+  null, // step 10: outro
 ];
 
 interface TutorialStep {
@@ -83,11 +84,17 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
-      icon: <Download className="w-8 h-8" />,
+      icon: <PlusCircle className="w-8 h-8" />,
       position: 'center',
     },
     {
       titleKey: 'mapperTutorial.step8.title',
+      descKey: 'mapperTutorial.step8.desc',
+      icon: <Download className="w-8 h-8" />,
+      position: 'center',
+    },
+    {
+      titleKey: 'mapperTutorial.step9.title',
       descKey: 'mapperTutorial.step8.desc',
       icon: <Key className="w-8 h-8" />,
       position: 'center',
