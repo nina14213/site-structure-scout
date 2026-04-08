@@ -1,28 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Layers, Sparkles, Minimize2, Download, X, Key, GitMerge, PlusCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Sparkles, Download, X, Star } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import TutorialAnimation from './tutorial/TutorialAnimation';
 
 interface SchemaMapperTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
-  /** Phase 1 = intro steps (0-3), Phase 2 = post-mapping steps (4-6). Default: 1 */
+  /** Phase 1 = mapping steps (0-3), Phase 2 = review+download steps (4-6). Default: 1 */
   phase?: 1 | 2;
 }
 
 const HIGHLIGHT_SELECTORS = [
-  null, // step 0: intro, no highlight
-  '[data-tour="columns-panel"]',
-  '[data-tour="schemas-panel"]',
-  '[data-tour="schemas-panel"]', // step 3: multi-column pipe (same panel)
-  '[data-tour="auto-map-btn"]',
-  '[data-tour="optimal-layout"]',
-  '[data-tour="schemas-panel"]', // step 6: dismiss schemas
-  '[data-tour="extra-columns-btn"]', // step 7: extra columns
-  '[data-tour="download-panel"]',
-  '[data-tour="download-panel"]', // step 9: ID gen (same panel)
-  null, // step 10: outro
+  null,                              // step 0: intro
+  '[data-tour="columns-panel"]',     // step 1: columns + schemas
+  '[data-tour="auto-map-btn"]',      // step 2: auto-map
+  '[data-tour="schemas-panel"]',     // step 3: ⭐ pro tip — pipe
+  '[data-tour="optimal-layout"]',    // step 4: review
+  '[data-tour="extra-columns-btn"]', // step 5: ⭐ pro tip — extra cols + hide
+  '[data-tour="download-panel"]',    // step 6: download + ID gen
 ];
 
 interface TutorialStep {
@@ -30,6 +27,8 @@ interface TutorialStep {
   descKey: string;
   icon: React.ReactNode;
   position: 'center' | 'left' | 'right' | 'bottom';
+  animation?: React.ReactNode;
+  proTip?: boolean;
 }
 
 export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: SchemaMapperTutorialProps) {
@@ -39,78 +38,62 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const allSteps: TutorialStep[] = [
+    // --- Phase 1: Mapping (steps 0-3) ---
     {
       titleKey: 'mapperTutorial.step0.title',
       descKey: 'mapperTutorial.step0.desc',
-      icon: <span className="text-5xl">🦎</span>,
+      icon: <span className="text-4xl">🦎</span>,
       position: 'center',
+      animation: <TutorialAnimation type="drag-drop" />,
     },
     {
       titleKey: 'mapperTutorial.step1.title',
       descKey: 'mapperTutorial.step1.desc',
-      icon: <FileSpreadsheet className="w-8 h-8" />,
+      icon: <FileSpreadsheet className="w-7 h-7" />,
       position: 'right',
+      animation: <TutorialAnimation type="drag-drop" />,
     },
     {
       titleKey: 'mapperTutorial.step2.title',
       descKey: 'mapperTutorial.step2.desc',
-      icon: <Layers className="w-8 h-8" />,
-      position: 'left',
+      icon: <Sparkles className="w-7 h-7" />,
+      position: 'right',
+      animation: <TutorialAnimation type="auto-map" />,
     },
     {
       titleKey: 'mapperTutorial.step3.title',
       descKey: 'mapperTutorial.step3.desc',
-      icon: <GitMerge className="w-8 h-8" />,
+      icon: <Star className="w-7 h-7" />,
       position: 'left',
+      proTip: true,
     },
+    // --- Phase 2: Review + Download (steps 4-6) ---
     {
       titleKey: 'mapperTutorial.step4.title',
       descKey: 'mapperTutorial.step4.desc',
-      icon: <Sparkles className="w-8 h-8" />,
-      position: 'right',
+      icon: <span className="text-4xl">🦎</span>,
+      position: 'center',
+      animation: <TutorialAnimation type="checkmark" />,
     },
     {
       titleKey: 'mapperTutorial.step5.title',
       descKey: 'mapperTutorial.step5.desc',
-      icon: <Minimize2 className="w-8 h-8" />,
-      position: 'center',
+      icon: <Star className="w-7 h-7" />,
+      position: 'left',
+      proTip: true,
     },
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
-      icon: <X className="w-8 h-8" />,
-      position: 'left',
-    },
-    {
-      titleKey: 'mapperTutorial.step7.title',
-      descKey: 'mapperTutorial.step7.desc',
-      icon: <PlusCircle className="w-8 h-8" />,
-      position: 'left',
-    },
-    {
-      titleKey: 'mapperTutorial.step8.title',
-      descKey: 'mapperTutorial.step8.desc',
-      icon: <Download className="w-8 h-8" />,
+      icon: <Download className="w-7 h-7" />,
       position: 'center',
-    },
-    {
-      titleKey: 'mapperTutorial.step9.title',
-      descKey: 'mapperTutorial.step9.desc',
-      icon: <Key className="w-8 h-8" />,
-      position: 'center',
-    },
-    {
-      titleKey: 'mapperTutorial.step10.title',
-      descKey: 'mapperTutorial.step10.desc',
-      icon: <span className="text-5xl">🦎</span>,
-      position: 'center',
+      animation: <TutorialAnimation type="download" />,
     },
   ];
 
-  // Phase 1: steps 0-4 (intro, columns, schemas, multi-column, auto-map)
-  // Phase 2: steps 5-10 (optimal layout, dismiss, extra cols, download, ID gen, outro)
-  const steps = phase === 1 ? allSteps.slice(0, 5) : allSteps.slice(5);
-  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 5) : HIGHLIGHT_SELECTORS.slice(5);
+  // Phase 1: steps 0-3, Phase 2: steps 4-6
+  const steps = phase === 1 ? allSteps.slice(0, 4) : allSteps.slice(4);
+  const highlightSelectors = phase === 1 ? HIGHLIGHT_SELECTORS.slice(0, 4) : HIGHLIGHT_SELECTORS.slice(4);
 
   const updateHighlight = useCallback(() => {
     const selector = highlightSelectors[currentStep];
@@ -146,12 +129,9 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const isLast = currentStep === steps.length - 1;
   const isFirst = currentStep === 0;
   const totalSteps = steps.length;
-
-  // Calculate tooltip position based on highlighted element
   const isMobile = windowWidth < 768;
 
   const getTooltipStyle = (): React.CSSProperties => {
-    // On mobile, always center the tooltip
     if (isMobile || !highlightRect || step.position === 'center') {
       return {
         position: 'fixed',
@@ -169,7 +149,6 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
 
     if (step.position === 'right') {
       const leftPos = highlightRect.right + padding;
-      // If tooltip doesn't fit to the right, place below
       if (leftPos + tooltipWidth > window.innerWidth - padding) {
         return {
           position: 'fixed',
@@ -187,7 +166,6 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     }
     if (step.position === 'left') {
       const leftPos = highlightRect.left - tooltipWidth - padding;
-      // If tooltip doesn't fit to the left, place below
       if (leftPos < padding) {
         return {
           position: 'fixed',
@@ -203,7 +181,6 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
         zIndex: 10002,
       };
     }
-    // bottom
     return {
       position: 'fixed',
       top: Math.min(highlightRect.bottom + padding, maxTop),
@@ -236,7 +213,6 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
           fill="rgba(0,0,0,0.7)"
           mask="url(#tutorial-mask)"
         />
-        {/* Highlight border */}
         {highlightRect && (
           <rect
             x={highlightRect.left - 8}
@@ -261,13 +237,23 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
           exit={{ opacity: 0, scale: 0.9, y: -10 }}
           transition={{ duration: 0.25 }}
           style={getTooltipStyle()}
-          className="w-[360px] max-w-[calc(100vw-2rem)]"
+          className="w-[380px] max-w-[calc(100vw-2rem)]"
         >
           <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[80vh] flex flex-col">
-            {/* Mascot floating */}
+            {/* Mascot */}
             <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>
               🦎
             </div>
+
+            {/* Pro tip badge */}
+            {step.proTip && (
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-500/20">
+                  ⭐ Pro tip
+                </span>
+                <span className="text-[10px] text-muted-foreground">{t('mapperTutorial.proTipNote')}</span>
+              </div>
+            )}
 
             {/* Progress dots */}
             <div className="flex gap-1.5 mb-3 md:mb-4">
@@ -294,8 +280,13 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
               </div>
             </div>
 
-            {/* Description — scrollable on mobile */}
-            <div className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-3 md:mb-4 whitespace-pre-line overflow-y-auto max-h-[40vh] md:max-h-none">{t(step.descKey)}</div>
+            {/* Description — scrollable */}
+            <div className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-2 md:mb-3 whitespace-pre-line overflow-y-auto max-h-[30vh] md:max-h-none">
+              {t(step.descKey)}
+            </div>
+
+            {/* Animation */}
+            {step.animation && <div className="mb-3">{step.animation}</div>}
 
             {/* Navigation */}
             <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border flex-shrink-0">
@@ -325,7 +316,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
         </motion.div>
       </AnimatePresence>
 
-      {/* Skip button always visible */}
+      {/* Skip button */}
       <button
         onClick={onSkip}
         className="fixed top-4 right-4 z-[10003] p-2 rounded-full bg-card/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
