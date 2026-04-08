@@ -19,7 +19,7 @@ const HIGHLIGHT_SELECTORS = [
   '[data-tour="auto-map-btn"]',
   '[data-tour="optimal-layout"]',
   '[data-tour="schemas-panel"]', // step 6: dismiss schemas
-  '[data-tour="download-panel"]', // step 7: extra columns
+  '[data-tour="extra-columns-btn"]', // step 7: extra columns
   '[data-tour="download-panel"]',
   '[data-tour="download-panel"]', // step 9: ID gen (same panel)
   null, // step 10: outro
@@ -85,7 +85,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       titleKey: 'mapperTutorial.step7.title',
       descKey: 'mapperTutorial.step7.desc',
       icon: <PlusCircle className="w-8 h-8" />,
-      position: 'center',
+      position: 'left',
     },
     {
       titleKey: 'mapperTutorial.step8.title',
