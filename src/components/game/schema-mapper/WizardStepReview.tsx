@@ -120,7 +120,7 @@ export default function WizardStepReview({
                   <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
                   <div>
                     <p className="font-medium text-destructive">
-                      {t("idGen.missingRequired", { count: unmappedRequiredIdTerms.length })}
+                      {t("idGen.unmappedIds", { count: unmappedRequiredIdTerms.length })}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {unmappedRequiredIdTerms.slice(0, 2).join(", ")}
