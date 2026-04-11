@@ -407,6 +407,10 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     getAllColumnMappings={state.getAllColumnMappings}
                     getSampleValues={state.getSampleValues}
                     onRemoveMapping={state.handleRemoveMapping}
+                    columnSuggestions={state.columnSuggestions}
+                    onApplySuggestion={(col, term) => {
+                      state.updateMappings(prev => ({ ...prev, [term]: col }));
+                    }}
                   />
 
                   <SchemasPanel
