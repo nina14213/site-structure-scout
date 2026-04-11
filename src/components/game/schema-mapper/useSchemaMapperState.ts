@@ -569,6 +569,34 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     });
   }, [unmappedColumns]);
 
+  /** Inteligentne sugestie — kolumny pasujące do termów DwC ale jeszcze nie zmapowane */
+  const columnSuggestions = useMemo(() => {
+    const suggestions: Record<string, string> = {};
+    for (const col of columns) {
+      if (getColumnMapping(col)) continue; // already mapped
+      // Check all schemas for a matching term
+      for (const [, schema] of Object.entries(schemaTerms)) {
+        const allTerms = [...schema.required, ...schema.optional];
+        for (const term of allTerms) {
+          if (mappings[term]) continue; // term already mapped
+          const termNorm = normalizeHeader(term);
+          const colNorm = normalizeHeader(col);
+          if (termNorm === colNorm) {
+            suggestions[col] = term;
+            break;
+          }
+          const aliases = termAliases[term];
+          if (aliases?.some(a => normalizeHeader(a) === colNorm)) {
+            suggestions[col] = term;
+            break;
+          }
+        }
+        if (suggestions[col]) break;
+      }
+    }
+    return suggestions;
+  }, [columns, mappings, getColumnMapping]);
+
   return {
     // State
     selectedSchema,
@@ -597,6 +625,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     toggleForcedSchema,
     extraColumnsPerSchema,
     setExtraColumnsPerSchema,
+    mappingsHistory,
 
     // Derived
     currentSchema,
@@ -611,6 +640,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     optimalLayout,
     classifiedSchemas,
     unmappedColumns,
+    columnSuggestions,
 
     // Actions
     handleSchemaChange,
@@ -623,6 +653,7 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     handleTapAssignTerm,
     handleReset,
     handleAutoMap,
+    handleUndo,
     getColumnMapping,
     getAllColumnMappings,
     getSampleValues,
