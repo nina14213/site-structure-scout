@@ -1,4 +1,4 @@
-import { normalizeHeader } from '../AutoMatchDialog';
+/**
  * @file ColumnsPanel.tsx
  * @description Panel lewej strony — wyświetla kolumny źródłowe użytkownika.
  *
@@ -10,6 +10,7 @@ import { normalizeHeader } from '../AutoMatchDialog';
  */
 
 import React from "react";
+import { normalizeHeader } from '../AutoMatchDialog';
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
