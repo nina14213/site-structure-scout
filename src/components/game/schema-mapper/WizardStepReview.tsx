@@ -18,6 +18,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
+import HelpTooltip from "./HelpTooltip";
 
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
@@ -119,8 +120,9 @@ export default function WizardStepReview({
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-destructive">
+                    <p className="font-medium text-destructive flex items-center gap-1.5">
                       {t("idGen.unmappedIds", { count: unmappedRequiredIdTerms.length })}
+                      <HelpTooltip text="Każdy wiersz w tabeli potrzebuje unikalnego identyfikatora (ID). Bez niego systemy nie odróżnią jednego rekordu od drugiego. Kliknij przycisk obok, a system wygeneruje ID automatycznie." />
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {unmappedRequiredIdTerms.slice(0, 2).join(", ")}
@@ -143,8 +145,9 @@ export default function WizardStepReview({
                 <div className="flex items-center gap-2">
                   <CalendarClock className="w-5 h-5 text-amber-500 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-amber-600 dark:text-amber-400">
+                    <p className="font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                       {t("schema.eventDateNotIso")}
+                      <HelpTooltip text="Standard Darwin Core wymaga dat w formacie ISO 8601 (np. 2024-03-15). System może automatycznie przekonwertować Twoje daty — oryginalne wartości zostaną zachowane w polu 'verbatimEventDate'." />
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {t("schema.eventDateNotIsoDesc", {

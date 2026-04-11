@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -24,6 +24,8 @@ import SchemasPanel from "./schema-mapper/SchemasPanel";
 import ImportPanel from "./schema-mapper/ImportPanel";
 import WizardProgress from "./schema-mapper/WizardProgress";
 import WizardStepReview from "./schema-mapper/WizardStepReview";
+import SaveProgressButton from "./schema-mapper/SaveProgressButton";
+import MappingCelebration from "./schema-mapper/MappingCelebration";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface SchemaMapperProps {
@@ -191,6 +193,9 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
         />
       )}
 
+      {/* Celebration tracker */}
+      <MappingCelebration mappingsCount={Object.keys(state.mappings).length} />
+
       {/* Auto-match dialog */}
       <AnimatePresence>
         {state.showAutoMatch && state.autoMatchResults.length > 0 && (
@@ -248,18 +253,40 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
               {wizardStep >= 2 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setTutorialPhase(1);
-                    setShowTutorial(true);
-                  }}
-                  className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0 px-2 md:px-3"
-                >
-                  <span className="hidden sm:inline">{t("mapperTutorial.replay")}</span>
-                  <span className="sm:hidden">🦎</span>
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  {/* Undo button */}
+                  {state.mappingsHistory.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={state.handleUndo}
+                      className="text-[10px] md:text-xs border-border text-muted-foreground hover:text-foreground gap-1 px-2 md:px-3"
+                      title="Cofnij ostatnią zmianę"
+                    >
+                      <Undo2 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Cofnij</span>
+                    </Button>
+                  )}
+                  {/* Save progress */}
+                  <SaveProgressButton
+                    mappings={state.mappings}
+                    fileName={fileName}
+                    selectedSchema={state.selectedSchema}
+                  />
+                  {/* Tutorial replay */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setTutorialPhase(1);
+                      setShowTutorial(true);
+                    }}
+                    className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0 px-2 md:px-3"
+                  >
+                    <span className="hidden sm:inline">{t("mapperTutorial.replay")}</span>
+                    <span className="sm:hidden">🦎</span>
+                  </Button>
+                </div>
               )}
             </div>
           </motion.div>
@@ -380,6 +407,10 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     getAllColumnMappings={state.getAllColumnMappings}
                     getSampleValues={state.getSampleValues}
                     onRemoveMapping={state.handleRemoveMapping}
+                    columnSuggestions={state.columnSuggestions}
+                    onApplySuggestion={(col, term) => {
+                      state.updateMappings(prev => ({ ...prev, [term]: col }));
+                    }}
                   />
 
                   <SchemasPanel

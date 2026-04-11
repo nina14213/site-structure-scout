@@ -15,9 +15,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FileSpreadsheet, MousePointerClick } from "lucide-react";
+import { FileSpreadsheet, MousePointerClick, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { isMultiMapColumn } from "./useSchemaMapperState";
+import ColumnTypeHint from "./ColumnTypeHint";
 
 interface ColumnsPanelProps {
   columns: string[];
@@ -33,6 +34,10 @@ interface ColumnsPanelProps {
   getAllColumnMappings: (col: string) => string[];
   getSampleValues: (col: string) => string;
   onRemoveMapping: (term: string) => void;
+  /** Smart autodetect suggestions: column → suggested DwC term */
+  columnSuggestions?: Record<string, string>;
+  /** Callback to quick-apply a suggestion */
+  onApplySuggestion?: (column: string, term: string) => void;
 }
 
 export default function ColumnsPanel({
@@ -49,6 +54,8 @@ export default function ColumnsPanel({
   getAllColumnMappings,
   getSampleValues,
   onRemoveMapping,
+  columnSuggestions = {},
+  onApplySuggestion,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
 
@@ -162,6 +169,27 @@ export default function ColumnsPanel({
                   <p className="text-xs text-muted-foreground truncate">
                     {t("schema.samplePrefix")} {getSampleValues(column) || "—"}
                   </p>
+                  <ColumnTypeHint sampleValues={getSampleValues(column)} />
+                  {/* Smart suggestion badge */}
+                  {!mappedTo && columnSuggestions[column] && (
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <Lightbulb className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400">
+                        Pasuje do: <strong>{columnSuggestions[column]}</strong>
+                      </span>
+                      {onApplySuggestion && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onApplySuggestion(column, columnSuggestions[column]);
+                          }}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 transition-colors border border-amber-500/30"
+                        >
+                          Przypisz →
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             );

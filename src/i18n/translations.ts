@@ -380,24 +380,31 @@ export const translations: Record<Language, Record<string, string>> = {
     // Phase 1: Mapping
     'mapperTutorial.step0.title': 'Przypisz kolumny do pól',
     'mapperTutorial.step0.desc': 'Weź kolumny z pliku i przypisz je do odpowiednich pól. Możesz cofnąć każdy krok!',
+    'mapperTutorial.step0.help': 'Wyobraź sobie, że masz tabelkę w Excelu. Każda kolumna ma swoją nazwę (np. "gatunek", "data"). Teraz musisz powiedzieć systemowi, które z Twoich kolumn odpowiadają standardowym polom Darwin Core. To jak tłumaczenie — "gatunek" = "scientificName". Nie martw się, możesz cofnąć każdą zmianę przyciskiem „Cofnij"!',
     'mapperTutorial.step1.title': 'Przeciągnij kolumnę na pole',
     'mapperTutorial.step1.desc': 'Kliknij kolumnę po lewej, potem kliknij pole po prawej. Na komputerze możesz też przeciągać!',
     'mapperTutorial.step1.why': 'Żeby system wiedział, co oznaczają Twoje dane.',
+    'mapperTutorial.step1.help': 'Po lewej stronie widzisz listę kolumn z Twojego pliku. Po prawej — pola Darwin Core (standardowe nazwy). Kliknij kolumnę (np. "lat"), a potem kliknij pole (np. "decimalLatitude"). Gotowe! Kolumna jest przypisana. Jeśli się pomylisz — kliknij ✕ przy przypisaniu, żeby je usunąć.',
     'mapperTutorial.step2.title': 'Albo kliknij „Automatycznie"',
     'mapperTutorial.step2.desc': 'Narzędzia automatyczne rozpoznają Twoje kolumny i przypisują je za Ciebie. Sprawdź wynik i popraw co trzeba.',
     'mapperTutorial.step2.why': 'Oszczędza czas — nie musisz przypisywać ręcznie.',
+    'mapperTutorial.step2.help': 'Na dole panelu po prawej są dwa przyciski: „Automatycznie wykryj" (szuka kolumn o identycznych nazwach) i „Zasugeruj mapowanie" (szuka podobnych nazw, np. "gmina" → "municipality"). Kliknij jeden z nich, sprawdź propozycje, i zatwierdź te, które się zgadzają. Resztę przypisz ręcznie.',
     'mapperTutorial.step3.title': '⭐ Łączenie kilku kolumn',
     'mapperTutorial.step3.desc': 'Przeciągnij drugą kolumnę na już przypisane pole — wartości zostaną połączone znakiem „|".',
+    'mapperTutorial.step3.help': 'Czasem jedna informacja jest rozbita na kilka kolumn — np. "rok", "miesiąc", "dzień" zamiast jednej daty. Możesz przeciągnąć wszystkie trzy na jedno pole DwC, a system połączy je znakiem |. To zaawansowana funkcja — jeśli nie potrzebujesz, po prostu ją pomiń.',
 
     // Phase 2: Review + Download
     'mapperTutorial.step4.title': 'Sprawdź swój wynik',
     'mapperTutorial.step4.desc': '✅ Zielone — gotowe do pobrania\n🟠 Pomarańczowe — mogą wymagać drobnych uzupełnień\n\nTwoje oryginalne dane są bezpieczne!',
     'mapperTutorial.step4.why': 'Upewnij się, że wszystko jest OK przed pobraniem.',
+    'mapperTutorial.step4.help': 'System pokazuje Ci podsumowanie: które tabele są gotowe (zielone), a które jeszcze potrzebują uzupełnień (pomarańczowe). Najczęściej chodzi o brakujące pola ID — system może je wygenerować automatycznie. Twój oryginalny plik NIE jest modyfikowany — pobierzesz nowe pliki CSV.',
     'mapperTutorial.step5.title': '⭐ Dostosuj tabele',
     'mapperTutorial.step5.desc': 'Kliknij ✕ aby ukryć zbędną tabelę. Kliknij ➕ aby dodać dodatkowe kolumny.',
+    'mapperTutorial.step5.help': 'Jeśli system zaproponował tabele, których nie potrzebujesz — kliknij ✕ żeby je ukryć. Przycisk ➕ pozwala dodać do tabeli kolumny z Twojego pliku, które nie zostały zmapowane na żadne pole DwC — np. własne notatki czy komentarze.',
     'mapperTutorial.step6.title': 'Pobierz gotowy pakiet',
     'mapperTutorial.step6.desc': 'Pobierz dane jako CSV. Jeśli brakuje pola ID — system zaproponuje wygenerowanie.',
     'mapperTutorial.step6.why': 'To ostatni krok — Twoje pliki są gotowe!',
+    'mapperTutorial.step6.help': 'Kliknij przycisk „Pobierz" aby pobrać gotowe pliki CSV zgodne ze standardem Darwin Core. Możesz pobrać wszystkie tabele naraz (ZIP) lub pojedynczo. Jeśli widzisz ostrzeżenie o brakującym ID — kliknij przycisk generatora, a system utworzy unikalne identyfikatory za Ciebie.',
 
     // === EscapeRoom ===
     'escape.title': '🔐 Escape Room Danych',
