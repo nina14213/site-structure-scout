@@ -1440,10 +1440,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'mapperTutorial.stepLabel': 'Étape {current} sur {total}',
     'mapperTutorial.skip': 'Passer le tutoriel',
     'mapperTutorial.prev': 'Retour',
-    // === SchemaMapper Tutorial ===
-    'mapperTutorial.stepLabel': 'Étape {current} sur {total}',
-    'mapperTutorial.skip': 'Passer le tutoriel',
-    'mapperTutorial.prev': 'Retour',
     'mapperTutorial.next': 'Suivant',
     'mapperTutorial.finish': 'C\'est parti ! 🚀',
     'mapperTutorial.replay': '🦎 Tutoriel',
