@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -24,6 +24,8 @@ import SchemasPanel from "./schema-mapper/SchemasPanel";
 import ImportPanel from "./schema-mapper/ImportPanel";
 import WizardProgress from "./schema-mapper/WizardProgress";
 import WizardStepReview from "./schema-mapper/WizardStepReview";
+import SaveProgressButton from "./schema-mapper/SaveProgressButton";
+import MappingCelebration from "./schema-mapper/MappingCelebration";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface SchemaMapperProps {
