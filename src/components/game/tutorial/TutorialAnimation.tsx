@@ -1,12 +1,52 @@
 import { motion } from 'framer-motion';
 
-type AnimationType = 'drag-drop' | 'auto-map' | 'checkmark' | 'download';
+type AnimationType = 'drag-drop' | 'auto-map' | 'checkmark' | 'download' | 'file-to-table';
 
 interface TutorialAnimationProps {
   type: AnimationType;
 }
 
 export default function TutorialAnimation({ type }: TutorialAnimationProps) {
+  if (type === 'file-to-table') {
+    return (
+      <div className="relative h-16 my-2 rounded-lg bg-muted/40 border border-border overflow-hidden flex items-center justify-center gap-3">
+        {/* File icon */}
+        <motion.div
+          className="flex items-center gap-1 text-muted-foreground"
+          animate={{ x: [0, 8], opacity: [1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.5 }}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <path d="M14 2v6h6" />
+          </svg>
+          <span className="text-[9px] font-medium">CSV</span>
+        </motion.div>
+        {/* Arrow */}
+        <motion.svg
+          className="w-6 h-4 text-primary"
+          viewBox="0 0 24 16"
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <path d="M0 8h20M16 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        </motion.svg>
+        {/* Table icon */}
+        <motion.div
+          className="flex items-center gap-1 text-primary"
+          animate={{ x: [-8, 0], opacity: [0.4, 1] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.5 }}
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+          </svg>
+          <span className="text-[9px] font-medium">DwC</span>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (type === 'drag-drop') {
     return (
       <div className="relative h-16 my-2 rounded-lg bg-muted/40 border border-border overflow-hidden">
