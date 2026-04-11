@@ -120,6 +120,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const [forcedSchemas, setForcedSchemas] = useState<Set<string>>(new Set());
   const [extraColumnsPerSchema, setExtraColumnsPerSchema] = useState<Record<string, string[]>>({});
 
+  // ─── Undo history ──────────────────────────────────────────────────
+  const [mappingsHistory, setMappingsHistory] = useState<Record<string, string>[]>([]);
+
   // ─── Persistence ───────────────────────────────────────────────────
 
   /** Zapisuje mapowania do localStorage */
@@ -150,10 +153,12 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     } catch {}
   }, [storageKey]);
 
-  /** Wrapper na setMappings z automatycznym persystowaniem */
+  /** Wrapper na setMappings z automatycznym persystowaniem i historią undo */
   const updateMappings = useCallback(
     (updater: (prev: Record<string, string>) => Record<string, string>) => {
       setMappings((prev) => {
+        // Push previous state to undo history (max 30)
+        setMappingsHistory(h => [...h.slice(-29), prev]);
         const next = updater(prev);
         saveMappings(next);
         return next;
@@ -161,6 +166,17 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     },
     [saveMappings],
   );
+
+  /** Cofnij ostatnią zmianę mapowania */
+  const handleUndo = useCallback(() => {
+    setMappingsHistory(h => {
+      if (h.length === 0) return h;
+      const prev = h[h.length - 1];
+      setMappings(prev);
+      saveMappings(prev);
+      return h.slice(0, -1);
+    });
+  }, [saveMappings]);
 
   /** Zmiana aktywnego schematu z persystencją */
   const handleSchemaChange = useCallback((schemaId: string) => {
