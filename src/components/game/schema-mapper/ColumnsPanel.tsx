@@ -1,4 +1,4 @@
-/**
+import { normalizeHeader } from '../AutoMatchDialog';
  * @file ColumnsPanel.tsx
  * @description Panel lewej strony — wyświetla kolumny źródłowe użytkownika.
  *
