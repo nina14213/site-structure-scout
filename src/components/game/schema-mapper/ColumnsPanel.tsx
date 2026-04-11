@@ -172,13 +172,15 @@ export default function ColumnsPanel({
                   </p>
                   <ColumnTypeHint sampleValues={getSampleValues(column)} />
                   {/* Smart suggestion badge */}
-                  {!mappedTo && columnSuggestions[column] && (
+                  {!mappedTo && columnSuggestions[column] && (() => {
+                    const isExactMatch = normalizeHeader(column) === normalizeHeader(columnSuggestions[column]);
+                    return (
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <Lightbulb className="w-3 h-3 text-amber-500 flex-shrink-0" />
                       <span className="text-[10px] text-amber-600 dark:text-amber-400">
                         Pasuje do: <strong>{columnSuggestions[column]}</strong>
                       </span>
-                      {onApplySuggestion && (
+                      {!isExactMatch && onApplySuggestion && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -190,7 +192,8 @@ export default function ColumnsPanel({
                         </button>
                       )}
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
               </motion.div>
             );
