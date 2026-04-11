@@ -152,16 +152,18 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     } else {
       setHighlightRect(null);
     }
-  }, [currentStep, highlightSelectors]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, phase]);
 
   useEffect(() => {
-    setShowHelp(false); // Reset help on step change
+    setShowHelp(false);
     updateHighlight();
     const timer = setTimeout(updateHighlight, 300);
     const handleResize = () => { setWindowWidth(window.innerWidth); updateHighlight(); };
     window.addEventListener('resize', handleResize);
     return () => { clearTimeout(timer); window.removeEventListener('resize', handleResize); };
-  }, [updateHighlight]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, phase]);
 
   const step = steps[currentStep];
   const isLast = currentStep === steps.length - 1;
