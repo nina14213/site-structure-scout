@@ -3,19 +3,109 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
   Globe, Download, FileSpreadsheet, Columns, CheckCircle, 
-  ArrowRight, ArrowLeft, ExternalLink, Search, Filter, Table
+  ArrowRight, ArrowLeft, ExternalLink, Search, X
 } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import GlossaryTerm from './tutorial/GlossaryTerm';
 
 interface DataImportTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
 }
 
+/** Visual for step 1: GBIF search */
+function GbifSearchVisual() {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3 text-sm">
+      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium">
+        <Search className="w-4 h-4" /> gbif.org/occurrence/search
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {['Species', 'Country', 'Year', 'Dataset'].map(f => (
+          <span key={f} className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">{f}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Visual for step 2: Merged filter + download (fix #7) */
+function FilterDownloadVisual() {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3 text-sm">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Scientific name</span>
+          <span className="text-foreground font-medium">Quercus robur</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Has coordinates</span>
+          <span className="text-emerald-700 dark:text-emerald-400 font-medium">✓ Yes</span>
+        </div>
+      </div>
+      <div className="border-t border-border pt-2 flex items-center gap-2">
+        <Download className="w-4 h-4 text-primary" />
+        <span className="text-foreground font-medium text-xs">Simple CSV</span>
+        <span className="text-muted-foreground text-xs ml-auto">→ e-mail</span>
+      </div>
+    </div>
+  );
+}
+
+/** Visual for step 3: CSV preview */
+function CsvPreviewVisual() {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-3 text-xs overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-border">
+            {['eventID', 'scientificName', 'decimalLatitude'].map(h => (
+              <th key={h} className="px-2 py-1.5 text-left text-emerald-700 dark:text-emerald-400 font-medium">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b border-border/50">
+            <td className="px-2 py-1.5 text-foreground">EVT001</td>
+            <td className="px-2 py-1.5 text-foreground italic">Quercus robur</td>
+            <td className="px-2 py-1.5 text-foreground">52.4064</td>
+          </tr>
+          <tr>
+            <td className="px-2 py-1.5 text-foreground">EVT002</td>
+            <td className="px-2 py-1.5 text-foreground italic">Parus major</td>
+            <td className="px-2 py-1.5 text-foreground">52.4095</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Visual for step 4: mapping arrows */
+function MappingVisual() {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2 text-sm">
+      {[
+        { from: 'species', to: 'scientificName' },
+        { from: 'lat', to: 'decimalLatitude' },
+        { from: 'date', to: 'eventDate' },
+      ].map(({ from, to }) => (
+        <div key={from} className="flex items-center gap-3">
+          <span className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs">{from}</span>
+          <ArrowRight className="w-4 h-4 text-primary" />
+          <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">{to}</span>
+          <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DataImportTutorial({ onComplete, onSkip }: DataImportTutorialProps) {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
 
+  // 4 steps instead of 5 (fix #7: merged filter + download)
   const steps = [
     {
       icon: <Globe className="w-10 h-10" />,
@@ -24,157 +114,42 @@ export default function DataImportTutorial({ onComplete, onSkip }: DataImportTut
       details: [
         'importTutorial.step1.detail1',
         'importTutorial.step1.detail2',
-        'importTutorial.step1.detail3',
       ],
       link: 'https://www.gbif.org/occurrence/search',
       linkLabel: 'GBIF Occurrence Search',
-      visual: (
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3 text-sm">
-          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium">
-            <Search className="w-4 h-4" /> gbif.org/occurrence/search
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {['Species', 'Country', 'Year', 'Dataset'].map(f => (
-              <span key={f} className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">{f}</span>
-            ))}
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: <Filter className="w-10 h-10" />,
-      titleKey: 'importTutorial.step2.title',
-      descKey: 'importTutorial.step2.desc',
-      details: [
-        'importTutorial.step2.detail1',
-        'importTutorial.step2.detail2',
-        'importTutorial.step2.detail3',
-      ],
-      visual: (
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">{`Scientific name`}</span>
-            <span className="text-foreground font-medium">Quercus robur</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Country</span>
-            <span className="text-foreground font-medium">Poland</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Year</span>
-            <span className="text-foreground font-medium">2020–2024</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Has coordinates</span>
-            <span className="text-emerald-700 dark:text-emerald-400 font-medium">✓ Yes</span>
-          </div>
-        </div>
-      ),
+      visual: <GbifSearchVisual />,
     },
     {
       icon: <Download className="w-10 h-10" />,
-      titleKey: 'importTutorial.step3.title',
-      descKey: 'importTutorial.step3.desc',
+      titleKey: 'importTutorial.step2m.title',
+      descKey: 'importTutorial.step2m.desc',
       details: [
-        'importTutorial.step3.detail1',
-        'importTutorial.step3.detail2',
-        'importTutorial.step3.detail3',
+        'importTutorial.step2m.detail1',
+        'importTutorial.step2m.detail2',
       ],
       link: 'https://www.gbif.org',
       linkLabel: 'gbif.org',
-      visual: (
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3 text-sm">
-          <div className="flex items-center gap-2 font-medium text-foreground">
-            <Download className="w-4 h-4 text-primary" /> Download
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="text-foreground">Simple CSV</span>
-              <span className="text-muted-foreground text-xs ml-auto">— tab-separated</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-cyan-500" />
-              <span className="text-foreground">Darwin Core Archive</span>
-              <span className="text-muted-foreground text-xs ml-auto">— full DwC</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <span className="text-foreground">Species List</span>
-              <span className="text-muted-foreground text-xs ml-auto">— taxonomy</span>
-            </div>
-          </div>
-        </div>
-      ),
+      visual: <FilterDownloadVisual />,
     },
     {
       icon: <FileSpreadsheet className="w-10 h-10" />,
-      titleKey: 'importTutorial.step4.title',
-      descKey: 'importTutorial.step4.desc',
+      titleKey: 'importTutorial.step3m.title',
+      descKey: 'importTutorial.step3m.desc',
       details: [
-        'importTutorial.step4.detail1',
-        'importTutorial.step4.detail2',
-        'importTutorial.step4.detail3',
+        'importTutorial.step3m.detail1',
+        'importTutorial.step3m.detail2',
       ],
-      visual: (
-        <div className="rounded-xl border border-border bg-muted/30 p-3 text-xs overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                {['eventID', 'scientificName', 'decimalLatitude', 'decimalLongitude'].map(h => (
-                  <th key={h} className="px-2 py-1.5 text-left text-emerald-700 dark:text-emerald-400 font-medium">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-border/50">
-                <td className="px-2 py-1.5 text-foreground">EVT001</td>
-                <td className="px-2 py-1.5 text-foreground italic">Quercus robur</td>
-                <td className="px-2 py-1.5 text-foreground">52.4064</td>
-                <td className="px-2 py-1.5 text-foreground">16.9252</td>
-              </tr>
-              <tr>
-                <td className="px-2 py-1.5 text-foreground">EVT002</td>
-                <td className="px-2 py-1.5 text-foreground italic">Parus major</td>
-                <td className="px-2 py-1.5 text-foreground">52.4095</td>
-                <td className="px-2 py-1.5 text-foreground">16.9318</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      ),
+      visual: <CsvPreviewVisual />,
     },
     {
       icon: <Columns className="w-10 h-10" />,
-      titleKey: 'importTutorial.step5.title',
-      descKey: 'importTutorial.step5.desc',
+      titleKey: 'importTutorial.step4m.title',
+      descKey: 'importTutorial.step4m.desc',
       details: [
-        'importTutorial.step5.detail1',
-        'importTutorial.step5.detail2',
-        'importTutorial.step5.detail3',
+        'importTutorial.step4m.detail1',
+        'importTutorial.step4m.detail2',
       ],
-      visual: (
-        <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2 text-sm">
-          <div className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs">species</span>
-            <ArrowRight className="w-4 h-4 text-primary" />
-            <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">scientificName</span>
-            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs">lat</span>
-            <ArrowRight className="w-4 h-4 text-primary" />
-            <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">decimalLatitude</span>
-            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs">date</span>
-            <ArrowRight className="w-4 h-4 text-primary" />
-            <span className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">eventDate</span>
-            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
-        </div>
-      ),
+      visual: <MappingVisual />,
     },
   ];
 
@@ -184,19 +159,28 @@ export default function DataImportTutorial({ onComplete, onSkip }: DataImportTut
   return (
     <div className="flex items-center justify-center py-4 md:py-8">
       <div className="w-full max-w-2xl">
-        {/* Progress */}
+        {/* Progress bar with numbers (fix #5) */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-1.5">
+          <div className="flex items-center gap-1.5">
             {steps.map((_, i) => (
-              <div
+              <button
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentStep ? 'w-8 bg-primary' : i < currentStep ? 'w-4 bg-primary/50' : 'w-4 bg-muted'
+                onClick={() => setCurrentStep(i)}
+                className={`h-6 flex items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
+                  i === currentStep
+                    ? 'w-8 bg-primary text-primary-foreground'
+                    : i < currentStep
+                      ? 'w-6 bg-primary/30 text-primary-foreground'
+                      : 'w-6 bg-muted text-muted-foreground'
                 }`}
-              />
+              >
+                {i + 1}
+              </button>
             ))}
+            <span className="ml-2 text-[10px] text-muted-foreground">{currentStep + 1}/{steps.length}</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={onSkip} className="text-muted-foreground text-xs">
+          {/* More visible skip (fix #4) */}
+          <Button variant="outline" size="sm" onClick={onSkip} className="text-muted-foreground text-xs border-border">
             {t('importTutorial.skip')}
           </Button>
         </div>

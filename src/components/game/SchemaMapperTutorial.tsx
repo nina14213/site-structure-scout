@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Sparkles, Download, X, Star } from 'lucide-react';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Sparkles, Download, X, Star, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import TutorialAnimation from './tutorial/TutorialAnimation';
+import GlossaryTerm from './tutorial/GlossaryTerm';
 
 interface SchemaMapperTutorialProps {
   onComplete: () => void;
@@ -14,11 +15,11 @@ interface SchemaMapperTutorialProps {
 
 const HIGHLIGHT_SELECTORS = [
   null,                              // step 0: intro
-  '[data-tour="columns-panel"]',     // step 1: columns + schemas
+  '[data-tour="columns-panel"]',     // step 1: drag column
   '[data-tour="auto-map-btn"]',      // step 2: auto-map
-  '[data-tour="schemas-panel"]',     // step 3: ⭐ pro tip — pipe
-  '[data-tour="optimal-layout"]',    // step 4: review
-  '[data-tour="extra-columns-btn"]', // step 5: ⭐ pro tip — extra cols + hide
+  '[data-tour="schemas-panel"]',     // step 3: ⭐ pro tip — pipe (now last)
+  '[data-tour="optimal-layout"]',    // step 4: review (phase 2)
+  '[data-tour="extra-columns-btn"]', // step 5: ⭐ pro tip — extra cols
   '[data-tour="download-panel"]',    // step 6: download + ID gen
 ];
 
@@ -29,6 +30,8 @@ interface TutorialStep {
   position: 'center' | 'left' | 'right' | 'bottom';
   animation?: React.ReactNode;
   proTip?: boolean;
+  /** Motivation line — shown above description */
+  whyKey?: string;
 }
 
 export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: SchemaMapperTutorialProps) {
@@ -39,27 +42,33 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
 
   const allSteps: TutorialStep[] = [
     // --- Phase 1: Mapping (steps 0-3) ---
+    // Step 0: SHORT intro (fix #1 + #9)
     {
       titleKey: 'mapperTutorial.step0.title',
       descKey: 'mapperTutorial.step0.desc',
       icon: <span className="text-4xl">🦎</span>,
       position: 'center',
-      animation: <TutorialAnimation type="drag-drop" />,
+      animation: <TutorialAnimation type="file-to-table" />,
     },
+    // Step 1: Drag column (fix #3 — why)
     {
       titleKey: 'mapperTutorial.step1.title',
       descKey: 'mapperTutorial.step1.desc',
+      whyKey: 'mapperTutorial.step1.why',
       icon: <FileSpreadsheet className="w-7 h-7" />,
       position: 'right',
       animation: <TutorialAnimation type="drag-drop" />,
     },
+    // Step 2: Auto-map (fix #3 — why)
     {
       titleKey: 'mapperTutorial.step2.title',
       descKey: 'mapperTutorial.step2.desc',
+      whyKey: 'mapperTutorial.step2.why',
       icon: <Sparkles className="w-7 h-7" />,
       position: 'right',
       animation: <TutorialAnimation type="auto-map" />,
     },
+    // Step 3: Pipe joining — NOW LAST in phase 1 (fix #2)
     {
       titleKey: 'mapperTutorial.step3.title',
       descKey: 'mapperTutorial.step3.desc',
@@ -68,13 +77,16 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       proTip: true,
     },
     // --- Phase 2: Review + Download (steps 4-6) ---
+    // Step 4: Phase transition + review (fix #6)
     {
       titleKey: 'mapperTutorial.step4.title',
       descKey: 'mapperTutorial.step4.desc',
+      whyKey: 'mapperTutorial.step4.why',
       icon: <span className="text-4xl">🦎</span>,
       position: 'center',
       animation: <TutorialAnimation type="checkmark" />,
     },
+    // Step 5: Pro tip — extra cols
     {
       titleKey: 'mapperTutorial.step5.title',
       descKey: 'mapperTutorial.step5.desc',
@@ -82,9 +94,11 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       position: 'left',
       proTip: true,
     },
+    // Step 6: Download + ID gen
     {
       titleKey: 'mapperTutorial.step6.title',
       descKey: 'mapperTutorial.step6.desc',
+      whyKey: 'mapperTutorial.step6.why',
       icon: <Download className="w-7 h-7" />,
       position: 'center',
       animation: <TutorialAnimation type="download" />,
@@ -255,16 +269,33 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
               </div>
             )}
 
-            {/* Progress dots */}
-            <div className="flex gap-1.5 mb-3 md:mb-4">
+            {/* Phase transition banner (fix #6) */}
+            {phase === 2 && currentStep === 0 && (
+              <div className="mb-3 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-center">
+                <p className="text-xs font-semibold text-primary">🎉 {t('mapperTutorial.phaseTransition')}</p>
+              </div>
+            )}
+
+            {/* Progress bar with numbers (fix #5) */}
+            <div className="flex items-center gap-1 mb-3 md:mb-4">
               {steps.map((_, i) => (
-                <div
+                <button
                   key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentStep ? 'w-6 md:w-8 bg-primary' : i < currentStep ? 'w-3 md:w-4 bg-primary/50' : 'w-3 md:w-4 bg-muted'
+                  onClick={() => setCurrentStep(i)}
+                  className={`relative h-6 flex items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
+                    i === currentStep
+                      ? 'w-8 bg-primary text-primary-foreground'
+                      : i < currentStep
+                        ? 'w-6 bg-primary/30 text-primary-foreground'
+                        : 'w-6 bg-muted text-muted-foreground'
                   }`}
-                />
+                >
+                  {i + 1}
+                </button>
               ))}
+              <span className="ml-auto text-[10px] text-muted-foreground">
+                {currentStep + 1}/{totalSteps}
+              </span>
             </div>
 
             {/* Icon + Title */}
@@ -273,14 +304,18 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
                 {step.icon}
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                  {t('mapperTutorial.stepLabel', { current: String(currentStep + 1), total: String(totalSteps) })}
-                </p>
                 <h3 className="text-base md:text-lg font-bold text-foreground leading-tight">{t(step.titleKey)}</h3>
               </div>
             </div>
 
-            {/* Description — scrollable */}
+            {/* Why motivation line (fix #3) */}
+            {step.whyKey && (
+              <p className="text-[11px] text-primary/80 font-medium mb-1.5 italic">
+                💡 {t(step.whyKey)}
+              </p>
+            )}
+
+            {/* Description — scrollable, with GlossaryTerms (fix #8) */}
             <div className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-2 md:mb-3 whitespace-pre-line overflow-y-auto max-h-[30vh] md:max-h-none">
               {t(step.descKey)}
             </div>
@@ -288,7 +323,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
             {/* Animation */}
             {step.animation && <div className="mb-3">{step.animation}</div>}
 
-            {/* Navigation */}
+            {/* Navigation (fix #4 — more visible skip) */}
             <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border flex-shrink-0">
               <div className="flex gap-2">
                 {!isFirst && (
@@ -298,30 +333,43 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
                   </Button>
                 )}
                 {isFirst && (
-                  <Button variant="ghost" size="sm" onClick={onSkip} className="text-muted-foreground text-xs">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onSkip}
+                    className="text-muted-foreground text-xs border-border"
+                  >
                     {t('mapperTutorial.skip')}
                   </Button>
                 )}
               </div>
-              <Button
-                size="sm"
-                onClick={() => isLast ? onComplete() : setCurrentStep(s => s + 1)}
-                className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs md:text-sm"
-              >
-                {isLast ? t('mapperTutorial.finish') : t('mapperTutorial.next')}
-                {!isLast && <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1" />}
-              </Button>
+              <div className="flex items-center gap-2">
+                {!isFirst && (
+                  <span className="text-[9px] text-muted-foreground hidden md:inline">
+                    {t('mapperTutorial.canReplay')}
+                  </span>
+                )}
+                <Button
+                  size="sm"
+                  onClick={() => isLast ? onComplete() : setCurrentStep(s => s + 1)}
+                  className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs md:text-sm"
+                >
+                  {isLast ? t('mapperTutorial.finish') : t('mapperTutorial.next')}
+                  {!isLast && <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1" />}
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Skip button */}
+      {/* Close button (fix #4 — bigger, with label) */}
       <button
         onClick={onSkip}
-        className="fixed top-4 right-4 z-[10003] p-2 rounded-full bg-card/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
+        className="fixed top-4 right-4 z-[10003] flex items-center gap-1.5 px-3 py-2 rounded-full bg-card/90 border border-border text-muted-foreground hover:text-foreground transition-colors text-xs font-medium"
       >
-        <X className="w-5 h-5" />
+        <X className="w-4 h-4" />
+        <span className="hidden sm:inline">{t('mapperTutorial.close')}</span>
       </button>
     </div>
   );
