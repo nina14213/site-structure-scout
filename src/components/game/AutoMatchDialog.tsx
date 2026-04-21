@@ -222,7 +222,7 @@ export default function AutoMatchDialog({ matches, onApply, onDismiss }: AutoMat
               <Sparkles className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-foreground">{t("autoMatch.title", { count: matches.length })}</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("autoMatch.title")}</h2>
               <p className="text-sm text-muted-foreground">{t("autoMatch.found", { count: matches.length })}</p>
             </div>
           </div>
