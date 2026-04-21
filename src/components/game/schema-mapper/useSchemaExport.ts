@@ -67,6 +67,25 @@ interface UseSchemaExportProps {
   classifiedSchemas: { optimal: string[]; optional: string[] };
   selectedForDownload: Set<string>;
   extraColumnsPerSchema: Record<string, string[]>;
+  /** Default values for missing cells (column-level + per-row overrides) */
+  defaultValues?: Record<string, string>;
+}
+
+/** Resolve a cell value, falling back to default values if empty */
+function resolveCellValue(
+  row: any,
+  col: string,
+  rowIdx: number,
+  defaultValues: Record<string, string>,
+): string {
+  const raw = row?.[col];
+  const str = raw === undefined || raw === null ? '' : String(raw);
+  if (str.trim() !== '') return str;
+  // Per-row override takes precedence
+  const rowKey = `${col}::row::${rowIdx}`;
+  if (defaultValues[rowKey] !== undefined) return defaultValues[rowKey];
+  if (defaultValues[col] !== undefined) return defaultValues[col];
+  return '';
 }
 
 export function useSchemaExport({
@@ -79,6 +98,7 @@ export function useSchemaExport({
   classifiedSchemas,
   selectedForDownload,
   extraColumnsPerSchema,
+  defaultValues = {},
 }: UseSchemaExportProps) {
 
   /** Warunkowa konwersja daty na ISO */
