@@ -268,11 +268,10 @@ export default function AutoMatchDialog({ matches, onApply, onDismiss }: AutoMat
           <Button variant="ghost" onClick={onDismiss}>
             {t('autoMatch.skip')}
           </Button>
-          <Button
-            onClick={handleApply}
-            disabled={noneSelected}
-            className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white gap-2"
-          >
+            <Button variant="outline" className="w-full gap-2">
+            <Sparkles className="w-4 h-4" />
+             {t("autoMatch.title")} ({matches.length})
+            </Button>
             <Check className="w-4 h-4" />
             {t('autoMatch.apply', { count: selected.size })}
           </Button>
