@@ -93,6 +93,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
     classifiedSchemas: state.classifiedSchemas,
     selectedForDownload: state.selectedForDownload,
     extraColumnsPerSchema: state.extraColumnsPerSchema,
+    defaultValues: state.defaultValues,
   });
 
   // ─── Import complete handler ──────────────────────────────────────
@@ -481,6 +482,13 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   onDownloadSchema={exportUtils.handleDownloadSchema}
                   onDownloadFiltered={exportUtils.handleDownloadFiltered}
                   onDownloadSelected={exportUtils.handleDownloadSelected}
+                  // Missing values
+                  data={data}
+                  missingByColumn={state.missingByColumn}
+                  defaultValues={state.defaultValues}
+                  setColumnDefault={state.setColumnDefault}
+                  setRowDefault={state.setRowDefault}
+                  clearColumnDefaults={state.clearColumnDefaults}
                 />
 
                 {/* Complete button */}

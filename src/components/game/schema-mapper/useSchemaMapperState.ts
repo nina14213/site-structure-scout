@@ -120,6 +120,64 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
   const [forcedSchemas, setForcedSchemas] = useState<Set<string>>(new Set());
   const [extraColumnsPerSchema, setExtraColumnsPerSchema] = useState<Record<string, string[]>>({});
 
+  // Default values for missing cells, keyed by source column name.
+  // For per-row overrides we use a special key syntax: `${column}::row::${rowIdx}`.
+  const [defaultValues, setDefaultValues] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.defaultValues) return parsed.defaultValues;
+      }
+    } catch {}
+    return {};
+  });
+
+  const persistDefaultValues = useCallback((next: Record<string, string>) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      localStorage.setItem(storageKey, JSON.stringify({ ...existing, defaultValues: next }));
+    } catch {}
+  }, [storageKey]);
+
+  /** Set a single default value for a source column (bulk fill). Empty → remove. */
+  const setColumnDefault = useCallback((column: string, value: string) => {
+    setDefaultValues(prev => {
+      const next = { ...prev };
+      if (value === '' || value == null) delete next[column];
+      else next[column] = value;
+      persistDefaultValues(next);
+      return next;
+    });
+  }, [persistDefaultValues]);
+
+  /** Set a per-row override for a specific empty cell. */
+  const setRowDefault = useCallback((column: string, rowIdx: number, value: string) => {
+    const key = `${column}::row::${rowIdx}`;
+    setDefaultValues(prev => {
+      const next = { ...prev };
+      if (value === '' || value == null) delete next[key];
+      else next[key] = value;
+      persistDefaultValues(next);
+      return next;
+    });
+  }, [persistDefaultValues]);
+
+  /** Clear all defaults (bulk + per-row) for a column. */
+  const clearColumnDefaults = useCallback((column: string) => {
+    setDefaultValues(prev => {
+      const next: Record<string, string> = {};
+      const rowPrefix = `${column}::row::`;
+      Object.entries(prev).forEach(([k, v]) => {
+        if (k === column) return;
+        if (k.startsWith(rowPrefix)) return;
+        next[k] = v;
+      });
+      persistDefaultValues(next);
+      return next;
+    });
+  }, [persistDefaultValues]);
+
   // ─── Undo history ──────────────────────────────────────────────────
   const [mappingsHistory, setMappingsHistory] = useState<Record<string, string>[]>([]);
 
@@ -597,6 +655,55 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     return suggestions;
   }, [columns, mappings, getColumnMapping]);
 
+  // ─── Missing values analysis ─────────────────────────────────────
+  /** For each column that's mapped to a DwC term, list empty rows + top values */
+  const missingByColumn = useMemo(() => {
+    const mappedSourceCols = new Set<string>();
+    Object.values(mappings).forEach(val => {
+      if (val.includes(' | ')) val.split(' | ').forEach(c => mappedSourceCols.add(c));
+      else mappedSourceCols.add(val);
+    });
+
+    const result: Record<string, {
+      column: string;
+      missingIndices: number[];
+      totalRows: number;
+      topValues: { value: string; count: number }[];
+      mappedTerms: string[];
+    }> = {};
+
+    mappedSourceCols.forEach(col => {
+      const missing: number[] = [];
+      const counts: Record<string, number> = {};
+      data.forEach((row, i) => {
+        const v = row?.[col];
+        if (v === undefined || v === null || String(v).trim() === '') {
+          missing.push(i);
+        } else {
+          const s = String(v).trim();
+          counts[s] = (counts[s] || 0) + 1;
+        }
+      });
+      if (missing.length === 0) return;
+      const topValues = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([value, count]) => ({ value, count }));
+      const mappedTerms = Object.entries(mappings)
+        .filter(([, v]) => v === col || (v.includes(' | ') && v.split(' | ').includes(col)))
+        .map(([t]) => t);
+      result[col] = {
+        column: col,
+        missingIndices: missing,
+        totalRows: data.length,
+        topValues,
+        mappedTerms,
+      };
+    });
+
+    return result;
+  }, [mappings, data]);
+
   return {
     // State
     selectedSchema,
@@ -641,6 +748,8 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     classifiedSchemas,
     unmappedColumns,
     columnSuggestions,
+    missingByColumn,
+    defaultValues,
 
     // Actions
     handleSchemaChange,
@@ -664,6 +773,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     getMappingsBySchema,
     toggleExtraColumn,
     selectAllExtraColumns,
+    setColumnDefault,
+    setRowDefault,
+    clearColumnDefaults,
 
     // Helpers
     findBestColumnMatch: (term: string) => findBestColumnMatch(term, columns),

@@ -67,6 +67,25 @@ interface UseSchemaExportProps {
   classifiedSchemas: { optimal: string[]; optional: string[] };
   selectedForDownload: Set<string>;
   extraColumnsPerSchema: Record<string, string[]>;
+  /** Default values for missing cells (column-level + per-row overrides) */
+  defaultValues?: Record<string, string>;
+}
+
+/** Resolve a cell value, falling back to default values if empty */
+function resolveCellValue(
+  row: any,
+  col: string,
+  rowIdx: number,
+  defaultValues: Record<string, string>,
+): string {
+  const raw = row?.[col];
+  const str = raw === undefined || raw === null ? '' : String(raw);
+  if (str.trim() !== '') return str;
+  // Per-row override takes precedence
+  const rowKey = `${col}::row::${rowIdx}`;
+  if (defaultValues[rowKey] !== undefined) return defaultValues[rowKey];
+  if (defaultValues[col] !== undefined) return defaultValues[col];
+  return '';
 }
 
 export function useSchemaExport({
@@ -79,6 +98,7 @@ export function useSchemaExport({
   classifiedSchemas,
   selectedForDownload,
   extraColumnsPerSchema,
+  defaultValues = {},
 }: UseSchemaExportProps) {
 
   /** Warunkowa konwersja daty na ISO */
@@ -127,11 +147,11 @@ export function useSchemaExport({
           // Handle pipe-joined multi-column mappings
           if (sourceCol && sourceCol.includes(' | ')) {
             const cols = sourceCol.split(' | ');
-            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            rawValue = cols.map(c => resolveCellValue(row, c, rowIdx, defaultValues)).filter(v => v.trim() !== '').join(' | ');
             // Add legend column with source column names
             previewRow[`${term}_legenda`] = cols.join(' | ');
           } else {
-            rawValue = String(row[sourceCol] ?? "");
+            rawValue = sourceCol ? resolveCellValue(row, sourceCol, rowIdx, defaultValues) : '';
           }
           previewRow[term] = rawValue;
           if (convertDatesToISO && isDateTerm(term)) {
@@ -144,20 +164,16 @@ export function useSchemaExport({
         return previewRow;
       };
 
-      // Filter rows that have at least one non-empty mapped value
+      // Filter rows that have at least one non-empty mapped value (incl. defaults)
       const mappedCols = Object.values(termMappings);
-      const rowHasData = (row: any) =>
+      const rowHasData = (row: any, rowIdx: number) =>
         mappedCols.some(colSpec => {
-          // Handle pipe-joined multi-column specs
           const cols = colSpec.includes(' | ') ? colSpec.split(' | ') : [colSpec];
-          return cols.some(col => {
-            const v = row[col];
-            return v !== undefined && v !== null && String(v).trim() !== '';
-          });
+          return cols.some(col => resolveCellValue(row, col, rowIdx, defaultValues).trim() !== '');
         });
 
       const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
-      const nonEmptyRows = dataWithIndex.filter(r => rowHasData(r.row));
+      const nonEmptyRows = dataWithIndex.filter(r => rowHasData(r.row, r.idx));
 
       if (nonEmptyRows.length <= 10) {
         return nonEmptyRows.map(r => buildRow(r.row, r.idx));
@@ -167,7 +183,7 @@ export function useSchemaExport({
       const lastRows = nonEmptyRows.slice(-5).map(r => buildRow(r.row, r.idx));
       return [...firstRows, { __separator: true } as any, ...lastRows];
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, defaultValues],
   );
 
   /** Generuje pełną treść CSV dla zestawu mapowań — nagłówki obejmują WSZYSTKIE termy schematu */
@@ -225,9 +241,9 @@ export function useSchemaExport({
           // Handle pipe-joined multi-column mappings
           if (sourceColumn && sourceColumn.includes(' | ')) {
             const cols = sourceColumn.split(' | ');
-            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            rawValue = cols.map(c => resolveCellValue(row, c, rowIdx, defaultValues)).filter(v => v.trim() !== '').join(' | ');
           } else {
-            rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
+            rawValue = sourceColumn ? resolveCellValue(row, sourceColumn, rowIdx, defaultValues) : "";
           }
           rowValues.push(escape(rawValue));
           // Add legend value for multi-mapped terms
@@ -242,14 +258,14 @@ export function useSchemaExport({
         });
         // Add extra columns values
         extras.forEach(col => {
-          rowValues.push(escape(String(row[col] ?? '')));
+          rowValues.push(escape(resolveCellValue(row, col, rowIdx, defaultValues)));
         });
         csvRows.push(rowValues.join(","));
       });
 
       return "\uFEFF" + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema, defaultValues],
   );
 
   // ─── Download helpers ──────────────────────────────────────────────

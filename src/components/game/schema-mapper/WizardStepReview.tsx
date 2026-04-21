@@ -19,6 +19,7 @@ import { schemaTypes, schemaTerms } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
 import HelpTooltip from "./HelpTooltip";
+import MissingValuesPanel from "./MissingValuesPanel";
 
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
@@ -55,6 +56,19 @@ interface WizardStepReviewProps {
   onDownloadSchema: (schemaId: string) => void;
   onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
   onDownloadSelected: () => void;
+  // Missing values
+  data: any[];
+  missingByColumn: Record<string, {
+    column: string;
+    missingIndices: number[];
+    totalRows: number;
+    topValues: { value: string; count: number }[];
+    mappedTerms: string[];
+  }>;
+  defaultValues: Record<string, string>;
+  setColumnDefault: (column: string, value: string) => void;
+  setRowDefault: (column: string, rowIdx: number, value: string) => void;
+  clearColumnDefaults: (column: string) => void;
 }
 
 export default function WizardStepReview({
@@ -84,6 +98,12 @@ export default function WizardStepReview({
   onDownloadSchema,
   onDownloadFiltered,
   onDownloadSelected,
+  data,
+  missingByColumn,
+  defaultValues,
+  setColumnDefault,
+  setRowDefault,
+  clearColumnDefaults,
 }: WizardStepReviewProps) {
   const { t } = useLanguage();
 
@@ -499,6 +519,16 @@ export default function WizardStepReview({
           )}
         </CardContent>
       </Card>
+
+      {/* Missing values panel */}
+      <MissingValuesPanel
+        missingByColumn={missingByColumn}
+        data={data}
+        defaultValues={defaultValues}
+        setColumnDefault={setColumnDefault}
+        setRowDefault={setRowDefault}
+        clearColumnDefaults={clearColumnDefaults}
+      />
 
       {/* Validation section (inactive) */}
       <Card className="bg-card/90 border-border backdrop-blur opacity-60">
