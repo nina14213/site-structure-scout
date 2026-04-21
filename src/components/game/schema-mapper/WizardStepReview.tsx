@@ -56,6 +56,19 @@ interface WizardStepReviewProps {
   onDownloadSchema: (schemaId: string) => void;
   onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
   onDownloadSelected: () => void;
+  // Missing values
+  data: any[];
+  missingByColumn: Record<string, {
+    column: string;
+    missingIndices: number[];
+    totalRows: number;
+    topValues: { value: string; count: number }[];
+    mappedTerms: string[];
+  }>;
+  defaultValues: Record<string, string>;
+  setColumnDefault: (column: string, value: string) => void;
+  setRowDefault: (column: string, rowIdx: number, value: string) => void;
+  clearColumnDefaults: (column: string) => void;
 }
 
 export default function WizardStepReview({
@@ -85,6 +98,12 @@ export default function WizardStepReview({
   onDownloadSchema,
   onDownloadFiltered,
   onDownloadSelected,
+  data,
+  missingByColumn,
+  defaultValues,
+  setColumnDefault,
+  setRowDefault,
+  clearColumnDefaults,
 }: WizardStepReviewProps) {
   const { t } = useLanguage();
 
