@@ -387,7 +387,7 @@ export default function MissingValuesPanel({
                                   setBulkDrafts((p) => ({ ...p, [info.column]: e.target.value }))
                                 }
                                 placeholder={t("missing.bulkPlaceholder")}
-                                className="h-7 text-xs"
+                                className="h-7 text-xs bg-background/50"
                               />
                               <Button
                                 size="sm"
@@ -562,7 +562,7 @@ export default function MissingValuesPanel({
                               value={draft}
                               onChange={(e) => setBulkDrafts((p) => ({ ...p, [column]: e.target.value }))}
                               placeholder={t("missing.bulkPlaceholder")}
-                              className="h-8 text-sm"
+                              className="h-8 text-sm bg-background/50"
                             />
                             <Button
                               size="sm"
