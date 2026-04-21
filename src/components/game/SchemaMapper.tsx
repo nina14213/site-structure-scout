@@ -93,6 +93,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
     classifiedSchemas: state.classifiedSchemas,
     selectedForDownload: state.selectedForDownload,
     extraColumnsPerSchema: state.extraColumnsPerSchema,
+    defaultValues: state.defaultValues,
   });
 
   // ─── Import complete handler ──────────────────────────────────────
