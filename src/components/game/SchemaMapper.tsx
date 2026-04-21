@@ -222,7 +222,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
       {/* ID Generator dialog */}
       <IdGeneratorDialog
         open={state.showIdGenerator}
-        requiredIdTerms={state.allRequiredIdTerms}
+        requiredIdTerms={state.unmappedRequiredIdTerms}
         columns={columns}
         data={data}
         existingMappings={state.mappings}
