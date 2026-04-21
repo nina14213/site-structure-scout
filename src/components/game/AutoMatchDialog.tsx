@@ -231,10 +231,10 @@ export default function AutoMatchDialog({ matches, onApply, onDismiss }: AutoMat
         <div className="flex items-center gap-3 px-6 py-3 border-b border-border bg-muted/30">
           <Button variant="outline" size="sm" onClick={toggleAll} className="gap-2">
             {allSelected ? <Square className="w-4 h-4" /> : <CheckSquare className="w-4 h-4" />}
-            {allSelected ? t("autoMatch.deselectAll") : t("autoMatch.selectAll", { count: selected.size })}
+            {allSelected ? t("autoMatch.deselectAll") : t("autoMatch.selectAll")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            {selected.size} / {matches.length} {t("autoMatch.selected", { count: selected.size })}
+            {selected.size} / {matches.length} {t("autoMatch.selected")}
           </span>
         </div>
 
