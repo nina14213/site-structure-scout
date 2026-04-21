@@ -520,6 +520,16 @@ export default function WizardStepReview({
         </CardContent>
       </Card>
 
+      {/* Missing values panel */}
+      <MissingValuesPanel
+        missingByColumn={missingByColumn}
+        data={data}
+        defaultValues={defaultValues}
+        setColumnDefault={setColumnDefault}
+        setRowDefault={setRowDefault}
+        clearColumnDefaults={clearColumnDefaults}
+      />
+
       {/* Validation section (inactive) */}
       <Card className="bg-card/90 border-border backdrop-blur opacity-60">
         <CardHeader className="border-b border-border pb-3">
