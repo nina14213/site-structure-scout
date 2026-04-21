@@ -173,7 +173,7 @@ export function useSchemaExport({
         });
 
       const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
-      const nonEmptyRows = dataWithIndex.filter(r => rowHasData(r.row));
+      const nonEmptyRows = dataWithIndex.filter(r => rowHasData(r.row, r.idx));
 
       if (nonEmptyRows.length <= 10) {
         return nonEmptyRows.map(r => buildRow(r.row, r.idx));
@@ -183,7 +183,7 @@ export function useSchemaExport({
       const lastRows = nonEmptyRows.slice(-5).map(r => buildRow(r.row, r.idx));
       return [...firstRows, { __separator: true } as any, ...lastRows];
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, defaultValues],
   );
 
   /** Generuje pełną treść CSV dla zestawu mapowań — nagłówki obejmują WSZYSTKIE termy schematu */
@@ -241,9 +241,9 @@ export function useSchemaExport({
           // Handle pipe-joined multi-column mappings
           if (sourceColumn && sourceColumn.includes(' | ')) {
             const cols = sourceColumn.split(' | ');
-            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            rawValue = cols.map(c => resolveCellValue(row, c, rowIdx, defaultValues)).filter(v => v.trim() !== '').join(' | ');
           } else {
-            rawValue = sourceColumn ? String(row[sourceColumn] ?? "") : "";
+            rawValue = sourceColumn ? resolveCellValue(row, sourceColumn, rowIdx, defaultValues) : "";
           }
           rowValues.push(escape(rawValue));
           // Add legend value for multi-mapped terms
@@ -258,14 +258,14 @@ export function useSchemaExport({
         });
         // Add extra columns values
         extras.forEach(col => {
-          rowValues.push(escape(String(row[col] ?? '')));
+          rowValues.push(escape(resolveCellValue(row, col, rowIdx, defaultValues)));
         });
         csvRows.push(rowValues.join(","));
       });
 
       return "\uFEFF" + csvRows.join("\n");
     },
-    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema],
+    [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, extraColumnsPerSchema, defaultValues],
   );
 
   // ─── Download helpers ──────────────────────────────────────────────
