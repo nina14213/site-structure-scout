@@ -19,6 +19,7 @@ import { schemaTypes, schemaTerms } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
 import HelpTooltip from "./HelpTooltip";
+import MissingValuesPanel from "./MissingValuesPanel";
 
 interface WizardStepReviewProps {
   optimalLayout: OptimalLayoutItem[];
