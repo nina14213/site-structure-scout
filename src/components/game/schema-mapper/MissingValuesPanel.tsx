@@ -78,24 +78,7 @@ export default function MissingValuesPanel({
     return map;
   }, [entries]);
 
-  if (entries.length === 0) {
-    return (
-      <Card className="bg-card/90 border-border backdrop-blur">
-        <CardHeader className="border-b border-border pb-3">
-          <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-            {t("missing.title")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <p className="text-sm text-muted-foreground flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            {t("missing.noneFound")}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Early return rendered AFTER all hooks below — see `noEntries` block.
 
   // Build flat list of missing cells for the table view
   const flatMissing = useMemo(() => {
