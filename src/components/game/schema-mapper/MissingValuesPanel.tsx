@@ -324,10 +324,14 @@ export default function MissingValuesPanel({
                     </tr>
                   )}
                   {filteredRows.slice(0, 300).map((r) => {
-                    const suggestions = [
-                      ...r.topValues.slice(0, 3).map((v) => ({ value: v.value, kind: "top" as const, count: v.count })),
-                      ...r.vocab.slice(0, 4).map((v) => ({ value: v, kind: "vocab" as const, count: undefined })),
-                    ];
+                    // Dla niewypełnionych komórek pokaż KOMPLET słownika DwC (bez "top values").
+                    // Dla wypełnionych zostaw skróconą listę sugestii.
+                    const suggestions = !r.isFilled
+                      ? r.vocab.map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined }))
+                      : [
+                          ...r.topValues.slice(0, 3).map((v) => ({ value: v.value, kind: "top" as const, count: v.count as number | undefined })),
+                          ...r.vocab.slice(0, 4).map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined })),
+                        ];
                     return (
                       <tr
                         key={`${r.column}::${r.rowIdx}`}
