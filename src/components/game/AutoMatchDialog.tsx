@@ -278,20 +278,17 @@ export default function AutoMatchDialog({ matches, onApply, onDismiss }: AutoMat
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-          <Button variant="ghost" onClick={onDismiss}>
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+            <Button variant="ghost" onClick={onDismiss}>
             {t("autoMatch.skip")}
-          </Button>
-          <Button
-            onClick={handleApply}
-            disabled={noneSelected}
-            className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white gap-2"
-          >
-            <Check className="w-4 h-4" />
-            {t("autoMatch.apply", { count: selected.size })}
-          </Button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+              </Button>
+
+                <Button
+                  onClick={handleApply}
+                  disabled={noneSelected}
+    className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white gap-2"
+  >
+    <Check className="w-4 h-4" />
+    {t("autoMatch.apply")} ({selected.size})
+  </Button>
+</div>
