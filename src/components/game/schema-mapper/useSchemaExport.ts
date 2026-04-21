@@ -147,11 +147,11 @@ export function useSchemaExport({
           // Handle pipe-joined multi-column mappings
           if (sourceCol && sourceCol.includes(' | ')) {
             const cols = sourceCol.split(' | ');
-            rawValue = cols.map(c => String(row[c] ?? '')).filter(v => v.trim() !== '').join(' | ');
+            rawValue = cols.map(c => resolveCellValue(row, c, rowIdx, defaultValues)).filter(v => v.trim() !== '').join(' | ');
             // Add legend column with source column names
             previewRow[`${term}_legenda`] = cols.join(' | ');
           } else {
-            rawValue = String(row[sourceCol] ?? "");
+            rawValue = sourceCol ? resolveCellValue(row, sourceCol, rowIdx, defaultValues) : '';
           }
           previewRow[term] = rawValue;
           if (convertDatesToISO && isDateTerm(term)) {
@@ -164,16 +164,12 @@ export function useSchemaExport({
         return previewRow;
       };
 
-      // Filter rows that have at least one non-empty mapped value
+      // Filter rows that have at least one non-empty mapped value (incl. defaults)
       const mappedCols = Object.values(termMappings);
-      const rowHasData = (row: any) =>
+      const rowHasData = (row: any, rowIdx: number) =>
         mappedCols.some(colSpec => {
-          // Handle pipe-joined multi-column specs
           const cols = colSpec.includes(' | ') ? colSpec.split(' | ') : [colSpec];
-          return cols.some(col => {
-            const v = row[col];
-            return v !== undefined && v !== null && String(v).trim() !== '';
-          });
+          return cols.some(col => resolveCellValue(row, col, rowIdx, defaultValues).trim() !== '');
         });
 
       const dataWithIndex = data.map((row, i) => ({ row, idx: i }));
