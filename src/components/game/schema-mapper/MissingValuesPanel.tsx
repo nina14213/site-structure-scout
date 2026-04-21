@@ -220,7 +220,7 @@ export default function MissingValuesPanel({
       </CardHeader>
 
       <CardContent className="pt-4 space-y-3">
-        {/* ============ TABLE VIEW ============ */}
+        {/* ============ TABLE VIEW (one bulk value per column, like labels) ============ */}
         {view === "table" && (
           <div className="space-y-3">
             {/* Filters */}
@@ -287,124 +287,167 @@ export default function MissingValuesPanel({
               </div>
             </div>
 
-            {/* Results count */}
-            <p className="text-[11px] text-muted-foreground">
-              {t("missing.tableShowing", {
-                shown: Math.min(filteredRows.length, 300),
-                total: filteredRows.length,
-              })}
-            </p>
-
-            {/* Missing-cells table */}
-            <div className="rounded-lg border border-border overflow-hidden max-h-[60vh] overflow-y-auto">
+            {/* Per-column bulk-fill table — one value applied to every empty cell in column */}
+            <div className="rounded-lg border border-border overflow-hidden">
               <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-muted/80 backdrop-blur z-10">
+                <thead className="bg-muted/80 backdrop-blur">
                   <tr className="border-b border-border">
-                    <th className="px-2 py-2 text-right font-medium text-muted-foreground w-12">#</th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">
                       {t("missing.col.column")}
                     </th>
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                      {t("missing.col.context")}
+                    <th className="px-3 py-2 text-right font-medium text-muted-foreground w-24">
+                      {t("missing.col.empty")}
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium text-muted-foreground w-[34%]">
+                      {t("missing.col.fillValue")}
                     </th>
                     <th className="px-3 py-2 text-left font-medium text-muted-foreground">
                       {t("missing.col.suggestions")}
                     </th>
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground w-[28%]">
-                      {t("missing.col.value")}
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground italic">
-                        {t("missing.noResults")}
-                      </td>
-                    </tr>
-                  )}
-                  {filteredRows.slice(0, 300).map((r) => {
-                    // Dla niewypełnionych komórek pokaż KOMPLET słownika DwC (bez "top values").
-                    // Dla wypełnionych zostaw skróconą listę sugestii.
-                    const suggestions = !r.isFilled
-                      ? r.vocab.map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined }))
-                      : [
-                          ...r.topValues.slice(0, 3).map((v) => ({ value: v.value, kind: "top" as const, count: v.count as number | undefined })),
-                          ...r.vocab.slice(0, 4).map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined })),
-                        ];
-                    return (
-                      <tr
-                        key={`${r.column}::${r.rowIdx}`}
-                        className={`border-b border-border/30 last:border-0 ${
-                          r.isFilled ? "bg-emerald-500/5" : ""
-                        }`}
-                      >
-                        <td className="px-2 py-1.5 text-right text-muted-foreground font-mono">
-                          {r.rowIdx + 1}
-                        </td>
-                        <td className="px-3 py-1.5 align-top">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-mono font-semibold text-foreground text-[11px]">
-                              {r.column}
-                            </span>
-                            {r.mappedTerms.slice(0, 1).map((term) => (
-                              <Badge
-                                key={term}
-                                variant="outline"
-                                className="text-[9px] h-4 px-1 text-muted-foreground border-border"
-                              >
-                                → {term}
-                              </Badge>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-3 py-1.5 text-muted-foreground truncate max-w-[260px] align-top">
-                          {r.context || "—"}
-                        </td>
-                        <td className="px-3 py-1.5 align-top">
-                          {suggestions.length === 0 ? (
-                            <span className="text-muted-foreground italic">—</span>
-                          ) : (
-                            <div className="flex flex-wrap gap-1">
-                              {suggestions.map((s, i) => (
-                                <button
-                                  key={`${s.kind}-${i}-${s.value}`}
-                                  onClick={() => setRowDefault(r.column, r.rowIdx, s.value)}
-                                  className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
-                                    s.kind === "vocab"
-                                      ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-500/20"
-                                      : "border-border bg-card hover:border-primary/50 text-foreground"
-                                  }`}
-                                  title={s.kind === "vocab" ? t("missing.dwcVocab") : t("missing.topValues")}
+                  {(() => {
+                    // Group filtered missing rows by column, but always render the full set
+                    // of columns matching col/status filters (so user sees one row per column).
+                    const visibleCols = entries.filter((info) => {
+                      if (colFilter.size > 0 && !colFilter.has(info.column)) return false;
+                      const bulk = defaultValues[info.column] ?? "";
+                      const isFilled = bulk.trim() !== "";
+                      if (statusFilter === "filled" && !isFilled) return false;
+                      if (statusFilter === "empty" && isFilled) return false;
+                      const q = searchQuery.trim().toLowerCase();
+                      if (q && !info.column.toLowerCase().includes(q)) return false;
+                      return true;
+                    });
+
+                    if (visibleCols.length === 0) {
+                      return (
+                        <tr>
+                          <td colSpan={4} className="px-3 py-6 text-center text-muted-foreground italic">
+                            {t("missing.noResults")}
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return visibleCols.map((info) => {
+                      const bulk = defaultValues[info.column] ?? "";
+                      const draft = bulkDrafts[info.column] ?? bulk;
+                      const vocab = vocabByColumn[info.column] || [];
+                      const isFilled = bulk.trim() !== "";
+                      // Suggestions: when empty → full DwC vocab; when filled → top + short vocab
+                      const suggestions = !isFilled
+                        ? vocab.map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined }))
+                        : [
+                            ...info.topValues.slice(0, 3).map((v) => ({ value: v.value, kind: "top" as const, count: v.count as number | undefined })),
+                            ...vocab.slice(0, 4).map((v) => ({ value: v, kind: "vocab" as const, count: undefined as number | undefined })),
+                          ];
+
+                      return (
+                        <tr
+                          key={info.column}
+                          className={`border-b border-border/30 last:border-0 align-top ${
+                            isFilled ? "bg-emerald-500/5" : ""
+                          }`}
+                        >
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-mono font-semibold text-foreground text-[11px]">
+                                {info.column}
+                              </span>
+                              {info.mappedTerms.slice(0, 2).map((term) => (
+                                <Badge
+                                  key={term}
+                                  variant="outline"
+                                  className="text-[9px] h-4 px-1 text-muted-foreground border-border"
                                 >
-                                  {s.value}
-                                  {s.count !== undefined && (
-                                    <span className="ml-0.5 opacity-60">×{s.count}</span>
-                                  )}
-                                </button>
+                                  → {term}
+                                </Badge>
                               ))}
                             </div>
-                          )}
-                        </td>
-                        <td className="px-3 py-1.5 align-top">
-                          <Input
-                            value={r.currentValue}
-                            onChange={(e) => setRowDefault(r.column, r.rowIdx, e.target.value)}
-                            placeholder={r.bulkValue || "—"}
-                            className="h-7 text-xs"
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] h-4 px-1 ${
+                                isFilled
+                                  ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+                                  : "border-amber-500/40 text-amber-600 dark:text-amber-400"
+                              }`}
+                            >
+                              {info.missingIndices.length}/{info.totalRows}
+                            </Badge>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex gap-1.5">
+                              <Input
+                                value={draft}
+                                onChange={(e) =>
+                                  setBulkDrafts((p) => ({ ...p, [info.column]: e.target.value }))
+                                }
+                                placeholder={t("missing.bulkPlaceholder")}
+                                className="h-7 text-xs"
+                              />
+                              <Button
+                                size="sm"
+                                onClick={() => setColumnDefault(info.column, draft)}
+                                disabled={draft === bulk}
+                                className="h-7 text-[11px] px-2"
+                              >
+                                {t("missing.apply")}
+                              </Button>
+                              {isFilled && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    clearColumnDefaults(info.column);
+                                    setBulkDrafts((p) => ({ ...p, [info.column]: "" }));
+                                  }}
+                                  className="h-7 px-1.5 text-muted-foreground"
+                                  title={t("missing.clear")}
+                                >
+                                  <RotateCcw className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2">
+                            {suggestions.length === 0 ? (
+                              <span className="text-muted-foreground italic">—</span>
+                            ) : (
+                              <div className="flex flex-wrap gap-1">
+                                {suggestions.map((s, i) => (
+                                  <button
+                                    key={`${s.kind}-${i}-${s.value}`}
+                                    onClick={() => {
+                                      setBulkDrafts((p) => ({ ...p, [info.column]: s.value }));
+                                      setColumnDefault(info.column, s.value);
+                                    }}
+                                    className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
+                                      s.kind === "vocab"
+                                        ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-500/20"
+                                        : "border-border bg-card hover:border-primary/50 text-foreground"
+                                    }`}
+                                    title={s.kind === "vocab" ? t("missing.dwcVocab") : t("missing.topValues")}
+                                  >
+                                    {s.value}
+                                    {s.count !== undefined && (
+                                      <span className="ml-0.5 opacity-60">×{s.count}</span>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()}
                 </tbody>
               </table>
             </div>
-            {filteredRows.length > 300 && (
-              <p className="text-[10px] text-muted-foreground italic">
-                {t("missing.rowsTruncated", { shown: 300, total: filteredRows.length })}
-              </p>
-            )}
           </div>
         )}
 
