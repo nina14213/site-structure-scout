@@ -386,6 +386,16 @@ export default function MissingValuesPanel({
                                 onChange={(e) =>
                                   setBulkDrafts((p) => ({ ...p, [info.column]: e.target.value }))
                                 }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    setColumnDefault(info.column, draft);
+                                  } else if (e.key === "Escape") {
+                                    e.preventDefault();
+                                    clearColumnDefaults(info.column);
+                                    setBulkDrafts((p) => ({ ...p, [info.column]: "" }));
+                                  }
+                                }}
                                 placeholder={t("missing.bulkPlaceholder")}
                                 className="h-7 text-xs bg-background/50 placeholder:text-muted-foreground/50"
                               />
@@ -561,6 +571,16 @@ export default function MissingValuesPanel({
                             <Input
                               value={draft}
                               onChange={(e) => setBulkDrafts((p) => ({ ...p, [column]: e.target.value }))}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  setColumnDefault(column, draft);
+                                } else if (e.key === "Escape") {
+                                  e.preventDefault();
+                                  clearColumnDefaults(column);
+                                  setBulkDrafts((p) => ({ ...p, [column]: "" }));
+                                }
+                              }}
                               placeholder={t("missing.bulkPlaceholder")}
                               className="h-8 text-sm bg-background/50 placeholder:text-muted-foreground/50"
                             />
@@ -660,6 +680,12 @@ export default function MissingValuesPanel({
                                         <Input
                                           value={rowVal}
                                           onChange={(e) => setRowDefault(column, idx, e.target.value)}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Escape") {
+                                              e.preventDefault();
+                                              setRowDefault(column, idx, "");
+                                            }
+                                          }}
                                           placeholder={bulkValue || "—"}
                                           className="h-7 text-xs"
                                         />
