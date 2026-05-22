@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://color-layout-explorer.lovable.app/sitemap.xml
