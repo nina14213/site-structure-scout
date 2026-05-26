@@ -2,6 +2,9 @@ export type Language = 'pl' | 'en' | 'fr' | 'de';
 
 export const translations: Record<Language, Record<string, string>> = {
   pl: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Przejdź do treści głównej',
+    'a11y.mainLabel': 'Treść główna',
     // === StartScreen ===
     'start.tagline': 'Zostań Data Rangerem i uratuj dane przed Chaos Validator GBIF!',
     'start.startMission': 'Rozpocznij Misję',
@@ -580,6 +583,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   en: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Skip to main content',
+    'a11y.mainLabel': 'Main content',
     // === StartScreen ===
     'start.tagline': 'Become a Data Ranger and save the data from the GBIF Chaos Validator!',
     'start.startMission': 'Start Mission',
@@ -1150,6 +1156,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   fr: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Aller au contenu principal',
+    'a11y.mainLabel': 'Contenu principal',
     // === StartScreen ===
     'start.tagline': 'Devenez Data Ranger et sauvez les données du Chaos Validator GBIF !',
     'start.startMission': 'Démarrer la Mission',
@@ -1722,6 +1731,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   de: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Zum Hauptinhalt springen',
+    'a11y.mainLabel': 'Hauptinhalt',
     // === StartScreen ===
     'start.tagline': 'Werde Data Ranger und rette die Daten vor dem GBIF Chaos Validator!',
     'start.startMission': 'Mission starten',

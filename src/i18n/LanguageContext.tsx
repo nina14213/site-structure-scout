@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Language, translations } from './translations';
 
 interface LanguageContextType {
@@ -19,6 +19,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch {}
     return 'pl';
   });
+
+  // Sync <html lang> z bieżącym językiem — WCAG 3.1.1 (Language of Page)
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+    }
+  }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
