@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,23 @@ interface TutorialModalProps {
 
 export default function TutorialModal({ levelNumber, isOpen, onClose }: TutorialModalProps) {
     const { t, language } = useLanguage();
+    const dialogRef = useRef<HTMLDivElement>(null);
+
+    // Escape do zamknięcia + focus na modal po otwarciu (WCAG 2.1.2, 2.4.3)
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        document.addEventListener('keydown', handleKey);
+        // Przenieś fokus do modala
+        const prevFocus = document.activeElement as HTMLElement | null;
+        dialogRef.current?.focus();
+        return () => {
+            document.removeEventListener('keydown', handleKey);
+            prevFocus?.focus?.();
+        };
+    }, [isOpen, onClose]);
 
     const l = language;
     const pick = <T,>(pl: T, en: T, fr: T, de?: T): T => l === 'pl' ? pl : l === 'fr' ? fr : l === 'de' && de !== undefined ? de : en;
@@ -137,18 +154,23 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="bg-white dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 overflow-hidden relative z-[10000] mx-auto"
+                    ref={dialogRef}
+                    tabIndex={-1}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={`tutorial-title-${levelNumber}`}
+                    className="bg-white dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 overflow-hidden relative z-[10000] mx-auto focus:outline-none"
                     style={{ zIndex: 10000 }}
                 >
                     <div className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 p-6 relative">
-                        <Button variant="ghost" size="icon" onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20">
-                            <X className="w-5 h-5" />
+                        <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('tutorial.close') || 'Zamknij'} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20">
+                            <X className="w-5 h-5" aria-hidden="true" />
                         </Button>
                         <div className="flex flex-col items-center gap-4 text-center">
-                            <span className="text-6xl">{tutorial.emoji}</span>
+                            <span className="text-6xl" aria-hidden="true">{tutorial.emoji}</span>
                             <div className="flex flex-col items-center">
                                 <Badge className="mb-2 bg-white/20 text-white">{t('tutorial.level')} {levelNumber}</Badge>
-                                <h2 className="text-2xl font-bold text-white">{t(tutorial.titleKey)}</h2>
+                                <h2 id={`tutorial-title-${levelNumber}`} className="text-2xl font-bold text-white">{t(tutorial.titleKey)}</h2>
                             </div>
                         </div>
                     </div>
@@ -157,7 +179,7 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                         <Card className="bg-indigo-50 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/30">
                             <CardContent className="pt-4">
                                 <div className="flex flex-col items-center gap-3">
-                                    <Target className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                    <Target className="w-5 h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
                                     <div className="text-center">
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{t('tutorial.missionGoal')}</h3>
                                         <p className="text-gray-700 dark:text-slate-300">{t(tutorial.objectiveKey)}</p>

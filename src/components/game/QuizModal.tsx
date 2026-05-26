@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight, SkipForward } from 'lucide-react';
@@ -29,6 +29,15 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
     const [isAnswered, setIsAnswered] = useState(false);
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
+
+    // Escape do zamknięcia quizu (WCAG 2.1.2)
+    useEffect(() => {
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && onClose) onClose();
+        };
+        document.addEventListener('keydown', handleKey);
+        return () => document.removeEventListener('keydown', handleKey);
+    }, [onClose]);
 
     const question = questions[currentQuestion];
 
@@ -87,6 +96,9 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
                     className="bg-card rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-border"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={t('quiz.title')}
                 >
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
                         <div className="flex items-center justify-between">
