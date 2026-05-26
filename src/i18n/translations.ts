@@ -2,6 +2,9 @@ export type Language = 'pl' | 'en' | 'fr' | 'de';
 
 export const translations: Record<Language, Record<string, string>> = {
   pl: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Przejdź do treści głównej',
+    'a11y.mainLabel': 'Treść główna',
     // === StartScreen ===
     'start.tagline': 'Zostań Data Rangerem i uratuj dane przed Chaos Validator GBIF!',
     'start.startMission': 'Rozpocznij Misję',
@@ -580,6 +583,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   en: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Skip to main content',
+    'a11y.mainLabel': 'Main content',
     // === StartScreen ===
     'start.tagline': 'Become a Data Ranger and save the data from the GBIF Chaos Validator!',
     'start.startMission': 'Start Mission',
