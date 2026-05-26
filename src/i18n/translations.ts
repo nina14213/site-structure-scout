@@ -1156,6 +1156,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   fr: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Aller au contenu principal',
+    'a11y.mainLabel': 'Contenu principal',
     // === StartScreen ===
     'start.tagline': 'Devenez Data Ranger et sauvez les données du Chaos Validator GBIF !',
     'start.startMission': 'Démarrer la Mission',
@@ -1728,6 +1731,9 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   de: {
+    // === Accessibility ===
+    'a11y.skipToContent': 'Zum Hauptinhalt springen',
+    'a11y.mainLabel': 'Hauptinhalt',
     // === StartScreen ===
     'start.tagline': 'Werde Data Ranger und rette die Daten vor dem GBIF Chaos Validator!',
     'start.startMission': 'Mission starten',
