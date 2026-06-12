@@ -141,7 +141,7 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
                 onClick={onClose}
                 style={{ zIndex: 9999, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
@@ -155,15 +155,15 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby={`tutorial-title-${levelNumber}`}
-                    className="bg-white dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-200 dark:border-slate-700 overflow-hidden relative z-[10000] mx-auto focus:outline-none"
+                    className="bg-white dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2rem)] border border-gray-200 dark:border-slate-700 overflow-hidden relative z-[10000] mx-auto focus:outline-none flex flex-col"
                     style={{ zIndex: 10000 }}
                 >
-                    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 p-6 relative">
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 p-4 sm:p-6 relative flex-shrink-0">
                         <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('tutorial.close') || 'Zamknij'} className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20">
                             <X className="w-5 h-5" aria-hidden="true" />
                         </Button>
                         <div className="flex flex-col items-center gap-4 text-center">
-                            <span className="text-6xl" aria-hidden="true">{tutorial.emoji}</span>
+                            <span className="text-4xl sm:text-6xl" aria-hidden="true">{tutorial.emoji}</span>
                             <div className="flex flex-col items-center">
                                 <Badge className="mb-2 bg-white/20 text-white">{t('tutorial.level')} {levelNumber}</Badge>
                                 <h2 id={`tutorial-title-${levelNumber}`} className="text-2xl font-bold text-white">{t(tutorial.titleKey)}</h2>
@@ -171,7 +171,7 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                         </div>
                     </div>
 
-                    <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto text-center">
+                    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto text-center flex-1 min-h-0 overscroll-contain">
                         <Card className="bg-indigo-50 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/30">
                             <CardContent className="pt-4">
                                 <div className="flex flex-col items-center gap-3">
@@ -224,7 +224,7 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                         </Card>
                     </div>
 
-                    <div className="p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+                    <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex-shrink-0">
                         <Button onClick={onClose} className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" size="lg">
                             {t('tutorial.start')}
                         </Button>
