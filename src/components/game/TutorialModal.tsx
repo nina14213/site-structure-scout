@@ -15,22 +15,18 @@ interface TutorialModalProps {
 export default function TutorialModal({ levelNumber, isOpen, onClose }: TutorialModalProps) {
     const { t, language } = useLanguage();
     const dialogRef = useRef<HTMLDivElement>(null);
+    const onCloseRef = useRef(onClose);
+    useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
-    // Escape do zamknięcia + focus na modal po otwarciu (WCAG 2.1.2, 2.4.3)
+    // Escape do zamknięcia modala (WCAG 2.1.2). Bez auto-focus aby nie kraść fokusu z pól wewnątrz.
     useEffect(() => {
         if (!isOpen) return;
         const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key === 'Escape') onCloseRef.current?.();
         };
         document.addEventListener('keydown', handleKey);
-        // Przenieś fokus do modala
-        const prevFocus = document.activeElement as HTMLElement | null;
-        dialogRef.current?.focus();
-        return () => {
-            document.removeEventListener('keydown', handleKey);
-            prevFocus?.focus?.();
-        };
-    }, [isOpen, onClose]);
+        return () => document.removeEventListener('keydown', handleKey);
+    }, [isOpen]);
 
     const l = language;
     const pick = <T,>(pl: T, en: T, fr: T, de?: T): T => l === 'pl' ? pl : l === 'fr' ? fr : l === 'de' && de !== undefined ? de : en;
