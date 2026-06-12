@@ -177,7 +177,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     }
     const padding = 16;
     const tooltipWidth = Math.min(380, window.innerWidth - padding * 2);
-    const tooltipHeight = 320;
+    const tooltipHeight = showHelp ? window.innerHeight - padding * 2 : 360;
     const maxTop = window.innerHeight - tooltipHeight - padding;
 
     if (step.position === 'right') {
@@ -226,9 +226,11 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
           style={getTooltipStyle()}
           className="w-[380px] max-w-[calc(100vw-2rem)]"
         >
-          <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[80vh] flex flex-col">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[calc(100dvh-2rem)] flex flex-col">
             {/* Mascot */}
             <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>🦎</div>
+
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1">
 
             {/* Pro tip badge */}
             {step.proTip && (
@@ -311,6 +313,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
 
             {/* Animation */}
             {step.animation && <div className="mb-3">{step.animation}</div>}
+            </div>
 
             {/* Navigation */}
             <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border flex-shrink-0">
