@@ -66,7 +66,7 @@ export default function ColumnsPanel({
         <CardHeader className="border-b border-border pb-3">
           <CardTitle className="text-card-foreground flex items-center justify-between">
             <span className="flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-muted-foreground" />
+              <FileSpreadsheet className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
               {t("schema.yourColumns")} ({columns.length})
             </span>
             <Badge variant="secondary">
@@ -79,7 +79,11 @@ export default function ColumnsPanel({
               <span>{t("wizard.mappedColumns", { mapped: mappedColumnsCount, total: columns.length })}</span>
               <span className="font-mono">{Math.round((mappedColumnsCount / columns.length) * 100)}%</span>
             </div>
-            <Progress value={(mappedColumnsCount / columns.length) * 100} className="h-2" />
+            <Progress
+              value={(mappedColumnsCount / columns.length) * 100}
+              aria-label={t("wizard.mappedColumns", { mapped: mappedColumnsCount, total: columns.length })}
+              className="h-2"
+            />
           </div>
         </CardHeader>
         <CardContent className="pt-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto space-y-2">
@@ -96,6 +100,7 @@ export default function ColumnsPanel({
                 variant="ghost"
                 size="sm"
                 onClick={() => onClearSelectedColumn()}
+                aria-label="Anuluj wybor kolumny"
                 className="ml-auto h-5 px-1 text-indigo-300"
               >
                 ✕
@@ -119,6 +124,16 @@ export default function ColumnsPanel({
                   onDragStart={(e) => onDragStart(e, column)}
                   onDragEnd={onDragEnd}
                   onClick={() => onTapSelectColumn(column)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onTapSelectColumn(column);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  aria-label={`Kolumna ${column}${allMappedTo.length > 0 ? `, zmapowana do ${allMappedTo.join(", ")}` : ", niezmapowana"}. Nacisnij Enter lub Spacje, aby ${isSelected ? "odznaczyc" : "wybrac"} kolumne.`}
                   className={`
                     p-4 rounded-xl border-2 cursor-grab active:cursor-grabbing transition-all
                     md:cursor-grab cursor-pointer
@@ -134,7 +149,7 @@ export default function ColumnsPanel({
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <MousePointerClick className="w-4 h-4 text-muted-foreground md:hidden flex-shrink-0" />
+                      <MousePointerClick className="w-4 h-4 text-muted-foreground md:hidden flex-shrink-0" aria-hidden="true" />
                       <span className="font-semibold text-foreground">{column}</span>
                       {isIdColumn && allMappedTo.length > 1 && (
                         <Badge variant="secondary" className="text-[10px] h-4 px-1">
@@ -142,7 +157,7 @@ export default function ColumnsPanel({
                         </Badge>
                       )}
                     </div>
-                    {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" />}
+                    {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" aria-hidden="true" />}
                     {allMappedTo.length > 0 && (
                       <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
                         {allMappedTo.slice(0, 5).map(term => (
@@ -154,6 +169,16 @@ export default function ColumnsPanel({
                               e.stopPropagation();
                               onRemoveMapping(term);
                             }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onRemoveMapping(term);
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`${t("common.remove")}: ${term}`}
                             title={`Kliknij aby usunąć mapowanie → ${term}`}
                           >
                             → {term} ✕
@@ -176,12 +201,13 @@ export default function ColumnsPanel({
                     const isExactMatch = normalizeHeader(column) === normalizeHeader(columnSuggestions[column]);
                     return (
                     <div className="mt-1.5 flex items-center gap-1.5">
-                      <Lightbulb className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                      <Lightbulb className="w-3 h-3 text-amber-500 flex-shrink-0" aria-hidden="true" />
                       <span className="text-[10px] text-amber-600 dark:text-amber-400">
                         Pasuje do: <strong>{columnSuggestions[column]}</strong>
                       </span>
                       {!isExactMatch && onApplySuggestion && (
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             onApplySuggestion(column, columnSuggestions[column]);

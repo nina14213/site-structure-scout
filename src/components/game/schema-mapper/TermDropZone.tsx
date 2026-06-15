@@ -89,6 +89,13 @@ export default function TermDropZone({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if ((event.key === "Enter" || event.key === " ") && hasSelectedColumn) {
+      event.preventDefault();
+      onTapAssign?.(termName);
+    }
+  };
+
   const removeColumn = (idx: number) => {
     if (mappedColumns.length === 1) {
       onRemove(termName);
@@ -112,6 +119,10 @@ export default function TermDropZone({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role={hasSelectedColumn ? "button" : "group"}
+      tabIndex={hasSelectedColumn ? 0 : undefined}
+      aria-label={`${termName}. ${isRequired ? t("schema.required") : "opcjonalne"}${mappedColumn ? `, zmapowane do ${mappedColumn}` : ", bez mapowania"}.`}
       className={`
         p-3 md:p-4 rounded-xl border-2 transition-all min-h-[44px]
         ${isOver ? "border-purple-500 bg-purple-500/20 scale-[1.02]" : ""}
@@ -147,7 +158,7 @@ export default function TermDropZone({
           <p className="text-xs text-muted-foreground">{termDescription || term?.description || "Darwin Core term"}</p>
         </div>
         {hasSelectedColumn && !mappedColumn && (
-          <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce flex-shrink-0" />
+          <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce flex-shrink-0" aria-hidden="true" />
         )}
         {mappedColumn && !isMultiColumn && (
           <Button
@@ -157,9 +168,10 @@ export default function TermDropZone({
               e.stopPropagation();
               onRemove(termName);
             }}
+            aria-label={`${t("common.remove")}: ${termName}`}
             className="text-muted-foreground hover:text-red-400 h-6 px-2"
           >
-            <X className="w-3 h-3" />
+            <X className="w-3 h-3" aria-hidden="true" />
           </Button>
         )}
       </div>
@@ -179,26 +191,29 @@ export default function TermDropZone({
                       size="sm"
                       onClick={(e) => { e.stopPropagation(); moveColumn(idx, -1); }}
                       disabled={idx === 0}
+                      aria-label={`Przenies ${col} wyzej`}
                       className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
                     >
-                      <ArrowUp className="w-3 h-3" />
+                      <ArrowUp className="w-3 h-3" aria-hidden="true" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={(e) => { e.stopPropagation(); moveColumn(idx, 1); }}
                       disabled={idx === mappedColumns.length - 1}
+                      aria-label={`Przenies ${col} nizej`}
                       className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
                     >
-                      <ArrowDown className="w-3 h-3" />
+                      <ArrowDown className="w-3 h-3" aria-hidden="true" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={(e) => { e.stopPropagation(); removeColumn(idx); }}
+                      aria-label={`${t("common.remove")}: ${col}`}
                       className="h-5 w-5 p-0 text-muted-foreground hover:text-red-400"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </Button>
                   </div>
                   {idx < mappedColumns.length - 1 && (
@@ -212,7 +227,7 @@ export default function TermDropZone({
             </div>
           ) : (
             <p className="text-sm text-green-400 flex items-center gap-1">
-              <Check className="w-3 h-3" />
+              <Check className="w-3 h-3" aria-hidden="true" />
               {mappedColumn}
             </p>
           )}
@@ -220,7 +235,7 @@ export default function TermDropZone({
       ) : (
         <div className="mt-2 pt-2 border-t border-border/50">
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <Target className="w-3 h-3" />
+            <Target className="w-3 h-3" aria-hidden="true" />
             {t("schema.dragHere")}
           </p>
           {term?.example && (

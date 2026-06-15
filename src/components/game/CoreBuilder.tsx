@@ -14,6 +14,7 @@ import TutorialModal from './TutorialModal';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useAccessibility } from '@/components/accessibility/AccessibilityContext';
 
 // Required DwC terms for Event Core - only eventID is strictly required per DwC-DP
 const requiredTerms = ['eventID'];
@@ -33,6 +34,7 @@ interface CoreBuilderProps {
 export default function CoreBuilder({ onComplete, addScore, playSuccess, playFail, playDrop, playLevelComplete, startLevelTimer }: CoreBuilderProps) {
     const { validateField } = useValidator();
     const { t } = useLanguage();
+    const { announce } = useAccessibility();
 
     // Parse CSV
     const parseCSV = useCallback((text: string) => {
@@ -99,6 +101,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         if (restrictions[termName] && columnName !== restrictions[termName].only) {
             setMappingErrors(prev => ({ ...prev, [termName]: restrictions[termName].error }));
             playFail?.();
+            announce(restrictions[termName].error);
             setTimeout(() => {
                 setMappingErrors(prev => {
                     const newErrors = { ...prev };
@@ -124,7 +127,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
             return newErrors;
         });
         playDrop?.();
-    }, [playDrop, playFail]);
+        announce(`Kolumna ${columnName} zostala zmapowana do ${termName}.`);
+    }, [playDrop, playFail, announce]);
 
     // Remove mapping
     const handleRemoveMapping = useCallback((termName: string) => {
@@ -133,12 +137,17 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
             delete newMappings[termName];
             return newMappings;
         });
-    }, []);
+        announce(`Usunieto mapowanie pola ${termName}.`);
+    }, [announce]);
 
     // Tap-to-assign: select a column
     const handleTapSelect = useCallback((column: string) => {
-        setSelectedColumn(prev => prev === column ? null : column);
-    }, []);
+        setSelectedColumn(prev => {
+            const next = prev === column ? null : column;
+            announce(next ? `Wybrano kolumne ${column}. Wybierz pole Darwin Core, aby ja zmapowac.` : `Odznaczono kolumne ${column}.`);
+            return next;
+        });
+    }, [announce]);
 
     // Tap-to-assign: assign selected column to a term
     const handleTapAssign = useCallback((termName: string) => {
@@ -232,10 +241,10 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                             <p className="text-gray-600 dark:text-slate-400 mt-1">{t('core.subtitle')}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                            <div role="timer" aria-live={timeLeft < 60 ? "polite" : "off"} className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
                                 timeLeft < 60 ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300'
                             }`}>
-                                <Timer className={`w-5 h-5 ${timeLeft < 60 ? 'animate-pulse' : ''}`} />
+                                <Timer className={`w-5 h-5 ${timeLeft < 60 ? 'animate-pulse' : ''}`} aria-hidden="true" />
                                 <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
                             </div>
                             <Badge variant="outline" className="text-lg px-4 py-2 border-yellow-500 text-yellow-600 dark:border-yellow-400 dark:text-yellow-400">
@@ -243,7 +252,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                             </Badge>
                         </div>
                     </div>
-                    <Progress value={progress} className="h-3 bg-gray-200 dark:bg-slate-700" />
+                    <Progress value={progress} aria-label={`${Math.round(progress)}% ${t('core.complete')}`} className="h-3 bg-gray-200 dark:bg-slate-700" />
                     <div className="flex justify-between text-sm mt-2 text-gray-600 dark:text-slate-400">
                         <span>{Math.round(progress)}% {t('core.complete')}</span>
                         <span>{requiredTerms.filter(t => mappings[t]).length}/{requiredTerms.length} {t('core.required')}</span>
@@ -257,9 +266,9 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-4 md:hidden p-3 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-800 dark:text-indigo-200 text-sm flex items-center gap-2"
                     >
-                        <span className="text-lg">👆</span>
+                        <span className="text-lg" aria-hidden="true">👆</span>
                         {t('core.selectedColumn', { column: selectedColumn })}
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} className="ml-auto h-6 px-2 text-indigo-700 dark:text-indigo-300">
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedColumn(null)} aria-label="Anuluj wybor kolumny" className="ml-auto h-6 px-2 text-indigo-700 dark:text-indigo-300">
                             ✕
                         </Button>
                     </motion.div>
@@ -313,8 +322,15 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                         <Zap className="w-5 h-5 text-yellow-400" />
                                         Darwin Core Terms
                                     </span>
-                                    <Button variant="ghost" size="sm" onClick={() => setShowHint(!showHint)} className="text-yellow-400 hover:text-yellow-300 hover:bg-gray-800">
-                                        <Lightbulb className="w-4 h-4 mr-1" />
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowHint(!showHint)}
+                                        aria-expanded={showHint}
+                                        aria-controls="core-hint"
+                                        className="text-yellow-400 hover:text-yellow-300 hover:bg-gray-800"
+                                    >
+                                        <Lightbulb className="w-4 h-4 mr-1" aria-hidden="true" />
                                         {t('common.hint')}
                                     </Button>
                                 </CardTitle>
@@ -327,8 +343,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                             animate={{ opacity: 1, height: 'auto' }}
                                             exit={{ opacity: 0, height: 0 }}
                                         >
-                                            <Alert className="mb-4 bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/30">
-                                                <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                                            <Alert id="core-hint" className="mb-4 bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/30">
+                                                <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
                                                 <AlertDescription className="text-yellow-800 dark:text-yellow-200">
                                                     {t('core.hintText')} <Badge variant="destructive" className="text-xs mx-1">{t('core.hintRequired')}</Badge> {t('core.hintEnd')}
                                                 </AlertDescription>

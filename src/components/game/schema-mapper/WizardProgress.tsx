@@ -5,7 +5,6 @@
 
 import React from "react";
 import { Check } from "lucide-react";
-import { useLanguage } from "@/i18n/LanguageContext";
 
 interface WizardProgressProps {
   currentStep: number;
@@ -13,10 +12,8 @@ interface WizardProgressProps {
 }
 
 export default function WizardProgress({ currentStep, steps }: WizardProgressProps) {
-  const { t } = useLanguage();
-
   return (
-    <div className="flex items-center justify-center gap-1 md:gap-2 mb-4 md:mb-6">
+    <div className="flex items-center justify-center gap-1 md:gap-2 mb-4 md:mb-6" role="list" aria-label="Postep kreatora">
       {steps.map((step, i) => {
         const isDone = i < currentStep;
         const isActive = i === currentStep;
@@ -31,6 +28,9 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
             )}
             <div className="flex items-center gap-1 md:gap-1.5">
               <div
+                role="listitem"
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`${step.label}: ${isDone ? "ukonczony" : isActive ? "aktywny" : "oczekuje"}`}
                 className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold transition-colors ${
                   isDone
                     ? "bg-primary text-primary-foreground"
@@ -39,7 +39,7 @@ export default function WizardProgress({ currentStep, steps }: WizardProgressPro
                     : "bg-muted text-muted-foreground border border-border"
                 }`}
               >
-                {isDone ? <Check className="w-4 h-4" /> : i + 1}
+                {isDone ? <Check className="w-4 h-4" aria-hidden="true" /> : i + 1}
               </div>
               <span
                 className={`hidden md:inline text-sm font-medium ${

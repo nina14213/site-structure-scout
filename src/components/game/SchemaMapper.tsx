@@ -244,11 +244,12 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 onClick={wizardStep === 0 || (wizardStep === 2 && hasExternalData) ? onBack : goBack}
                 variant="ghost"
                 size="sm"
+                aria-label={t("wizard.back")}
                 className="text-muted-foreground hover:text-foreground flex-shrink-0 p-1.5 md:p-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               </Button>
-              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-400 flex-shrink-0" />
+              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-400 flex-shrink-0" aria-hidden="true" />
               <div className="flex-1 min-w-0">
                 <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
                 <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
@@ -261,10 +262,11 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                       variant="outline"
                       size="sm"
                       onClick={state.handleUndo}
+                      aria-label="Cofnij ostatnia zmiane"
                       className="text-[10px] md:text-xs border-border text-muted-foreground hover:text-foreground gap-1 px-2 md:px-3"
                       title="Cofnij ostatnią zmianę"
                     >
-                      <Undo2 className="w-3.5 h-3.5" />
+                      <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
                       <span className="hidden sm:inline">Cofnij</span>
                     </Button>
                   )}
@@ -278,6 +280,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={t("mapperTutorial.replay")}
                     onClick={() => {
                       setTutorialPhase(1);
                       setShowTutorial(true);
@@ -310,7 +313,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     <CardContent className="p-6 md:p-8">
                       <div className="text-center mb-6">
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                          <Sparkles className="w-8 h-8 text-primary" />
+                          <Sparkles className="w-8 h-8 text-primary" aria-hidden="true" />
                         </div>
                         <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">{t("wizard.introTitle")}</h2>
                         <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{t("wizard.introDesc")}</p>
@@ -318,11 +321,12 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <button
+                          type="button"
                           onClick={() => setWizardStep(1)}
                           className="group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
                           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                            <Database className="w-6 h-6 text-primary" />
+                            <Database className="w-6 h-6 text-primary" aria-hidden="true" />
                           </div>
                           <div className="text-center">
                             <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introHaveData")}</p>
@@ -331,6 +335,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                         </button>
 
                         <button
+                          type="button"
                           onClick={() => {
                             setShowImportTutorial(true);
                             setWizardStep(1);
@@ -338,7 +343,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                           className="group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-secondary hover:bg-secondary/5 transition-all text-left"
                         >
                           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
-                            <BookOpen className="w-6 h-6 text-secondary" />
+                            <BookOpen className="w-6 h-6 text-secondary" aria-hidden="true" />
                           </div>
                           <div className="text-center">
                             <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introNoData")}</p>
@@ -374,7 +379,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                         onClick={() => setShowImportTutorial(true)}
                         className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 gap-1"
                       >
-                        <HelpCircle className="w-3.5 h-3.5" />
+                        <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
                         <span className="hidden sm:inline">{t("importTutorial.replay")}</span>
                         <span className="sm:hidden">?</span>
                       </Button>
@@ -529,7 +534,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               <div>
                 {wizardStep > 0 && (
                   <Button variant="outline" onClick={goBack} className="gap-1.5 md:gap-2 text-sm">
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                     {t("wizard.back")}
                   </Button>
                 )}
@@ -546,7 +551,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     }`}
                   >
                     {t("wizard.next")}
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 )}
               </div>

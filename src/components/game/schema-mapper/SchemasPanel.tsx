@@ -165,8 +165,9 @@ export default function SchemasPanel({
         <CardContent className="pt-4 flex-1 flex flex-col">
           {/* Search */}
           <div className="relative mb-4">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
+              aria-label={t("schema.searchFields")}
               placeholder={`${t("schema.searchFields")} (${t("schema.allSchemas") || "all schemas"})…`}
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -177,9 +178,10 @@ export default function SchemasPanel({
                 variant="ghost"
                 size="sm"
                 onClick={() => onSearchChange("")}
+                aria-label="Wyczysc wyszukiwanie"
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-6 px-2 text-muted-foreground"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3 h-3" aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -280,6 +282,8 @@ export default function SchemasPanel({
                               opcjonalna
                             </Badge>
                             <button
+                              type="button"
+                              aria-label={`Mapuj opcjonalny schemat ${schemaName}`}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -314,6 +318,16 @@ export default function SchemasPanel({
                                 } text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors`}
                                 title={t('schema.dismissSchema')}
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDismissSchema(prev => new Set([...prev, schemaId])); }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onDismissSchema(prev => new Set([...prev, schemaId]));
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`${t('schema.dismissSchema')}: ${schemaName}`}
                               >
                                 {showOptimal ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')} ✕
                               </Badge>
@@ -326,7 +340,7 @@ export default function SchemasPanel({
                           </Badge>
                         )}
                         {hasMappings && (
-                          <ChevronDown className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                          <ChevronDown className="w-3 h-3 text-muted-foreground flex-shrink-0" aria-hidden="true" />
                         )}
                         <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground">
                           {req.length}+{opt.length}
@@ -392,6 +406,15 @@ export default function SchemasPanel({
                           variant="outline"
                           className="text-[10px] h-5 px-1.5 cursor-pointer text-muted-foreground hover:text-foreground hover:border-emerald-500/50 transition-colors"
                           onClick={() => onDismissSchema(prev => { const next = new Set(prev); next.delete(schemaId); return next; })}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onDismissSchema(prev => { const next = new Set(prev); next.delete(schemaId); return next; });
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Przywroc schemat ${schemaName}`}
                         >
                           + {schemaName}
                         </Badge>
@@ -420,11 +443,11 @@ export default function SchemasPanel({
                 variant="outline"
                 className="flex-1 border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 hover:text-cyan-400"
               >
-                <Sparkles className="w-4 h-4 mr-1.5" />
+                <Sparkles className="w-4 h-4 mr-1.5" aria-hidden="true" />
                 {t("schema.detectHeaders")}
               </Button>
               <Button onClick={onReset} variant="ghost" className="text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4 mr-1" />
+                <X className="w-4 h-4 mr-1" aria-hidden="true" />
                 {t("schema.reset")}
               </Button>
             </div>
@@ -436,7 +459,7 @@ export default function SchemasPanel({
                 onClick={onSuggestMapping}
                 className={`w-full gap-2 ${suggestionsCount > 0 ? 'text-amber-500 border-amber-500/50 hover:bg-amber-500/10' : 'text-muted-foreground border-border hover:bg-muted/50'}`}
               >
-                <Lightbulb className="w-4 h-4" />
+                <Lightbulb className="w-4 h-4" aria-hidden="true" />
                 {t("schema.suggestMapping")} ({suggestionsCount})
               </Button>
             )}

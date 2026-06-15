@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight, SkipForward } from 'lucide-react';
@@ -29,6 +29,17 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
     const [isAnswered, setIsAnswered] = useState(false);
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const previousFocusRef = useRef<HTMLElement | null>(null);
+
+    useEffect(() => {
+        previousFocusRef.current = document.activeElement as HTMLElement | null;
+        window.setTimeout(() => dialogRef.current?.focus(), 0);
+
+        return () => {
+            previousFocusRef.current?.focus?.();
+        };
+    }, []);
 
     // Escape do zamknięcia quizu (WCAG 2.1.2)
     useEffect(() => {
@@ -96,15 +107,17 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
                     className="bg-card rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-border"
+                    ref={dialogRef}
+                    tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
-                    aria-label={t('quiz.title')}
+                    aria-labelledby="quiz-title"
                 >
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <HelpCircle className="w-5 h-5" />
-                                <span className="font-semibold">{t('quiz.title')} — {levelNames[levelNumber] || `Level ${levelNumber}`}</span>
+                                <HelpCircle className="w-5 h-5" aria-hidden="true" />
+                                <span id="quiz-title" className="font-semibold">{t('quiz.title')} — {levelNames[levelNumber] || `Level ${levelNumber}`}</span>
                             </div>
                             {!isFinished && (
                                 <div className="flex items-center gap-2">
@@ -114,6 +127,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                     <Button
                                         variant="ghost"
                                         size="sm"
+                                        aria-label={t('quiz.skip')}
                                         onClick={() => {
                                             setIsFinished(true);
                                             const finalScore = Math.round((score / questions.length) * 100);
@@ -122,13 +136,20 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                         className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1 h-7 px-2"
                                     >
                                         {t('quiz.skip')}
-                                        <SkipForward className="w-3 h-3" />
+                                        <SkipForward className="w-3 h-3" aria-hidden="true" />
                                     </Button>
                                 </div>
                             )}
                         </div>
                         {!isFinished && (
-                            <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
+                            <div
+                                className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden"
+                                role="progressbar"
+                                aria-valuemin={0}
+                                aria-valuemax={questions.length}
+                                aria-valuenow={currentQuestion + 1}
+                                aria-label={`${currentQuestion + 1} / ${questions.length}`}
+                            >
                                 <motion.div
                                     className="h-full bg-white/80"
                                     initial={{ width: 0 }}
@@ -146,12 +167,15 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                     {question.question}
                                 </h2>
 
-                                <div className="space-y-3 mb-6">
+                                <div className="space-y-3 mb-6" role="group" aria-label={question.question}>
                                     {question.options.map((option, index) => (
                                         <motion.button
                                             key={index}
+                                            type="button"
                                             onClick={() => handleAnswer(index)}
                                             disabled={isAnswered}
+                                            aria-pressed={selectedAnswer === index}
+                                            aria-describedby={isAnswered ? "quiz-feedback" : undefined}
                                             className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${getOptionClass(index)}`}
                                             whileHover={!isAnswered ? { scale: 1.02 } : {}}
                                             whileTap={!isAnswered ? { scale: 0.98 } : {}}
@@ -161,10 +185,10 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                             </span>
                                             <span>{option}</span>
                                             {isAnswered && index === question.correctIndex && (
-                                                <CheckCircle className="w-5 h-5 text-emerald-500 ml-auto shrink-0" />
+                                                <CheckCircle className="w-5 h-5 text-emerald-500 ml-auto shrink-0" aria-hidden="true" />
                                             )}
                                             {isAnswered && index === selectedAnswer && index !== question.correctIndex && (
-                                                <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0" />
+                                                <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0" aria-hidden="true" />
                                             )}
                                         </motion.button>
                                     ))}
@@ -172,6 +196,9 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
 
                                 {isAnswered && (
                                     <motion.div
+                                        id="quiz-feedback"
+                                        role="status"
+                                        aria-live="polite"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className={`p-4 rounded-xl mb-4 ${
@@ -195,7 +222,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                     {currentQuestion < questions.length - 1 ? (
                                         <>
                                             {t('quiz.nextQuestion')}
-                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                            <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
                                         </>
                                     ) : (
                                         t('quiz.seeResult')
@@ -208,7 +235,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex flex-col items-center justify-center text-center py-4"
                             >
-                                <Trophy className="w-20 h-20 text-yellow-500 mb-4" />
+                                <Trophy className="w-20 h-20 text-yellow-500 mb-4" aria-hidden="true" />
                                 <h2 className="text-2xl font-bold text-foreground mb-2">
                                     {t('quiz.completed')}
                                 </h2>

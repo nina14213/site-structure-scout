@@ -54,11 +54,22 @@ export default function DraggableColumn({
     };
 
     const getStatusIcon = () => {
-        if (isSelected) return <MousePointerClick className="w-4 h-4 text-indigo-500 animate-pulse" />;
-        if (validationStatus === 'valid') return <Check className="w-4 h-4 text-green-500" />;
-        if (validationStatus === 'warning') return <AlertCircle className="w-4 h-4 text-yellow-500" />;
-        if (validationStatus === 'error') return <X className="w-4 h-4 text-red-500" />;
+        if (isSelected) return <MousePointerClick className="w-4 h-4 text-indigo-500 animate-pulse" aria-hidden="true" />;
+        if (validationStatus === 'valid') return <Check className="w-4 h-4 text-green-500" aria-hidden="true" />;
+        if (validationStatus === 'warning') return <AlertCircle className="w-4 h-4 text-yellow-500" aria-hidden="true" />;
+        if (validationStatus === 'error') return <X className="w-4 h-4 text-red-500" aria-hidden="true" />;
         return null;
+    };
+
+    const handleActivate = () => {
+        onTapSelect?.(column);
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleActivate();
+        }
     };
 
     return (
@@ -88,7 +99,13 @@ export default function DraggableColumn({
                     e.preventDefault();
                     onDrop?.(e as unknown as React.DragEvent, column);
                 }}
-                onClick={() => onTapSelect?.(column)}
+                onClick={handleActivate}
+                onKeyDown={handleKeyDown}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                aria-label={`Kolumna ${column}${mappedTo ? `, zmapowana do ${mappedTo}` : ', niezmapowana'}. Nacisnij Enter lub Spacje, aby ${isSelected ? 'odznaczyc' : 'wybrac'} kolumne.`}
+                aria-grabbed={isDragging}
                 className={`
                     p-3 rounded-xl border-2 cursor-grab active:cursor-grabbing
                     transition-all duration-200 select-none
@@ -98,8 +115,8 @@ export default function DraggableColumn({
                 `}
             >
                 <div className="flex items-center gap-3">
-                    <GripVertical className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 hidden md:block" />
-                    <MousePointerClick className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 md:hidden" />
+                    <GripVertical className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 hidden md:block" aria-hidden="true" />
+                    <MousePointerClick className="w-4 h-4 text-gray-500 dark:text-slate-400 flex-shrink-0 md:hidden" aria-hidden="true" />
 
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">

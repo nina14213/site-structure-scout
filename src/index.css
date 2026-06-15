@@ -128,8 +128,8 @@
 
   /* === A11y: focus visible — WCAG 2.4.7 === */
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 3px;
     border-radius: 4px;
   }
   /* Hide outline only when focus comes from pointer, not keyboard */
@@ -146,6 +146,151 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+
+  html.wcag-custom-text {
+    font-size: calc(100% * var(--wcag-text-scale, 1));
+  }
+
+  html.wcag-contrast-enhanced {
+    --foreground: 220 30% 7%;
+    --card-foreground: 220 30% 7%;
+    --popover-foreground: 220 30% 7%;
+    --primary: 142 72% 22%;
+    --secondary: 188 90% 24%;
+    --muted-foreground: 220 20% 22%;
+    --accent: 270 72% 35%;
+    --border: 220 20% 42%;
+    --input: 220 20% 42%;
+    --ring: 46 100% 35%;
+  }
+
+  html.wcag-contrast-enhanced.dark {
+    --foreground: 0 0% 100%;
+    --card-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 142 88% 64%;
+    --primary-foreground: 220 30% 5%;
+    --secondary: 185 100% 68%;
+    --secondary-foreground: 220 30% 5%;
+    --muted-foreground: 210 30% 86%;
+    --accent: 280 100% 82%;
+    --border: 210 30% 62%;
+    --input: 210 30% 62%;
+    --ring: 46 100% 60%;
+  }
+
+  html.wcag-contrast-maximum,
+  html.wcag-high-contrast,
+  html.wcag-contrast-maximum.dark,
+  html.wcag-high-contrast.dark {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 220 100% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 100% 22%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 18%;
+    --accent: 46 100% 28%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 85% 34%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 46 100% 30%;
+    --neon-green: 140 90% 22%;
+    --neon-cyan: 188 100% 22%;
+    --neon-purple: 270 80% 26%;
+    --neon-orange: 24 100% 30%;
+    --dark-base: 0 0% 100%;
+    --dark-surface: 0 0% 100%;
+    --dark-elevated: 0 0% 94%;
+    --glow-green: none;
+    --glow-cyan: none;
+    --glow-purple: none;
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(0 0% 92%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(0 0% 94%) 100%);
+    --gradient-neon: linear-gradient(90deg, hsl(220 100% 24%) 0%, hsl(180 100% 22%) 100%);
+  }
+
+  html.wcag-contrast-maximum body,
+  html.wcag-high-contrast body,
+  html.wcag-contrast-maximum.dark body,
+  html.wcag-high-contrast.dark body,
+  html.wcag-contrast-maximum.dark,
+  html.wcag-high-contrast.dark {
+    background: hsl(var(--background));
+  }
+
+  html.wcag-contrast-maximum .text-gradient,
+  html.wcag-high-contrast .text-gradient,
+  html.wcag-contrast-maximum .bg-clip-text,
+  html.wcag-high-contrast .bg-clip-text {
+    background: none !important;
+    color: hsl(var(--foreground)) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum .neon-text,
+  html.wcag-high-contrast .neon-text,
+  html.wcag-contrast-maximum .neon-text-cyan,
+  html.wcag-high-contrast .neon-text-cyan,
+  html.wcag-contrast-maximum .pulse-glow,
+  html.wcag-high-contrast .pulse-glow {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  html.wcag-contrast-maximum .glass-card,
+  html.wcag-high-contrast .glass-card {
+    background: hsl(var(--card)) !important;
+    border-color: hsl(var(--border)) !important;
+    backdrop-filter: none !important;
+  }
+
+  html.wcag-contrast-maximum a:not([class*="no-underline"]),
+  html.wcag-high-contrast a:not([class*="no-underline"]) {
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.2em;
+  }
+
+  html.wcag-reduced-motion *,
+  html.wcag-reduced-motion *::before,
+  html.wcag-reduced-motion *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  html.wcag-contrast-enhanced [data-task-button],
+  html.wcag-contrast-maximum [data-task-button] {
+    border-color: hsl(var(--foreground) / 0.75) !important;
+    box-shadow: 0 0 0 2px hsl(var(--background) / 0.7), 0 8px 28px hsl(0 0% 0% / 0.35);
+  }
+
+  html.wcag-contrast-maximum [data-task-button] {
+    background: hsl(0 0% 0%) !important;
+    color: hsl(0 0% 100%) !important;
+  }
+
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline: 3px solid CanvasText;
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [role="button"] {
+      forced-color-adjust: auto;
     }
   }
 

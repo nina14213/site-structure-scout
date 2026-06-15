@@ -17,7 +17,7 @@ const LANGUAGES: { value: Language; label: string; flag: string }[] = [
 ];
 
 export default function LanguageToggle({ className = '' }: { className?: string }) {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const current = LANGUAGES.find((l) => l.value === language) ?? LANGUAGES[0];
 
   return (
@@ -26,9 +26,10 @@ export default function LanguageToggle({ className = '' }: { className?: string 
         <Button
           variant="ghost"
           size="sm"
+          aria-label={`${t('common.language')}: ${current.label}`}
           className={`text-muted-foreground hover:text-foreground gap-1.5 ${className}`}
         >
-          <span>{current.flag}</span>
+          <span aria-hidden="true">{current.flag}</span>
           <span className="text-xs font-bold uppercase">{current.value}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -37,11 +38,12 @@ export default function LanguageToggle({ className = '' }: { className?: string 
           <DropdownMenuItem
             key={lang.value}
             onClick={() => setLanguage(lang.value)}
+            aria-current={language === lang.value ? 'true' : undefined}
             className="gap-2 cursor-pointer"
           >
-            <span>{lang.flag}</span>
+            <span aria-hidden="true">{lang.flag}</span>
             <span>{lang.label}</span>
-            {language === lang.value && <Check className="ml-auto h-4 w-4" />}
+            {language === lang.value && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
