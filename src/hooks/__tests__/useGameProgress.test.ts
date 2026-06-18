@@ -71,9 +71,17 @@ describe('useGameProgress', () => {
     expect(result.current.gameState.totalScore).toBe(0);
   });
 
-  it('isLevelUnlocked zawsze zwraca true', () => {
+  it('blokuje BOSS level do czasu ukończenia poziomów 1-4', () => {
     const { result } = renderHook(() => useGameProgress());
     expect(result.current.isLevelUnlocked(1)).toBe(true);
+    expect(result.current.isLevelUnlocked(5)).toBe(false);
+
+    act(() => result.current.startNewGame('Gracz'));
+    act(() => result.current.completeLevel(1));
+    act(() => result.current.completeLevel(2));
+    act(() => result.current.completeLevel(3));
+    act(() => result.current.completeLevel(4));
+
     expect(result.current.isLevelUnlocked(5)).toBe(true);
   });
 

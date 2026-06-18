@@ -170,10 +170,11 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
                         <CardContent>
                             <div className="space-y-3">
                                 {[
-                                    { id: 1, name: 'Core Forge', icon: '⚡' },
-                                    { id: 2, name: 'Extension Nexus', icon: '🔗' },
-                                    { id: 3, name: 'Package Seal', icon: '📦' },
-                                    { id: 4, name: 'BOSS: Chaos Validator', icon: '👹' }
+                                    { id: 1, name: t('level.1.name'), icon: '⚡' },
+                                    { id: 2, name: t('level.2.name'), icon: '🔗' },
+                                    { id: 3, name: t('level.3.name'), icon: '📦' },
+                                    { id: 4, name: t('level.4.name'), icon: '🧬' },
+                                    { id: 5, name: t('level.5.name'), icon: '👹' }
                                 ].map((level) => (
                                     <div key={level.id} className="flex items-center gap-4 p-3 rounded-lg bg-gray-100 border border-gray-200 dark:bg-slate-700/50 dark:border-slate-600">
                                         <span className="text-2xl">{level.icon}</span>

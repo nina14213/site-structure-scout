@@ -53,11 +53,11 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
     const question = questions[currentQuestion];
 
     const levelNames: Record<number, string> = {
-        1: 'Core Forge',
-        2: 'Extension Nexus',
-        3: 'Package Seal',
-        4: 'Species Matcher',
-        5: 'BOSS: Chaos Validator',
+        1: t('level.1.name'),
+        2: t('level.2.name'),
+        3: t('level.3.name'),
+        4: t('level.4.name'),
+        5: t('level.5.name'),
     };
 
     const handleAnswer = (index: number) => {

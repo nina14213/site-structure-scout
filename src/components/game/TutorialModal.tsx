@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, Lightbulb, Target, Award } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import TutorialAnimation from './tutorial/TutorialAnimation';
 
 interface TutorialModalProps {
     levelNumber: number;
@@ -38,13 +39,17 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
         steps: string[];
         tips: string[];
         scoring: string;
+        animation?: React.ReactNode;
+        animationTitle?: string;
+        animationDescription?: string;
+        animationHint?: string;
     }> = {
         1: {
             emoji: "⚡",
             titleKey: 'tutorial.1.title',
             objectiveKey: 'tutorial.1.objective',
             steps: pick(
-                ["1. Wgraj swój CSV lub użyj przykładowych danych","2. Przeciągnij kolumny z lewej na odpowiednie termy po prawej","3. Zacznij od wymaganych pól (czerwone obramowanie)","4. Sprawdź podpowiedzi - najedź na term aby zobaczyć opis","5. Zmapuj wszystkie wymagane pola aby przejść dalej"],
+                ["1. Wgraj swój CSV lub użyj przykładowych danych","2. Przeciągnij kolumny z lewej na odpowiednie nazwy terminów Darwin Core po prawej","3. Zacznij od wymaganych pól (czerwone obramowanie)","4. Sprawdź podpowiedzi - najedź na nazwę terminu, aby zobaczyć opis","5. Zmapuj wszystkie wymagane pola aby przejść dalej"],
                 ["1. Upload your CSV or use sample data","2. Drag columns from the left to the matching terms on the right","3. Start with required fields (red border)","4. Check hints - hover over a term to see its description","5. Map all required fields to proceed"],
                 ["1. Chargez votre CSV ou utilisez les données exemple","2. Glissez les colonnes de gauche vers les termes correspondants à droite","3. Commencez par les champs requis (bordure rouge)","4. Consultez les indices — survolez un terme pour voir sa description","5. Mappez tous les champs requis pour continuer"],
                 ["1. Laden Sie Ihre CSV-Datei hoch oder verwenden Sie Beispieldaten","2. Ziehen Sie Spalten von links auf die passenden Begriffe rechts","3. Beginnen Sie mit den Pflichtfeldern (roter Rahmen)","4. Prüfen Sie Hinweise – fahren Sie über einen Begriff für die Beschreibung","5. Ordnen Sie alle Pflichtfelder zu, um fortzufahren"]
@@ -55,7 +60,21 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                 ["💡 Champs requis : eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Chaque colonne ne peut être mappée qu'une seule fois","⏱️ Plus vous êtes rapide, plus vous gagnez de points !"],
                 ["💡 Pflichtfelder: eventID, decimalLatitude, decimalLongitude, geodeticDatum, countryCode, eventDate, basisOfRecord, scientificName","🎯 Jede Spalte kann nur einmal zugeordnet werden","⏱️ Je schneller, desto mehr Punkte!"]
             ),
-            scoring: pick("+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność", "+50 pts per correct mapping, +100 bonus for 100% accuracy", "+50 pts par mappage correct, +100 bonus pour 100% d'exactitude", "+50 Pkt. pro korrekter Zuordnung, +100 Bonus für 100% Richtigkeit")
+            scoring: pick("+50 pkt za każde poprawne mapowanie, +100 bonus za 100% poprawność", "+50 pts per correct mapping, +100 bonus for 100% accuracy", "+50 pts par mappage correct, +100 bonus pour 100% d'exactitude", "+50 Pkt. pro korrekter Zuordnung, +100 Bonus für 100% Richtigkeit"),
+            animation: <TutorialAnimation type="drag-drop" />,
+            animationTitle: pick('Jak przeciągać kolumny', 'How to drag columns', 'Comment glisser les colonnes', 'So ziehst du Spalten'),
+            animationDescription: pick(
+                'Złap kolumnę po lewej, przeciągnij ją na pasującą nazwę terminu Darwin Core po prawej i puść, aby utworzyć mapowanie.',
+                'Grab a column on the left, drag it onto the matching Darwin Core term on the right, and release to create the mapping.',
+                'Saisissez une colonne à gauche, faites-la glisser vers le terme Darwin Core correspondant à droite, puis relâchez pour créer le mappage.',
+                'Greife links eine Spalte, ziehe sie auf den passenden Darwin Core-Begriff rechts und lasse los, um die Zuordnung zu erstellen.'
+            ),
+            animationHint: pick(
+                'Na telefonie dotknij kolumnę i potem pole docelowe.',
+                'On mobile, tap the column first and then the target field.',
+                'Sur mobile, touchez d’abord la colonne puis le champ cible.',
+                'Auf dem Smartphone tippe zuerst die Spalte und dann das Zielfeld an.'
+            )
         },
         2: {
             emoji: "🔗",
@@ -183,6 +202,25 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {tutorial.animation && (
+                            <Card className="bg-sky-50 border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30">
+                                <CardContent className="pt-4">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="text-center">
+                                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{tutorial.animationTitle}</h3>
+                                            <p className="text-sm text-gray-700 dark:text-slate-300 max-w-xl">{tutorial.animationDescription}</p>
+                                        </div>
+                                        <div className="w-full max-w-md">
+                                            {tutorial.animation}
+                                        </div>
+                                        {tutorial.animationHint && (
+                                            <p className="text-xs text-sky-700 dark:text-sky-200">{tutorial.animationHint}</p>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-center gap-2">

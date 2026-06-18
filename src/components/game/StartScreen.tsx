@@ -58,11 +58,19 @@ export default function StartScreen({
     const [showTutorial, setShowTutorial] = useState(false);
 
     const levels = [
-        { id: 1, nameKey: 'level.1.name', icon: Zap, color: 'from-amber-700 via-orange-700 to-orange-800', descKey: 'level.1.desc' },
+        {
+            id: 1,
+            nameKey: 'level.1.name',
+            icon: Zap,
+            color: 'from-[#8a2d5f] via-[#6d1f4b] to-[#4e1336]',
+            hoverClass: 'hover:from-[#7b2554] hover:via-[#611a42] hover:to-[#45102f]',
+            textClass: 'text-white',
+            descKey: 'level.1.desc'
+        },
         { id: 2, nameKey: 'level.2.name', icon: LinkIcon, color: 'from-violet-700 via-purple-700 to-indigo-800', descKey: 'level.2.desc' },
         { id: 3, nameKey: 'level.3.name', icon: Package, color: 'from-teal-700 via-cyan-700 to-sky-800', descKey: 'level.3.desc' },
         { id: 4, nameKey: 'level.4.name', icon: Search, color: 'from-emerald-700 via-teal-700 to-cyan-800', descKey: 'level.4.desc' },
-        { id: 5, nameKey: 'level.5.name', icon: Shield, color: 'from-red-700 via-orange-700 to-orange-800', descKey: 'level.5.desc' },
+        { id: 5, nameKey: 'level.5.name', icon: Shield, color: 'from-red-700 via-orange-700 to-orange-800', descKey: 'level.5.desc', spanClass: 'col-span-2' },
     ];
 
     const handleStart = () => {
@@ -154,6 +162,7 @@ export default function StartScreen({
                                     {levels.map((level, idx) => {
                                         const unlocked = isLevelUnlocked ? isLevelUnlocked(level.id) : level.id === 1;
                                         const LevelIcon = level.icon;
+                                        const isWideBossTile = level.id === 5;
                                         return (
                                             <motion.button
                                                 key={level.id}
@@ -169,14 +178,18 @@ export default function StartScreen({
                                                 whileHover={unlocked && playerName.trim() ? { scale: 1.05 } : {}}
                                                 whileTap={unlocked && playerName.trim() ? { scale: 0.98 } : {}}
                                                 data-task-button
-                                                className={`p-4 rounded-xl bg-gradient-to-br ${level.color} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed text-left hover:border-white/60 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
+                                                className={`relative p-4 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-white/60 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${level.textClass ?? 'text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
                                             >
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <LevelIcon className="w-5 h-5 text-white" aria-hidden="true" />
-                                                    <span className="font-bold text-white text-sm">{t(level.nameKey)}</span>
-                                                    {!unlocked && <span className="text-xs text-white/70 ml-auto">🔒</span>}
+                                                <div className={`mb-2 flex items-center gap-3 ${isWideBossTile ? 'justify-center' : ''}`}>
+                                                    <LevelIcon className="w-5 h-5" aria-hidden="true" />
+                                                    <span className="font-bold text-sm">{t(level.nameKey)}</span>
+                                                    {!unlocked && (
+                                                        <span className={isWideBossTile ? 'absolute right-4 top-4 text-xs opacity-70' : 'ml-auto text-xs opacity-70'}>
+                                                            🔒
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <p id={`start-level-${level.id}-desc`} className="text-xs font-semibold text-white/95">{t(level.descKey)}</p>
+                                                <p id={`start-level-${level.id}-desc`} className="text-xs font-semibold opacity-95">{t(level.descKey)}</p>
                                             </motion.button>
                                         );
                                     })}

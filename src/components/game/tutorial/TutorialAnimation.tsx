@@ -49,24 +49,45 @@ export default function TutorialAnimation({ type }: TutorialAnimationProps) {
 
   if (type === 'drag-drop') {
     return (
-      <div className="relative h-16 my-2 rounded-lg bg-muted/40 border border-border overflow-hidden">
-        {/* Source column */}
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-muted text-muted-foreground text-[10px] font-medium">
-          species
-        </div>
-        {/* Arrow animation */}
+      <div className="relative h-20 my-2 rounded-xl bg-muted/40 border border-border overflow-hidden">
+        <div className="absolute inset-y-0 left-0 w-1/2 border-r border-border/60 bg-background/50" />
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-primary/5" />
+
         <motion.div
-          className="absolute top-1/2 -translate-y-1/2 flex items-center gap-1 text-primary"
-          animate={{ x: [40, 100], opacity: [0, 1, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.5 }}
+          className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-background text-foreground text-[10px] font-semibold border border-border shadow-sm z-10"
+          animate={{
+            x: [0, 92, 92],
+            y: [0, -8, -8],
+            scale: [1, 1.04, 0.98],
+          }}
+          transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.6 }}
+        >
+          Specimen
+        </motion.div>
+
+        <motion.div
+          className="absolute top-1/2 left-16 -translate-y-1/2 flex items-center gap-1 text-primary z-0"
+          animate={{ x: [0, 26, 52], opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.6 }}
         >
           <div className="w-4 h-4 rounded bg-primary/20 border border-primary/40" />
           <svg className="w-5 h-3" viewBox="0 0 20 12"><path d="M0 6h16M12 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" fill="none" /></svg>
         </motion.div>
-        {/* Target field */}
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-primary/10 text-primary text-[10px] font-medium border border-primary/30">
+
+        <motion.div
+          className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold border border-primary/30"
+          animate={{
+            scale: [1, 1.03, 1],
+            boxShadow: [
+              '0 0 0 rgba(59,130,246,0)',
+              '0 0 0 6px rgba(59,130,246,0.10)',
+              '0 0 0 rgba(59,130,246,0)',
+            ],
+          }}
+          transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 0.6 }}
+        >
           scientificName
-        </div>
+        </motion.div>
       </div>
     );
   }

@@ -32,6 +32,12 @@ export default function DropZone({
 }: DropZoneProps) {
     const [isOver, setIsOver] = useState(false);
     const { t, language } = useLanguage();
+    const pick = (pl: string, en: string, fr: string, de: string) => {
+        if (language === 'en') return en;
+        if (language === 'fr') return fr;
+        if (language === 'de') return de;
+        return pl;
+    };
     const term = dwcTerms[termName];
     const categoryInfo = termCategories[category];
 
@@ -75,6 +81,12 @@ export default function DropZone({
 
     const termDescription = language === 'de' && term?.descriptionDE ? term.descriptionDE : language === 'fr' && term?.descriptionFR ? term.descriptionFR : language === 'en' && term?.descriptionEN ? term.descriptionEN : term?.description;
     const catName = categoryInfo?.name[language] || categoryInfo?.name['en'] || category;
+    const zoneAriaLabel = pick(
+        `${termName}. ${isRequired ? t('common.required') : 'Opcjonalne'}${mappedColumn ? `, zmapowane do ${mappedColumn}` : ', bez mapowania'}.`,
+        `${termName}. ${isRequired ? t('common.required') : 'Optional'}${mappedColumn ? `, mapped to ${mappedColumn}` : ', not mapped'}.`,
+        `${termName}. ${isRequired ? t('common.required') : 'Optionnel'}${mappedColumn ? `, associé à ${mappedColumn}` : ', non associé'}.`,
+        `${termName}. ${isRequired ? t('common.required') : 'Optional'}${mappedColumn ? `, zugeordnet zu ${mappedColumn}` : ', nicht zugeordnet'}.`
+    );
 
     return (
         <TooltipProvider>
@@ -89,7 +101,7 @@ export default function DropZone({
                 onKeyDown={handleKeyDown}
                 role={hasSelectedColumn && !mappedColumn ? "button" : "group"}
                 tabIndex={hasSelectedColumn && !mappedColumn ? 0 : undefined}
-                aria-label={`${termName}. ${isRequired ? t('common.required') : 'opcjonalne'}${mappedColumn ? `, zmapowane do ${mappedColumn}` : ', bez mapowania'}.`}
+                aria-label={zoneAriaLabel}
                 className={`
                     p-4 rounded-xl border-2 transition-all duration-200
                     min-h-[80px] flex flex-col justify-center

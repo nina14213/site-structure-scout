@@ -36,6 +36,12 @@ export default function DraggableColumn({
     sampleValues = []
 }: DraggableColumnProps) {
     const { t, language } = useLanguage();
+    const pick = (pl: string, en: string, fr: string, de: string) => {
+        if (language === 'en') return en;
+        if (language === 'fr') return fr;
+        if (language === 'de') return de;
+        return pl;
+    };
     const term = mappedTo ? dwcTerms[mappedTo] : null;
     const termDescription = term
         ? (language === 'de' && term.descriptionDE ? term.descriptionDE
@@ -72,6 +78,17 @@ export default function DraggableColumn({
         }
     };
 
+    const actionLabel = isSelected
+        ? pick('odznaczyć', 'deselect', 'désélectionner', 'abzuwählen')
+        : pick('wybrać', 'select', 'sélectionner', 'auszuwählen');
+
+    const columnAriaLabel = pick(
+        `Kolumna ${column}${mappedTo ? `, zmapowana do ${mappedTo}` : ', niezmapowana'}. Naciśnij Enter lub Spację, aby ${actionLabel} kolumnę.`,
+        `Column ${column}${mappedTo ? `, mapped to ${mappedTo}` : ', not mapped'}. Press Enter or Space to ${actionLabel} this column.`,
+        `Colonne ${column}${mappedTo ? `, associée à ${mappedTo}` : ', non associée'}. Appuyez sur Entrée ou Espace pour ${actionLabel} cette colonne.`,
+        `Spalte ${column}${mappedTo ? `, zugeordnet zu ${mappedTo}` : ', nicht zugeordnet'}. Drücke Enter oder Leertaste, um diese Spalte ${actionLabel}.`
+    );
+
     return (
         <TooltipProvider>
             <motion.div
@@ -104,7 +121,7 @@ export default function DraggableColumn({
                 role="button"
                 tabIndex={0}
                 aria-pressed={isSelected}
-                aria-label={`Kolumna ${column}${mappedTo ? `, zmapowana do ${mappedTo}` : ', niezmapowana'}. Nacisnij Enter lub Spacje, aby ${isSelected ? 'odznaczyc' : 'wybrac'} kolumne.`}
+                aria-label={columnAriaLabel}
                 aria-grabbed={isDragging}
                 className={`
                     p-3 rounded-xl border-2 cursor-grab active:cursor-grabbing
@@ -133,7 +150,7 @@ export default function DraggableColumn({
                                         variant="outline"
                                         className="text-xs bg-slate-700/50 cursor-help"
                                     >
-                                        → {mappedTo}
+                                        &rarr; {mappedTo}
                                     </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" className="max-w-xs">

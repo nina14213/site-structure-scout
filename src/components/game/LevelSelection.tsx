@@ -16,7 +16,17 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
     const { t } = useLanguage();
 
     const levels = [
-        { id: 1, title: t('level.1.name'), description: t('level.1.desc'), icon: Zap, gradient: 'from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600', darkGradient: 'dark:from-yellow-600 dark:to-orange-600 dark:hover:from-yellow-700 dark:hover:to-orange-700' },
+        {
+            id: 1,
+            title: t('level.1.name'),
+            description: t('level.1.desc'),
+            icon: Zap,
+            gradient: 'from-[#8a2d5f] via-[#6d1f4b] to-[#4e1336] hover:from-[#7b2554] hover:via-[#611a42] hover:to-[#45102f]',
+            darkGradient: 'dark:from-[#97356a] dark:via-[#772551] dark:to-[#56173a] dark:hover:from-[#872d5e] dark:hover:via-[#691f48] dark:hover:to-[#4b1332]',
+            textClass: 'text-white',
+            completedBadgeClass: 'bg-black/20 text-white border-white/25',
+            lockedBadgeClass: 'bg-black/20 text-white border-white/25'
+        },
         { id: 2, title: t('level.2.name'), description: t('level.2.desc'), icon: Database, gradient: 'from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600', darkGradient: 'dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-700 dark:hover:to-indigo-700' },
         { id: 3, title: t('level.3.name'), description: t('level.3.desc'), icon: Package, gradient: 'from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600', darkGradient: 'dark:from-teal-600 dark:to-cyan-600 dark:hover:from-teal-700 dark:hover:to-cyan-700' },
         { id: 4, title: t('level.4.name'), description: t('level.4.desc'), icon: Search, gradient: 'from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600', darkGradient: 'dark:from-emerald-600 dark:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700' },
@@ -69,7 +79,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
                                 transition={{ delay: index * 0.1 }}
                                 onClick={() => isUnlocked && onSelectLevel(level.id)}
                                 disabled={isLocked}
-                                className={`flex items-center gap-4 w-full p-6 rounded-xl bg-gradient-to-r ${level.gradient} ${level.darkGradient} text-white font-semibold shadow-lg transition-all duration-200 ${
+                                className={`flex items-center gap-4 w-full p-6 rounded-xl bg-gradient-to-r ${level.gradient} ${level.darkGradient} ${level.textClass ?? 'text-white'} font-semibold shadow-lg transition-all duration-200 ${
                                     isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl hover:scale-105 cursor-pointer'
                                 }`}
                             >
@@ -80,13 +90,13 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
                                 </div>
                                 <div className="flex-shrink-0">
                                     {isCompleted && (
-                                        <Badge className="bg-white/20 text-white border-white/30">
+                                        <Badge className={level.completedBadgeClass ?? 'bg-white/20 text-white border-white/30'}>
                                             <CheckCircle className="w-3 h-3 mr-1" />
                                             {t('levelSelect.completed')}
                                         </Badge>
                                     )}
                                     {isLocked && (
-                                        <Badge className="bg-black/20 text-white border-white/30">
+                                        <Badge className={level.lockedBadgeClass ?? 'bg-black/20 text-white border-white/30'}>
                                             <Lock className="w-3 h-3 mr-1" />
                                             {t('levelSelect.locked')}
                                         </Badge>

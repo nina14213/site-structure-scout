@@ -17,7 +17,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'start.howToPlay': 'Jak grać?',
     'start.tutorial.title': 'Instrukcja:',
     'start.tutorial.1': 'Wgraj plik CSV lub użyj przykładowych danych',
-    'start.tutorial.2': 'Przeciągaj kolumny na odpowiednie termy DwC',
+    'start.tutorial.2': 'Przeciągaj kolumny na odpowiednie nazwy terminów DwC',
     'start.tutorial.3': 'Połącz extensions z core',
     'start.tutorial.4': 'Wygeneruj pliki metadanych',
     'start.tutorial.5': 'Przejdź walidację GBIF!',
@@ -29,8 +29,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === Level names ===
     'level.1.name': 'Mapowanie Kolumn',
-    'level.1.desc': 'Mapuj kolumny CSV na termy Darwin Core',
-    'level.2.name': 'Łączenie Rozszerzeń',
+    'level.1.desc': 'Mapuj kolumny CSV na nazwy terminów Darwin Core',
+    'level.2.name': 'Sieć Rozszerzeń',
     'level.2.desc': 'Połącz extensions i sprawdź integralność',
     'level.3.name': 'Pakowanie Danych',
     'level.3.desc': 'Generuj meta.xml i datapackage.json',
@@ -52,7 +52,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === CoreBuilder (Mission 1) ===
     'core.title': 'Mission 1: Core Forge',
-    'core.subtitle': 'Mapuj kolumny CSV na termy Darwin Core',
+    'core.subtitle': 'Mapuj kolumny CSV na nazwy terminów Darwin Core',
     'core.complete': 'kompletne',
     'core.required': 'wymagane',
     'core.hintText': 'Przeciągnij kolumny z lewej na odpowiednie pola Darwin Core. Pola oznaczone',
@@ -66,7 +66,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'core.selectedColumn': 'Wybrano: {column} — dotknij pole docelowe',
 
     // === ExtensionLinker (Mission 2) ===
-    'ext.title': 'Mission 2: Extension Nexus',
+    'ext.title': 'Misja 2: Sieć rozszerzeń',
     'ext.subtitle': 'Uzupełnij notatki terenowe i dopasuj occurrence do event',
     'ext.escapeRoom': 'ESCAPE ROOM',
     'ext.escapeRoomDesc': 'Alternatywny tryb: rozwiąż zagadki, aby odblokować sekrety Darwin Core!',
@@ -204,7 +204,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // === Tutorial content ===
     'tutorial.1.title': 'Mapowanie Kolumn - Mapowanie CSV',
-    'tutorial.1.objective': 'Zmapuj wszystkie wymagane kolumny CSV na termy Darwin Core',
+    'tutorial.1.objective': 'Zmapuj wszystkie wymagane kolumny CSV na nazwy terminów Darwin Core',
     'tutorial.2.title': 'Łączenie Rozszerzeń - Łączenie Danych',
     'tutorial.2.objective': 'Połącz pliki extension z core i sprawdź referential integrity',
     'tutorial.3.title': 'Pakowanie Danych - Generowanie Metadanych',
@@ -271,7 +271,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'schema.yourColumns': 'Twoje kolumny',
     'schema.suggestMapping': 'Zasugeruj mapowanie',
     'suggestMapping.title': 'Sugerowane mapowania',
-    'suggestMapping.found': 'Znaleziono {count} sugestii na podstawie oficjalnych terminów Darwin Core',
+    'suggestMapping.found': 'Znaleziono {count} sugestii na podstawie oficjalnych nazw terminów Darwin Core',
     'suggestMapping.example': 'Przykład',
     'suggestMapping.apply': 'Zastosuj ({count})',
     'schema.rows': 'wierszy',
@@ -328,7 +328,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'wizard.step2': 'Mapowanie',
     'wizard.step3': 'Przegląd i pobieranie',
     'wizard.introTitle': 'Kreator Data Package',
-    'wizard.introDesc': 'Ten moduł pomoże Ci przekształcić Twoje dane przyrodnicze w standardowy format DwC Data Package (DwC-DP). Zaimportujesz plik, zmapujesz kolumny na terminy Darwin Core, a na końcu pobierzesz gotowy pakiet danych.',
+    'wizard.introDesc': 'Ten moduł pomoże Ci przekształcić Twoje dane przyrodnicze w standardowy format DwC Data Package (DwC-DP). Zaimportujesz plik, zmapujesz kolumny na nazwy terminów Darwin Core, a na końcu pobierzesz gotowy pakiet danych.',
     'wizard.introHaveData': 'Mam swoje dane',
     'wizard.introHaveDataDesc': 'Zaimportuj własny plik CSV, TXT lub XLSX i stwórz Data Package.',
     'wizard.introNoData': 'Nie mam swoich danych',
@@ -516,8 +516,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'stages.title': 'Etapy Misji',
     'stages.subtitle': 'Przejdź przez wszystkie etapy, aby stać się prawdziwym Data Rangerem',
     'stages.1.title': 'Mapowanie Kolumn',
-    'stages.1.desc': 'Mapuj kolumny CSV na termy Darwin Core i zbuduj solidny fundament danych.',
-    'stages.2.title': 'Łączenie Rozszerzeń',
+    'stages.1.desc': 'Mapuj kolumny CSV na nazwy terminów Darwin Core i zbuduj solidny fundament danych.',
+    'stages.2.title': 'Sieć Rozszerzeń',
     'stages.2.desc': 'Połącz extensions i sprawdź integralność połączeń między danymi.',
     'stages.3.title': 'Pakowanie Danych',
     'stages.3.desc': 'Generuj meta.xml i datapackage.json aby zapieczętować pakiet danych.',
