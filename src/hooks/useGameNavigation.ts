@@ -31,6 +31,7 @@ const MAX_LEVEL = 5;
 
 interface UseGameNavigationOptions {
   startNewGame: (name: string) => void;
+  startLevel: (level: number) => void;
   completeLevel: (level: number, score: number) => void;
   updateLeaderboard: () => void;
   saveQuizScore: (level: number, score: number) => void;
@@ -42,6 +43,7 @@ interface UseGameNavigationOptions {
 
 export function useGameNavigation({
   startNewGame,
+  startLevel,
   completeLevel,
   updateLeaderboard,
   saveQuizScore,
@@ -68,7 +70,9 @@ export function useGameNavigation({
         document.documentElement.classList.remove('dark');
         return false;
       }
-    } catch {}
+    } catch {
+      // localStorage can be unavailable in restricted browser modes.
+    }
     document.documentElement.classList.add('dark');
     return true;
   });
@@ -77,7 +81,11 @@ export function useGameNavigation({
     setDarkMode(prev => {
       const next = !prev;
       document.documentElement.classList.toggle('dark', next);
-      try { localStorage.setItem('dwc-dark-mode', String(next)); } catch {}
+      try {
+        localStorage.setItem('dwc-dark-mode', String(next));
+      } catch {
+        // localStorage can be unavailable in restricted browser modes.
+      }
       return next;
     });
   }, []);
@@ -88,22 +96,36 @@ export function useGameNavigation({
   }, [t]);
 
   // ─── Game start ───────────────────────────────────────────────────
-  const handleStartGame = useCallback((playerName: string) => {
-    startNewGame(playerName);
+  const handleStartGame = useCallback((playerName: string, targetLevel = 1) => {
+    const normalizedLevel = Math.min(Math.max(targetLevel, 1), MAX_LEVEL);
+    const samePlayer = Boolean(gameState.playerId) && gameState.playerName === playerName;
+    const canOpenLevel = samePlayer ? isLevelUnlocked(normalizedLevel) : normalizedLevel !== MAX_LEVEL;
+    const levelToOpen = canOpenLevel ? normalizedLevel : 1;
+
+    if (!samePlayer) {
+      startNewGame(playerName);
+    }
+
+    startLevel(levelToOpen);
+    setCurrentLevel(levelToOpen);
+    setCurrentScreen('playing');
+    startLevelTimer();
+
     toast({
       title: t('toast.welcome', { name: playerName }),
       description: t('toast.welcomeDesc'),
     });
-  }, [startNewGame, toast, t]);
+  }, [gameState.playerId, gameState.playerName, isLevelUnlocked, startLevel, startLevelTimer, startNewGame, toast, t]);
 
   // ─── Level selection ──────────────────────────────────────────────
   const handleLevelClick = useCallback((levelId: number) => {
     if (isLevelUnlocked(levelId) && gameState.playerName) {
+      startLevel(levelId);
       setCurrentLevel(levelId);
       setCurrentScreen('playing');
       startLevelTimer();
     }
-  }, [isLevelUnlocked, gameState.playerName, startLevelTimer]);
+  }, [isLevelUnlocked, gameState.playerName, startLevel, startLevelTimer]);
 
   // ─── Level completion → quiz ──────────────────────────────────────
   const handleLevelComplete = useCallback((score: number, data?: unknown) => {
@@ -138,17 +160,25 @@ export function useGameNavigation({
         description: t('toast.allCompleteDesc'),
       });
       setCurrentScreen('complete');
+    } else if (!isLevelUnlocked(nextLevel)) {
+      toast({
+        title: t('toast.levelComplete', { level: getLevelName(quizLevel) }),
+        description: t('toast.nextLevelLocked', { next: getLevelName(nextLevel) }),
+      });
+      setCurrentLevel(null);
+      setCurrentScreen('start');
     } else {
       toast({
         title: t('toast.levelComplete', { level: getLevelName(quizLevel) }),
         description: t('toast.nextLevel', { next: getLevelName(nextLevel) }),
       });
+      startLevel(nextLevel);
       setCurrentLevel(nextLevel);
       setCurrentScreen('playing');
       startLevelTimer();
     }
     setQuizLevel(null);
-  }, [quizLevel, toast, startLevelTimer, t, getLevelName]);
+  }, [quizLevel, toast, startLevel, startLevelTimer, isLevelUnlocked, t, getLevelName]);
 
   // ─── Navigation ───────────────────────────────────────────────────
   const handleBackToMenu = useCallback(() => {
@@ -169,7 +199,7 @@ export function useGameNavigation({
     setCurrentScreen('schemaMapper');
   }, []);
 
-  const handleImportComplete = useCallback((data: any[], columns: string[], fileName: string) => {
+  const handleImportComplete = useCallback((data: unknown[], columns: string[], fileName: string) => {
     setLevelData(prev => ({ ...prev, customImport: { data, columns, fileName } }));
     toast({
       title: t('toast.dataImported'),

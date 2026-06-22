@@ -21,7 +21,10 @@ import {
     Gamepad2,
     ExternalLink,
     HelpCircle,
-    Database
+    Database,
+    CheckCircle2,
+    Hash,
+    Lock
 } from 'lucide-react';
 import { GameState, LeaderboardEntry } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -29,7 +32,7 @@ import LanguageToggle from '@/components/LanguageToggle';
 import AccessibilityPanel from '@/components/accessibility/AccessibilityPanel';
 
 interface StartScreenProps {
-    onStart: (playerName: string) => void;
+    onStart: (playerName: string, targetLevel?: number) => void;
     gameState: GameState;
     leaderboard: LeaderboardEntry[];
     soundEnabled?: boolean;
@@ -38,6 +41,8 @@ interface StartScreenProps {
     toggleDarkMode?: () => void;
     onLevelClick?: (levelId: number) => void;
     isLevelUnlocked?: (levelId: number) => boolean;
+    getLevelProgress?: (levelId: number) => number;
+    getRecommendedLevel?: () => number;
     onDataImport?: () => void;
 }
 
@@ -51,11 +56,21 @@ export default function StartScreen({
     toggleDarkMode,
     onLevelClick,
     isLevelUnlocked,
+    getLevelProgress,
+    getRecommendedLevel,
     onDataImport
 }: StartScreenProps) {
     const { t } = useLanguage();
     const [playerName, setPlayerName] = useState(gameState?.playerName || '');
     const [showTutorial, setShowTutorial] = useState(false);
+    const trimmedPlayerName = playerName.trim();
+    const isSavedPlayer = Boolean(gameState?.playerId && gameState.playerName === trimmedPlayerName);
+    const savedProgressValues = Object.values(gameState?.levelProgress ?? {});
+    const hasSavedProgress = isSavedPlayer && (
+        (gameState?.levelsCompleted?.length ?? 0) > 0 ||
+        savedProgressValues.some(progress => progress > 0)
+    );
+    const recommendedLevel = isSavedPlayer ? (getRecommendedLevel?.() ?? gameState?.currentLevel ?? 1) : 1;
 
     const levels = [
         {
@@ -74,10 +89,43 @@ export default function StartScreen({
     ];
 
     const handleStart = () => {
-        if (playerName.trim()) {
-            onStart(playerName.trim());
-            onLevelClick?.(1);
+        if (trimmedPlayerName) {
+            onStart(trimmedPlayerName, hasSavedProgress ? recommendedLevel : 1);
         }
+    };
+
+    const getVisibleLevelProgress = (levelId: number) => {
+        if (!isSavedPlayer) return 0;
+        if (getLevelProgress) return getLevelProgress(levelId);
+        if (gameState?.levelsCompleted?.includes(levelId)) return 100;
+        return Math.max(0, Math.min(100, Math.round(gameState?.levelProgress?.[levelId] ?? 0)));
+    };
+
+    const getVisibleUnlockState = (levelId: number) => {
+        if (!isSavedPlayer) return levelId !== 5;
+        return isLevelUnlocked ? isLevelUnlocked(levelId) : levelId === 1;
+    };
+
+    const handleLevelButtonClick = (levelId: number, unlocked: boolean) => {
+        if (!trimmedPlayerName || !unlocked) return;
+
+        if (isSavedPlayer && onLevelClick) {
+            onLevelClick(levelId);
+            return;
+        }
+
+        onStart(trimmedPlayerName, levelId);
+    };
+
+    const isCurrentPlayerEntry = (entry: LeaderboardEntry) => {
+        if (!gameState?.playerName) return false;
+        if (entry.playerId && gameState.playerId) return entry.playerId === gameState.playerId;
+        return entry.name === gameState.playerName;
+    };
+
+    const handleLeaderboardEntryClick = (entry: LeaderboardEntry) => {
+        if (!isCurrentPlayerEntry(entry)) return;
+        setPlayerName(gameState.playerName || entry.name);
     };
 
     return (
@@ -150,17 +198,32 @@ export default function StartScreen({
                                         onKeyDown={(e) => e.key === 'Enter' && handleStart()}
                                         className="bg-muted/50 border-border text-foreground text-lg py-6"
                                     />
+                                    {isSavedPlayer && (
+                                        <div className="flex flex-wrap items-center gap-2 pt-2">
+                                            <Badge variant="outline" className="border-primary/40 text-primary bg-primary/10">
+                                                <Hash className="w-3 h-3 mr-1" aria-hidden="true" />
+                                                {t('start.playerId')}: {gameState.playerName} #{gameState.playerId}
+                                            </Badge>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <Button onClick={handleStart} disabled={!playerName.trim()} size="lg" className="w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:brightness-110 focus-visible:ring-white/80">
+                                <Button onClick={handleStart} disabled={!trimmedPlayerName} size="lg" className="w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:brightness-110 focus-visible:ring-white/80">
                                     <Play className="w-6 h-6 mr-2" aria-hidden="true" />
-                                    {t('start.startGame')}
+                                    {hasSavedProgress ? t('start.continueGame') : t('start.startGame')}
                                 </Button>
 
                                 {/* Levels preview */}
                                 <div className="grid grid-cols-2 gap-3 pt-4">
                                     {levels.map((level, idx) => {
-                                        const unlocked = isLevelUnlocked ? isLevelUnlocked(level.id) : level.id === 1;
+                                        const unlocked = getVisibleUnlockState(level.id);
+                                        const levelProgress = getVisibleLevelProgress(level.id);
+                                        const isCompleted = levelProgress >= 100;
+                                        const progressLabel = isCompleted
+                                            ? t('levelSelect.completed')
+                                            : levelProgress > 0
+                                                ? t('levelSelect.inProgress')
+                                                : t('levelSelect.notStarted');
                                         const LevelIcon = level.icon;
                                         const isWideBossTile = level.id === 5;
                                         return (
@@ -168,28 +231,44 @@ export default function StartScreen({
                                                 key={level.id}
                                                 type="button"
                                                 layoutId={`level-${level.id}`}
-                                                onClick={() => onLevelClick?.(level.id)}
-                                                disabled={!unlocked || !playerName.trim()}
-                                                aria-label={`${t(level.nameKey)}. ${t(level.descKey)}. ${unlocked ? t('start.startGame') : t('levelSelect.locked')}`}
+                                                onClick={() => handleLevelButtonClick(level.id, unlocked)}
+                                                disabled={!unlocked || !trimmedPlayerName}
+                                                aria-label={`${t(level.nameKey)}. ${t(level.descKey)}. ${progressLabel}: ${levelProgress}%. ${unlocked ? t('start.startGame') : t('levelSelect.locked')}`}
                                                 aria-describedby={`start-level-${level.id}-desc`}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.3 + idx * 0.1 }}
-                                                whileHover={unlocked && playerName.trim() ? { scale: 1.05 } : {}}
-                                                whileTap={unlocked && playerName.trim() ? { scale: 0.98 } : {}}
+                                                whileHover={unlocked && trimmedPlayerName ? { scale: 1.05 } : {}}
+                                                whileTap={unlocked && trimmedPlayerName ? { scale: 0.98 } : {}}
                                                 data-task-button
-                                                className={`relative p-4 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-white/60 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${level.textClass ?? 'text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
+                                                className={`relative p-4 pr-14 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-white/60 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${level.textClass ?? 'text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
                                             >
-                                                <div className={`mb-2 flex items-center gap-3 ${isWideBossTile ? 'justify-center' : ''}`}>
-                                                    <LevelIcon className="w-5 h-5" aria-hidden="true" />
-                                                    <span className="font-bold text-sm">{t(level.nameKey)}</span>
-                                                    {!unlocked && (
-                                                        <span className={isWideBossTile ? 'absolute right-4 top-4 text-xs opacity-70' : 'ml-auto text-xs opacity-70'}>
-                                                            🔒
-                                                        </span>
+                                                <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-black/20 text-[11px] font-bold text-white shadow-inner">
+                                                    {!unlocked ? (
+                                                        <Lock className="w-4 h-4" aria-hidden="true" />
+                                                    ) : isCompleted ? (
+                                                        <CheckCircle2 className="w-6 h-6 text-emerald-300 drop-shadow-sm" aria-hidden="true" />
+                                                    ) : (
+                                                        <span>{levelProgress}%</span>
                                                     )}
                                                 </div>
+                                                <div className={`mb-2 flex items-center gap-3 ${isWideBossTile ? 'justify-center' : ''}`}>
+                                                    <LevelIcon className="w-5 h-5" aria-hidden="true" />
+                                                    <span className="font-bold text-sm leading-tight">{t(level.nameKey)}</span>
+                                                </div>
                                                 <p id={`start-level-${level.id}-desc`} className="text-xs font-semibold opacity-95">{t(level.descKey)}</p>
+                                                <div className="mt-3 space-y-1">
+                                                    <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-normal text-white/90">
+                                                        <span className="truncate">{progressLabel}</span>
+                                                        <span className="shrink-0">{levelProgress}%</span>
+                                                    </div>
+                                                    <div className="h-2 overflow-hidden rounded-full border border-white/15 bg-black/25">
+                                                        <div
+                                                            className="h-full rounded-full bg-white transition-[width] duration-300"
+                                                            style={{ width: `${levelProgress}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </motion.button>
                                         );
                                     })}
@@ -227,17 +306,36 @@ export default function StartScreen({
                             <CardContent>
                                 {leaderboard.length > 0 ? (
                                     <div className="space-y-2">
-                                        {leaderboard.slice(0, 5).map((entry, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${idx === 0 ? 'bg-yellow-500 text-black' : idx === 1 ? 'bg-slate-400 text-slate-900' : idx === 2 ? 'bg-orange-600 text-white' : 'bg-muted text-foreground'}`}>
-                                                        {idx + 1}
-                                                    </span>
-                                                    <span className="text-sm text-foreground truncate max-w-[100px]">{entry.name}</span>
+                                        {leaderboard.slice(0, 5).map((entry, idx) => {
+                                            const ownEntry = isCurrentPlayerEntry(entry);
+                                            const rowContent = (
+                                                <>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${idx === 0 ? 'bg-yellow-500 text-black' : idx === 1 ? 'bg-slate-400 text-slate-900' : idx === 2 ? 'bg-orange-600 text-white' : 'bg-muted text-foreground'}`}>
+                                                            {idx + 1}
+                                                        </span>
+                                                        <span className="text-sm text-foreground truncate max-w-[100px]">{entry.name}</span>
+                                                    </div>
+                                                    <span className="text-sm text-yellow-500 font-mono">{entry.score}</span>
+                                                </>
+                                            );
+
+                                            return ownEntry ? (
+                                                <button
+                                                    key={`${entry.playerId ?? entry.name}-${idx}`}
+                                                    type="button"
+                                                    onClick={() => handleLeaderboardEntryClick(entry)}
+                                                    aria-label={`${t('start.showProgress')}: ${entry.name}`}
+                                                    className="flex w-full items-center justify-between p-2 rounded-lg bg-primary/15 border border-primary/30 hover:bg-primary/25 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
+                                                >
+                                                    {rowContent}
+                                                </button>
+                                            ) : (
+                                                <div key={`${entry.playerId ?? entry.name}-${idx}`} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                                                    {rowContent}
                                                 </div>
-                                                <span className="text-sm text-yellow-500 font-mono">{entry.score}</span>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <p className="text-center text-muted-foreground py-4">{t('start.beFirst')}</p>

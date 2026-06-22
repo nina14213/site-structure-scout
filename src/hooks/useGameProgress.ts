@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'dwc-data-quest-progress';
 const LEADERBOARD_KEY = 'dwc-data-quest-leaderboard';
+const TOTAL_LEVELS = 5;
+const INITIAL_LEVEL_PROGRESS = 10;
 
 export interface GameState {
     playerName: string;
+    playerId: string;
     currentLevel: number;
     totalScore: number;
     badges: string[];
@@ -12,11 +15,13 @@ export interface GameState {
     quizScores: Record<number, number>;
     timePlayed: number;
     startTime: number | null;
-    levelScores?: Record<number, number>;
+    levelScores: Record<number, number>;
+    levelProgress: Record<number, number>;
 }
 
 export interface LeaderboardEntry {
     name: string;
+    playerId?: string;
     score: number;
     badges: number;
     levelsCompleted: number;
@@ -33,13 +38,63 @@ export interface Badge {
 
 const initialState: GameState = {
     playerName: '',
+    playerId: '',
     currentLevel: 1,
     totalScore: 0,
     badges: [],
     levelsCompleted: [],
     quizScores: {},
     timePlayed: 0,
-    startTime: null
+    startTime: null,
+    levelScores: {},
+    levelProgress: {}
+};
+
+const generatePlayerId = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+const clampProgress = (progress: number) => Math.max(0, Math.min(100, Math.round(progress)));
+
+const createLeaderboardEntry = (state: GameState): LeaderboardEntry => ({
+    name: state.playerName,
+    playerId: state.playerId,
+    score: state.totalScore,
+    badges: state.badges.length,
+    levelsCompleted: state.levelsCompleted.length,
+    date: new Date().toISOString()
+});
+
+const upsertLeaderboardEntry = (entries: LeaderboardEntry[], state: GameState) => {
+    const entry = createLeaderboardEntry(state);
+    const filtered = entries.filter(existing => {
+        if (!state.playerId) return existing.name !== state.playerName;
+        return existing.playerId
+            ? existing.playerId !== state.playerId
+            : existing.name !== state.playerName;
+    });
+
+    return [...filtered, entry]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+};
+
+const normalizeGameState = (saved: Partial<GameState>): GameState => {
+    const levelsCompleted = Array.isArray(saved.levelsCompleted) ? saved.levelsCompleted : [];
+    const levelProgress = { ...(saved.levelProgress ?? {}) };
+
+    levelsCompleted.forEach(level => {
+        levelProgress[level] = 100;
+    });
+
+    return {
+        ...initialState,
+        ...saved,
+        playerId: saved.playerId || (saved.playerName ? generatePlayerId() : ''),
+        badges: Array.isArray(saved.badges) ? saved.badges : [],
+        levelsCompleted,
+        quizScores: saved.quizScores ?? {},
+        levelScores: saved.levelScores ?? {},
+        levelProgress
+    };
 };
 
 export const BADGES: Record<string, Badge> = {
@@ -104,8 +159,9 @@ export function useGameProgress() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
-                const parsed = JSON.parse(saved);
-                setGameState(prev => ({ ...prev, ...parsed }));
+                const parsed = normalizeGameState(JSON.parse(saved));
+                setGameState(parsed);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
             } catch (e) {
                 console.error('Failed to parse saved progress:', e);
             }
@@ -121,6 +177,17 @@ export function useGameProgress() {
         }
     }, []);
 
+    // Keep leaderboard in sync with the current player's live score.
+    useEffect(() => {
+        if (!gameState.playerName) return;
+
+        setLeaderboard(prev => {
+            const newLeaderboard = upsertLeaderboardEntry(prev, gameState);
+            localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
+            return newLeaderboard;
+        });
+    }, [gameState]);
+
     // Save to localStorage
     const saveProgress = useCallback((state: GameState) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -131,6 +198,10 @@ export function useGameProgress() {
         const newState: GameState = {
             ...initialState,
             playerName,
+            playerId: generatePlayerId(),
+            levelProgress: {},
+            levelScores: {},
+            currentLevel: 1,
             startTime: Date.now()
         };
         setGameState(newState);
@@ -156,6 +227,28 @@ export function useGameProgress() {
         });
     }, [saveProgress]);
 
+    // Mark a level as started or resumed
+    const startLevel = useCallback((levelNumber: number) => {
+        setGameState(prev => {
+            const existingProgress = prev.levelProgress[levelNumber] ?? 0;
+            const levelProgress = prev.levelsCompleted.includes(levelNumber)
+                ? 100
+                : Math.max(existingProgress, INITIAL_LEVEL_PROGRESS);
+
+            const newState: GameState = {
+                ...prev,
+                currentLevel: levelNumber,
+                levelProgress: {
+                    ...prev.levelProgress,
+                    [levelNumber]: clampProgress(levelProgress)
+                }
+            };
+
+            saveProgress(newState);
+            return newState;
+        });
+    }, [saveProgress]);
+
     // Complete level
     const completeLevel = useCallback((levelNumber: number, levelScore = 0) => {
         const levelTime = levelStartTime ? (Date.now() - levelStartTime) / 1000 : 0;
@@ -168,8 +261,16 @@ export function useGameProgress() {
             const newState: GameState = {
                 ...prev,
                 levelsCompleted: newCompleted,
-                currentLevel: Math.max(prev.currentLevel, levelNumber + 1),
-                totalScore: prev.totalScore + levelScore
+                currentLevel: Math.min(Math.max(prev.currentLevel, levelNumber + 1), TOTAL_LEVELS),
+                totalScore: prev.totalScore + levelScore,
+                levelScores: {
+                    ...prev.levelScores,
+                    [levelNumber]: Math.max(prev.levelScores[levelNumber] ?? 0, levelScore)
+                },
+                levelProgress: {
+                    ...prev.levelProgress,
+                    [levelNumber]: 100
+                }
             };
 
             // Check for new badges
@@ -223,22 +324,8 @@ export function useGameProgress() {
     const updateLeaderboard = useCallback(() => {
         if (!gameState.playerName) return;
 
-        const entry: LeaderboardEntry = {
-            name: gameState.playerName,
-            score: gameState.totalScore,
-            badges: gameState.badges.length,
-            levelsCompleted: gameState.levelsCompleted.length,
-            date: new Date().toISOString()
-        };
-
         setLeaderboard(prev => {
-            // Remove existing entry for this player
-            const filtered = prev.filter(e => e.name !== gameState.playerName);
-            // Add new entry and sort
-            const newLeaderboard = [...filtered, entry]
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 10); // Top 10
-
+            const newLeaderboard = upsertLeaderboardEntry(prev, gameState);
             localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
             return newLeaderboard;
         });
@@ -255,15 +342,39 @@ export function useGameProgress() {
         return Object.values(BADGES).find(b => b.id === badgeId);
     }, []);
 
+    // Get saved progress for a specific level
+    const getLevelProgress = useCallback((levelNumber: number) => {
+        if (gameState.levelsCompleted.includes(levelNumber)) return 100;
+        return clampProgress(gameState.levelProgress[levelNumber] ?? 0);
+    }, [gameState.levelProgress, gameState.levelsCompleted]);
+
     // Check if level is unlocked
     const isLevelUnlocked = useCallback((levelNumber: number) => {
         if (levelNumber !== 5) return true;
         return [1, 2, 3, 4].every(level => gameState.levelsCompleted.includes(level));
     }, [gameState.levelsCompleted]);
 
+    // Get the best level to continue from the menu
+    const getRecommendedLevel = useCallback(() => {
+        const savedCurrentLevel = Math.min(Math.max(gameState.currentLevel || 1, 1), TOTAL_LEVELS);
+
+        if (isLevelUnlocked(savedCurrentLevel) && !gameState.levelsCompleted.includes(savedCurrentLevel)) {
+            return savedCurrentLevel;
+        }
+
+        const inProgressLevel = [1, 2, 3, 4, 5].find(level => {
+            const progress = getLevelProgress(level);
+            return progress > 0 && progress < 100 && isLevelUnlocked(level);
+        });
+
+        if (inProgressLevel) return inProgressLevel;
+
+        return [1, 2, 3, 4, 5].find(level => !gameState.levelsCompleted.includes(level) && isLevelUnlocked(level)) ?? TOTAL_LEVELS;
+    }, [gameState.currentLevel, gameState.levelsCompleted, getLevelProgress, isLevelUnlocked]);
+
     // Get progress percentage
     const getProgressPercentage = useCallback(() => {
-        return (gameState.levelsCompleted.length / 4) * 100;
+        return (gameState.levelsCompleted.length / TOTAL_LEVELS) * 100;
     }, [gameState.levelsCompleted]);
 
     return {
@@ -273,6 +384,7 @@ export function useGameProgress() {
         startNewGame,
         setPlayerName,
         addScore,
+        startLevel,
         completeLevel,
         startLevelTimer,
         saveQuizScore,
@@ -280,7 +392,9 @@ export function useGameProgress() {
         updateLeaderboard,
         resetProgress,
         getBadgeInfo,
+        getLevelProgress,
         isLevelUnlocked,
+        getRecommendedLevel,
         getProgressPercentage
     };
 }

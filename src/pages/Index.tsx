@@ -34,7 +34,7 @@ const Index = () => {
   }
 
   if (nav.currentScreen === 'schemaMapper') {
-    const importData = nav.levelData.customImport as { data: any[]; columns: string[]; fileName: string } | undefined;
+    const importData = nav.levelData.customImport as { data: unknown[]; columns: string[]; fileName: string } | undefined;
     return (
       <SchemaMapper
         columns={importData?.columns}
@@ -87,6 +87,8 @@ const Index = () => {
       toggleDarkMode={nav.toggleDarkMode}
       onLevelClick={nav.handleLevelClick}
       isLevelUnlocked={progress.isLevelUnlocked}
+      getLevelProgress={progress.getLevelProgress}
+      getRecommendedLevel={progress.getRecommendedLevel}
       onDataImport={nav.handleDataImport}
     />
   );

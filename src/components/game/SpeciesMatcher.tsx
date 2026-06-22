@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,6 +92,15 @@ interface SpeciesMatcherProps {
 
 type Round = 1 | 2 | 3;
 
+const shuffleArray = <T,>(items: T[]) => {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 export default function SpeciesMatcher({
   onComplete, gameState, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer,
 }: SpeciesMatcherProps) {
@@ -117,6 +126,14 @@ export default function SpeciesMatcher({
   const currentEntry = currentData[currentIdx];
   const totalEntries = round1Data.length + round2Data.length + round3Data.length;
   const completedEntries = Object.keys(answers).length;
+  const shuffledOptionsByEntry = useMemo(() => {
+    const entries = [...round1Data, ...round2Data, ...round3Data];
+    return entries.reduce<Record<number, string[]>>((acc, entry) => {
+      const options = entry.kingdomOptions ?? entry.options ?? [];
+      acc[entry.id] = shuffleArray(options);
+      return acc;
+    }, {});
+  }, []);
 
   useEffect(() => {
     if (!showTutorial) startLevelTimer?.();
@@ -163,7 +180,7 @@ export default function SpeciesMatcher({
         }
       }, 1200);
     }, 800);
-  }, [scanning, feedback, round, currentIdx, currentData, currentEntry, addScore, playSuccess, playFail, playLevelComplete]);
+  }, [scanning, feedback, round, currentIdx, currentData, currentEntry, addScore, playSuccess, playFail, playLevelComplete, t]);
 
   if (showTutorial) {
     return (
@@ -211,7 +228,7 @@ export default function SpeciesMatcher({
     );
   }
 
-  const options = round === 3 ? currentEntry.kingdomOptions! : currentEntry.options;
+  const options = shuffledOptionsByEntry[currentEntry.id] ?? (round === 3 ? currentEntry.kingdomOptions! : currentEntry.options ?? []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950 p-4 md:p-8">
@@ -325,9 +342,9 @@ export default function SpeciesMatcher({
 
                 {/* Options */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {options.map((opt, idx) => (
+                  {options.map((opt) => (
                     <motion.button
-                      key={idx}
+                      key={`${currentEntry.id}-${opt}`}
                       whileHover={!scanning && !feedback ? { scale: 1.03 } : {}}
                       whileTap={!scanning && !feedback ? { scale: 0.97 } : {}}
                       onClick={() => handleAnswer(opt)}
