@@ -29,7 +29,6 @@ import {
 import { GameState, LeaderboardEntry } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import LanguageToggle from '@/components/LanguageToggle';
-import AccessibilityPanel from '@/components/accessibility/AccessibilityPanel';
 
 interface StartScreenProps {
     onStart: (playerName: string, targetLevel?: number) => void;
@@ -134,7 +133,6 @@ export default function StartScreen({
                 {/* Header with settings */}
                 <div className="flex justify-end gap-4 mb-8" role="toolbar" aria-label="Ustawienia gry">
                     <LanguageToggle />
-                    <AccessibilityPanel />
                     <Button
                         variant="ghost"
                         size="icon"

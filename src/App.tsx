@@ -9,6 +9,7 @@ import {
 	AccessibilityMotionConfig,
 	AccessibilityProvider,
 } from "@/components/accessibility/AccessibilityProvider";
+import AccessibilityPanel from "@/components/accessibility/AccessibilityPanel";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,9 @@ const AppShell = () => {
 					<Route path='*' element={<NotFound />} />
 				</Routes>
 			</main>
+			<div className='fixed bottom-4 right-4 z-[70]'>
+				<AccessibilityPanel />
+			</div>
 		</>
 	);
 };
