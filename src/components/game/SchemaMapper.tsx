@@ -288,7 +288,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     className="text-[10px] md:text-xs border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0 px-2 md:px-3"
                   >
                     <span className="hidden sm:inline">{t("mapperTutorial.replay")}</span>
-                    <span className="sm:hidden">🦎</span>
+                    <span className="sm:hidden">🐙</span>
                   </Button>
                 </div>
               )}

@@ -24,14 +24,17 @@ import {
     Database,
     CheckCircle2,
     Hash,
-    Lock
+    Lock,
+    RotateCcw
 } from 'lucide-react';
 import { GameState, LeaderboardEntry } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import LanguageToggle from '@/components/LanguageToggle';
+import MascotIcon from '@/components/MascotIcon';
+import type { AssistantId } from '@/lib/assistants';
 
 interface StartScreenProps {
-    onStart: (playerName: string, targetLevel?: number) => void;
+    onStart: (playerName: string, targetLevel?: number, assistantId?: AssistantId) => void;
     gameState: GameState;
     leaderboard: LeaderboardEntry[];
     soundEnabled?: boolean;
@@ -43,6 +46,8 @@ interface StartScreenProps {
     getLevelProgress?: (levelId: number) => number;
     getRecommendedLevel?: () => number;
     onDataImport?: () => void;
+    onAssistantChange?: (assistantId: AssistantId) => void;
+    onStartOver?: (playerName: string, assistantId?: AssistantId) => void;
 }
 
 export default function StartScreen({
@@ -57,12 +62,15 @@ export default function StartScreen({
     isLevelUnlocked,
     getLevelProgress,
     getRecommendedLevel,
-    onDataImport
+    onDataImport,
+    onAssistantChange,
+    onStartOver
 }: StartScreenProps) {
     const { t } = useLanguage();
     const [playerName, setPlayerName] = useState(gameState?.playerName || '');
     const [showTutorial, setShowTutorial] = useState(false);
     const trimmedPlayerName = playerName.trim();
+    const selectedAssistantId = gameState.assistantId;
     const isSavedPlayer = Boolean(gameState?.playerId && gameState.playerName === trimmedPlayerName);
     const savedProgressValues = Object.values(gameState?.levelProgress ?? {});
     const hasSavedProgress = isSavedPlayer && (
@@ -89,9 +97,19 @@ export default function StartScreen({
 
     const handleStart = () => {
         if (trimmedPlayerName) {
-            onStart(trimmedPlayerName, hasSavedProgress ? recommendedLevel : 1);
+            onStart(trimmedPlayerName, hasSavedProgress ? recommendedLevel : 1, selectedAssistantId);
         }
     };
+
+    const handleStartOver = () => {
+        if (trimmedPlayerName && isSavedPlayer) {
+            onStartOver?.(trimmedPlayerName, selectedAssistantId);
+        }
+    };
+
+    const primaryActionClass = hasSavedProgress
+        ? 'w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:brightness-100 focus-visible:ring-white/80'
+        : 'w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:brightness-110 focus-visible:ring-white/80';
 
     const getVisibleLevelProgress = (levelId: number) => {
         if (!isSavedPlayer) return 0;
@@ -109,11 +127,12 @@ export default function StartScreen({
         if (!trimmedPlayerName || !unlocked) return;
 
         if (isSavedPlayer && onLevelClick) {
+            onAssistantChange?.(selectedAssistantId);
             onLevelClick(levelId);
             return;
         }
 
-        onStart(trimmedPlayerName, levelId);
+        onStart(trimmedPlayerName, levelId, selectedAssistantId);
     };
 
     const isCurrentPlayerEntry = (entry: LeaderboardEntry) => {
@@ -157,8 +176,8 @@ export default function StartScreen({
 
                 {/* Title */}
                 <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-                    <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }} transition={{ duration: 4, repeat: Infinity }} className="text-6xl md:text-8xl mb-4" aria-hidden="true">
-                        🦎
+                    <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }} transition={{ duration: 4, repeat: Infinity }} className="mb-4 flex justify-center" aria-hidden="true">
+                        <MascotIcon assistantId={selectedAssistantId} />
                     </motion.div>
                     <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent mb-4">
                         DwC Data Quest
@@ -177,7 +196,7 @@ export default function StartScreen({
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Start Panel */}
-                    <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">
+                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:order-2 lg:col-span-2">
                         <Card className="bg-card/50 border-border backdrop-blur">
                             <CardHeader>
                                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -206,10 +225,25 @@ export default function StartScreen({
                                     )}
                                 </div>
 
-                                <Button onClick={handleStart} disabled={!trimmedPlayerName} size="lg" className="w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:brightness-110 focus-visible:ring-white/80">
-                                    <Play className="w-6 h-6 mr-2" aria-hidden="true" />
-                                    {hasSavedProgress ? t('start.continueGame') : t('start.startGame')}
-                                </Button>
+                                <div className="space-y-3">
+                                    <Button onClick={handleStart} disabled={!trimmedPlayerName} size="lg" className={primaryActionClass}>
+                                        <Play className="w-6 h-6 mr-2" aria-hidden="true" />
+                                        {hasSavedProgress ? t('start.continueGame') : t('start.startGame')}
+                                    </Button>
+
+                                    {hasSavedProgress && (
+                                        <Button
+                                            onClick={handleStartOver}
+                                            disabled={!trimmedPlayerName}
+                                            variant="outline"
+                                            size="lg"
+                                            className="w-full border-amber-500/80 bg-amber-400 py-6 text-base text-slate-950 shadow-md shadow-amber-950/20 hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/25 focus-visible:ring-amber-300 dark:border-amber-300 dark:bg-amber-400 dark:text-slate-950 dark:hover:border-lime-200 dark:hover:from-lime-300 dark:hover:via-green-300 dark:hover:to-emerald-400"
+                                        >
+                                            <RotateCcw className="w-5 h-5 mr-2" aria-hidden="true" />
+                                            {t('start.startOver')}
+                                        </Button>
+                                    )}
+                                </div>
 
                                 {/* Levels preview */}
                                 <div className="grid grid-cols-2 gap-3 pt-4">
@@ -236,8 +270,8 @@ export default function StartScreen({
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.3 + idx * 0.1 }}
-                                                whileHover={unlocked && trimmedPlayerName ? { scale: 1.05 } : {}}
-                                                whileTap={unlocked && trimmedPlayerName ? { scale: 0.98 } : {}}
+                                                whileHover={unlocked && trimmedPlayerName ? { scale: 1.05, transition: { duration: 0.08, ease: 'easeOut' } } : {}}
+                                                whileTap={unlocked && trimmedPlayerName ? { scale: 0.98, transition: { duration: 0.05, ease: 'easeOut' } } : {}}
                                                 data-task-button
                                                 className={`relative p-4 pr-14 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-white/60 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${level.textClass ?? 'text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
                                             >
@@ -279,20 +313,20 @@ export default function StartScreen({
                                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                     onClick={onDataImport}
                                     aria-label={`${t('start.createDataPackage')}. ${t('start.importOwnData')}`}
-                                    className="w-full p-4 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/50 hover:border-primary transition-colors cursor-pointer text-left"
+                                    className="group w-full p-4 rounded-xl bg-gradient-to-br from-emerald-700/20 to-cyan-800/20 border border-emerald-600/50 hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20 transition-all cursor-pointer text-left"
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <Database className="w-5 h-5 text-primary" aria-hidden="true" />
-                                        <span className="font-semibold text-foreground">{t('start.createDataPackage')}</span>
+                                        <Database className="w-5 h-5 text-primary group-hover:text-slate-950" aria-hidden="true" />
+                                        <span className="font-semibold text-foreground group-hover:text-slate-950">{t('start.createDataPackage')}</span>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">{t('start.importOwnData')}</p>
+                                    <p className="text-xs text-muted-foreground group-hover:text-slate-800">{t('start.importOwnData')}</p>
                                 </motion.button>
                             </CardContent>
                         </Card>
                     </motion.div>
 
                     {/* Side Panel */}
-                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="space-y-6">
+                    <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="space-y-6 lg:order-1">
                         {/* Leaderboard */}
                         <Card className="bg-card/50 border-border backdrop-blur">
                             <CardHeader className="pb-3">
@@ -366,7 +400,7 @@ export default function StartScreen({
                         {/* How to Play */}
                         <Button
                             variant="outline"
-                            className="w-full border-border text-muted-foreground hover:bg-muted"
+                            className="w-full border-emerald-600/50 text-foreground hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20"
                             onClick={() => setShowTutorial(!showTutorial)}
                             aria-expanded={showTutorial}
                             aria-controls="start-tutorial-panel"

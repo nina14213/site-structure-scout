@@ -6,6 +6,7 @@ import type { GameState } from '@/hooks/useGameProgress';
 const gameState: GameState = {
   playerName: 'Krystian',
   playerId: '123456',
+  assistantId: 'octavia',
   currentLevel: 4,
   totalScore: 0,
   badges: [],
@@ -22,6 +23,8 @@ describe('useGameNavigation', () => {
     const startLevel = vi.fn();
     const { result } = renderHook(() => useGameNavigation({
       startNewGame: vi.fn(),
+      startFreshGame: vi.fn(),
+      setAssistantId: vi.fn(),
       startLevel,
       completeLevel: vi.fn(),
       updateLeaderboard: vi.fn(),

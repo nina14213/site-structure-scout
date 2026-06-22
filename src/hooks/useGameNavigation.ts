@@ -14,6 +14,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameState } from '@/hooks/useGameProgress';
+import type { AssistantId } from '@/lib/assistants';
 
 export type GameScreen = 'start' | 'playing' | 'complete' | 'schemaMapper' | 'quiz';
 
@@ -30,7 +31,9 @@ const LEVEL_NAME_KEYS: Record<number, string> = {
 const MAX_LEVEL = 5;
 
 interface UseGameNavigationOptions {
-  startNewGame: (name: string) => void;
+  startNewGame: (name: string, assistantId?: AssistantId) => void;
+  startFreshGame: (name: string, assistantId?: AssistantId) => void;
+  setAssistantId: (assistantId: AssistantId) => void;
   startLevel: (level: number) => void;
   completeLevel: (level: number, score: number) => void;
   updateLeaderboard: () => void;
@@ -43,6 +46,8 @@ interface UseGameNavigationOptions {
 
 export function useGameNavigation({
   startNewGame,
+  startFreshGame,
+  setAssistantId,
   startLevel,
   completeLevel,
   updateLeaderboard,
@@ -96,14 +101,16 @@ export function useGameNavigation({
   }, [t]);
 
   // ─── Game start ───────────────────────────────────────────────────
-  const handleStartGame = useCallback((playerName: string, targetLevel = 1) => {
+  const handleStartGame = useCallback((playerName: string, targetLevel = 1, assistantId?: AssistantId) => {
     const normalizedLevel = Math.min(Math.max(targetLevel, 1), MAX_LEVEL);
     const samePlayer = Boolean(gameState.playerId) && gameState.playerName === playerName;
     const canOpenLevel = samePlayer ? isLevelUnlocked(normalizedLevel) : normalizedLevel !== MAX_LEVEL;
     const levelToOpen = canOpenLevel ? normalizedLevel : 1;
 
     if (!samePlayer) {
-      startNewGame(playerName);
+      startNewGame(playerName, assistantId);
+    } else if (assistantId) {
+      setAssistantId(assistantId);
     }
 
     startLevel(levelToOpen);
@@ -115,7 +122,27 @@ export function useGameNavigation({
       title: t('toast.welcome', { name: playerName }),
       description: t('toast.welcomeDesc'),
     });
-  }, [gameState.playerId, gameState.playerName, isLevelUnlocked, startLevel, startLevelTimer, startNewGame, toast, t]);
+  }, [gameState.playerId, gameState.playerName, isLevelUnlocked, setAssistantId, startLevel, startLevelTimer, startNewGame, toast, t]);
+
+  const handleStartOver = useCallback((playerName: string, assistantId?: AssistantId) => {
+    const cleanName = playerName.trim();
+    if (!cleanName) return;
+
+    transitioning.current = false;
+    startFreshGame(cleanName, assistantId);
+    startLevel(1);
+    setCurrentLevel(1);
+    setCurrentScreen('playing');
+    setLevelData({});
+    setQuizLevel(null);
+    setPendingScore(0);
+    startLevelTimer();
+
+    toast({
+      title: t('toast.startOver', { name: cleanName }),
+      description: t('toast.startOverDesc'),
+    });
+  }, [startFreshGame, startLevel, startLevelTimer, toast, t]);
 
   // ─── Level selection ──────────────────────────────────────────────
   const handleLevelClick = useCallback((levelId: number) => {
@@ -228,6 +255,7 @@ export function useGameNavigation({
     darkMode,
     toggleDarkMode,
     handleStartGame,
+    handleStartOver,
     handleLevelClick,
     handleLevelComplete,
     handleQuizComplete,

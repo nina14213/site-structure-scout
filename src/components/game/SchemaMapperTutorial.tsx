@@ -80,7 +80,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
     {
       titleKey: 'mapperTutorial.step0.title',
       descKey: 'mapperTutorial.step0.desc',
-      icon: <span className="text-4xl">🦎</span>,
+      icon: <span className="text-4xl">🐙</span>,
       position: 'center',
       animation: <TutorialAnimation type="file-to-table" />,
       helpKey: 'mapperTutorial.step0.help',
@@ -115,7 +115,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
       titleKey: 'mapperTutorial.step4.title',
       descKey: 'mapperTutorial.step4.desc',
       whyKey: 'mapperTutorial.step4.why',
-      icon: <span className="text-4xl">🦎</span>,
+      icon: <span className="text-4xl">🐙</span>,
       position: 'center',
       animation: <TutorialAnimation type="checkmark" />,
       helpKey: 'mapperTutorial.step4.help',
@@ -228,7 +228,7 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
         >
           <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[calc(100dvh-2rem)] flex flex-col">
             {/* Mascot */}
-            <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>🦎</div>
+            <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>🐙</div>
 
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1">
 

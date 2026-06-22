@@ -80,7 +80,10 @@ export function AccessibilityMotionConfig({ children }: { children: ReactNode })
   const { settings } = useAccessibility();
 
   return (
-    <MotionConfig reducedMotion={settings.reduceMotion ? "always" : "user"}>
+    <MotionConfig
+      reducedMotion={settings.reduceMotion ? "always" : "user"}
+      transition={settings.reduceMotion ? { delay: 0, duration: 0 } : undefined}
+    >
       {children}
     </MotionConfig>
   );

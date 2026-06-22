@@ -16,6 +16,7 @@ describe('useGameProgress', () => {
   it('inicjalizuje z pustym stanem', () => {
     const { result } = renderHook(() => useGameProgress());
     expect(result.current.gameState.playerName).toBe('');
+    expect(result.current.gameState.assistantId).toBe('octavia');
     expect(result.current.gameState.totalScore).toBe(0);
     expect(result.current.gameState.levelsCompleted).toEqual([]);
   });
@@ -25,7 +26,16 @@ describe('useGameProgress', () => {
     act(() => result.current.startNewGame('Testowy Gracz'));
     expect(result.current.gameState.playerName).toBe('Testowy Gracz');
     expect(result.current.gameState.playerId).toMatch(/^\d{6}$/);
+    expect(result.current.gameState.assistantId).toBe('octavia');
     expect(result.current.gameState.startTime).not.toBeNull();
+  });
+
+  it('zapisuje wybranego asystenta gracza', () => {
+    const { result } = renderHook(() => useGameProgress());
+    act(() => result.current.startNewGame('Testowy Gracz', 'liliana'));
+    expect(result.current.gameState.assistantId).toBe('liliana');
+    act(() => result.current.setAssistantId('borys'));
+    expect(result.current.gameState.assistantId).toBe('borys');
   });
 
   it('startLevel zapisuje aktualny poziom i postęp modułu', () => {
@@ -102,6 +112,34 @@ describe('useGameProgress', () => {
     expect(result.current.gameState.totalScore).toBe(0);
   });
 
+  it('startFreshGame zeruje wynik aktualnego gracza i odświeża leaderboard', async () => {
+    const { result } = renderHook(() => useGameProgress());
+
+    act(() => result.current.startNewGame('Krystian'));
+    const previousPlayerId = result.current.gameState.playerId;
+    act(() => result.current.addScore(500));
+
+    await waitFor(() => {
+      const entry = result.current.leaderboard.find(item => item.playerId === previousPlayerId);
+      expect(entry?.score).toBe(500);
+    });
+
+    act(() => result.current.startFreshGame('Krystian', 'borys'));
+
+    expect(result.current.gameState.playerName).toBe('Krystian');
+    expect(result.current.gameState.playerId).not.toBe(previousPlayerId);
+    expect(result.current.gameState.assistantId).toBe('borys');
+    expect(result.current.gameState.totalScore).toBe(0);
+    expect(result.current.gameState.levelsCompleted).toEqual([]);
+
+    await waitFor(() => {
+      const oldEntry = result.current.leaderboard.find(item => item.playerId === previousPlayerId);
+      const newEntry = result.current.leaderboard.find(item => item.playerId === result.current.gameState.playerId);
+      expect(oldEntry).toBeUndefined();
+      expect(newEntry?.score).toBe(0);
+    });
+  });
+
   it('blokuje BOSS level do czasu ukończenia poziomów 1-4', () => {
     const { result } = renderHook(() => useGameProgress());
     expect(result.current.isLevelUnlocked(1)).toBe(true);
@@ -139,6 +177,7 @@ describe('useGameProgress', () => {
     const { result } = renderHook(() => useGameProgress());
     expect(result.current.gameState.playerName).toBe('Legacy');
     expect(result.current.gameState.playerId).toMatch(/^\d{6}$/);
+    expect(result.current.gameState.assistantId).toBe('octavia');
     expect(result.current.gameState.levelProgress[1]).toBe(100);
     expect(result.current.getRecommendedLevel()).toBe(2);
   });

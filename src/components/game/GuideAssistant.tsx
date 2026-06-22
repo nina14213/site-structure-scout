@@ -1,14 +1,43 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight, HelpCircle, MoveDiagonal2, Sparkles, X } from 'lucide-react';
+import { ChevronRight, MoveDiagonal2, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAccessibility } from '@/components/accessibility/AccessibilityContext';
+import AssistantAvatarArt from '@/components/AssistantAvatarArt';
+import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameScreen } from '@/hooks/useGameNavigation';
 import type { GameState } from '@/hooks/useGameProgress';
+import { getAssistantProfile, type AssistantId, type AssistantProfile } from '@/lib/assistants';
 
 type Dock = 'left' | 'right' | 'center';
+const IDLE_HELP_DELAY_MS = 120000;
+const ASSISTANT_POSITION_KEY = 'dwc-data-quest-assistant-position';
+const ASSISTANT_VIEWPORT_MARGIN = 8;
+
+interface AssistantPosition {
+  x: number;
+  y: number;
+}
+
+interface AssistantDragState {
+  offsetX: number;
+  offsetY: number;
+  width: number;
+  height: number;
+  startX: number;
+  startY: number;
+  hasMoved: boolean;
+}
 
 interface GuideAssistantProps {
   currentScreen: GameScreen;
@@ -22,134 +51,126 @@ interface GuideTip {
   badge: string;
 }
 
-const levelTips: Record<number, GuideTip[]> = {
+interface GuideTipKey {
+  titleKey: string;
+  bodyKey: string;
+  badge?: string;
+  badgeKey?: string;
+  params?: Record<string, string | number>;
+}
+
+type Translate = (key: string, params?: Record<string, string | number>) => string;
+
+function isAssistantPosition(value: unknown): value is AssistantPosition {
+  if (!value || typeof value !== 'object') return false;
+  const position = value as Partial<AssistantPosition>;
+  return Number.isFinite(position.x) && Number.isFinite(position.y);
+}
+
+function readStoredAssistantPosition(): AssistantPosition | null {
+  try {
+    const raw = localStorage.getItem(ASSISTANT_POSITION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return isAssistantPosition(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function clampAssistantPosition(position: AssistantPosition, width: number, height: number): AssistantPosition {
+  if (typeof window === 'undefined') return position;
+
+  const maxX = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerWidth - width - ASSISTANT_VIEWPORT_MARGIN);
+  const maxY = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerHeight - height - ASSISTANT_VIEWPORT_MARGIN);
+
+  return {
+    x: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.x), maxX),
+    y: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.y), maxY),
+  };
+}
+
+function getDockFromPosition(position: AssistantPosition): Dock {
+  if (typeof window === 'undefined') return 'left';
+  const third = window.innerWidth / 3;
+  if (position.x < third) return 'left';
+  if (position.x > third * 2) return 'right';
+  return 'center';
+}
+
+const tipKey = (key: string): GuideTipKey => ({
+  badgeKey: `assistant.tip.${key}.badge`,
+  titleKey: `assistant.tip.${key}.title`,
+  bodyKey: `assistant.tip.${key}.body`,
+});
+
+const translateTip = (t: Translate, tip: GuideTipKey): GuideTip => ({
+  badge: tip.badge ?? t(tip.badgeKey ?? '', tip.params),
+  title: t(tip.titleKey, tip.params),
+  body: t(tip.bodyKey, tip.params),
+});
+
+const translateTips = (t: Translate, tips: GuideTipKey[]) => tips.map((tip) => translateTip(t, tip));
+
+const levelTips: Record<number, GuideTipKey[]> = {
   1: [
-    {
-      badge: 'Modul 1',
-      title: 'Najpierw wymagane pola',
-      body: 'W Core Forge celuj w pola wymagane. Gdy wszystkie kluczowe terminy Darwin Core sa wypelnione, dopiero wtedy warto dopracowac opcjonalne.',
-    },
-    {
-      badge: 'Macka mapowania',
-      title: 'Kolumna do terminu',
-      body: 'Jesli utkniesz, wybierz kolumne po znaczeniu danych, nie po samej nazwie. scientificName zwykle zdradza sie lacinskimi nazwami.',
-    },
+    tipKey('level1.required'),
+    tipKey('level1.mapping'),
   ],
   2: [
-    {
-      badge: 'Modul 2',
-      title: 'Pilnuj eventID',
-      body: 'W sieci rozszerzen najczesciej wszystko spina eventID. Najpierw dopasuj wydarzenia, potem uzupelnij occurrence.',
-    },
-    {
-      badge: 'Kontrola',
-      title: 'Bledne pola czysc selektywnie',
-      body: 'Po walidacji popraw tylko czerwone pola. Nie kasuj dobrych odpowiedzi, bo tracisz rytm pracy.',
-    },
+    tipKey('level2.event'),
+    tipKey('level2.control'),
   ],
   3: [
-    {
-      badge: 'Modul 3',
-      title: 'Pakowanie danych',
-      body: 'Najpierw wygeneruj meta.xml i datapackage.json, potem sprawdz czy opisy plikow pasuja do tego, co zbudowales w poprzednich modulach.',
-    },
-    {
-      badge: 'Porzadek',
-      title: 'Nazwy i struktura',
-      body: 'Pakiet danych lubi konsekwencje: jedna tabela glowna, jasne rozszerzenia i metadane, ktore tlumacza calosc bez zgadywania.',
-    },
+    tipKey('level3.package'),
+    tipKey('level3.structure'),
   ],
   4: [
-    {
-      badge: 'Modul 4',
-      title: 'Nie ufaj pozycji odpowiedzi',
-      body: 'W Lowcy Gatunkow odpowiedzi sa mieszane. Patrz na accepted name, synonym i kingdom, nie na to, gdzie stoi przycisk.',
-    },
-    {
-      badge: 'GBIF',
-      title: 'Status taksonu jest kluczem',
-      body: 'Jesli nazwa jest synonimem, wybierz nazwe akceptowana. Jesli jest poprawna, czasem najlepsza odpowiedz wyglada podejrzanie zwyczajnie.',
-    },
+    tipKey('level4.position'),
+    tipKey('level4.taxon'),
   ],
   5: [
-    {
-      badge: 'BOSS',
-      title: 'Waliduj spokojnie',
-      body: 'BOSS odblokowuje sie dopiero po modulach 1-4. Gdy tu jestes, czytaj bledy jak liste napraw, nie jak wyrok.',
-    },
-    {
-      badge: 'Final',
-      title: 'Napraw jedno po drugim',
-      body: 'Najpierw identyfikatory i wymagane pola, potem formaty dat, a na koncu szczegoly taksonomii. To najkrotsza droga przez walidacje.',
-    },
+    tipKey('level5.validate'),
+    tipKey('level5.fix'),
   ],
 };
 
-function getTips(currentScreen: GameScreen, currentLevel: number | null, gameState: GameState): GuideTip[] {
+function getTips(
+  currentScreen: GameScreen,
+  currentLevel: number | null,
+  gameState: GameState,
+  assistantName: string,
+  t: Translate,
+): GuideTip[] {
   const playerName = gameState.playerName || 'Data Ranger';
   const completed = gameState.levelsCompleted.length;
 
   if (currentScreen === 'playing' && currentLevel) {
-    return levelTips[currentLevel] ?? levelTips[1];
+    return translateTips(t, levelTips[currentLevel] ?? levelTips[1]);
   }
 
   if (currentScreen === 'quiz') {
-    return [
-      {
-        badge: 'Quiz',
-        title: 'Krótki przystanek',
-        body: 'Odpowiedz na pytania po module. Po zamknieciu quizu gra sprawdzi, czy kolejny modul jest odblokowany.',
-      },
-      {
-        badge: 'Punkty',
-        title: 'Wynik zapisuje sie od razu',
-        body: 'Twoje punkty trafiaja na liste Top Rangers na biezaco, wiec po powrocie do menu widzisz aktualny stan.',
-      },
-    ];
+    return translateTips(t, [tipKey('quiz.stop'), tipKey('quiz.score')]);
   }
 
   if (currentScreen === 'schemaMapper') {
-    return [
-      {
-        badge: 'Mapper',
-        title: 'Wlasne dane, ten sam rytm',
-        body: 'Zaimportuj plik, przypisz wymagane pola i dopiero potem eksportuj. Jesli cos nie pasuje, zapis postepu pozwala wrocic bez paniki.',
-      },
-      {
-        badge: 'ID',
-        title: 'Identyfikatory sa fundamentem',
-        body: 'Kazdy rekord powinien miec stabilne ID. Generator ID pomaga, gdy surowe dane go nie maja.',
-      },
-    ];
+    return translateTips(t, [tipKey('mapper.rhythm'), tipKey('mapper.id')]);
   }
 
   if (currentScreen === 'complete') {
-    return [
-      {
-        badge: 'Meta',
-        title: 'Misja zamknieta',
-        body: 'Mozesz przejrzec odznaki, wynik i restartowac gre. Jesli testujesz sciezki, reset daje czysty zapis.',
-      },
-    ];
+    return translateTips(t, [tipKey('complete.done')]);
   }
 
-  return [
+  return translateTips(t, [
     {
       badge: `${completed}/5`,
-      title: `Hej ${playerName}, jestem Różowa Ośmiorniczka`,
-      body: 'Kliknij kafelek modulu, aby wejsc do zadania. Pasek pokazuje postep, zielony znak oznacza ukonczenie, a klodka blokade.',
+      titleKey: 'assistant.tip.menu.welcome.title',
+      bodyKey: 'assistant.tip.menu.welcome.body',
+      params: { playerName, assistantName },
     },
-    {
-      badge: 'Menu',
-      title: 'Kontynuacja bez zgadywania',
-      body: 'Przycisk kontynuacji prowadzi do ostatniego sensownego miejsca. Klikniecie siebie na Top Rangers tylko pokazuje profil i postepy w menu.',
-    },
-    {
-      badge: 'BOSS',
-      title: 'Final pilnuje zasad',
-      body: 'BOSS: Walidacja zostaje zablokowany, dopoki moduly 1-4 nie sa ukonczone. To chroni gre przed skrotami.',
-    },
-  ];
+    tipKey('menu.continue'),
+    tipKey('menu.boss'),
+  ]);
 }
 
 function getSuggestedDock(currentScreen: GameScreen, currentLevel: number | null): Dock {
@@ -159,7 +180,30 @@ function getSuggestedDock(currentScreen: GameScreen, currentLevel: number | null
   return 'left';
 }
 
-function AssistantAvatar({ reduceMotion }: { reduceMotion: boolean }) {
+function getIdleTip(currentScreen: GameScreen, currentLevel: number | null, t: Translate): GuideTip {
+  if (currentScreen === 'playing' && currentLevel) {
+    return translateTip(t, tipKey('idle.playing'));
+  }
+
+  if (currentScreen === 'quiz') {
+    return translateTip(t, tipKey('idle.quiz'));
+  }
+
+  return translateTip(t, tipKey('idle.default'));
+}
+
+function AssistantAvatar({ assistantId, reduceMotion }: { assistantId: AssistantId; reduceMotion: boolean }) {
+  if (assistantId !== 'octavia') {
+    return (
+      <AssistantAvatarArt
+        assistantId={assistantId}
+        className="h-32 w-32 shrink-0 drop-shadow-xl"
+        animated
+        reduceMotion={reduceMotion}
+      />
+    );
+  }
+
   const float = reduceMotion
     ? {}
     : {
@@ -279,82 +323,352 @@ function AssistantAvatar({ reduceMotion }: { reduceMotion: boolean }) {
   );
 }
 
+function FrameHugTentacles({
+  dock,
+  reduceMotion,
+  assistant,
+}: {
+  dock: Dock;
+  reduceMotion: boolean;
+  assistant: AssistantProfile;
+}) {
+  const originX = dock === 'right' ? 276 : dock === 'center' ? 180 : 84;
+  const leftPath = `M${originX - 16} 28 C${originX - 68} 28 54 34 28 68 C8 94 18 132 17 170 C17 188 32 194 54 184`;
+  const rightPath = `M${originX + 16} 28 C${originX + 70} 28 306 36 334 70 C354 96 342 134 343 170 C344 188 328 194 306 184`;
+  const bottomPath = `M${originX} 34 C${originX - 8} 94 ${originX + 36} 154 188 178 C230 192 270 184 316 160`;
+  const wave = reduceMotion
+    ? {}
+    : {
+        rotate: [-0.5, 0.8, -0.5],
+        transition: { duration: 3.4, repeat: Infinity, ease: 'easeInOut' as const },
+      };
+
+  const renderTentacle = (path: string, opacity = 0.95) => (
+    <>
+      <path
+        d={path}
+        fill="none"
+        stroke={assistant.frame.main}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="11"
+        opacity={opacity}
+      />
+      <path
+        d={path}
+        fill="none"
+        stroke={assistant.frame.highlight}
+        strokeDasharray="1 16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="4"
+        opacity="0.95"
+      />
+    </>
+  );
+
+  return (
+    <motion.svg
+      viewBox="0 0 360 205"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute -inset-x-4 -top-8 -bottom-4 z-0 h-[calc(100%+3rem)] w-[calc(100%+2rem)] overflow-visible"
+      animate={wave}
+      aria-hidden="true"
+    >
+      {renderTentacle(leftPath)}
+      {renderTentacle(rightPath)}
+      {renderTentacle(bottomPath, 0.72)}
+    </motion.svg>
+  );
+}
+
+function FrameFrontTentacles({
+  dock,
+  reduceMotion,
+  assistant,
+}: {
+  dock: Dock;
+  reduceMotion: boolean;
+  assistant: AssistantProfile;
+}) {
+  const originX = dock === 'right' ? 276 : dock === 'center' ? 180 : 84;
+  const topGrip = `M${originX - 34} 25 C${originX - 18} 15 ${originX + 18} 15 ${originX + 34} 25`;
+  const leftGrip = 'M7 88 C1 104 5 122 16 138 M17 80 C27 93 25 108 12 121';
+  const rightGrip = 'M353 88 C359 104 355 122 344 138 M343 80 C333 93 335 108 348 121';
+  const bottomGrip = 'M82 199 C112 185 140 190 162 204 M198 204 C222 190 250 185 278 199';
+  const wave = reduceMotion
+    ? {}
+    : {
+        y: [0, 2, 0],
+        transition: { duration: 3.1, repeat: Infinity, ease: 'easeInOut' as const },
+      };
+
+  const renderTentacle = (path: string, width = 10) => (
+    <>
+      <path
+        d={path}
+        fill="none"
+        stroke={assistant.frame.main}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={width}
+      />
+      <path
+        d={path}
+        fill="none"
+        stroke={assistant.frame.highlight}
+        strokeDasharray="1 15"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="3.5"
+        opacity="0.9"
+      />
+    </>
+  );
+
+  return (
+    <motion.svg
+      viewBox="0 0 360 205"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute -inset-x-4 -top-8 -bottom-4 z-[15] h-[calc(100%+3rem)] w-[calc(100%+2rem)] overflow-visible"
+      animate={wave}
+      aria-hidden="true"
+    >
+      {renderTentacle(topGrip, 9)}
+      {renderTentacle(leftGrip)}
+      {renderTentacle(rightGrip)}
+      {renderTentacle(bottomGrip, 8)}
+    </motion.svg>
+  );
+}
+
 export default function GuideAssistant({ currentScreen, currentLevel, gameState }: GuideAssistantProps) {
   const { settings } = useAccessibility();
+  const { t } = useLanguage();
   const reduceMotion = settings.reduceMotion;
-  const tips = useMemo(() => getTips(currentScreen, currentLevel, gameState), [
+  const assistant = getAssistantProfile(gameState.assistantId);
+  const assistantName = t(assistant.nameKey);
+  const tips = useMemo(() => getTips(currentScreen, currentLevel, gameState, assistantName, t), [
     currentScreen,
     currentLevel,
     gameState,
+    assistantName,
+    t,
   ]);
   const [tipIndex, setTipIndex] = useState(0);
   const [expanded, setExpanded] = useState(true);
-  const [hidden, setHidden] = useState(false);
+  const [idleNudge, setIdleNudge] = useState(false);
   const [manualDock, setManualDock] = useState<Dock | null>(null);
+  const [customPosition, setCustomPosition] = useState<AssistantPosition | null>(readStoredAssistantPosition);
+  const [isDragging, setIsDragging] = useState(false);
+  const assistantRef = useRef<HTMLElement | null>(null);
+  const dragStateRef = useRef<AssistantDragState | null>(null);
+  const suppressClickRef = useRef(false);
+  const idleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const suggestedDock = getSuggestedDock(currentScreen, currentLevel);
-  const dock = manualDock ?? suggestedDock;
+  const dock = customPosition ? getDockFromPosition(customPosition) : manualDock ?? suggestedDock;
   const tip = tips[tipIndex % tips.length];
-  const contextKey = `${currentScreen}-${currentLevel ?? 'none'}-${gameState.currentLevel}-${gameState.levelsCompleted.join('.')}`;
+  const idleTip = getIdleTip(currentScreen, currentLevel, t);
+  const activeTip = idleNudge ? idleTip : tip;
+  const contextKey = `${assistant.id}-${currentScreen}-${currentLevel ?? 'none'}-${gameState.currentLevel}-${gameState.levelsCompleted.join('.')}`;
+  const assistantPositionStyle = customPosition ? { left: customPosition.x, top: customPosition.y } : undefined;
 
   useEffect(() => {
     setTipIndex(0);
     setExpanded(true);
-    setHidden(false);
+    setIdleNudge(false);
     setManualDock(null);
   }, [contextKey]);
 
-  const cycleDock = () => {
-    const order: Dock[] = ['left', 'center', 'right'];
-    const current = order.indexOf(dock);
-    setManualDock(order[(current + 1) % order.length]);
+  useEffect(() => {
+    try {
+      if (customPosition) {
+        localStorage.setItem(ASSISTANT_POSITION_KEY, JSON.stringify(customPosition));
+      } else {
+        localStorage.removeItem(ASSISTANT_POSITION_KEY);
+      }
+    } catch {
+      // Position persistence is optional; dragging should still work without storage.
+    }
+  }, [customPosition]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setCustomPosition((position) => {
+        if (!position) return null;
+        const rect = assistantRef.current?.getBoundingClientRect();
+        return clampAssistantPosition(position, rect?.width ?? 368, rect?.height ?? 280);
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const drag = dragStateRef.current;
+      if (!drag) return;
+
+      const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+      if (!drag.hasMoved && distance < 4) return;
+
+      drag.hasMoved = true;
+      event.preventDefault();
+      setCustomPosition(clampAssistantPosition({
+        x: event.clientX - drag.offsetX,
+        y: event.clientY - drag.offsetY,
+      }, drag.width, drag.height));
+    };
+
+    const stopDragging = () => {
+      if (dragStateRef.current?.hasMoved) {
+        suppressClickRef.current = true;
+        window.setTimeout(() => {
+          suppressClickRef.current = false;
+        }, 0);
+      }
+      dragStateRef.current = null;
+      setIsDragging(false);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', stopDragging);
+    window.addEventListener('pointercancel', stopDragging);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', stopDragging);
+      window.removeEventListener('pointercancel', stopDragging);
+    };
+  }, [isDragging]);
+
+  useEffect(() => {
+    const clearIdleTimer = () => {
+      if (idleTimerRef.current) {
+        window.clearTimeout(idleTimerRef.current);
+        idleTimerRef.current = null;
+      }
+    };
+
+    const startIdleTimer = () => {
+      clearIdleTimer();
+      idleTimerRef.current = window.setTimeout(() => {
+        setIdleNudge(true);
+        setExpanded(true);
+        setManualDock(null);
+      }, IDLE_HELP_DELAY_MS);
+    };
+
+    const handleActivity = (event: Event) => {
+      if (event.type !== 'pointermove') {
+        setIdleNudge(false);
+      }
+      startIdleTimer();
+    };
+
+    const events: Array<keyof WindowEventMap> = ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((eventName) => window.addEventListener(eventName, handleActivity, { passive: true }));
+    startIdleTimer();
+
+    return () => {
+      clearIdleTimer();
+      events.forEach((eventName) => window.removeEventListener(eventName, handleActivity));
+    };
+  }, [currentScreen, currentLevel]);
+
+  const startDragging = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    const node = assistantRef.current;
+    if (!node) return;
+
+    const rect = node.getBoundingClientRect();
+    dragStateRef.current = {
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      width: rect.width,
+      height: rect.height,
+      startX: event.clientX,
+      startY: event.clientY,
+      hasMoved: false,
+    };
+
+    setManualDock(null);
+    setIsDragging(true);
   };
 
-  if (hidden) {
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          setHidden(false);
-          setExpanded(true);
-        }}
-        aria-label="Pokaz asystenta gry"
-        className={cn(
-          'fixed z-[65] flex h-14 w-14 items-center justify-center rounded-full border-2 border-pink-200 bg-pink-600 text-white shadow-xl shadow-black/25 transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          dock === 'right' && 'bottom-24 right-4',
-          dock === 'left' && 'bottom-6 left-4',
-          dock === 'center' && 'bottom-6 left-1/2 -translate-x-1/2',
-        )}
-      >
-        <HelpCircle className="h-6 w-6" aria-hidden="true" />
-      </button>
-    );
-  }
+  const handleClickCapture = (event: ReactMouseEvent<HTMLElement>) => {
+    if (!suppressClickRef.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const moveWithKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home'];
+    if (!keys.includes(event.key)) return;
+
+    event.preventDefault();
+
+    const node = assistantRef.current;
+    const rect = node?.getBoundingClientRect();
+
+    if (event.key === 'Home') {
+      setManualDock(null);
+      setCustomPosition(null);
+      return;
+    }
+
+    const step = event.shiftKey ? 48 : 16;
+    const width = rect?.width ?? 368;
+    const height = rect?.height ?? 280;
+    const fallbackPosition = rect ? { x: rect.left, y: rect.top } : { x: ASSISTANT_VIEWPORT_MARGIN, y: ASSISTANT_VIEWPORT_MARGIN };
+
+    setManualDock(null);
+    setCustomPosition((position) => {
+      const base = position ?? fallbackPosition;
+      const next = {
+        x: base.x + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0),
+        y: base.y + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0),
+      };
+
+      return clampAssistantPosition(next, width, height);
+    });
+  };
 
   return (
     <motion.aside
+      ref={assistantRef}
       className={cn(
         'fixed z-[65] max-w-[calc(100vw-1rem)]',
-        dock === 'right' && 'bottom-24 right-3 md:right-5',
-        dock === 'left' && 'bottom-6 left-3 md:left-5',
-        dock === 'center' && 'bottom-6 left-1/2 -translate-x-1/2',
+        !customPosition && dock === 'right' && 'bottom-24 right-3 md:right-5',
+        !customPosition && dock === 'left' && 'bottom-6 left-3 md:left-5',
+        !customPosition && dock === 'center' && 'bottom-6 left-1/2 -translate-x-1/2',
       )}
+      style={assistantPositionStyle}
+      onPointerDown={startDragging}
+      onClickCapture={handleClickCapture}
       initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.96 }}
       animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      aria-label="Animowany asystent gry"
+      aria-label={t('assistant.asideAria', { name: assistantName })}
     >
-      <div className="relative pt-20">
+      <div className={cn('relative cursor-grab touch-none pt-20 active:cursor-grabbing', isDragging && 'cursor-grabbing')}>
         {expanded && (
           <button
             type="button"
             onClick={() => setExpanded(false)}
-            aria-label="Zwin asystenta"
+            aria-label={t('assistant.control.collapse')}
             className={cn(
               'absolute -top-3 z-20 rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               dock === 'right' ? 'right-8' : dock === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-8',
             )}
           >
-            <AssistantAvatar reduceMotion={reduceMotion} />
+            <AssistantAvatar assistantId={assistant.id} reduceMotion={reduceMotion} />
           </button>
         )}
 
@@ -362,13 +676,13 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            aria-label="Rozwin asystenta"
+            aria-label={t('assistant.control.expand')}
             className={cn(
               'absolute bottom-0 z-20 rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               dock === 'right' ? 'right-0' : dock === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0',
             )}
           >
-            <AssistantAvatar reduceMotion={reduceMotion} />
+            <AssistantAvatar assistantId={assistant.id} reduceMotion={reduceMotion} />
           </button>
         )}
 
@@ -380,66 +694,80 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
               animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.25 }}
-              className="relative w-[min(calc(100vw-2rem),23rem)] overflow-visible rounded-lg border-2 border-pink-300/80 bg-card/95 p-4 pt-12 text-card-foreground shadow-2xl shadow-black/25 backdrop-blur"
+              className="relative w-[min(calc(100vw-2rem),23rem)]"
             >
-              <div className="relative z-10 mb-2 flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="mb-1 flex items-center gap-2">
-                    <Badge className="border-pink-500/40 bg-pink-500/15 text-pink-700 dark:text-pink-300">
-                      {tip.badge}
-                    </Badge>
-                    <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
-                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                      Ośmiorniczka
-                    </span>
+              <FrameHugTentacles dock={dock} reduceMotion={reduceMotion} assistant={assistant} />
+
+              <div
+                className={cn(
+                  'relative z-10 overflow-hidden rounded-lg border-2 bg-card p-4 pt-12 text-card-foreground shadow-2xl shadow-black/25 backdrop-blur',
+                  assistant.frame.border,
+                )}
+              >
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="mb-1 flex items-center gap-2">
+                      <Badge className={assistant.badgeClass}>
+                        {activeTip.badge}
+                      </Badge>
+                      <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                        {assistantName}
+                      </span>
+                    </div>
+                    <h2 className="text-base font-bold leading-tight text-foreground">{activeTip.title}</h2>
                   </div>
-                  <h2 className="text-base font-bold leading-tight text-foreground">{tip.title}</h2>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setHidden(true)}
-                  aria-label="Schowaj asystenta"
-                  className="h-8 w-8 shrink-0"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              </div>
-
-              <p className="relative z-10 text-sm leading-relaxed text-muted-foreground">{tip.body}</p>
-
-              <div className="relative z-10 mt-4 flex items-center justify-between gap-2">
-                <div className="flex gap-1" aria-hidden="true">
-                  {tips.map((_, index) => (
-                    <span
-                      key={index}
-                      className={cn('h-1.5 w-5 rounded-full', index === tipIndex ? 'bg-pink-500' : 'bg-muted')}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center gap-1">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={cycleDock}
-                    aria-label="Przenies asystenta"
-                    className="h-8 w-8"
+                    onClick={() => setExpanded(false)}
+                    aria-label={t('assistant.control.closeTip')}
+                    className="h-8 w-8 shrink-0"
                   >
-                    <MoveDiagonal2 className="h-4 w-4" aria-hidden="true" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setTipIndex((index) => (index + 1) % tips.length)}
-                    className="h-8 gap-1 bg-pink-700 text-white hover:bg-pink-800"
-                  >
-                    Dalej
-                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
+
+                <p className="text-sm leading-relaxed text-muted-foreground">{activeTip.body}</p>
+
+                <div className="mt-4 flex items-center justify-between gap-2">
+                  <div className="flex gap-1" aria-hidden="true">
+                    {tips.map((_, index) => (
+                      <span
+                        key={index}
+                        className={cn('h-1.5 w-5 rounded-full', index === tipIndex ? 'bg-pink-500' : 'bg-muted')}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onKeyDown={moveWithKeyboard}
+                      aria-label={t('assistant.control.move')}
+                      className={cn('h-8 w-8 cursor-grab touch-none active:cursor-grabbing', isDragging && 'cursor-grabbing')}
+                    >
+                      <MoveDiagonal2 className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        setIdleNudge(false);
+                        setTipIndex((index) => (index + 1) % tips.length);
+                      }}
+                      className={cn('h-8 gap-1', assistant.buttonClass)}
+                    >
+                      {t('assistant.control.next')}
+                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </div>
               </div>
+
+              <FrameFrontTentacles dock={dock} reduceMotion={reduceMotion} assistant={assistant} />
             </motion.div>
           )}
         </AnimatePresence>

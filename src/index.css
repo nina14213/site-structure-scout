@@ -260,12 +260,24 @@
     text-underline-offset: 0.2em;
   }
 
+  html.wcag-reduced-motion,
+  html.wcag-reduced-motion:focus-within,
+  html.wcag-reduced-motion *,
+  html.wcag-reduced-motion *::before,
+  html.wcag-reduced-motion *::after {
+    scroll-behavior: auto !important;
+  }
+
   html.wcag-reduced-motion *,
   html.wcag-reduced-motion *::before,
   html.wcag-reduced-motion *::after {
     animation: none !important;
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
     transition: none !important;
-    scroll-behavior: auto !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
   }
 
   html.wcag-contrast-enhanced [data-task-button],

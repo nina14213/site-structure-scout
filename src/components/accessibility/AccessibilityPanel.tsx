@@ -20,8 +20,8 @@ const COPY = {
     decreaseText: "Zmniejsz tekst",
     increaseText: "Powieksz tekst",
     textScaleHint: "Skala od 100 do 150 procent zgodna z powiekszeniem WCAG.",
-    reduceMotion: "Ogranicz ruch",
-    reduceMotionHint: "Wycisza animacje i przejscia Framer Motion.",
+    reduceMotion: "Wylacz animacje",
+    reduceMotionHint: "Zatrzymuje animacje CSS, przejscia, plynne przewijanie i ruch asystenta.",
     reset: "Reset",
   },
   en: {
@@ -37,8 +37,8 @@ const COPY = {
     decreaseText: "Decrease text",
     increaseText: "Increase text",
     textScaleHint: "Scale from 100 to 150 percent for WCAG zoom support.",
-    reduceMotion: "Reduce motion",
-    reduceMotionHint: "Minimizes animations and Framer Motion transitions.",
+    reduceMotion: "Turn off animations",
+    reduceMotionHint: "Stops CSS animations, transitions, smooth scrolling and assistant movement.",
     reset: "Reset",
   },
   fr: {
@@ -54,8 +54,8 @@ const COPY = {
     decreaseText: "Reduire le texte",
     increaseText: "Agrandir le texte",
     textScaleHint: "Echelle de 100 a 150 pour le zoom WCAG.",
-    reduceMotion: "Reduire les mouvements",
-    reduceMotionHint: "Reduit les animations et transitions Framer Motion.",
+    reduceMotion: "Desactiver les animations",
+    reduceMotionHint: "Arrete les animations CSS, les transitions, le defilement fluide et le mouvement de l'assistant.",
     reset: "Reset",
   },
   de: {
@@ -71,8 +71,8 @@ const COPY = {
     decreaseText: "Text verkleinern",
     increaseText: "Text vergrossern",
     textScaleHint: "Skala von 100 bis 150 Prozent fur WCAG-Zoom.",
-    reduceMotion: "Bewegung reduzieren",
-    reduceMotionHint: "Reduziert Animationen und Framer-Motion-Ubergange.",
+    reduceMotion: "Animationen ausschalten",
+    reduceMotionHint: "Stoppt CSS-Animationen, Ubergange, sanftes Scrollen und die Bewegung des Assistenten.",
     reset: "Reset",
   },
 };

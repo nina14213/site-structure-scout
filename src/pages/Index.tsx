@@ -11,7 +11,7 @@
 import { useGameProgress, BADGES } from '@/hooks/useGameProgress';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { useGameNavigation } from '@/hooks/useGameNavigation';
-import { StartScreen, GameLauncher, GameComplete } from '@/components/game';
+import { StartScreen, GameLauncher, GameComplete, WelcomeScreen } from '@/components/game';
 import SchemaMapper from '@/components/game/SchemaMapper';
 import QuizModal from '@/components/game/QuizModal';
 import GuideAssistant from '@/components/game/GuideAssistant';
@@ -96,6 +96,22 @@ const Index = () => {
   }
 
   // ─── Start screen (default) ───────────────────────────────────────
+  if (nav.currentScreen === 'start' && !progress.isLoaded) {
+    return null;
+  }
+
+  if (nav.currentScreen === 'start' && !progress.gameState.playerName) {
+    return (
+      <WelcomeScreen
+        onEnter={progress.startNewGame}
+        soundEnabled={sounds.soundEnabled}
+        toggleSound={sounds.toggleSound}
+        darkMode={nav.darkMode}
+        toggleDarkMode={nav.toggleDarkMode}
+      />
+    );
+  }
+
   return (
     <>
       <StartScreen
@@ -111,6 +127,8 @@ const Index = () => {
         getLevelProgress={progress.getLevelProgress}
         getRecommendedLevel={progress.getRecommendedLevel}
         onDataImport={nav.handleDataImport}
+        onAssistantChange={progress.setAssistantId}
+        onStartOver={nav.handleStartOver}
       />
       {assistant}
     </>

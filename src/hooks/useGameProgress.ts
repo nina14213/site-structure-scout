@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { DEFAULT_ASSISTANT_ID, isAssistantId, type AssistantId } from '@/lib/assistants';
 
 const STORAGE_KEY = 'dwc-data-quest-progress';
 const LEADERBOARD_KEY = 'dwc-data-quest-leaderboard';
@@ -8,6 +9,7 @@ const INITIAL_LEVEL_PROGRESS = 10;
 export interface GameState {
     playerName: string;
     playerId: string;
+    assistantId: AssistantId;
     currentLevel: number;
     totalScore: number;
     badges: string[];
@@ -39,6 +41,7 @@ export interface Badge {
 const initialState: GameState = {
     playerName: '',
     playerId: '',
+    assistantId: DEFAULT_ASSISTANT_ID,
     currentLevel: 1,
     totalScore: 0,
     badges: [],
@@ -53,6 +56,17 @@ const initialState: GameState = {
 const generatePlayerId = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const clampProgress = (progress: number) => Math.max(0, Math.min(100, Math.round(progress)));
+
+const createNewGameState = (playerName: string, assistantId: AssistantId = DEFAULT_ASSISTANT_ID): GameState => ({
+    ...initialState,
+    playerName,
+    playerId: generatePlayerId(),
+    assistantId,
+    levelProgress: {},
+    levelScores: {},
+    currentLevel: 1,
+    startTime: Date.now()
+});
 
 const createLeaderboardEntry = (state: GameState): LeaderboardEntry => ({
     name: state.playerName,
@@ -89,6 +103,7 @@ const normalizeGameState = (saved: Partial<GameState>): GameState => {
         ...initialState,
         ...saved,
         playerId: saved.playerId || (saved.playerName ? generatePlayerId() : ''),
+        assistantId: isAssistantId(saved.assistantId) ? saved.assistantId : DEFAULT_ASSISTANT_ID,
         badges: Array.isArray(saved.badges) ? saved.badges : [],
         levelsCompleted,
         quizScores: saved.quizScores ?? {},
@@ -153,6 +168,7 @@ export function useGameProgress() {
     const [gameState, setGameState] = useState<GameState>(initialState);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [levelStartTime, setLevelStartTime] = useState<number | null>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     // Load from localStorage
     useEffect(() => {
@@ -175,6 +191,8 @@ export function useGameProgress() {
                 console.error('Failed to parse leaderboard:', e);
             }
         }
+
+        setIsLoaded(true);
     }, []);
 
     // Keep leaderboard in sync with the current player's live score.
@@ -194,19 +212,30 @@ export function useGameProgress() {
     }, []);
 
     // Start new game
-    const startNewGame = useCallback((playerName: string) => {
-        const newState: GameState = {
-            ...initialState,
-            playerName,
-            playerId: generatePlayerId(),
-            levelProgress: {},
-            levelScores: {},
-            currentLevel: 1,
-            startTime: Date.now()
-        };
+    const startNewGame = useCallback((playerName: string, assistantId: AssistantId = DEFAULT_ASSISTANT_ID) => {
+        const newState = createNewGameState(playerName, assistantId);
         setGameState(newState);
         saveProgress(newState);
     }, [saveProgress]);
+
+    const startFreshGame = useCallback((playerName: string, assistantId: AssistantId = DEFAULT_ASSISTANT_ID) => {
+        const previousPlayerId = gameState.playerId;
+        const previousPlayerName = gameState.playerName || playerName;
+        const newState = createNewGameState(playerName, assistantId);
+
+        setLeaderboard(prev => {
+            const filtered = prev.filter(entry => {
+                if (previousPlayerId) return entry.playerId !== previousPlayerId;
+                return entry.name !== previousPlayerName;
+            });
+            const newLeaderboard = upsertLeaderboardEntry(filtered, newState);
+            localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
+            return newLeaderboard;
+        });
+
+        setGameState(newState);
+        saveProgress(newState);
+    }, [gameState.playerId, gameState.playerName, saveProgress]);
 
     // Update player name
     const setPlayerName = useCallback((name: string) => {
@@ -222,6 +251,14 @@ export function useGameProgress() {
         setGameState(prev => {
             const newScore = prev.totalScore + points;
             const newState = { ...prev, totalScore: newScore };
+            saveProgress(newState);
+            return newState;
+        });
+    }, [saveProgress]);
+
+    const setAssistantId = useCallback((assistantId: AssistantId) => {
+        setGameState(prev => {
+            const newState = { ...prev, assistantId };
             saveProgress(newState);
             return newState;
         });
@@ -379,10 +416,13 @@ export function useGameProgress() {
 
     return {
         gameState,
+        isLoaded,
         leaderboard,
         badges: BADGES,
         startNewGame,
+        startFreshGame,
         setPlayerName,
+        setAssistantId,
         addScore,
         startLevel,
         completeLevel,
