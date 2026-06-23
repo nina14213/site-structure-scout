@@ -15,8 +15,11 @@ import TutorialModal from './TutorialModal';
 import ImportPanel from './schema-mapper/ImportPanel';
 import { useValidator } from '@/hooks/useValidator';
 import { GameState } from '@/hooks/useGameProgress';
+import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAccessibility } from '@/components/accessibility/AccessibilityContext';
+import { calculateTimeBonus, formatCountdownTime } from './gameHelpers';
+import { useGuideSurfaceState } from './GuideSurfaceContext';
 
 // Required DwC terms for Event Core - only eventID is strictly required per DwC-DP
 const requiredTerms = ['eventID'];
@@ -44,7 +47,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         return pl;
     }, [language]);
 
-    // Parse CSV
+    // PL: Przygotowanie danych wejsciowych dla mapowania kolumn.
+    // EN: Input-data preparation for column mapping.
     const parseCSV = useCallback((text: string) => {
         const lines = text.trim().split('\n');
         const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
@@ -59,11 +63,12 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         return { headers, data };
     }, []);
 
-    // Auto-load sample data on mount
     const sampleDataSet = useMemo(() => parseCSV(sampleEventsCSV), [parseCSV]);
     const initialColumns = sampleDataSet.headers;
     const initialData = sampleDataSet.data;
-    
+
+    // PL: Stan poziomu i wyborow gracza.
+    // EN: Level state and player selections.
     const [csvData, setCsvData] = useState<Record<string, string>[]>(initialData);
     const [columns, setColumns] = useState<string[]>(initialColumns);
     const [mappings, setMappings] = useState<Record<string, string>>({});
@@ -79,6 +84,12 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
     const [showHint, setShowHint] = useState(false);
     const [mappingErrors, setMappingErrors] = useState<Record<string, string>>({});
     const levelTimerStartedRef = useRef(false);
+
+    useGuideSurfaceState(
+        { key: dataSourceDialogMode === 'import' ? 'coreDataImport' : 'coreDataChoice' },
+        showDataSourceDialog,
+    );
+    useGuideSurfaceState({ key: 'tutorial', levelNumber: 1 }, !showDataSourceDialog && showTutorial);
 
     const dataSourceCopy = useMemo(() => {
         if (language === 'fr') {
@@ -209,7 +220,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         setShowDataSourceDialog(false);
     }, [applyDataSet]);
 
-    // Start timer after setup overlays are closed
+    // PL: Timer startuje dopiero po zamknieciu wyboru danych i samouczka.
+    // EN: Timer starts only after the data picker and tutorial are closed.
     useEffect(() => {
         if (showDataSourceDialog || showTutorial) {
             setIsTimerRunning(false);
@@ -226,24 +238,19 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         }
     }, [showDataSourceDialog, showTutorial, startLevelTimer, timeLeft]);
 
-    // Timer countdown
-    useEffect(() => {
-        if (!isTimerRunning || timeLeft <= 0) return;
+    const handleTimerExpired = useCallback(() => {
+        setIsTimerRunning(false);
+    }, []);
 
-        const timer = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    setIsTimerRunning(false);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+    useCountdownTimer({
+        isRunning: isTimerRunning,
+        timeLeft,
+        setTimeLeft,
+        onExpire: handleTimerExpired,
+    });
 
-        return () => clearInterval(timer);
-    }, [isTimerRunning, timeLeft]);
-
-    // Handle mapping
+    // PL: Akcje mapowania kolumn, wspolne dla drag-and-drop i wyboru dotykowego.
+    // EN: Column-mapping actions shared by drag-and-drop and tap assignment.
     const handleDrop = useCallback((termName: string, columnName: string) => {
         // Check for restricted mappings
         const restrictions: Record<string, { only: string; error: string }> = {
@@ -289,7 +296,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         );
     }, [playDrop, playFail, announce, usesSampleData, coreUiCopy]);
 
-    // Remove mapping
     const handleRemoveMapping = useCallback((termName: string) => {
         setMappings(prev => {
             const newMappings = { ...prev };
@@ -299,7 +305,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         announce(coreUiCopy.mappingRemovedAnnouncement.replace('{term}', termName));
     }, [announce, coreUiCopy]);
 
-    // Tap-to-assign: select a column
     const handleTapSelect = useCallback((column: string) => {
         setSelectedColumn(prev => {
             const next = prev === column ? null : column;
@@ -312,24 +317,22 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         });
     }, [announce, coreUiCopy]);
 
-    // Tap-to-assign: assign selected column to a term
     const handleTapAssign = useCallback((termName: string) => {
         if (!selectedColumn) return;
         handleDrop(termName, selectedColumn);
         setSelectedColumn(null);
     }, [selectedColumn, handleDrop]);
 
-    // Get sample values for column
+    // PL: Selektory pochodne uzywane przez karty kolumn i termow.
+    // EN: Derived selectors used by column and term cards.
     const getSampleValues = useCallback((columnName: string) => {
         return csvData.slice(0, 3).map(row => row[columnName]).filter(Boolean);
     }, [csvData]);
 
-    // Check if column is mapped
     const getColumnMapping = useCallback((columnName: string) => {
         return Object.entries(mappings).find(([, col]) => col === columnName)?.[0] || null;
     }, [mappings]);
 
-    // Validate mapping
     const validateMapping = useCallback((termName: string): 'valid' | 'warning' | 'error' | null => {
         const columnName = mappings[termName];
         if (!columnName) return null;
@@ -345,11 +348,11 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         return 'error';
     }, [mappings, csvData, validateField]);
 
-    // Calculate progress
     const progress = (requiredTerms.filter(term => mappings[term]).length / requiredTerms.length) * 100;
     const allRequiredMapped = requiredTerms.every(term => mappings[term]);
 
-    // Calculate score
+    // PL: Punktacja laczy mapowania wymagane, opcjonalne, walidacje i bonus czasowy.
+    // EN: Scoring combines required mappings, optional mappings, validation, and time bonus.
     useEffect(() => {
         let score = 0;
         requiredTerms.forEach(term => {
@@ -361,14 +364,13 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
             if (validateMapping(term) === 'valid') score += 5;
         });
 
-        if (timeLeft > 240) score += 50;
-        else if (timeLeft > 180) score += 30;
-        else if (timeLeft > 60) score += 10;
+        score += calculateTimeBonus(timeLeft);
 
         setLevelScore(score);
     }, [mappings, validateMapping, timeLeft]);
 
-    // Complete level
+    // PL: Finalizacja poziomu przekazuje wynik i dane do glownego przeplywu gry.
+    // EN: Level completion sends score and mapping data back to the main game flow.
     const handleComplete = () => {
         if (!allRequiredMapped) {
             playFail?.();
@@ -378,12 +380,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         addScore?.(finalScore, coreUiCopy.completeReason);
         playLevelComplete?.();
         onComplete?.(finalScore, { mappings, csvData, columns });
-    };
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -417,7 +413,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                 timeLeft < 60 ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300'
                             }`}>
                                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? 'animate-pulse' : ''}`} aria-hidden="true" />
-                                <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+                                <span className="font-mono text-lg">{formatCountdownTime(timeLeft)}</span>
                             </div>
                             <Badge variant="outline" className="text-lg px-4 py-2 border-yellow-500 text-yellow-600 dark:border-yellow-400 dark:text-yellow-400">
                                 {levelScore} {coreUiCopy.pointsUnit}

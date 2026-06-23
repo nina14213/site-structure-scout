@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
-import bossDefeatedIcon from '@/assets/boss-defeated-x.png';
+import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { formatCountdownTime } from './gameHelpers';
+import { useGuideSurfaceState } from './GuideSurfaceContext';
 
 interface ValidationStep {
     id: string;
@@ -44,6 +46,146 @@ const initialDataRecords: DataRecord[] = [
 
 const validEventIDs = ['EVT-001', 'EVT-002', 'EVT-003', 'EVT-004', 'EVT-005', 'EVT-006', 'EVT-007', 'EVT-008'];
 
+type ValidationError = { rowId: string; field: keyof DataRecord | string; message: string };
+type Translate = (key: string, params?: Record<string, string | number>) => string;
+
+const POLISH_DIACRITICS_REGEX = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;
+
+// PL: Zwraca powtorzone wartosci, zachowujac unikalna liste duplikatow.
+// EN: Returns duplicated values while keeping the duplicate list unique.
+function findDuplicateValues(values: string[]): string[] {
+    return [...new Set(values.filter((id, idx) => values.indexOf(id) !== idx))];
+}
+
+// PL: Waliduje, czy nazwa naukowa jest podana i zapisana po lacinie.
+// EN: Validates that scientificName exists and uses a Latin scientific name.
+function appendScientificNameErrors(records: DataRecord[], errors: ValidationError[], t: Translate) {
+    records.forEach(record => {
+        if (!record.scientificName || record.scientificName.trim() === '') {
+            errors.push({ rowId: record.id, field: 'scientificName', message: t('val.noScientificName') });
+        } else if (POLISH_DIACRITICS_REGEX.test(record.scientificName)) {
+            errors.push({ rowId: record.id, field: 'scientificName', message: t('val.mustBeLatin') });
+        }
+    });
+}
+
+// PL: Sprawdza wymagany occurrenceID oraz jego unikalnosc.
+// EN: Checks that occurrenceID is present and unique.
+function appendOccurrenceIdErrors(records: DataRecord[], errors: ValidationError[], t: Translate) {
+    records.forEach(record => {
+        if (!record.occurrenceID || record.occurrenceID.trim() === '') {
+            errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.noID') });
+        }
+    });
+
+    const ids = records.map(record => record.occurrenceID).filter(id => id && id.trim() !== '');
+    findDuplicateValues(ids).forEach(duplicateId => {
+        const record = records.find(row => row.occurrenceID === duplicateId);
+        if (record) {
+            errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.duplicateID') });
+        }
+    });
+}
+
+// PL: Wymusza format ISO 8601 i podstawowa poprawnosc daty.
+// EN: Enforces ISO 8601 format and basic date validity.
+function appendDateErrors(records: DataRecord[], errors: ValidationError[], t: Translate) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+    records.forEach(record => {
+        if (!record.eventDate || record.eventDate.trim() === '') {
+            errors.push({ rowId: record.id, field: 'eventDate', message: t('val.noDate') });
+            return;
+        }
+
+        if (!dateRegex.test(record.eventDate)) {
+            errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateFormat') });
+            return;
+        }
+
+        const [, month, day] = record.eventDate.split('-').map(Number);
+        if (month < 1 || month > 12 || day < 1 || day > 31) {
+            errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateValue') });
+        }
+    });
+}
+
+// PL: Sprawdza zakresy wspolrzednych geograficznych.
+// EN: Checks geographic coordinate ranges.
+function appendCoordinateErrors(records: DataRecord[], errors: ValidationError[], t: Translate) {
+    records.forEach(record => {
+        const lat = parseFloat(record.decimalLatitude);
+        const lon = parseFloat(record.decimalLongitude);
+
+        if (isNaN(lat) || lat < -90 || lat > 90) {
+            errors.push({ rowId: record.id, field: 'decimalLatitude', message: t('val.latOutOfRange', { value: record.decimalLatitude }) });
+        }
+        if (isNaN(lon) || lon < -180 || lon > 180) {
+            errors.push({ rowId: record.id, field: 'decimalLongitude', message: t('val.lonOutOfRange', { value: record.decimalLongitude }) });
+        }
+    });
+}
+
+// PL: Sprawdza, czy eventID istnieje w slowniku i nie powtarza sie w danych.
+// EN: Checks that eventID exists in the reference list and is unique in the data.
+function appendEventIdErrors(records: DataRecord[], errors: ValidationError[], t: Translate) {
+    records.forEach(record => {
+        if (!record.eventID || record.eventID.trim() === '') {
+            errors.push({ rowId: record.id, field: 'eventID', message: t('val.noEventID') });
+        } else if (!validEventIDs.includes(record.eventID)) {
+            errors.push({ rowId: record.id, field: 'eventID', message: t('val.invalidEventID') });
+        }
+    });
+
+    const eventIds = records.map(record => record.eventID).filter(id => id && id.trim() !== '');
+    findDuplicateValues(eventIds).forEach(duplicateId => {
+        records.filter(record => record.eventID === duplicateId).forEach(record => {
+            if (!errors.some(error => error.rowId === record.id && error.field === 'eventID')) {
+                errors.push({ rowId: record.id, field: 'eventID', message: t('val.duplicateEventID') });
+            }
+        });
+    });
+}
+
+// PL: Orkiestruje wszystkie reguly walidacji w przewidywalnej kolejnosci.
+// EN: Orchestrates all validation rules in a predictable order.
+function validateRecords(records: DataRecord[], t: Translate): ValidationError[] {
+    const errors: ValidationError[] = [];
+
+    appendScientificNameErrors(records, errors, t);
+    appendOccurrenceIdErrors(records, errors, t);
+    appendDateErrors(records, errors, t);
+    appendCoordinateErrors(records, errors, t);
+    appendEventIdErrors(records, errors, t);
+
+    return errors;
+}
+
+// PL: Tlumaczy liste bledow na status konkretnego kroku walidacji.
+// EN: Translates the error list into the status of a concrete validation step.
+function getValidationStepResult(stepId: string, errors: ValidationError[], t: Translate) {
+    const result = { stepPassed: true, stepMessage: t('val.validationPassed') };
+
+    if (stepId === 'required') {
+        const reqErrors = errors.filter(error => error.field === 'scientificName');
+        if (reqErrors.length > 0) return { stepPassed: false, stepMessage: t('val.scientificNameErrors', { count: reqErrors.length }) };
+    } else if (stepId === 'ids') {
+        const idErrors = errors.filter(error => error.field === 'occurrenceID');
+        if (idErrors.length > 0) return { stepPassed: false, stepMessage: t('val.duplicateIDs', { count: idErrors.length }) };
+    } else if (stepId === 'dates') {
+        const dateErrors = errors.filter(error => error.field === 'eventDate');
+        if (dateErrors.length > 0) return { stepPassed: false, stepMessage: t('val.dateErrors', { count: dateErrors.length }) };
+    } else if (stepId === 'coords') {
+        const coordErrors = errors.filter(error => error.field === 'decimalLatitude' || error.field === 'decimalLongitude');
+        if (coordErrors.length > 0) return { stepPassed: false, stepMessage: t('val.coordErrors', { count: coordErrors.length }) };
+    } else if (stepId === 'integrity') {
+        const integrityErrors = errors.filter(error => error.field === 'eventID');
+        if (integrityErrors.length > 0) return { stepPassed: false, stepMessage: t('val.eventIDErrors', { count: integrityErrors.length }) };
+    }
+
+    return result;
+}
+
 interface ValidatorProps {
     onComplete?: (score: number, data: unknown) => void;
     gameState?: GameState;
@@ -73,106 +215,30 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
     const [showDataEditor, setShowDataEditor] = useState(true);
-    const [errorDetails, setErrorDetails] = useState<Array<{ rowId: string; field: string; message: string }>>([]);
+    const [errorDetails, setErrorDetails] = useState<ValidationError[]>([]);
+
+    useGuideSurfaceState({ key: 'tutorial', levelNumber: 5 }, showTutorial);
 
     useEffect(() => {
         startLevelTimer?.();
     }, [startLevelTimer]);
 
-    // Timer countdown
-    useEffect(() => {
-        if (!isTimerRunning || timeLeft <= 0) return;
-        const timer = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    setIsTimerRunning(false);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [isTimerRunning, timeLeft]);
+    // PL: Wspolny timer poziomu - po uplywie czasu tylko zatrzymuje odliczanie.
+    // EN: Shared level timer - when time expires it only stops the countdown.
+    const handleTimerExpired = useCallback(() => {
+        setIsTimerRunning(false);
+    }, []);
 
-    const validateData = useCallback(() => {
-        const errors: Array<{ rowId: string; field: string; message: string }> = [];
-        
-        // Check scientificName - must be Latin (no Polish diacritics)
-        const polishChars = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/;
-        dataRecords.forEach(record => {
-            if (!record.scientificName || record.scientificName.trim() === '') {
-                errors.push({ rowId: record.id, field: 'scientificName', message: t('val.noScientificName') });
-            } else if (polishChars.test(record.scientificName)) {
-                errors.push({ rowId: record.id, field: 'scientificName', message: t('val.mustBeLatin') });
-            }
-        });
+    useCountdownTimer({
+        isRunning: isTimerRunning,
+        timeLeft,
+        setTimeLeft,
+        onExpire: handleTimerExpired,
+    });
 
-        // Check for empty or duplicate IDs
-        dataRecords.forEach(record => {
-            if (!record.occurrenceID || record.occurrenceID.trim() === '') {
-                errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.noID') });
-            }
-        });
-        
-        const ids = dataRecords.map(r => r.occurrenceID).filter(id => id && id.trim() !== '');
-        const duplicates = ids.filter((id, idx) => ids.indexOf(id) !== idx);
-        duplicates.forEach(dupId => {
-            const record = dataRecords.find(r => r.occurrenceID === dupId);
-            if (record) {
-                errors.push({ rowId: record.id, field: 'occurrenceID', message: t('val.duplicateID') });
-            }
-        });
-
-        // Check date format (ISO 8601: YYYY-MM-DD) and valid values
-        dataRecords.forEach(record => {
-            if (!record.eventDate || record.eventDate.trim() === '') {
-                errors.push({ rowId: record.id, field: 'eventDate', message: t('val.noDate') });
-            } else {
-                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-                if (!dateRegex.test(record.eventDate)) {
-                    errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateFormat') });
-                } else {
-                    const [y, m, d] = record.eventDate.split('-').map(Number);
-                    if (m < 1 || m > 12 || d < 1 || d > 31) {
-                        errors.push({ rowId: record.id, field: 'eventDate', message: t('val.badDateValue') });
-                    }
-                }
-            }
-        });
-
-        // Check coordinates range
-        dataRecords.forEach(record => {
-            const lat = parseFloat(record.decimalLatitude);
-            const lon = parseFloat(record.decimalLongitude);
-            if (isNaN(lat) || lat < -90 || lat > 90) {
-                errors.push({ rowId: record.id, field: 'decimalLatitude', message: t('val.latOutOfRange', { value: record.decimalLatitude }) });
-            }
-            if (isNaN(lon) || lon < -180 || lon > 180) {
-                errors.push({ rowId: record.id, field: 'decimalLongitude', message: t('val.lonOutOfRange', { value: record.decimalLongitude }) });
-            }
-        });
-
-        // Check eventID integrity and uniqueness
-        dataRecords.forEach(record => {
-            if (!record.eventID || record.eventID.trim() === '') {
-                errors.push({ rowId: record.id, field: 'eventID', message: t('val.noEventID') });
-            } else if (!validEventIDs.includes(record.eventID)) {
-                errors.push({ rowId: record.id, field: 'eventID', message: t('val.invalidEventID') });
-            }
-        });
-        // Check eventID uniqueness
-        const eventIds = dataRecords.map(r => r.eventID).filter(id => id && id.trim() !== '');
-        const dupEventIds = eventIds.filter((id, idx) => eventIds.indexOf(id) !== idx);
-        dupEventIds.forEach(dupId => {
-            dataRecords.filter(r => r.eventID === dupId).forEach(record => {
-                if (!errors.some(e => e.rowId === record.id && e.field === 'eventID')) {
-                    errors.push({ rowId: record.id, field: 'eventID', message: t('val.duplicateEventID') });
-                }
-            });
-        });
-
-        return errors;
-    }, [dataRecords]);
+    // PL: Komponent tylko uruchamia reguly; szczegoly sa w helperach nad komponentem.
+    // EN: The component only runs the rules; details live in helpers above it.
+    const validateData = useCallback(() => validateRecords(dataRecords, t), [dataRecords, t]);
 
     const runValidation = useCallback(async () => {
         setIsValidating(true);
@@ -193,41 +259,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
             await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 300));
 
-            let stepPassed = true;
-            let stepMessage = t('val.validationPassed');
-
-            // Check specific validation for each step
-            if (validationSteps[i].id === 'required') {
-                const reqErrors = errors.filter(e => e.field === 'scientificName');
-                if (reqErrors.length > 0) {
-                    stepPassed = false;
-                    stepMessage = t('val.scientificNameErrors', { count: reqErrors.length });
-                }
-            } else if (validationSteps[i].id === 'ids') {
-                const idErrors = errors.filter(e => e.field === 'occurrenceID');
-                if (idErrors.length > 0) {
-                    stepPassed = false;
-                    stepMessage = t('val.duplicateIDs', { count: idErrors.length });
-                }
-            } else if (validationSteps[i].id === 'dates') {
-                const dateErrors = errors.filter(e => e.field === 'eventDate');
-                if (dateErrors.length > 0) {
-                    stepPassed = false;
-                    stepMessage = t('val.dateErrors', { count: dateErrors.length });
-                }
-            } else if (validationSteps[i].id === 'coords') {
-                const coordErrors = errors.filter(e => e.field === 'decimalLatitude' || e.field === 'decimalLongitude');
-                if (coordErrors.length > 0) {
-                    stepPassed = false;
-                    stepMessage = t('val.coordErrors', { count: coordErrors.length });
-                }
-            } else if (validationSteps[i].id === 'integrity') {
-                const integrityErrors = errors.filter(e => e.field === 'eventID');
-                if (integrityErrors.length > 0) {
-                    stepPassed = false;
-                    stepMessage = t('val.eventIDErrors', { count: integrityErrors.length });
-                }
-            }
+            const { stepPassed, stepMessage } = getValidationStepResult(validationSteps[i].id, errors, t);
 
             setValidationSteps(prev => prev.map((step, idx) => 
                 idx === i ? { 
@@ -257,7 +289,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         } else {
             setShowDataEditor(true);
         }
-    }, [validationSteps, validateData, playSuccess, playFail]);
+    }, [validationSteps, validateData, playSuccess, playFail, t]);
 
     const updateRecord = (id: string, field: keyof DataRecord, value: string) => {
         setDataRecords(prev => prev.map(record => 
@@ -280,12 +312,6 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
         addScore?.(finalScore, 'BOSS Defeated!');
         playLevelComplete?.();
         onComplete?.(finalScore, { validationSteps, allPassed });
-    };
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     const getStepIcon = (status: ValidationStep['status']) => {
@@ -325,7 +351,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 timeLeft < 60 ? 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300'
                             }`}>
                                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? 'animate-pulse' : ''}`} />
-                                <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+                                <span className="font-mono text-lg">{formatCountdownTime(timeLeft)}</span>
                             </div>
                             <Badge variant="outline" className="text-lg px-4 py-2 border-red-400 text-red-600 dark:border-red-500 dark:text-red-400">
                                 {levelScore} pts

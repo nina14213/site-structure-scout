@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -33,7 +33,9 @@ import {
   Shield,
 } from "lucide-react";
 import { GameState } from "@/hooks/useGameProgress";
+import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { calculateEscapePuzzleScore, formatCountdownTime, normalizeAnswerText } from "./gameHelpers";
 
 interface Puzzle {
   id: number;
@@ -224,36 +226,28 @@ export default function EscapeRoom({
   const [unlockedPuzzleId, setUnlockedPuzzleId] = useState<number | null>(null);
   const [showFieldNotes, setShowFieldNotes] = useState(false);
 
-  // Timer
-  useEffect(() => {
-    if (isComplete || timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isComplete, timeLeft]);
+  // PL: Timer pauzuje po ukonczeniu Escape Roomu.
+  // EN: Timer pauses once the Escape Room has been completed.
+  useCountdownTimer({
+    isRunning: !isComplete,
+    timeLeft,
+    setTimeLeft,
+  });
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const normalizeAnswer = (str: string) =>
-    str.trim().toLowerCase().replace(/\s+/g, ' ').replace(/\.\s*/g, '. ').replace(/\s*\.\s*/g, '. ').trimEnd();
-
+  // PL: Sprawdza odpowiedz, nalicza punkty i odblokowuje nastepna zagadke.
+  // EN: Checks the answer, awards points, and unlocks the next puzzle.
   const handleSubmit = useCallback(() => {
     const puzzle = puzzleState[currentPuzzle];
-    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(puzzle.answer);
+    const isCorrect = normalizeAnswerText(userAnswer) === normalizeAnswerText(puzzle.answer);
 
     if (isCorrect) {
       playSuccess?.();
-      
-      let puzzleScore = 100;
-      if (showHint) puzzleScore -= 25;
-      if (showClue) puzzleScore -= 25;
-      puzzleScore -= attempts * 10;
-      puzzleScore = Math.max(10, puzzleScore);
+
+      const puzzleScore = calculateEscapePuzzleScore({
+        usedHint: showHint,
+        usedClue: showClue,
+        attempts,
+      });
       
       setScore((prev) => prev + puzzleScore);
       setUnlockedPuzzleId(currentPuzzle);
@@ -297,6 +291,8 @@ export default function EscapeRoom({
     }
   }, [puzzleState, currentPuzzle, userAnswer, showHint, showClue, attempts, score, timeLeft, playSuccess, playFail, playLevelComplete, addScore]);
 
+  // PL: Przywraca poziom do stanu poczatkowego bez opuszczania ekranu.
+  // EN: Restores the level to its initial state without leaving the screen.
   const handleReset = () => {
     setPuzzleState(puzzles);
     setCurrentPuzzle(0);
@@ -442,7 +438,7 @@ export default function EscapeRoom({
                 }`}
               >
                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? "animate-pulse" : ""}`} />
-                <span className="font-mono text-lg font-bold">{formatTime(timeLeft)}</span>
+                <span className="font-mono text-lg font-bold">{formatCountdownTime(timeLeft)}</span>
               </motion.div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30">
                 <Zap className="w-4 h-4 text-amber-700 dark:text-amber-400" />
@@ -691,7 +687,7 @@ export default function EscapeRoom({
                     animate={{ scale: 1, color: "#d4d4d8" }}
                     className="font-mono font-bold text-sm"
                   >
-                    {Math.max(10, 100 - (showHint ? 25 : 0) - (showClue ? 25 : 0) - attempts * 10)} pts
+                    {calculateEscapePuzzleScore({ usedHint: showHint, usedClue: showClue, attempts })} pts
                   </motion.span>
                 </div>
               </CardFooter>

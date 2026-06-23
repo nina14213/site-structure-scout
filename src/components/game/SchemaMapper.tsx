@@ -16,6 +16,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
 import SuggestMappingDialog, { buildSuggestions, SuggestionItem } from "./SuggestMappingDialog";
+import { useGuideSurfaceState } from "./GuideSurfaceContext";
 
 import { useSchemaMapperState } from "./schema-mapper/useSchemaMapperState";
 import { useSchemaExport } from "./schema-mapper/useSchemaExport";
@@ -143,6 +144,12 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
   // ─── Suggest mapping dialog state ─────────────────────────────────
   const [suggestDialogItems, setSuggestDialogItems] = useState<SuggestionItem[] | null>(null);
+
+  useGuideSurfaceState({ key: "schemaMapperImportTutorial" }, showImportTutorial && wizardStep === 1);
+  useGuideSurfaceState({ key: "schemaMapperTutorial", phase: tutorialPhase }, showTutorial && wizardStep >= 2);
+  useGuideSurfaceState({ key: "schemaMapperAutoMatch" }, state.showAutoMatch && state.autoMatchResults.length > 0);
+  useGuideSurfaceState({ key: "schemaMapperSuggest" }, !!suggestDialogItems?.length);
+  useGuideSurfaceState({ key: "schemaMapperIdGenerator" }, state.showIdGenerator);
 
   const openSuggestDialog = useCallback(() => {
     const items = buildSuggestions(columns, data, state.getColumnMapping);

@@ -18,6 +18,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameScreen } from '@/hooks/useGameNavigation';
 import type { GameState } from '@/hooks/useGameProgress';
 import { getAssistantProfile, type AssistantId, type AssistantProfile } from '@/lib/assistants';
+import { useGuideSurface, type GuideSurface } from './GuideSurfaceContext';
 
 type Dock = 'left' | 'right' | 'center';
 const IDLE_HELP_DELAY_MS = 120000;
@@ -104,6 +105,13 @@ const tipKey = (key: string): GuideTipKey => ({
   bodyKey: `assistant.tip.${key}.body`,
 });
 
+const surfaceTipKey = (key: string, params?: Record<string, string | number>): GuideTipKey => ({
+  badgeKey: `assistant.surface.${key}.badge`,
+  titleKey: `assistant.surface.${key}.title`,
+  bodyKey: `assistant.surface.${key}.body`,
+  params,
+});
+
 const translateTip = (t: Translate, tip: GuideTipKey): GuideTip => ({
   badge: tip.badge ?? t(tip.badgeKey ?? '', tip.params),
   title: t(tip.titleKey, tip.params),
@@ -135,13 +143,48 @@ const levelTips: Record<number, GuideTipKey[]> = {
   ],
 };
 
+function getSurfaceTips(surface: GuideSurface): GuideTipKey[] | null {
+  switch (surface.key) {
+    case 'tutorial':
+      return [surfaceTipKey('tutorial', { levelNumber: surface.levelNumber ?? '' })];
+    case 'coreDataChoice':
+      return [surfaceTipKey('coreDataChoice'), surfaceTipKey('coreDataChoiceNext')];
+    case 'coreDataImport':
+      return [surfaceTipKey('coreDataImport')];
+    case 'extensionEscapeRoom':
+      return [surfaceTipKey('extensionEscapeRoom'), surfaceTipKey('extensionEscapeRoomNotes')];
+    case 'schemaMapperImportTutorial':
+      return [surfaceTipKey('schemaMapperImportTutorial')];
+    case 'schemaMapperTutorial':
+      return [surfaceTipKey('schemaMapperTutorial', { phase: surface.phase ?? 1 })];
+    case 'schemaMapperAutoMatch':
+      return [surfaceTipKey('schemaMapperAutoMatch')];
+    case 'schemaMapperSuggest':
+      return [surfaceTipKey('schemaMapperSuggest')];
+    case 'schemaMapperIdGenerator':
+      return [surfaceTipKey('schemaMapperIdGenerator')];
+    default:
+      return null;
+  }
+}
+
+function shouldCollapseForSurface(surface: GuideSurface): boolean {
+  return surface.key !== 'default' && surface.key !== 'extensionEscapeRoom';
+}
+
 function getTips(
   currentScreen: GameScreen,
   currentLevel: number | null,
   gameState: GameState,
   assistantName: string,
   t: Translate,
+  activeSurface: GuideSurface,
 ): GuideTip[] {
+  const surfaceTips = getSurfaceTips(activeSurface);
+  if (surfaceTips) {
+    return translateTips(t, surfaceTips);
+  }
+
   const playerName = gameState.playerName || 'Data Ranger';
   const completed = gameState.levelsCompleted.length;
 
@@ -445,15 +488,17 @@ function FrameFrontTentacles({
 export default function GuideAssistant({ currentScreen, currentLevel, gameState }: GuideAssistantProps) {
   const { settings } = useAccessibility();
   const { t } = useLanguage();
+  const { activeSurface } = useGuideSurface();
   const reduceMotion = settings.reduceMotion;
   const assistant = getAssistantProfile(gameState.assistantId);
   const assistantName = t(assistant.nameKey);
-  const tips = useMemo(() => getTips(currentScreen, currentLevel, gameState, assistantName, t), [
+  const tips = useMemo(() => getTips(currentScreen, currentLevel, gameState, assistantName, t, activeSurface), [
     currentScreen,
     currentLevel,
     gameState,
     assistantName,
     t,
+    activeSurface,
   ]);
   const [tipIndex, setTipIndex] = useState(0);
   const [expanded, setExpanded] = useState(true);
@@ -468,17 +513,18 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   const suggestedDock = getSuggestedDock(currentScreen, currentLevel);
   const dock = customPosition ? getDockFromPosition(customPosition) : manualDock ?? suggestedDock;
   const tip = tips[tipIndex % tips.length];
-  const idleTip = getIdleTip(currentScreen, currentLevel, t);
+  const idleTip = activeSurface.key === 'default' ? getIdleTip(currentScreen, currentLevel, t) : tip;
   const activeTip = idleNudge ? idleTip : tip;
-  const contextKey = `${assistant.id}-${currentScreen}-${currentLevel ?? 'none'}-${gameState.currentLevel}-${gameState.levelsCompleted.join('.')}`;
+  const surfaceContextKey = `${activeSurface.key}-${activeSurface.levelNumber ?? 'none'}-${activeSurface.phase ?? 'none'}`;
+  const contextKey = `${assistant.id}-${currentScreen}-${currentLevel ?? 'none'}-${surfaceContextKey}-${gameState.currentLevel}-${gameState.levelsCompleted.join('.')}`;
   const assistantPositionStyle = customPosition ? { left: customPosition.x, top: customPosition.y } : undefined;
 
   useEffect(() => {
     setTipIndex(0);
-    setExpanded(true);
+    setExpanded(!shouldCollapseForSurface(activeSurface));
     setIdleNudge(false);
     setManualDock(null);
-  }, [contextKey]);
+  }, [contextKey, activeSurface]);
 
   useEffect(() => {
     try {

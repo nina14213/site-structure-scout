@@ -23,6 +23,7 @@ import {
 import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useGuideSurfaceState } from './GuideSurfaceContext';
 
 interface MetaGeneratorProps {
     onComplete?: (score: number, data: unknown) => void;
@@ -64,6 +65,8 @@ export default function MetaGenerator({
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
     const [generatedFiles, setGeneratedFiles] = useState({ meta: false, datapackage: false });
+
+    useGuideSurfaceState({ key: 'tutorial', levelNumber: 3 }, showTutorial);
 
     const coreData = previousLevelData?.coreData || [];
 

@@ -185,6 +185,7 @@
   html.wcag-high-contrast,
   html.wcag-contrast-maximum.dark,
   html.wcag-high-contrast.dark {
+    color-scheme: light;
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
     --card: 0 0% 100%;
@@ -254,6 +255,86 @@
     backdrop-filter: none !important;
   }
 
+  /* PL: Tryb maksymalnego kontrastu usuwa dekoracyjne kolory, aby tekst nie trafial na ciemne gradienty.
+     EN: Maximum contrast strips decorative colors so text never lands on dark gradients. */
+  html.wcag-contrast-maximum [class*="bg-"],
+  html.wcag-high-contrast [class*="bg-"] {
+    background-color: hsl(var(--background)) !important;
+    background-image: none !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-maximum [class*="text-"],
+  html.wcag-high-contrast [class*="text-"] {
+    color: hsl(var(--foreground)) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum :is(.text-gradient, .bg-clip-text, .neon-text, .neon-text-cyan),
+  html.wcag-high-contrast :is(.text-gradient, .bg-clip-text, .neon-text, .neon-text-cyan) {
+    background: none !important;
+    color: hsl(var(--foreground)) !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum :is(.backdrop-blur, .backdrop-blur-sm),
+  html.wcag-high-contrast :is(.backdrop-blur, .backdrop-blur-sm) {
+    backdrop-filter: none !important;
+  }
+
+  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"], input, select, textarea),
+  html.wcag-high-contrast :is(button, [role="button"], [role="radio"], input, select, textarea) {
+    background-color: hsl(var(--background)) !important;
+    background-image: none !important;
+    border-color: hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
+    box-shadow: none !important;
+  }
+
+  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled),
+  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) {
+    background-color: hsl(var(--foreground)) !important;
+    color: hsl(var(--background)) !important;
+  }
+
+  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled) *,
+  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) * {
+    color: hsl(var(--background)) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"],
+  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"] {
+    background-color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--background) / 0.85) !important;
+    color: hsl(var(--background)) !important;
+  }
+
+  html.wcag-contrast-maximum :is(button[aria-checked="true"], [role="radio"][aria-checked="true"], [role="switch"][data-state="checked"], [role="checkbox"][data-state="checked"], [role="tab"][data-state="active"], button[data-state="on"], [role="button"][data-state="on"]),
+  html.wcag-high-contrast :is(button[aria-checked="true"], [role="radio"][aria-checked="true"], [role="switch"][data-state="checked"], [role="checkbox"][data-state="checked"], [role="tab"][data-state="active"], button[data-state="on"], [role="button"][data-state="on"]) {
+    background-color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--foreground)) !important;
+    color: hsl(var(--background)) !important;
+  }
+
+  html.wcag-contrast-maximum :is(button[aria-checked="true"], [role="radio"][aria-checked="true"], [role="switch"][data-state="checked"], [role="checkbox"][data-state="checked"], [role="tab"][data-state="active"], button[data-state="on"], [role="button"][data-state="on"]) *,
+  html.wcag-high-contrast :is(button[aria-checked="true"], [role="radio"][aria-checked="true"], [role="switch"][data-state="checked"], [role="checkbox"][data-state="checked"], [role="tab"][data-state="active"], button[data-state="on"], [role="button"][data-state="on"]) * {
+    color: hsl(var(--background)) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum [role="progressbar"],
+  html.wcag-high-contrast [role="progressbar"] {
+    background: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  html.wcag-contrast-maximum [role="progressbar"] > *,
+  html.wcag-high-contrast [role="progressbar"] > * {
+    background: hsl(var(--foreground)) !important;
+  }
+
   html.wcag-contrast-maximum a:not([class*="no-underline"]),
   html.wcag-high-contrast a:not([class*="no-underline"]) {
     text-decoration-thickness: 0.12em;
@@ -289,6 +370,18 @@
   html.wcag-contrast-maximum [data-task-button] {
     background: hsl(0 0% 0%) !important;
     color: hsl(0 0% 100%) !important;
+  }
+
+  html.wcag-contrast-maximum [data-task-button] *,
+  html.wcag-high-contrast [data-task-button] * {
+    color: hsl(0 0% 100%) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-maximum [data-task-button] [class*="bg-black"],
+  html.wcag-high-contrast [data-task-button] [class*="bg-black"] {
+    background-color: hsl(0 0% 0%) !important;
+    border-color: hsl(0 0% 100% / 0.85) !important;
   }
 
   @media (forced-colors: active) {

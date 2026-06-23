@@ -15,8 +15,9 @@ import { StartScreen, GameLauncher, GameComplete, WelcomeScreen } from '@/compon
 import SchemaMapper from '@/components/game/SchemaMapper';
 import QuizModal from '@/components/game/QuizModal';
 import GuideAssistant from '@/components/game/GuideAssistant';
+import { GuideSurfaceProvider } from '@/components/game/GuideSurfaceContext';
 
-const Index = () => {
+const IndexContent = () => {
   const progress = useGameProgress();
   const sounds = useGameSounds();
   const nav = useGameNavigation(progress);
@@ -134,5 +135,11 @@ const Index = () => {
     </>
   );
 };
+
+const Index = () => (
+  <GuideSurfaceProvider>
+    <IndexContent />
+  </GuideSurfaceProvider>
+);
 
 export default Index;

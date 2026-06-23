@@ -8,6 +8,7 @@ import { Search, CheckCircle, XCircle, AlertTriangle, Dna, FlaskConical } from '
 import { GameState } from '@/hooks/useGameProgress';
 import TutorialModal from './TutorialModal';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useGuideSurfaceState } from './GuideSurfaceContext';
 
 // --- Data ---
 
@@ -113,6 +114,8 @@ export default function SpeciesMatcher({
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [finished, setFinished] = useState(false);
   const [answers, setAnswers] = useState<Record<number, { chosen: string; correct: boolean }>>({});
+
+  useGuideSurfaceState({ key: 'tutorial', levelNumber: 4 }, showTutorial);
 
   const roundData: Record<Round, SpeciesEntry[]> = { 1: round1Data, 2: round2Data, 3: round3Data };
   const roundTitles: Record<Round, string> = { 1: t('species.round1'), 2: t('species.round2'), 3: t('species.round3') };

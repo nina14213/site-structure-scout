@@ -22,7 +22,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import TutorialModal from "./TutorialModal";
 import EscapeRoom from "./EscapeRoom";
 import { GameState } from "@/hooks/useGameProgress";
+import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { calculateTimeBonus, formatCountdownTime } from "./gameHelpers";
+import { useGuideSurfaceState } from "./GuideSurfaceContext";
+
+// PL: Ksztalt wiersza, ktory gracz uzupelnia w tabeli occurrence.
+// EN: Shape of the occurrence row filled in by the player.
+interface OccurrenceRow {
+  eventID: string;
+  scientificName: string;
+  recordedBy: string;
+  organismQuantity: string;
+  organismQuantityType: string;
+}
+
+interface OccurrenceValidationError {
+  row: number;
+  field: keyof OccurrenceRow;
+  message: string;
+}
+
+const OCCURRENCE_FIELDS: Array<keyof OccurrenceRow> = [
+  "eventID",
+  "scientificName",
+  "recordedBy",
+  "organismQuantity",
+  "organismQuantityType",
+];
 
 // Field notes from scientists - contains extra "messy" information
 const baseFieldNotes = [
@@ -91,7 +118,7 @@ const baseFieldNotes = [
 ];
 
 // Expected correct values for validation
-const expectedOccurrenceData = [
+const expectedOccurrenceData: OccurrenceRow[] = [
   {
     eventID: "3431",
     scientificName: "Ailanthus altissima",
@@ -123,7 +150,7 @@ const expectedOccurrenceData = [
 ];
 
 // Initial occurrence data with blanks for player to fill
-const initialOccurrenceData = [
+const initialOccurrenceData: OccurrenceRow[] = [
   { eventID: "3431", scientificName: "", recordedBy: "", organismQuantity: "", organismQuantityType: "" },
   { eventID: "", scientificName: "", recordedBy: "", organismQuantity: "1", organismQuantityType: "" },
   {
@@ -143,6 +170,57 @@ const baseEventReference = [
   { eventID: "3433", eventDate: "25.10.2025 11:21", locality: "John Paul II Park", recorder: "K. Słupecka" },
   { eventID: "3434", eventDate: "23.05.2025 15:47", locality: "Powstańców Wlkp. Street park", recorder: "M. Kowalski" },
 ];
+
+// PL: Waliduje pojedynczy wiersz i zwraca precyzyjne bledy dla UI.
+// EN: Validates one row and returns field-level errors for the UI.
+function validateOccurrenceRow(
+  row: OccurrenceRow,
+  expected: OccurrenceRow,
+  rowNumber: number,
+  validEventIds: Set<string>,
+): OccurrenceValidationError[] {
+  const errors: OccurrenceValidationError[] = [];
+
+  if (!row.eventID) {
+    errors.push({ row: rowNumber, field: "eventID", message: "Brak wartości" });
+  } else if (!validEventIds.has(row.eventID)) {
+    errors.push({ row: rowNumber, field: "eventID", message: "Nieprawidłowy eventID" });
+  } else if (row.eventID !== expected.eventID) {
+    errors.push({ row: rowNumber, field: "eventID", message: "Błędna odpowiedź" });
+  }
+
+  OCCURRENCE_FIELDS.filter((field) => field !== "eventID").forEach((field) => {
+    if (!row[field]) {
+      errors.push({ row: rowNumber, field, message: "Brak wartości" });
+    } else if (row[field] !== expected[field]) {
+      errors.push({ row: rowNumber, field, message: "Błędna odpowiedź" });
+    }
+  });
+
+  return errors;
+}
+
+// PL: Usuwa tylko te odpowiedzi, ktore sa wypelnione i niezgodne z kluczem.
+// EN: Clears only filled answers that do not match the answer key.
+function clearInvalidOccurrenceValues(row: OccurrenceRow, expected: OccurrenceRow): OccurrenceRow {
+  const cleaned = { ...row };
+
+  OCCURRENCE_FIELDS.forEach((field) => {
+    if (row[field] && row[field] !== expected[field]) {
+      cleaned[field] = "";
+    }
+  });
+
+  return cleaned;
+}
+
+// PL: Liczy wypelnione komorki niezaleznie od ich poprawnosci.
+// EN: Counts filled cells independently from validation correctness.
+function countFilledOccurrenceCells(rows: OccurrenceRow[]): number {
+  return rows.reduce((filledCount, row) => {
+    return filledCount + OCCURRENCE_FIELDS.filter((field) => Boolean(row[field])).length;
+  }, 0);
+}
 
 interface ExtensionLinkerProps {
   onComplete?: (score: number, data: unknown) => void;
@@ -276,7 +354,7 @@ export default function ExtensionLinker({
   const [occurrenceData, setOccurrenceData] = useState(initialOccurrenceData);
   const [validationStatus, setValidationStatus] = useState<{
     valid: boolean;
-    errors: Array<{ row: number; field: string; message: string }>;
+    errors: OccurrenceValidationError[];
   }>({ valid: false, errors: [] });
   const [showTutorial, setShowTutorial] = useState(true);
   const [levelScore, setLevelScore] = useState(0);
@@ -284,70 +362,34 @@ export default function ExtensionLinker({
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [showEscapeRoom, setShowEscapeRoom] = useState(false);
 
-  const eventIds = new Set(eventReference.map((row) => row.eventID));
+  useGuideSurfaceState({ key: "tutorial", levelNumber: 2 }, showTutorial && !showEscapeRoom);
+  useGuideSurfaceState({ key: "extensionEscapeRoom" }, showEscapeRoom);
+
+  const eventIds = useMemo(() => new Set(eventReference.map((row) => row.eventID)), [eventReference]);
 
   useEffect(() => {
     startLevelTimer?.();
   }, [startLevelTimer]);
 
-  // Timer countdown
-  useEffect(() => {
-    if (!isTimerRunning || timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setIsTimerRunning(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isTimerRunning, timeLeft]);
+  // PL: Odliczanie jest wspolne z innymi poziomami gry.
+  // EN: Countdown behavior is shared with the other game levels.
+  const handleTimerExpired = useCallback(() => {
+    setIsTimerRunning(false);
+  }, []);
 
-  // Validate occurrence data - must match exactly the expected values
+  useCountdownTimer({
+    isRunning: isTimerRunning,
+    timeLeft,
+    setTimeLeft,
+    onExpire: handleTimerExpired,
+  });
+
+  // PL: Walidacja musi pasowac dokladnie do klucza odpowiedzi dla tego poziomu.
+  // EN: Validation must match this level's answer key exactly.
   const validateOccurrences = useCallback(() => {
-    const errors: Array<{ row: number; field: string; message: string }> = [];
-    occurrenceData.forEach((row, idx) => {
-      const expected = expectedOccurrenceData[idx];
-
-      // Check eventID
-      if (!row.eventID) {
-        errors.push({ row: idx + 1, field: "eventID", message: "Brak wartości" });
-      } else if (!eventIds.has(row.eventID)) {
-        errors.push({ row: idx + 1, field: "eventID", message: "Nieprawidłowy eventID" });
-      } else if (row.eventID !== expected.eventID) {
-        errors.push({ row: idx + 1, field: "eventID", message: "Błędna odpowiedź" });
-      }
-
-      // Check scientificName
-      if (!row.scientificName) {
-        errors.push({ row: idx + 1, field: "scientificName", message: "Brak wartości" });
-      } else if (row.scientificName !== expected.scientificName) {
-        errors.push({ row: idx + 1, field: "scientificName", message: "Błędna odpowiedź" });
-      }
-
-      // Check recordedBy
-      if (!row.recordedBy) {
-        errors.push({ row: idx + 1, field: "recordedBy", message: "Brak wartości" });
-      } else if (row.recordedBy !== expected.recordedBy) {
-        errors.push({ row: idx + 1, field: "recordedBy", message: "Błędna odpowiedź" });
-      }
-
-      // Check organismQuantity
-      if (!row.organismQuantity) {
-        errors.push({ row: idx + 1, field: "organismQuantity", message: "Brak wartości" });
-      } else if (row.organismQuantity !== expected.organismQuantity) {
-        errors.push({ row: idx + 1, field: "organismQuantity", message: "Błędna odpowiedź" });
-      }
-
-      // Check organismQuantityType
-      if (!row.organismQuantityType) {
-        errors.push({ row: idx + 1, field: "organismQuantityType", message: "Brak wartości" });
-      } else if (row.organismQuantityType !== expected.organismQuantityType) {
-        errors.push({ row: idx + 1, field: "organismQuantityType", message: "Błędna odpowiedź" });
-      }
-    });
+    const errors = occurrenceData.flatMap((row, idx) =>
+      validateOccurrenceRow(row, expectedOccurrenceData[idx], idx + 1, eventIds),
+    );
 
     setValidationStatus({ valid: errors.length === 0, errors });
     if (errors.length === 0) {
@@ -358,37 +400,18 @@ export default function ExtensionLinker({
     return errors;
   }, [occurrenceData, eventIds, playSuccess, playFail]);
 
-  // Clear wrong answers
+  // PL: Pomoc dla gracza - zostawia poprawne pola i kasuje tylko bledne.
+  // EN: Player assist - keeps correct fields and clears only wrong ones.
   const clearWrongAnswers = useCallback(() => {
     setOccurrenceData((prev) => {
-      return prev.map((row, idx) => {
-        const expected = expectedOccurrenceData[idx];
-        const newRow = { ...row };
-
-        if (row.eventID && row.eventID !== expected.eventID) {
-          newRow.eventID = "";
-        }
-        if (row.scientificName && row.scientificName !== expected.scientificName) {
-          newRow.scientificName = "";
-        }
-        if (row.recordedBy && row.recordedBy !== expected.recordedBy) {
-          newRow.recordedBy = "";
-        }
-        if (row.organismQuantity && row.organismQuantity !== expected.organismQuantity) {
-          newRow.organismQuantity = "";
-        }
-        if (row.organismQuantityType && row.organismQuantityType !== expected.organismQuantityType) {
-          newRow.organismQuantityType = "";
-        }
-
-        return newRow;
-      });
+      return prev.map((row, idx) => clearInvalidOccurrenceValues(row, expectedOccurrenceData[idx]));
     });
     setValidationStatus({ valid: false, errors: [] });
   }, []);
 
-  // Update occurrence cell value
-  const updateOccurrenceCell = useCallback((rowIndex: number, field: string, value: string) => {
+  // PL: Kazda edycja uniewaznia poprzedni wynik walidacji.
+  // EN: Every edit invalidates the previous validation result.
+  const updateOccurrenceCell = useCallback((rowIndex: number, field: keyof OccurrenceRow, value: string) => {
     setOccurrenceData((prev) => {
       const updated = [...prev];
       updated[rowIndex] = { ...updated[rowIndex], [field]: value };
@@ -397,27 +420,16 @@ export default function ExtensionLinker({
     setValidationStatus({ valid: false, errors: [] });
   }, []);
 
-  // Calculate score
+  // PL: Wynik laczy poprawna walidacje, wypelnienie tabeli i bonus za czas.
+  // EN: Score combines valid data, table completion, and the time bonus.
   useEffect(() => {
     let score = 0;
     if (validationStatus.valid) score += 200;
 
     const totalCells = occurrenceData.length * 5;
-    const filledCells = occurrenceData.reduce((acc, row) => {
-      return (
-        acc +
-        (row.eventID ? 1 : 0) +
-        (row.scientificName ? 1 : 0) +
-        (row.recordedBy ? 1 : 0) +
-        (row.organismQuantity ? 1 : 0) +
-        (row.organismQuantityType ? 1 : 0)
-      );
-    }, 0);
+    const filledCells = countFilledOccurrenceCells(occurrenceData);
     score += Math.floor((filledCells / totalCells) * 100);
-
-    if (timeLeft > 240) score += 50;
-    else if (timeLeft > 180) score += 30;
-    else if (timeLeft > 60) score += 10;
+    score += calculateTimeBonus(timeLeft);
 
     setLevelScore(score);
   }, [validationStatus, occurrenceData, timeLeft]);
@@ -440,12 +452,6 @@ export default function ExtensionLinker({
     addScore?.(escapeScore, "Escape Room Complete");
     playLevelComplete?.();
     onComplete?.(escapeScore, data);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Escape Room Mode
@@ -486,7 +492,7 @@ export default function ExtensionLinker({
                 }`}
               >
                 <Timer className={`w-5 h-5 ${timeLeft < 60 ? "animate-pulse" : ""}`} />
-                <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+                <span className="font-mono text-lg">{formatCountdownTime(timeLeft)}</span>
               </div>
               <Badge
                 variant="outline"
