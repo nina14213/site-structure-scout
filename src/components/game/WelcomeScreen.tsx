@@ -215,7 +215,7 @@ export default function WelcomeScreen({
                   size="lg"
                   onClick={handleEnter}
                   disabled={!canEnter}
-                  className="w-full bg-gradient-to-r from-emerald-700 to-cyan-800 py-6 text-lg text-white hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:brightness-100 focus-visible:ring-white/80"
+                  className="w-full border border-emerald-700/20 bg-gradient-to-r from-emerald-200 via-teal-200 to-sky-200 py-6 text-lg text-slate-950 shadow-md shadow-emerald-950/10 hover:from-emerald-300 hover:via-teal-300 hover:to-sky-300 hover:text-slate-950 focus-visible:ring-secondary dark:border-emerald-300/40 dark:from-emerald-700 dark:to-cyan-800 dark:text-white dark:hover:from-lime-300 dark:hover:via-green-300 dark:hover:to-emerald-400 dark:hover:text-slate-950"
                 >
                   <Play className="h-5 w-5" aria-hidden="true" />
                   {t('welcome.enterMenu')}

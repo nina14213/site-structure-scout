@@ -21,16 +21,16 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
             title: t('level.1.name'),
             description: t('level.1.desc'),
             icon: Zap,
-            gradient: 'from-[#8a2d5f] via-[#6d1f4b] to-[#4e1336] hover:from-[#7b2554] hover:via-[#611a42] hover:to-[#45102f]',
+            gradient: 'from-rose-100 via-pink-100 to-fuchsia-100 hover:from-rose-200 hover:via-pink-200 hover:to-fuchsia-200',
             darkGradient: 'dark:from-[#97356a] dark:via-[#772551] dark:to-[#56173a] dark:hover:from-[#872d5e] dark:hover:via-[#691f48] dark:hover:to-[#4b1332]',
-            textClass: 'text-white',
-            completedBadgeClass: 'bg-black/20 text-white border-white/25',
-            lockedBadgeClass: 'bg-black/20 text-white border-white/25'
+            textClass: 'text-slate-900 dark:text-white',
+            completedBadgeClass: 'bg-white/80 text-slate-900 border-slate-700/20 dark:bg-black/20 dark:text-white dark:border-white/25',
+            lockedBadgeClass: 'bg-white/80 text-slate-900 border-slate-700/20 dark:bg-black/20 dark:text-white dark:border-white/25'
         },
-        { id: 2, title: t('level.2.name'), description: t('level.2.desc'), icon: Database, gradient: 'from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600', darkGradient: 'dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-700 dark:hover:to-indigo-700' },
-        { id: 3, title: t('level.3.name'), description: t('level.3.desc'), icon: Package, gradient: 'from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600', darkGradient: 'dark:from-teal-600 dark:to-cyan-600 dark:hover:from-teal-700 dark:hover:to-cyan-700' },
-        { id: 4, title: t('level.4.name'), description: t('level.4.desc'), icon: Search, gradient: 'from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600', darkGradient: 'dark:from-emerald-600 dark:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700' },
-        { id: 5, title: t('level.5.name'), description: t('level.5.desc'), icon: Shield, gradient: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600', darkGradient: 'dark:from-red-600 dark:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700' }
+        { id: 2, title: t('level.2.name'), description: t('level.2.desc'), icon: Database, gradient: 'from-violet-100 via-purple-100 to-indigo-100 hover:from-violet-200 hover:via-purple-200 hover:to-indigo-200', darkGradient: 'dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-700 dark:hover:to-indigo-700', textClass: 'text-slate-900 dark:text-white' },
+        { id: 3, title: t('level.3.name'), description: t('level.3.desc'), icon: Package, gradient: 'from-teal-100 via-cyan-100 to-sky-100 hover:from-teal-200 hover:via-cyan-200 hover:to-sky-200', darkGradient: 'dark:from-teal-600 dark:to-cyan-600 dark:hover:from-teal-700 dark:hover:to-cyan-700', textClass: 'text-slate-900 dark:text-white' },
+        { id: 4, title: t('level.4.name'), description: t('level.4.desc'), icon: Search, gradient: 'from-emerald-100 via-teal-100 to-cyan-100 hover:from-emerald-200 hover:via-teal-200 hover:to-cyan-200', darkGradient: 'dark:from-emerald-600 dark:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700', textClass: 'text-slate-900 dark:text-white' },
+        { id: 5, title: t('level.5.name'), description: t('level.5.desc'), icon: Shield, gradient: 'from-rose-100 via-orange-100 to-amber-100 hover:from-rose-200 hover:via-orange-200 hover:to-amber-200', darkGradient: 'dark:from-red-600 dark:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700', textClass: 'text-slate-900 dark:text-white' }
     ];
 
     return (
@@ -79,7 +79,7 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
                                 transition={{ delay: index * 0.1 }}
                                 onClick={() => isUnlocked && onSelectLevel(level.id)}
                                 disabled={isLocked}
-                                className={`flex items-center gap-4 w-full p-6 rounded-xl bg-gradient-to-r ${level.gradient} ${level.darkGradient} ${level.textClass ?? 'text-white'} font-semibold shadow-lg transition-all duration-200 ${
+                                className={`flex items-center gap-4 w-full p-6 rounded-xl bg-gradient-to-r ${level.gradient} ${level.darkGradient} ${level.textClass ?? 'text-slate-900 dark:text-white'} border border-slate-700/15 font-semibold shadow-lg shadow-primary/10 transition-all duration-200 dark:border-white/25 dark:shadow-black/25 ${
                                     isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl hover:scale-105 cursor-pointer'
                                 }`}
                             >
@@ -90,13 +90,13 @@ export default function LevelSelection({ onSelectLevel, gameState, isLevelUnlock
                                 </div>
                                 <div className="flex-shrink-0">
                                     {isCompleted && (
-                                        <Badge className={level.completedBadgeClass ?? 'bg-white/20 text-white border-white/30'}>
+                                        <Badge className={level.completedBadgeClass ?? 'bg-white/80 text-slate-900 border-slate-700/20 dark:bg-white/20 dark:text-white dark:border-white/30'}>
                                             <CheckCircle className="w-3 h-3 mr-1" />
                                             {t('levelSelect.completed')}
                                         </Badge>
                                     )}
                                     {isLocked && (
-                                        <Badge className={level.lockedBadgeClass ?? 'bg-black/20 text-white border-white/30'}>
+                                        <Badge className={level.lockedBadgeClass ?? 'bg-white/80 text-slate-900 border-slate-700/20 dark:bg-black/20 dark:text-white dark:border-white/30'}>
                                             <Lock className="w-3 h-3 mr-1" />
                                             {t('levelSelect.locked')}
                                         </Badge>

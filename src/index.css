@@ -5,54 +5,54 @@
 /* Bahnschrift – Windows system font, no import needed */
 
 @layer base {
-  /* ===== LIGHT THEME (high-contrast for accessibility) ===== */
+  /* ===== LIGHT THEME (pastel, still high-contrast for accessibility) ===== */
   :root {
-    --background: 220 15% 96%;
-    --foreground: 220 25% 12%;
+    --background: 205 80% 97%;
+    --foreground: 226 29% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card: 210 60% 99%;
+    --card-foreground: 226 29% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover: 210 60% 99%;
+    --popover-foreground: 226 29% 15%;
 
-    --primary: 142 65% 28%;
+    --primary: 158 37% 32%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 185 80% 30%;
+    --secondary: 205 46% 34%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 90%;
-    --muted-foreground: 220 15% 35%;
+    --muted: 210 45% 92%;
+    --muted-foreground: 224 18% 35%;
 
-    --accent: 270 60% 50%;
+    --accent: 274 38% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 80%;
-    --input: 220 15% 85%;
-    --ring: 142 65% 28%;
+    --border: 210 34% 78%;
+    --input: 210 38% 84%;
+    --ring: 205 46% 34%;
 
     --radius: 0.75rem;
 
     /* Custom tokens – light */
-    --neon-green: 142 65% 28%;
-    --neon-cyan: 185 80% 28%;
-    --neon-purple: 270 60% 42%;
-    --neon-orange: 25 85% 38%;
-    --dark-base: 220 15% 96%;
-    --dark-surface: 0 0% 100%;
-    --dark-elevated: 220 15% 94%;
+    --neon-green: 150 39% 37%;
+    --neon-cyan: 195 44% 38%;
+    --neon-purple: 275 36% 44%;
+    --neon-orange: 28 64% 39%;
+    --dark-base: 205 80% 97%;
+    --dark-surface: 210 60% 99%;
+    --dark-elevated: 215 52% 95%;
 
     --glow-green: none;
     --glow-cyan: none;
     --glow-purple: none;
 
-    --gradient-hero: linear-gradient(135deg, hsl(220 15% 96%) 0%, hsl(0 0% 100%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 15% 96%) 100%);
-    --gradient-neon: linear-gradient(90deg, hsl(142 60% 35%) 0%, hsl(185 80% 30%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(205 100% 97%) 0%, hsl(278 82% 97%) 52%, hsl(150 75% 96%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(210 60% 99%) 0%, hsl(206 80% 96%) 52%, hsl(278 70% 97%) 100%);
+    --gradient-neon: linear-gradient(90deg, hsl(158 42% 38%) 0%, hsl(205 48% 42%) 52%, hsl(274 40% 48%) 100%);
   }
 
   /* ===== DARK THEME (original gaming aesthetic) ===== */
@@ -119,7 +119,7 @@
   }
 
   :root:not(.dark) body {
-    background: hsl(220 15% 96%);
+    background: var(--gradient-hero);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -292,20 +292,20 @@
     box-shadow: none !important;
   }
 
-  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled),
-  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) {
+  html.wcag-contrast-maximum :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled),
+  html.wcag-high-contrast :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled) {
     background-color: hsl(var(--foreground)) !important;
     color: hsl(var(--background)) !important;
   }
 
-  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled) *,
-  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) * {
+  html.wcag-contrast-maximum :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled) *,
+  html.wcag-high-contrast :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled) * {
     color: hsl(var(--background)) !important;
     -webkit-text-fill-color: currentColor !important;
   }
 
-  html.wcag-contrast-maximum :is(button, [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"],
-  html.wcag-high-contrast :is(button, [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"] {
+  html.wcag-contrast-maximum :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"],
+  html.wcag-high-contrast :is(button:not([data-ui="switch"]), [role="button"], [role="radio"]):hover:not(:disabled) [class*="bg-"] {
     background-color: hsl(var(--foreground)) !important;
     border-color: hsl(var(--background) / 0.85) !important;
     color: hsl(var(--background)) !important;
@@ -322,6 +322,62 @@
   html.wcag-high-contrast :is(button[aria-checked="true"], [role="radio"][aria-checked="true"], [role="switch"][data-state="checked"], [role="checkbox"][data-state="checked"], [role="tab"][data-state="active"], button[data-state="on"], [role="button"][data-state="on"]) * {
     color: hsl(var(--background)) !important;
     -webkit-text-fill-color: currentColor !important;
+  }
+
+  html.wcag-contrast-enhanced [data-ui="switch"],
+  html.wcag-contrast-enhanced.dark [data-ui="switch"] {
+    border-color: hsl(var(--foreground) / 0.75) !important;
+  }
+
+  html.wcag-contrast-enhanced [data-ui="switch"][data-state="unchecked"],
+  html.wcag-contrast-enhanced.dark [data-ui="switch"][data-state="unchecked"] {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  html.wcag-contrast-enhanced [data-ui="switch-thumb"][data-state="unchecked"],
+  html.wcag-contrast-enhanced.dark [data-ui="switch-thumb"][data-state="unchecked"] {
+    background-color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-enhanced [data-ui="switch"][data-state="unchecked"] [data-ui="switch-thumb"],
+  html.wcag-contrast-enhanced.dark [data-ui="switch"][data-state="unchecked"] [data-ui="switch-thumb"] {
+    background-color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch"],
+  html.wcag-high-contrast [data-ui="switch"] {
+    border-color: hsl(var(--foreground)) !important;
+    box-shadow: none !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch"][data-state="unchecked"],
+  html.wcag-high-contrast [data-ui="switch"][data-state="unchecked"] {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch"][data-state="checked"],
+  html.wcag-high-contrast [data-ui="switch"][data-state="checked"] {
+    background-color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch-thumb"][data-state="unchecked"],
+  html.wcag-high-contrast [data-ui="switch-thumb"][data-state="unchecked"] {
+    background-color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch-thumb"][data-state="checked"],
+  html.wcag-high-contrast [data-ui="switch-thumb"][data-state="checked"] {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch"][data-state="unchecked"] [data-ui="switch-thumb"],
+  html.wcag-high-contrast [data-ui="switch"][data-state="unchecked"] [data-ui="switch-thumb"] {
+    background-color: hsl(var(--foreground)) !important;
+  }
+
+  html.wcag-contrast-maximum [data-ui="switch"][data-state="checked"] [data-ui="switch-thumb"],
+  html.wcag-high-contrast [data-ui="switch"][data-state="checked"] [data-ui="switch-thumb"] {
+    background-color: hsl(var(--background)) !important;
   }
 
   html.wcag-contrast-maximum [role="progressbar"],
@@ -434,7 +490,9 @@
   }
 
   :not(.dark) .glass-card {
-    background: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(220 15% 96% / 0.95) 100%);
+    background: linear-gradient(145deg, hsl(var(--card) / 0.9) 0%, hsl(206 80% 96% / 0.95) 52%, hsl(278 70% 97% / 0.92) 100%);
+    border-color: hsl(var(--border) / 0.75);
+    box-shadow: 0 12px 36px hsl(205 46% 34% / 0.12);
   }
 
   .stage-card {

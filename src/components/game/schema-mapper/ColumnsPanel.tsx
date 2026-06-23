@@ -9,7 +9,7 @@
  * - Pozwala usuwać mapowania kliknięciem w badge
  */
 
-import React from "react";
+import React, { useRef } from "react";
 import { normalizeHeader } from '../AutoMatchDialog';
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -59,6 +59,7 @@ export default function ColumnsPanel({
   onApplySuggestion,
 }: ColumnsPanelProps) {
   const { t } = useLanguage();
+  const suppressClickAfterDragRef = useRef<string | null>(null);
 
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
@@ -121,9 +122,23 @@ export default function ColumnsPanel({
               >
                 <div
                   draggable
-                  onDragStart={(e) => onDragStart(e, column)}
-                  onDragEnd={onDragEnd}
-                  onClick={() => onTapSelectColumn(column)}
+                  onDragStart={(e) => {
+                    suppressClickAfterDragRef.current = column;
+                    onDragStart(e, column);
+                  }}
+                  onDragEnd={() => {
+                    onDragEnd();
+                    window.setTimeout(() => {
+                      suppressClickAfterDragRef.current = null;
+                    }, 500);
+                  }}
+                  onClick={() => {
+                    if (suppressClickAfterDragRef.current === column) {
+                      suppressClickAfterDragRef.current = null;
+                      return;
+                    }
+                    onTapSelectColumn(column);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -157,7 +172,7 @@ export default function ColumnsPanel({
                         </Badge>
                       )}
                     </div>
-                    {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400 animate-pulse" aria-hidden="true" />}
+                    {isSelected && <MousePointerClick className="w-4 h-4 text-indigo-400" aria-hidden="true" />}
                     {allMappedTo.length > 0 && (
                       <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
                         {allMappedTo.slice(0, 5).map(term => (

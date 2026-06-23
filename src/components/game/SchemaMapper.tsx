@@ -414,7 +414,10 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     draggedColumn={state.draggedColumn}
                     onTapSelectColumn={state.handleTapSelectColumn}
                     onDragStart={state.handleDragStart}
-                    onDragEnd={() => state.setDraggedColumn(null)}
+                    onDragEnd={() => {
+                      state.setSelectedColumn(null);
+                      state.setDraggedColumn(null);
+                    }}
                     onClearSelectedColumn={() => state.setSelectedColumn(null)}
                     getColumnMapping={state.getColumnMapping}
                     getAllColumnMappings={state.getAllColumnMappings}

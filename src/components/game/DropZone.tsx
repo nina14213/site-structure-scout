@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Check, X, Link as LinkIcon, MousePointerClick } from 'lucide-react';
+import { Target, Check, Link as LinkIcon, MousePointerClick } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ interface DropZoneProps {
     termName: string;
     mappedColumn: string | null;
     isRequired: boolean;
-    isValid: boolean;
     onDrop?: (termName: string, columnName: string) => void;
     onRemove?: (termName: string) => void;
     onTapAssign?: (termName: string) => void;
@@ -23,7 +22,6 @@ export default function DropZone({
     termName,
     mappedColumn,
     isRequired,
-    isValid,
     onDrop,
     onRemove,
     onTapAssign,
@@ -72,9 +70,10 @@ export default function DropZone({
 
     const getBorderStyle = () => {
         if (isOver) return 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/30 scale-[1.02]';
-        if (hasSelectedColumn && !mappedColumn) return 'border-indigo-400 bg-indigo-100/50 dark:bg-indigo-900/20 border-dashed animate-pulse cursor-pointer';
-        if (mappedColumn && isValid) return 'border-green-400 bg-green-50 dark:bg-green-900/20';
-        if (mappedColumn && !isValid) return 'border-red-400 bg-red-50 dark:bg-red-900/20';
+        if (hasSelectedColumn && !mappedColumn) return 'border-indigo-400 bg-indigo-100/50 dark:bg-indigo-900/20 border-dashed cursor-pointer';
+        // PL: Po udanym polaczeniu pokazujemy kolor akceptacji zamiast ostrzezenia.
+        // EN: After a successful connection, show acceptance color instead of warning color.
+        if (mappedColumn) return 'border-green-400 bg-green-50 dark:bg-green-900/20';
         if (isRequired) return 'border-orange-400 bg-orange-50/50 dark:bg-orange-900/10 border-dashed';
         return 'border-border bg-muted/30 border-dashed';
     };
@@ -178,14 +177,9 @@ export default function DropZone({
 
                     <div className="flex items-center gap-1">
                         {hasSelectedColumn && !mappedColumn && (
-                            <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce" aria-hidden="true" />
+                            <MousePointerClick className="w-4 h-4 text-indigo-400" aria-hidden="true" />
                         )}
-                        {mappedColumn && !isValid && (
-                            <span className="text-red-500" aria-hidden="true">
-                                <X className="w-4 h-4" />
-                            </span>
-                        )}
-                        {mappedColumn && isValid && (
+                        {mappedColumn && (
                             <span className="text-green-500" aria-hidden="true">
                                 <Check className="w-4 h-4" />
                             </span>
@@ -202,7 +196,7 @@ export default function DropZone({
                             </Button>
                         )}
                         {!mappedColumn && !hasSelectedColumn && isRequired && (
-                            <Target className="w-4 h-4 text-orange-400 animate-pulse" aria-hidden="true" />
+                            <Target className="w-4 h-4 text-orange-400" aria-hidden="true" />
                         )}
                     </div>
                 </div>

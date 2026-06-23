@@ -9,7 +9,7 @@ const Leaderboard = () => {
 
   return (
     <div className="glass-card rounded-2xl p-6">
-      <h3 className="font-display text-2xl mb-6 text-center neon-text">
+      <h3 className="font-display text-2xl mb-6 text-center text-foreground dark:neon-text">
         Top Rangers
       </h3>
       
@@ -17,21 +17,21 @@ const Leaderboard = () => {
         {topRangers.map((ranger) => {
           const IconComponent = ranger.icon;
           const rankColors = {
-            1: 'text-yellow-400',
-            2: 'text-gray-300',
-            3: 'text-amber-600',
+            1: 'text-amber-700 dark:text-yellow-400',
+            2: 'text-slate-600 dark:text-gray-300',
+            3: 'text-orange-700 dark:text-amber-600',
           };
           
           return (
             <div 
               key={ranger.rank}
-              className="flex items-center gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+              className="flex items-center gap-4 p-3 rounded-lg border border-border/80 bg-white/70 hover:bg-emerald-100/80 dark:border-transparent dark:bg-muted/30 dark:hover:bg-muted/50 transition-colors"
             >
               <div className={`${rankColors[ranger.rank as keyof typeof rankColors]}`}>
                 <IconComponent size={24} />
               </div>
-              <span className="font-display text-lg flex-1">{ranger.name}</span>
-              <span className="text-primary font-bold">{ranger.score.toLocaleString()} pts</span>
+              <span className="font-display text-lg flex-1 text-foreground">{ranger.name}</span>
+              <span className="text-primary font-black">{ranger.score.toLocaleString()} pts</span>
             </div>
           );
         })}

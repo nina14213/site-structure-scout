@@ -1,14 +1,14 @@
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronRight, MoveDiagonal2, Sparkles, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,11 @@ type Dock = 'left' | 'right' | 'center';
 const IDLE_HELP_DELAY_MS = 120000;
 const ASSISTANT_POSITION_KEY = 'dwc-data-quest-assistant-position';
 const ASSISTANT_VIEWPORT_MARGIN = 8;
+const ASSISTANT_AVATAR_SIZE = 128;
+const ASSISTANT_PANEL_TOP_OFFSET = 80;
+const ASSISTANT_PANEL_MAX_WIDTH = 368;
+const ASSISTANT_PANEL_ESTIMATED_HEIGHT = 300;
+const ASSISTANT_PANEL_DECORATION_BUFFER = 20;
 
 interface AssistantPosition {
   x: number;
@@ -38,6 +43,13 @@ interface AssistantDragState {
   startX: number;
   startY: number;
   hasMoved: boolean;
+}
+
+interface AssistantLayoutSize {
+  avatarWidth: number;
+  avatarHeight: number;
+  panelWidth: number;
+  panelHeight: number;
 }
 
 interface GuideAssistantProps {
@@ -73,21 +85,61 @@ function readStoredAssistantPosition(): AssistantPosition | null {
     const raw = localStorage.getItem(ASSISTANT_POSITION_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return isAssistantPosition(parsed) ? parsed : null;
+    return isAssistantPosition(parsed) ? clampAssistantPosition(parsed, getDockFromPosition(parsed), {}, false) : null;
   } catch {
     return null;
   }
 }
 
-function clampAssistantPosition(position: AssistantPosition, width: number, height: number): AssistantPosition {
+function getFallbackPanelWidth(): number {
+  if (typeof window === 'undefined') return ASSISTANT_PANEL_MAX_WIDTH;
+  return Math.min(window.innerWidth - ASSISTANT_VIEWPORT_MARGIN * 4, ASSISTANT_PANEL_MAX_WIDTH);
+}
+
+function getPanelLeft(positionX: number, dock: Dock, avatarWidth: number, panelWidth: number): number {
+  if (dock === 'right') return positionX + avatarWidth - panelWidth;
+  if (dock === 'center') return positionX + avatarWidth / 2 - panelWidth / 2;
+  return positionX;
+}
+
+function clampAssistantPosition(
+  position: AssistantPosition,
+  dock: Dock,
+  layout: Partial<AssistantLayoutSize> = {},
+  reservePanel = true,
+): AssistantPosition {
   if (typeof window === 'undefined') return position;
 
-  const maxX = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerWidth - width - ASSISTANT_VIEWPORT_MARGIN);
-  const maxY = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerHeight - height - ASSISTANT_VIEWPORT_MARGIN);
+  const avatarWidth = layout.avatarWidth ?? ASSISTANT_AVATAR_SIZE;
+  const avatarHeight = layout.avatarHeight ?? ASSISTANT_AVATAR_SIZE;
+  const panelWidth = layout.panelWidth ?? getFallbackPanelWidth();
+  const panelHeight = layout.panelHeight ?? ASSISTANT_PANEL_ESTIMATED_HEIGHT;
+  const maxX = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerWidth - avatarWidth - ASSISTANT_VIEWPORT_MARGIN);
+  const maxY = Math.max(ASSISTANT_VIEWPORT_MARGIN, window.innerHeight - avatarHeight - ASSISTANT_VIEWPORT_MARGIN);
+  let x = Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.x), maxX);
+  let y = Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.y), maxY);
+
+  if (reservePanel) {
+    /*
+      PL: Gdy podpowiedz jest otwarta, ograniczamy awatar razem z panelem.
+      EN: When the hint is open, clamp the avatar together with the panel.
+    */
+    const panelLeft = getPanelLeft(x, dock, avatarWidth, panelWidth);
+    if (panelLeft < ASSISTANT_VIEWPORT_MARGIN) {
+      x += ASSISTANT_VIEWPORT_MARGIN - panelLeft;
+    } else if (panelLeft + panelWidth > window.innerWidth - ASSISTANT_VIEWPORT_MARGIN) {
+      x -= panelLeft + panelWidth - (window.innerWidth - ASSISTANT_VIEWPORT_MARGIN);
+    }
+
+    const panelBottom = y + ASSISTANT_PANEL_TOP_OFFSET + panelHeight + ASSISTANT_PANEL_DECORATION_BUFFER;
+    if (panelBottom > window.innerHeight - ASSISTANT_VIEWPORT_MARGIN) {
+      y -= panelBottom - (window.innerHeight - ASSISTANT_VIEWPORT_MARGIN);
+    }
+  }
 
   return {
-    x: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.x), maxX),
-    y: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, position.y), maxY),
+    x: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, x), maxX),
+    y: Math.min(Math.max(ASSISTANT_VIEWPORT_MARGIN, y), maxY),
   };
 }
 
@@ -507,17 +559,38 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   const [customPosition, setCustomPosition] = useState<AssistantPosition | null>(readStoredAssistantPosition);
   const [isDragging, setIsDragging] = useState(false);
   const assistantRef = useRef<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const dragStateRef = useRef<AssistantDragState | null>(null);
   const suppressClickRef = useRef(false);
   const idleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const suggestedDock = getSuggestedDock(currentScreen, currentLevel);
   const dock = customPosition ? getDockFromPosition(customPosition) : manualDock ?? suggestedDock;
-  const tip = tips[tipIndex % tips.length];
+  const lastTipIndex = Math.max(tips.length - 1, 0);
+  const currentTipIndex = Math.min(tipIndex, lastTipIndex);
+  const hasPreviousTip = currentTipIndex > 0;
+  const hasNextTip = currentTipIndex < lastTipIndex;
+  const isLastTip = currentTipIndex >= lastTipIndex;
+  const tip = tips[currentTipIndex] ?? tips[0];
   const idleTip = activeSurface.key === 'default' ? getIdleTip(currentScreen, currentLevel, t) : tip;
   const activeTip = idleNudge ? idleTip : tip;
   const surfaceContextKey = `${activeSurface.key}-${activeSurface.levelNumber ?? 'none'}-${activeSurface.phase ?? 'none'}`;
   const contextKey = `${assistant.id}-${currentScreen}-${currentLevel ?? 'none'}-${surfaceContextKey}-${gameState.currentLevel}-${gameState.levelsCompleted.join('.')}`;
   const assistantPositionStyle = customPosition ? { left: customPosition.x, top: customPosition.y } : undefined;
+  const panelDockClass = dock === 'right' ? 'right-0' : dock === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0';
+  const getAssistantLayoutSize = (): AssistantLayoutSize => {
+    const assistantRect = assistantRef.current?.getBoundingClientRect();
+    const panelRect = panelRef.current?.getBoundingClientRect();
+
+    return {
+      avatarWidth: assistantRect?.width ?? ASSISTANT_AVATAR_SIZE,
+      avatarHeight: assistantRect?.height ?? ASSISTANT_AVATAR_SIZE,
+      panelWidth: panelRect?.width ?? getFallbackPanelWidth(),
+      panelHeight: panelRect?.height ?? ASSISTANT_PANEL_ESTIMATED_HEIGHT,
+    };
+  };
+  const clampVisibleAssistantPosition = (position: AssistantPosition, reservePanel = expanded): AssistantPosition => (
+    clampAssistantPosition(position, getDockFromPosition(position), getAssistantLayoutSize(), reservePanel)
+  );
 
   useEffect(() => {
     setTipIndex(0);
@@ -542,8 +615,8 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     const handleResize = () => {
       setCustomPosition((position) => {
         if (!position) return null;
-        const rect = assistantRef.current?.getBoundingClientRect();
-        return clampAssistantPosition(position, rect?.width ?? 368, rect?.height ?? 280);
+        const nextPosition = clampVisibleAssistantPosition(position, expanded);
+        return nextPosition.x === position.x && nextPosition.y === position.y ? position : nextPosition;
       });
     };
 
@@ -551,7 +624,17 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [expanded]);
+
+  useLayoutEffect(() => {
+    if (!expanded) return;
+
+    setCustomPosition((position) => {
+      if (!position) return null;
+      const nextPosition = clampVisibleAssistantPosition(position, true);
+      return nextPosition.x === position.x && nextPosition.y === position.y ? position : nextPosition;
+    });
+  }, [expanded, activeTip.title, activeTip.body, idleNudge, dock, customPosition?.x, customPosition?.y]);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -565,10 +648,10 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
       drag.hasMoved = true;
       event.preventDefault();
-      setCustomPosition(clampAssistantPosition({
+      setCustomPosition(clampVisibleAssistantPosition({
         x: event.clientX - drag.offsetX,
         y: event.clientY - drag.offsetY,
-      }, drag.width, drag.height));
+      }, expanded));
     };
 
     const stopDragging = () => {
@@ -654,46 +737,14 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     event.stopPropagation();
   };
 
-  const moveWithKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
-    const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home'];
-    if (!keys.includes(event.key)) return;
-
-    event.preventDefault();
-
-    const node = assistantRef.current;
-    const rect = node?.getBoundingClientRect();
-
-    if (event.key === 'Home') {
-      setManualDock(null);
-      setCustomPosition(null);
-      return;
-    }
-
-    const step = event.shiftKey ? 48 : 16;
-    const width = rect?.width ?? 368;
-    const height = rect?.height ?? 280;
-    const fallbackPosition = rect ? { x: rect.left, y: rect.top } : { x: ASSISTANT_VIEWPORT_MARGIN, y: ASSISTANT_VIEWPORT_MARGIN };
-
-    setManualDock(null);
-    setCustomPosition((position) => {
-      const base = position ?? fallbackPosition;
-      const next = {
-        x: base.x + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0),
-        y: base.y + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0),
-      };
-
-      return clampAssistantPosition(next, width, height);
-    });
-  };
-
   return (
     <motion.aside
       ref={assistantRef}
       className={cn(
-        'fixed z-[65] max-w-[calc(100vw-1rem)]',
-        !customPosition && dock === 'right' && 'bottom-24 right-3 md:right-5',
-        !customPosition && dock === 'left' && 'bottom-6 left-3 md:left-5',
-        !customPosition && dock === 'center' && 'bottom-6 left-1/2 -translate-x-1/2',
+        'pointer-events-none fixed z-[65] h-32 w-32 max-w-[calc(100vw-1rem)]',
+        !customPosition && dock === 'right' && 'top-6 right-3 md:right-5',
+        !customPosition && dock === 'left' && 'top-6 left-3 md:left-5',
+        !customPosition && dock === 'center' && 'top-6 left-1/2 -translate-x-1/2',
       )}
       style={assistantPositionStyle}
       onPointerDown={startDragging}
@@ -703,50 +754,39 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
       transition={{ duration: 0.35, ease: 'easeOut' }}
       aria-label={t('assistant.asideAria', { name: assistantName })}
     >
-      <div className={cn('relative cursor-grab touch-none pt-20 active:cursor-grabbing', isDragging && 'cursor-grabbing')}>
-        {expanded && (
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            aria-label={t('assistant.control.collapse')}
-            className={cn(
-              'absolute -top-3 z-20 rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              dock === 'right' ? 'right-8' : dock === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-8',
-            )}
-          >
-            <AssistantAvatar assistantId={assistant.id} reduceMotion={reduceMotion} />
-          </button>
-        )}
-
-        {!expanded && (
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            aria-label={t('assistant.control.expand')}
-            className={cn(
-              'absolute bottom-0 z-20 rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              dock === 'right' ? 'right-0' : dock === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0',
-            )}
-          >
-            <AssistantAvatar assistantId={assistant.id} reduceMotion={reduceMotion} />
-          </button>
-        )}
+      <div className={cn('pointer-events-none relative h-32 w-32 cursor-grab touch-none active:cursor-grabbing', isDragging && 'cursor-grabbing')}>
+        {/*
+          PL: Staly obszar 128x128 jest kotwica awatara, a panel otwiera sie pod nim.
+          EN: The fixed 128x128 area anchors the avatar while the panel opens below it.
+        */}
+        <button
+          type="button"
+          onClick={() => setExpanded((isExpanded) => !isExpanded)}
+          aria-label={expanded ? t('assistant.control.collapse') : t('assistant.control.expand')}
+          className={cn(
+            'pointer-events-auto absolute inset-0 z-20 cursor-grab touch-none rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:cursor-grabbing',
+            isDragging && 'cursor-grabbing',
+          )}
+        >
+          <AssistantAvatar assistantId={assistant.id} reduceMotion={reduceMotion} />
+        </button>
 
         <AnimatePresence>
           {expanded && (
             <motion.div
+              ref={panelRef}
               key={contextKey}
               initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.97 }}
               animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.97 }}
               transition={{ duration: 0.25 }}
-              className="relative w-[min(calc(100vw-2rem),23rem)]"
+              className={cn('pointer-events-auto absolute top-20 w-[min(calc(100vw-2rem),23rem)]', panelDockClass)}
             >
               <FrameHugTentacles dock={dock} reduceMotion={reduceMotion} assistant={assistant} />
 
               <div
                 className={cn(
-                  'relative z-10 overflow-hidden rounded-lg border-2 bg-card p-4 pt-12 text-card-foreground shadow-2xl shadow-black/25 backdrop-blur',
+                  'relative z-10 max-h-[calc(100vh-8rem)] overflow-x-hidden overflow-y-auto rounded-lg border-2 bg-card p-4 pt-14 text-card-foreground shadow-2xl shadow-black/25 backdrop-blur',
                   assistant.frame.border,
                 )}
               >
@@ -777,38 +817,59 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
                 <p className="text-sm leading-relaxed text-muted-foreground">{activeTip.body}</p>
 
-                <div className="mt-4 flex items-center justify-between gap-2">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex gap-1" aria-hidden="true">
                     {tips.map((_, index) => (
                       <span
                         key={index}
-                        className={cn('h-1.5 w-5 rounded-full', index === tipIndex ? 'bg-pink-500' : 'bg-muted')}
+                        className={cn('h-1.5 w-5 rounded-full', index === currentTipIndex ? 'bg-pink-500' : 'bg-muted')}
                       />
                     ))}
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon"
-                      onKeyDown={moveWithKeyboard}
-                      aria-label={t('assistant.control.move')}
-                      className={cn('h-8 w-8 cursor-grab touch-none active:cursor-grabbing', isDragging && 'cursor-grabbing')}
-                    >
-                      <MoveDiagonal2 className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                    <Button
-                      type="button"
+                      variant="outline"
                       size="sm"
+                      disabled={!hasPreviousTip}
                       onClick={() => {
                         setIdleNudge(false);
-                        setTipIndex((index) => (index + 1) % tips.length);
+                        setTipIndex((index) => Math.max(index - 1, 0));
                       }}
-                      className={cn('h-8 gap-1', assistant.buttonClass)}
+                      className="h-8 gap-1 border-cyan-300 bg-cyan-950/75 text-cyan-50 shadow-sm shadow-cyan-950/30 hover:border-cyan-200 hover:bg-cyan-900 hover:text-white focus-visible:ring-cyan-200 disabled:border-slate-500 disabled:bg-slate-900/90 disabled:text-slate-100 disabled:opacity-100"
                     >
-                      {t('assistant.control.next')}
-                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                      <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                      {t('assistant.control.previous')}
                     </Button>
+
+                    {isLastTip && !idleNudge ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          setIdleNudge(false);
+                          setExpanded(false);
+                        }}
+                        className={cn('h-8 gap-1', assistant.buttonClass)}
+                      >
+                        {t('assistant.control.finish')}
+                        <Check className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={!hasNextTip && !idleNudge}
+                        onClick={() => {
+                          setIdleNudge(false);
+                          setTipIndex((index) => Math.min(index + 1, lastTipIndex));
+                        }}
+                        className={cn('h-8 gap-1', assistant.buttonClass)}
+                      >
+                        {t('assistant.control.next')}
+                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

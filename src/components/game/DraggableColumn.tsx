@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { GripVertical, Check, X, AlertCircle, MousePointerClick } from 'lucide-react';
+import { GripVertical, Check, MousePointerClick } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { dwcTerms } from './DwCTerms';
@@ -11,7 +11,6 @@ interface DraggableColumnProps {
     index: number;
     isDragging: boolean;
     mappedTo: string | null;
-    validationStatus: 'valid' | 'warning' | 'error' | null;
     isSelected?: boolean;
     onDragStart?: (column: string, index: number) => void;
     onDragEnd?: () => void;
@@ -26,7 +25,6 @@ export default function DraggableColumn({
     index,
     isDragging,
     mappedTo,
-    validationStatus,
     isSelected = false,
     onDragStart,
     onDragEnd,
@@ -36,6 +34,7 @@ export default function DraggableColumn({
     sampleValues = []
 }: DraggableColumnProps) {
     const { t, language } = useLanguage();
+    const suppressClickAfterDragRef = useRef(false);
     const pick = (pl: string, en: string, fr: string, de: string) => {
         if (language === 'en') return en;
         if (language === 'fr') return fr;
@@ -51,23 +50,33 @@ export default function DraggableColumn({
         : null;
 
     const getStatusColor = () => {
-        if (isSelected) return 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 ring-2 ring-indigo-400/50';
-        if (!mappedTo) return 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
-        if (validationStatus === 'valid') return 'border-green-400 bg-green-50 dark:bg-green-900/30';
-        if (validationStatus === 'warning') return 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/30';
-        if (validationStatus === 'error') return 'border-red-400 bg-red-50 dark:bg-red-900/30';
-        return 'border-blue-400 bg-blue-50 dark:bg-blue-900/30';
+        if (!mappedTo) {
+            return isSelected
+                ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 ring-2 ring-indigo-400/50'
+                : 'border-gray-300 bg-white dark:border-slate-600 dark:bg-slate-800';
+        }
+
+        // PL: Samo polaczenie jest stanem akceptacji, dlatego obie ramki sa zielone.
+        // EN: The mapping itself is an accepted state, so both frames stay green.
+        return 'border-green-400 bg-green-50 dark:bg-green-900/20';
+    };
+
+    const getMappedSelectionRing = () => {
+        if (!isSelected || !mappedTo) return '';
+        return 'ring-2 ring-green-400/50';
     };
 
     const getStatusIcon = () => {
-        if (isSelected) return <MousePointerClick className="w-4 h-4 text-indigo-500 animate-pulse" aria-hidden="true" />;
-        if (validationStatus === 'valid') return <Check className="w-4 h-4 text-green-500" aria-hidden="true" />;
-        if (validationStatus === 'warning') return <AlertCircle className="w-4 h-4 text-yellow-500" aria-hidden="true" />;
-        if (validationStatus === 'error') return <X className="w-4 h-4 text-red-500" aria-hidden="true" />;
+        if (isSelected && !mappedTo) return <MousePointerClick className="w-4 h-4 text-indigo-500" aria-hidden="true" />;
+        if (mappedTo) return <Check className="w-4 h-4 text-green-500" aria-hidden="true" />;
         return null;
     };
 
     const handleActivate = () => {
+        if (suppressClickAfterDragRef.current) {
+            suppressClickAfterDragRef.current = false;
+            return;
+        }
         onTapSelect?.(column);
     };
 
@@ -102,12 +111,18 @@ export default function DraggableColumn({
                 exit={{ opacity: 0, x: 20 }}
                 draggable
                 onDragStart={(e) => {
+                    suppressClickAfterDragRef.current = true;
                     const dragEvent = e as unknown as React.DragEvent;
                     dragEvent.dataTransfer?.setData('text/plain', column);
                     dragEvent.dataTransfer?.setData('columnIndex', String(index));
                     onDragStart?.(column, index);
                 }}
-                onDragEnd={onDragEnd}
+                onDragEnd={() => {
+                    onDragEnd?.();
+                    window.setTimeout(() => {
+                        suppressClickAfterDragRef.current = false;
+                    }, 500);
+                }}
                 onDragOver={(e) => {
                     e.preventDefault();
                     onDragOver?.(e as unknown as React.DragEvent);
@@ -127,6 +142,7 @@ export default function DraggableColumn({
                     p-3 rounded-xl border-2 cursor-grab active:cursor-grabbing
                     transition-all duration-200 select-none
                     ${getStatusColor()}
+                    ${getMappedSelectionRing()}
                     hover:shadow-md hover:scale-[1.02]
                     ${onTapSelect ? 'md:cursor-grab cursor-pointer' : ''}
                 `}

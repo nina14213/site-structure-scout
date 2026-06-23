@@ -126,7 +126,7 @@ export default function TermDropZone({
       className={`
         p-3 md:p-4 rounded-xl border-2 transition-all min-h-[44px]
         ${isOver ? "border-purple-500 bg-purple-500/20 scale-[1.02]" : ""}
-        ${hasSelectedColumn && !mappedColumn ? "border-indigo-400 bg-indigo-500/20 border-dashed animate-pulse cursor-pointer" : ""}
+        ${hasSelectedColumn && !mappedColumn ? "border-indigo-400 bg-indigo-500/20 border-dashed cursor-pointer" : ""}
         ${hasSelectedColumn && mappedColumn ? "border-indigo-400/50 bg-indigo-500/10 cursor-pointer" : ""}
         ${
           !isOver && !hasSelectedColumn && mappedColumn
@@ -158,7 +158,7 @@ export default function TermDropZone({
           <p className="text-xs text-muted-foreground">{termDescription || term?.description || "Darwin Core term"}</p>
         </div>
         {hasSelectedColumn && !mappedColumn && (
-          <MousePointerClick className="w-4 h-4 text-indigo-400 animate-bounce flex-shrink-0" aria-hidden="true" />
+          <MousePointerClick className="w-4 h-4 text-indigo-400 flex-shrink-0" aria-hidden="true" />
         )}
         {mappedColumn && !isMultiColumn && (
           <Button

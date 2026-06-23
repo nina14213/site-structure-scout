@@ -84,15 +84,15 @@ export default function StartScreen({
             id: 1,
             nameKey: 'level.1.name',
             icon: Zap,
-            color: 'from-[#8a2d5f] via-[#6d1f4b] to-[#4e1336]',
-            hoverClass: 'hover:from-[#7b2554] hover:via-[#611a42] hover:to-[#45102f]',
-            textClass: 'text-white',
+            color: 'from-rose-100 via-pink-100 to-fuchsia-100 dark:from-[#97356a] dark:via-[#772551] dark:to-[#56173a]',
+            hoverClass: 'hover:from-rose-200 hover:via-pink-200 hover:to-fuchsia-200 dark:hover:from-[#872d5e] dark:hover:via-[#691f48] dark:hover:to-[#4b1332]',
+            textClass: 'text-slate-900 dark:text-white',
             descKey: 'level.1.desc'
         },
-        { id: 2, nameKey: 'level.2.name', icon: LinkIcon, color: 'from-violet-700 via-purple-700 to-indigo-800', descKey: 'level.2.desc' },
-        { id: 3, nameKey: 'level.3.name', icon: Package, color: 'from-teal-700 via-cyan-700 to-sky-800', descKey: 'level.3.desc' },
-        { id: 4, nameKey: 'level.4.name', icon: Search, color: 'from-emerald-700 via-teal-700 to-cyan-800', descKey: 'level.4.desc' },
-        { id: 5, nameKey: 'level.5.name', icon: Shield, color: 'from-red-700 via-orange-700 to-orange-800', descKey: 'level.5.desc', spanClass: 'col-span-2' },
+        { id: 2, nameKey: 'level.2.name', icon: LinkIcon, color: 'from-violet-100 via-purple-100 to-indigo-100 dark:from-violet-700 dark:via-purple-700 dark:to-indigo-800', hoverClass: 'hover:from-violet-200 hover:via-purple-200 hover:to-indigo-200 dark:hover:brightness-110', textClass: 'text-slate-900 dark:text-white', descKey: 'level.2.desc' },
+        { id: 3, nameKey: 'level.3.name', icon: Package, color: 'from-teal-100 via-cyan-100 to-sky-100 dark:from-teal-700 dark:via-cyan-700 dark:to-sky-800', hoverClass: 'hover:from-teal-200 hover:via-cyan-200 hover:to-sky-200 dark:hover:brightness-110', textClass: 'text-slate-900 dark:text-white', descKey: 'level.3.desc' },
+        { id: 4, nameKey: 'level.4.name', icon: Search, color: 'from-emerald-100 via-teal-100 to-cyan-100 dark:from-emerald-700 dark:via-teal-700 dark:to-cyan-800', hoverClass: 'hover:from-emerald-200 hover:via-teal-200 hover:to-cyan-200 dark:hover:brightness-110', textClass: 'text-slate-900 dark:text-white', descKey: 'level.4.desc' },
+        { id: 5, nameKey: 'level.5.name', icon: Shield, color: 'from-rose-100 via-orange-100 to-amber-100 dark:from-red-700 dark:via-orange-700 dark:to-orange-800', hoverClass: 'hover:from-rose-200 hover:via-orange-200 hover:to-amber-200 dark:hover:brightness-110', textClass: 'text-slate-900 dark:text-white', descKey: 'level.5.desc', spanClass: 'col-span-2' },
     ];
 
     const handleStart = () => {
@@ -108,8 +108,8 @@ export default function StartScreen({
     };
 
     const primaryActionClass = hasSavedProgress
-        ? 'w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:brightness-100 focus-visible:ring-white/80'
-        : 'w-full py-6 text-lg bg-gradient-to-r from-emerald-700 to-cyan-800 text-white hover:brightness-110 focus-visible:ring-white/80';
+        ? 'w-full border border-emerald-700/20 bg-gradient-to-r from-emerald-200 via-teal-200 to-sky-200 py-6 text-lg text-slate-950 shadow-md shadow-emerald-950/10 hover:from-emerald-300 hover:via-teal-300 hover:to-sky-300 hover:text-slate-950 focus-visible:ring-secondary dark:border-emerald-300/40 dark:from-emerald-700 dark:to-cyan-800 dark:text-white dark:hover:from-lime-300 dark:hover:via-green-300 dark:hover:to-emerald-400 dark:hover:text-slate-950'
+        : 'w-full border border-emerald-700/20 bg-gradient-to-r from-emerald-200 via-teal-200 to-sky-200 py-6 text-lg text-slate-950 shadow-md shadow-emerald-950/10 hover:from-emerald-300 hover:via-teal-300 hover:to-sky-300 hover:text-slate-950 focus-visible:ring-secondary dark:border-emerald-300/40 dark:from-emerald-700 dark:to-cyan-800 dark:text-white dark:hover:brightness-110';
 
     const getVisibleLevelProgress = (levelId: number) => {
         if (!isSavedPlayer) return 0;
@@ -273,13 +273,13 @@ export default function StartScreen({
                                                 whileHover={unlocked && trimmedPlayerName ? { scale: 1.05, transition: { duration: 0.08, ease: 'easeOut' } } : {}}
                                                 whileTap={unlocked && trimmedPlayerName ? { scale: 0.98, transition: { duration: 0.05, ease: 'easeOut' } } : {}}
                                                 data-task-button
-                                                className={`relative p-4 pr-14 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-white/25 shadow-lg shadow-black/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-white/60 focus-visible:ring-2 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${level.textClass ?? 'text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
+                                                className={`relative p-4 pr-14 rounded-xl bg-gradient-to-br ${level.color} ${level.hoverClass ?? 'hover:brightness-110'} ${level.spanClass ?? ''} border border-slate-700/15 shadow-lg shadow-primary/10 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed dark:border-white/25 dark:shadow-black/25 ${isWideBossTile ? 'text-center' : 'text-left'} hover:border-primary/40 dark:hover:border-white/60 focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:focus-visible:ring-white/90 ${level.textClass ?? 'text-slate-900 dark:text-white'} ${!unlocked ? 'opacity-60 grayscale-[0.15]' : ''}`}
                                             >
-                                                <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-black/20 text-[11px] font-bold text-white shadow-inner">
+                                                <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-slate-700/20 bg-white/80 text-[11px] font-bold text-slate-900 shadow-inner dark:border-white/35 dark:bg-black/20 dark:text-white">
                                                     {!unlocked ? (
                                                         <Lock className="w-4 h-4" aria-hidden="true" />
                                                     ) : isCompleted ? (
-                                                        <CheckCircle2 className="w-6 h-6 text-emerald-300 drop-shadow-sm" aria-hidden="true" />
+                                                        <CheckCircle2 className="w-6 h-6 text-emerald-700 drop-shadow-sm dark:text-emerald-300" aria-hidden="true" />
                                                     ) : (
                                                         <span>{levelProgress}%</span>
                                                     )}
@@ -290,13 +290,13 @@ export default function StartScreen({
                                                 </div>
                                                 <p id={`start-level-${level.id}-desc`} className="text-xs font-semibold opacity-95">{t(level.descKey)}</p>
                                                 <div className="mt-3 space-y-1">
-                                                    <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-normal text-white/90">
+                                                    <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-normal text-slate-700 dark:text-white/90">
                                                         <span className="truncate">{progressLabel}</span>
                                                         <span className="shrink-0">{levelProgress}%</span>
                                                     </div>
-                                                    <div className="h-2 overflow-hidden rounded-full border border-white/15 bg-black/25">
+                                                    <div className="h-2 overflow-hidden rounded-full border border-slate-700/15 bg-white/75 dark:border-white/15 dark:bg-black/25">
                                                         <div
-                                                            className="h-full rounded-full bg-white transition-[width] duration-300"
+                                                            className="h-full rounded-full bg-primary transition-[width] duration-300 dark:bg-white"
                                                             style={{ width: `${levelProgress}%` }}
                                                         />
                                                     </div>
@@ -313,7 +313,7 @@ export default function StartScreen({
                                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                     onClick={onDataImport}
                                     aria-label={`${t('start.createDataPackage')}. ${t('start.importOwnData')}`}
-                                    className="group w-full p-4 rounded-xl bg-gradient-to-br from-emerald-700/20 to-cyan-800/20 border border-emerald-600/50 hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20 transition-all cursor-pointer text-left"
+                                    className="group w-full p-4 rounded-xl bg-gradient-to-br from-emerald-100/80 to-sky-100/80 border border-emerald-700/20 hover:border-primary/50 hover:bg-gradient-to-r hover:from-emerald-200 hover:via-teal-100 hover:to-sky-200 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/10 dark:from-emerald-700/20 dark:to-cyan-800/20 dark:border-emerald-600/50 dark:hover:border-emerald-500 dark:hover:from-lime-300 dark:hover:via-green-300 dark:hover:to-emerald-400 transition-all cursor-pointer text-left"
                                 >
                                     <div className="flex items-center gap-3 mb-2">
                                         <Database className="w-5 h-5 text-primary group-hover:text-slate-950" aria-hidden="true" />
@@ -328,10 +328,10 @@ export default function StartScreen({
                     {/* Side Panel */}
                     <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="space-y-6 lg:order-1">
                         {/* Leaderboard */}
-                        <Card className="bg-card/50 border-border backdrop-blur">
+                        <Card className="border-primary/25 bg-card/85 shadow-lg shadow-primary/10 backdrop-blur dark:border-border dark:bg-card/50">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-foreground flex items-center gap-2 text-lg">
-                                    <Trophy className="w-5 h-5 text-yellow-500" aria-hidden="true" />
+                                    <Trophy className="w-5 h-5 text-amber-700 dark:text-yellow-500" aria-hidden="true" />
                                     {t('start.topRangers')}
                                 </CardTitle>
                             </CardHeader>
@@ -343,12 +343,12 @@ export default function StartScreen({
                                             const rowContent = (
                                                 <>
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${idx === 0 ? 'bg-yellow-500 text-black' : idx === 1 ? 'bg-slate-400 text-slate-900' : idx === 2 ? 'bg-orange-600 text-white' : 'bg-muted text-foreground'}`}>
+                                                        <span className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-black ring-1 ring-slate-950/10 ${idx === 0 ? 'bg-amber-400 text-slate-950' : idx === 1 ? 'bg-slate-300 text-slate-950' : idx === 2 ? 'bg-orange-300 text-slate-950' : 'bg-muted text-foreground'}`}>
                                                             {idx + 1}
                                                         </span>
-                                                        <span className="text-sm text-foreground truncate max-w-[100px]">{entry.name}</span>
+                                                        <span className="max-w-[120px] truncate text-base font-bold text-foreground">{entry.name}</span>
                                                     </div>
-                                                    <span className="text-sm text-yellow-500 font-mono">{entry.score}</span>
+                                                    <span className="text-base font-black text-primary dark:text-yellow-400">{entry.score}</span>
                                                 </>
                                             );
 
@@ -358,12 +358,12 @@ export default function StartScreen({
                                                     type="button"
                                                     onClick={() => handleLeaderboardEntryClick(entry)}
                                                     aria-label={`${t('start.showProgress')}: ${entry.name}`}
-                                                    className="flex w-full items-center justify-between p-2 rounded-lg bg-primary/15 border border-primary/30 hover:bg-primary/25 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
+                                                    className="flex w-full items-center justify-between rounded-lg border border-primary/40 bg-emerald-100/90 p-3 shadow-sm shadow-primary/10 transition-colors hover:border-primary/60 hover:bg-emerald-200/80 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:bg-primary/15 dark:hover:bg-primary/25"
                                                 >
                                                     {rowContent}
                                                 </button>
                                             ) : (
-                                                <div key={`${entry.playerId ?? entry.name}-${idx}`} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                                                <div key={`${entry.playerId ?? entry.name}-${idx}`} className="flex items-center justify-between rounded-lg border border-border/80 bg-white/70 p-3 dark:bg-muted/30">
                                                     {rowContent}
                                                 </div>
                                             );

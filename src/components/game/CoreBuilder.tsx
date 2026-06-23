@@ -252,6 +252,9 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
     // PL: Akcje mapowania kolumn, wspolne dla drag-and-drop i wyboru dotykowego.
     // EN: Column-mapping actions shared by drag-and-drop and tap assignment.
     const handleDrop = useCallback((termName: string, columnName: string) => {
+        setSelectedColumn(null);
+        setDraggedColumn(null);
+
         // Check for restricted mappings
         const restrictions: Record<string, { only: string; error: string }> = {
             decimalLatitude: { only: 'Latitude', error: coreUiCopy.restrictionErrors.decimalLatitude },
@@ -471,9 +474,14 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                             isDragging={draggedColumn === column}
                                             isSelected={selectedColumn === column}
                                             mappedTo={getColumnMapping(column)}
-                                            validationStatus={getColumnMapping(column) ? validateMapping(getColumnMapping(column)!) : null}
-                                            onDragStart={(col) => setDraggedColumn(col)}
-                                            onDragEnd={() => setDraggedColumn(null)}
+                                            onDragStart={(col) => {
+                                                setSelectedColumn(null);
+                                                setDraggedColumn(col);
+                                            }}
+                                            onDragEnd={() => {
+                                                setSelectedColumn(null);
+                                                setDraggedColumn(null);
+                                            }}
                                             onTapSelect={handleTapSelect}
                                             sampleValues={getSampleValues(column)}
                                         />
@@ -534,7 +542,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                                     termName={term}
                                                     mappedColumn={mappings[term] || null}
                                                     isRequired={true}
-                                                    isValid={validateMapping(term) === 'valid'}
                                                     onDrop={handleDrop}
                                                     onRemove={handleRemoveMapping}
                                                     onTapAssign={handleTapAssign}
@@ -565,7 +572,6 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                                                 termName={term}
                                                 mappedColumn={mappings[term] || null}
                                                 isRequired={false}
-                                                isValid={validateMapping(term) === 'valid' || !mappings[term]}
                                                 onDrop={handleDrop}
                                                 onRemove={handleRemoveMapping}
                                                 onTapAssign={handleTapAssign}

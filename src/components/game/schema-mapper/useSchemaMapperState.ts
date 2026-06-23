@@ -285,12 +285,14 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
 
   const handleDragStart = useCallback((e: React.DragEvent, column: string) => {
     e.dataTransfer.setData("text/plain", column);
+    setSelectedColumn(null);
     setDraggedColumn(column);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent, termName: string) => {
     e.preventDefault();
     const columnName = e.dataTransfer.getData("text/plain");
+    setSelectedColumn(null);
     updateMappings((prev) => {
       const newMappings = { ...prev };
       // If the term already has a mapping, append the column (multi-column / pipe join)
