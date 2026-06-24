@@ -534,7 +534,7 @@ export default function EscapeRoom({
                   <CardTitle className="text-foreground flex items-center gap-3">
                     <span className="text-2xl">{currentPuzzleData.icon}</span>
                     <div>
-                      <div className="text-lg">{currentPuzzleData.title}</div>
+                      <div className="text-lg">{t(`escape.puzzle.${currentPuzzleData.id}.title`)}</div>
                       <div className="flex items-center gap-2 mt-1">
                         <DifficultyStars level={currentPuzzleData.difficulty} />
                         <span className="text-xs text-muted-foreground">
@@ -545,7 +545,7 @@ export default function EscapeRoom({
                   </CardTitle>
                   <Badge className={`${catConfig.bgColor} ${catConfig.color} ${catConfig.borderColor} border flex items-center gap-1.5`}>
                     {categoryIcons[currentPuzzleData.category]}
-                    {catConfig.label}
+                    {t(`escape.cat.${currentPuzzleData.category}`)}
                   </Badge>
                 </div>
               </CardHeader>
