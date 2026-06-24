@@ -286,18 +286,40 @@ export default function StartScreen({
         "If you already have your data prepared, use GBIF Validator to ensure your files are structured correctly before publishing.",
     },
   ];
-  const aboutAuthors = [
-    {
-      name: "Katarzyna Słupecka",
-      description:
-        "Hi! I'm Katarzyna Słupecka, a GIS Specialist at the Laboratory of Biological Spatial Information, Faculty of Biology, Adam Mickiewicz University in Poznań. My work focuses on geotagging, mapping natural history collections, and creating databases.",
-    },
-    {
-      name: "Krystian Florkowski",
-      description:
-        "Hi! I'm Krystian Florkowski, a specialist in the digitization of natural history collections at the Faculty of Biology, Adam Mickiewicz University in Poznań. I have experience in plant environmental monitoring, geotagging, and database creation and management.",
-    },
-  ];
+
+  <section id="about-us" className="about-us-section" aria-labelledby="about-us-title">
+    <div className="about-us-container">
+      <div className="about-us-header">
+        <p className="section-eyebrow">About Us</p>
+        <h2 id="about-us-title">Meet the team behind the project</h2>
+        <p className="about-us-intro">
+          We work on biodiversity data, geotagging, digitization, and database development to support natural history
+          collections and their wider accessibility.
+        </p>
+      </div>
+
+      <div className="about-us-grid">
+        <article className="author-card">
+          <h3>Katarzyna Słupecka</h3>
+          <p>
+            Hi! I'm Katarzyna Słupecka, a GIS Specialist at the Laboratory of Biological Spatial Information, Faculty of
+            Biology, Adam Mickiewicz University in Poznań. My work focuses on geotagging, mapping natural history
+            collections, and creating databases.
+          </p>
+        </article>
+
+        <article className="author-card">
+          <h3>Krystian Florkowski</h3>
+          <p>
+            Hi! I'm Krystian Florkowski, a specialist in the digitization of natural history collections at the Faculty
+            of Biology, Adam Mickiewicz University in Poznań. I have experience in plant environmental monitoring,
+            geotagging, and database creation and management.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>;
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-background dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
       <div className="max-w-6xl mx-auto">
