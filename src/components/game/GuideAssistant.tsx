@@ -671,7 +671,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const dragStateRef = useRef<AssistantDragState | null>(null);
   const suppressClickRef = useRef(false);
-  const idleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suggestedDock = getSuggestedDock(currentScreen, currentLevel);
   const dock = customPosition ? getDockFromPosition(customPosition) : manualDock ?? suggestedDock;
   const lastTipIndex = Math.max(tips.length - 1, 0);
@@ -797,7 +797,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
     const startIdleTimer = () => {
       clearIdleTimer();
-      idleTimerRef.current = window.setTimeout(() => {
+      idleTimerRef.current = setTimeout(() => {
         setIdleNudge(true);
         setExpanded(true);
         setManualDock(null);

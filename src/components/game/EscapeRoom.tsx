@@ -534,7 +534,7 @@ export default function EscapeRoom({
                   <CardTitle className="text-foreground flex items-center gap-3">
                     <span className="text-2xl">{currentPuzzleData.icon}</span>
                     <div>
-                      <div className="text-lg">{currentPuzzleData.title}</div>
+                      <div className="text-lg">{t(`escape.puzzle.${currentPuzzleData.id}.title`)}</div>
                       <div className="flex items-center gap-2 mt-1">
                         <DifficultyStars level={currentPuzzleData.difficulty} />
                         <span className="text-xs text-muted-foreground">
@@ -545,7 +545,7 @@ export default function EscapeRoom({
                   </CardTitle>
                   <Badge className={`${catConfig.bgColor} ${catConfig.color} ${catConfig.borderColor} border flex items-center gap-1.5`}>
                     {categoryIcons[currentPuzzleData.category]}
-                    {catConfig.label}
+                    {t(`escape.cat.${currentPuzzleData.category}`)}
                   </Badge>
                 </div>
               </CardHeader>
@@ -558,7 +558,7 @@ export default function EscapeRoom({
                   className={`rounded-xl p-5 border ${catConfig.borderColor} ${catConfig.bgColor}`}
                 >
                   <p className="text-foreground/80 text-base leading-relaxed">
-                    {currentPuzzleData.description}
+                    {t(`escape.puzzle.${currentPuzzleData.id}.description`)}
                   </p>
                 </motion.div>
 
@@ -597,7 +597,7 @@ export default function EscapeRoom({
                       <Alert className="bg-yellow-500/10 border-yellow-500/30 rounded-xl">
                         <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                         <AlertDescription className="text-yellow-800 dark:text-yellow-300">
-                          {currentPuzzleData.hint}
+                          {t(`escape.puzzle.${currentPuzzleData.id}.hint`)}
                         </AlertDescription>
                       </Alert>
                     </motion.div>
@@ -615,7 +615,7 @@ export default function EscapeRoom({
                       <Alert className="bg-amber-500/10 border-amber-500/30 rounded-xl">
                         <Key className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         <AlertDescription className="text-amber-800 dark:text-amber-300">
-                          {currentPuzzleData.clue}
+                          {t(`escape.puzzle.${currentPuzzleData.id}.clue`)}
                         </AlertDescription>
                       </Alert>
                     </motion.div>
@@ -723,7 +723,7 @@ export default function EscapeRoom({
                 <Card className="mt-3 bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800/40 backdrop-blur rounded-xl overflow-hidden">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-amber-800 dark:text-amber-200 text-sm flex items-center gap-2">
-                      📋 Notatki Terenowe — Ailanthus altissima (Poznań, 2025)
+                      📋 {t('escape.fieldNotesHeader')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
