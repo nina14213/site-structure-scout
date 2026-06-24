@@ -588,7 +588,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     });
   }, []);
 
-  const allRequiredMapped = currentSchema.required.every((term) => mappings[term]);
+  const allRequiredMapped = currentSchema.required.every((term) =>
+    mappings[term] || generatedIdConfigs.some((config) => config.term === term && config.mode !== 'skip')
+  );
   const selectedSchemaInfo = schemaTypes.find((s) => s.id === selectedSchema);
 
   /** Columns from original file that are NOT mapped to any DwC term */

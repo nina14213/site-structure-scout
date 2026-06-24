@@ -87,6 +87,7 @@ export default function GameLauncher({
 
             <LevelComponent
                 onComplete={onComplete}
+                onClose={onClose}
                 gameState={gameState}
                 addScore={addScore}
                 playSuccess={playSuccess}

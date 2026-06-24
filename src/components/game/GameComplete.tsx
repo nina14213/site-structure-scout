@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Star, Download, Share2, RotateCcw, Sparkles, Award, Target, BookOpen, CheckCircle } from 'lucide-react';
+import { Trophy, Star, Download, Share2, RotateCcw, Sparkles, Award, Target, BookOpen, CheckCircle, Database, Home } from 'lucide-react';
 import { GameState, Badge as BadgeType } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -12,12 +12,21 @@ interface GameCompleteProps {
     leaderboard?: unknown[];
     badges: Record<string, BadgeType>;
     onRestart: () => void;
+    onBackToMenu?: () => void;
+    onDataPackage?: () => void;
     playBadgeUnlock?: () => void;
 }
 
-export default function GameComplete({ gameState, badges, onRestart, playBadgeUnlock }: GameCompleteProps) {
+const TOTAL_GAME_LEVELS = 5;
+
+export default function GameComplete({ gameState, badges, onRestart, onBackToMenu, onDataPackage, playBadgeUnlock }: GameCompleteProps) {
     const { t } = useLanguage();
     const [animationPhase, setAnimationPhase] = useState(0);
+    const actionGridClass = onBackToMenu && onDataPackage
+        ? 'md:grid-cols-5'
+        : onBackToMenu || onDataPackage
+            ? 'md:grid-cols-4'
+            : 'md:grid-cols-3';
 
     useEffect(() => {
         const timers = [
@@ -78,7 +87,7 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 p-4 md:p-6 flex items-center justify-center">
+        <div data-demo-id="game-complete" className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 p-4 md:p-6 flex items-center justify-center">
             <div className="max-w-4xl w-full">
                 {/* Confetti Animation */}
                 <AnimatePresence>
@@ -119,7 +128,7 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
                     <Card className="bg-white/90 border-gray-200 dark:bg-slate-800/80 dark:border-slate-700 backdrop-blur">
                         <CardContent className="pt-6 text-center">
                             <Target className="w-8 h-8 text-purple-500 dark:text-purple-400 mx-auto mb-2" />
-                            <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{gameState?.levelsCompleted?.length || 0}/4</div>
+                            <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{gameState?.levelsCompleted?.length || 0}/{TOTAL_GAME_LEVELS}</div>
                             <div className="text-sm text-gray-600 dark:text-slate-400">{t('complete.levels')}</div>
                         </CardContent>
                     </Card>
@@ -133,7 +142,7 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                    <Card className="mb-8 bg-white/90 border-gray-200 dark:bg-slate-800/80 dark:border-slate-700 backdrop-blur">
+                    <Card data-demo-id="complete-mission-summary" className="mb-8 bg-white/90 border-gray-200 dark:bg-slate-800/80 dark:border-slate-700 backdrop-blur">
                         <CardHeader>
                             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
@@ -193,7 +202,13 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
                     </Card>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <motion.div
+                    data-demo-id="complete-bottom-actions"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2 }}
+                    className={`grid grid-cols-1 ${actionGridClass} gap-4`}
+                >
                     <Button onClick={generateCertificate} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white" size="lg">
                         <Download className="w-4 h-4 mr-2" />
                         {t('complete.downloadCert')}
@@ -214,6 +229,30 @@ export default function GameComplete({ gameState, badges, onRestart, playBadgeUn
                         <RotateCcw className="w-4 h-4 mr-2" />
                         {t('complete.playAgain')}
                     </Button>
+                    {onBackToMenu && (
+                        <Button
+                            data-demo-id="complete-back-menu"
+                            onClick={onBackToMenu}
+                            variant="outline"
+                            className="w-full border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-500/10"
+                            size="lg"
+                        >
+                            <Home className="w-4 h-4 mr-2" />
+                            {t('import.backToMenu')}
+                        </Button>
+                    )}
+                    {onDataPackage && (
+                        <Button
+                            data-demo-id="complete-open-data-package"
+                            onClick={onDataPackage}
+                            variant="outline"
+                            className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-600 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+                            size="lg"
+                        >
+                            <Database className="w-4 h-4 mr-2" />
+                            {t('start.createDataPackage')}
+                        </Button>
+                    )}
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="text-center mt-8">

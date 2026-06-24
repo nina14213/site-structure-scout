@@ -132,7 +132,7 @@ export const BADGES: Record<string, Badge> = {
         name: 'Validator Pro',
         description: 'Przejdź walidację GBIF bez błędów',
         icon: '✅',
-        condition: (state) => state.levelsCompleted.includes(4)
+        condition: (state) => state.levelsCompleted.includes(5)
     },
     SPEED_DEMON: {
         id: 'speed_demon',
@@ -144,16 +144,16 @@ export const BADGES: Record<string, Badge> = {
     COMPLETIONIST: {
         id: 'completionist',
         name: 'Completionist',
-        description: 'Ukończ wszystkie 4 misje',
+        description: 'Ukończ wszystkie 5 misji',
         icon: '🎖️',
-        condition: (state) => state.levelsCompleted.length >= 4
+        condition: (state) => state.levelsCompleted.length >= TOTAL_LEVELS
     },
     QUIZ_MASTER: {
         id: 'quiz_master',
         name: 'Quiz Master',
         description: 'Odpowiedz poprawnie na wszystkie pytania quizowe',
         icon: '🧠',
-        condition: (state) => Object.values(state.quizScores).every(s => s === 100)
+        condition: (state) => [1, 2, 3, 4, 5].every(level => state.quizScores[level] === 100)
     },
     DATA_RANGER: {
         id: 'data_ranger',

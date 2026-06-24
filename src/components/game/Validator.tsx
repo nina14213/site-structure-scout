@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, Timer, CheckCircle, XCircle, Loader2, Zap, Trophy, Edit, AlertCircle } from 'lucide-react';
+import { Shield, Timer, CheckCircle, XCircle, Loader2, Zap, Trophy, Edit, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import TutorialModal from './TutorialModal';
@@ -14,6 +14,7 @@ import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { formatCountdownTime } from './gameHelpers';
 import { useGuideSurfaceState } from './GuideSurfaceContext';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 
 interface ValidationStep {
     id: string;
@@ -42,6 +43,14 @@ const initialDataRecords: DataRecord[] = [
     { id: '3', occurrenceID: '', eventID: 'EVT-003', scientificName: 'Dąb szypułkowy', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' }, // Empty occurrenceID + Polish name (should be Quercus robur)
     { id: '4', occurrenceID: 'OCC004', eventID: '', scientificName: 'Robinia akacjowa', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' }, // Empty eventID + Polish name (should be Robinia pseudoacacia)
     { id: '5', occurrenceID: 'OCC001', eventID: 'EVT-005', scientificName: 'Robinia pseudoacacia', eventDate: '2025-13-01', decimalLatitude: '52.3877', decimalLongitude: '16.9450', locality: 'Stary Rynek, Poznań' }, // Duplicate occurrenceID (OCC001) + invalid month 13
+];
+
+const correctedDataRecords: DataRecord[] = [
+    { id: '1', occurrenceID: 'OCC001', eventID: 'EVT-001', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.4082', decimalLongitude: '16.9344', locality: 'Park Sołacki, Poznań' },
+    { id: '2', occurrenceID: 'OCC002', eventID: 'EVT-002', scientificName: 'Ailanthus altissima', eventDate: '2025-10-25', decimalLatitude: '52.3935', decimalLongitude: '16.9187', locality: 'ul. Libelta, Poznań' },
+    { id: '3', occurrenceID: 'OCC003', eventID: 'EVT-003', scientificName: 'Quercus robur', eventDate: '2025-06-14', decimalLatitude: '52.4215', decimalLongitude: '16.8998', locality: 'Ogród Botaniczny UAM, Poznań' },
+    { id: '4', occurrenceID: 'OCC004', eventID: 'EVT-004', scientificName: 'Robinia pseudoacacia', eventDate: '2025-05-23', decimalLatitude: '52.4038', decimalLongitude: '16.9175', locality: 'Cytadela, Poznań' },
+    { id: '5', occurrenceID: 'OCC005', eventID: 'EVT-005', scientificName: 'Robinia pseudoacacia', eventDate: '2025-01-13', decimalLatitude: '52.3877', decimalLongitude: '16.9450', locality: 'Stary Rynek, Poznań' },
 ];
 
 const validEventIDs = ['EVT-001', 'EVT-002', 'EVT-003', 'EVT-004', 'EVT-005', 'EVT-006', 'EVT-007', 'EVT-008'];
@@ -188,6 +197,7 @@ function getValidationStepResult(stepId: string, errors: ValidationError[], t: T
 
 interface ValidatorProps {
     onComplete?: (score: number, data: unknown) => void;
+    onClose?: () => void;
     gameState?: GameState;
     addScore?: (points: number, reason?: string) => void;
     playSuccess?: () => void;
@@ -196,8 +206,9 @@ interface ValidatorProps {
     startLevelTimer?: () => void;
 }
 
-export default function Validator({ onComplete, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer }: ValidatorProps) {
+export default function Validator({ onComplete, onClose, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer }: ValidatorProps) {
     const { t } = useLanguage();
+    const demoMode = isPortalDemoMode();
     const [dataRecords, setDataRecords] = useState<DataRecord[]>(initialDataRecords);
     const [validationSteps, setValidationSteps] = useState<ValidationStep[]>([
         { id: 'utf8', name: t('valStep.utf8'), description: t('valStep.utf8Desc'), status: 'pending' },
@@ -239,6 +250,33 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
     // PL: Komponent tylko uruchamia reguly; szczegoly sa w helperach nad komponentem.
     // EN: The component only runs the rules; details live in helpers above it.
     const validateData = useCallback(() => validateRecords(dataRecords, t), [dataRecords, t]);
+
+    useEffect(() => {
+        if (!demoMode) return;
+
+        const setDemoCell = (event: Event) => {
+            const detail = (event as CustomEvent<{ rowId?: string; field?: keyof DataRecord; value?: string }>).detail;
+            if (!detail?.rowId || !detail.field || detail.value === undefined) return;
+            setDataRecords(prev => prev.map(record =>
+                record.id === detail.rowId ? { ...record, [detail.field!]: detail.value! } : record
+            ));
+        };
+
+        const fixDemoData = () => {
+            setDataRecords(correctedDataRecords);
+            setErrorDetails([]);
+            setValidationComplete(false);
+            setAllPassed(false);
+            setValidationSteps(prev => prev.map(step => ({ ...step, status: 'pending', message: undefined })));
+        };
+
+        window.addEventListener('portal-demo-set-validator-cell', setDemoCell);
+        window.addEventListener('portal-demo-fix-validation', fixDemoData);
+        return () => {
+            window.removeEventListener('portal-demo-set-validator-cell', setDemoCell);
+            window.removeEventListener('portal-demo-fix-validation', fixDemoData);
+        };
+    }, [demoMode]);
 
     const runValidation = useCallback(async () => {
         setIsValidating(true);
@@ -390,7 +428,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
 
                 {/* Data Editor - always visible */}
                 {showDataEditor && (
-                    <Card className="mb-6 bg-white/80 border-orange-300 dark:bg-slate-800/50 dark:border-orange-700 backdrop-blur">
+                    <Card data-demo-id="validator-data-table" className="mb-6 bg-white/80 border-orange-300 dark:bg-slate-800/50 dark:border-orange-700 backdrop-blur">
                         <CardHeader>
                             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                                 <Edit className="w-5 h-5 text-orange-500" />
@@ -424,6 +462,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                             <tr key={record.id} className="border-b border-gray-200 dark:border-slate-700">
                                                 <td className="p-2">
                                                     <Input
+                                                        data-demo-id={`validator-cell-${record.id}-occurrenceID`}
                                                         value={record.occurrenceID}
                                                         onChange={(e) => updateRecord(record.id, 'occurrenceID', e.target.value)}
                                                         placeholder={t('val.enterID')}
@@ -435,7 +474,10 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                         value={record.eventID}
                                                         onValueChange={(val) => updateRecord(record.id, 'eventID', val)}
                                                     >
-                                                        <SelectTrigger className={`w-full text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}>
+                                                        <SelectTrigger
+                                                            data-demo-id={`validator-cell-${record.id}-eventID`}
+                                                            className={`w-full text-gray-900 dark:text-white ${hasError(record.id, 'eventID') ? 'border-red-500 bg-red-50 dark:bg-red-500/20' : 'bg-white dark:bg-slate-700'}`}
+                                                        >
                                                             <SelectValue placeholder={t('val.select')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -447,6 +489,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                 </td>
                                                 <td className="p-2 min-w-[180px]">
                                                     <Input
+                                                        data-demo-id={`validator-cell-${record.id}-scientificName`}
                                                         value={record.scientificName}
                                                         onChange={(e) => updateRecord(record.id, 'scientificName', e.target.value)}
                                                         placeholder={t('val.latinName')}
@@ -455,6 +498,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                 </td>
                                                 <td className="p-2">
                                                     <Input
+                                                        data-demo-id={`validator-cell-${record.id}-eventDate`}
                                                         value={record.eventDate}
                                                         onChange={(e) => updateRecord(record.id, 'eventDate', e.target.value)}
                                                         placeholder="YYYY-MM-DD"
@@ -463,6 +507,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                 </td>
                                                 <td className="p-2">
                                                     <Input
+                                                        data-demo-id={`validator-cell-${record.id}-decimalLatitude`}
                                                         value={record.decimalLatitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLatitude', e.target.value)}
                                                         placeholder="[-90, 90]"
@@ -471,6 +516,7 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                                 </td>
                                                 <td className="p-2">
                                                     <Input
+                                                        data-demo-id={`validator-cell-${record.id}-decimalLongitude`}
                                                         value={record.decimalLongitude}
                                                         onChange={(e) => updateRecord(record.id, 'decimalLongitude', e.target.value)}
                                                         placeholder="[-180, 180]"
@@ -546,9 +592,10 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                             ))}
                         </AnimatePresence>
                     </CardContent>
-                    <CardFooter className="flex gap-4">
+                    <CardFooter className="flex flex-col gap-4 sm:flex-row">
                         {!validationComplete || !allPassed ? (
                             <Button
+                                data-demo-id="validator-run"
                                 onClick={() => { resetValidation(); runValidation(); }}
                                 disabled={isValidating}
                                 className="w-full bg-red-600 hover:bg-red-700 text-white"
@@ -567,14 +614,27 @@ export default function Validator({ onComplete, addScore, playSuccess, playFail,
                                 )}
                             </Button>
                         ) : (
-                            <Button
-                                onClick={handleComplete}
-                                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                                size="lg"
-                            >
-                                <Trophy className="w-4 h-4 mr-2" />
-                                {t('val.victory')}
-                            </Button>
+                            <>
+                                <Button
+                                    data-demo-id="validator-back-menu"
+                                    onClick={onClose}
+                                    variant="outline"
+                                    className="w-full border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                                    size="lg"
+                                >
+                                    <ArrowLeft className="w-4 h-4 mr-2" />
+                                    {t('import.backToMenu')}
+                                </Button>
+                                <Button
+                                    data-demo-id="validator-victory"
+                                    onClick={handleComplete}
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                    size="lg"
+                                >
+                                    <Trophy className="w-4 h-4 mr-2" />
+                                    {t('val.victory')}
+                                </Button>
+                            </>
                         )}
                     </CardFooter>
                 </Card>

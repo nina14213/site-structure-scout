@@ -190,7 +190,10 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                         </div>
                     </div>
 
-                    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto text-center flex-1 min-h-0 overscroll-contain">
+                    <div
+                        data-demo-id="tutorial-scroll-area"
+                        className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto text-center flex-1 min-h-0 overscroll-contain"
+                    >
                         <Card className="bg-indigo-50 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/30">
                             <CardContent className="pt-4">
                                 <div className="flex flex-col items-center gap-3">
@@ -263,7 +266,12 @@ export default function TutorialModal({ levelNumber, isOpen, onClose }: Tutorial
                     </div>
 
                     <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex-shrink-0">
-                        <Button onClick={onClose} className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" size="lg">
+                        <Button
+                            data-demo-id="tutorial-start"
+                            onClick={onClose}
+                            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                            size="lg"
+                        >
                             {t('tutorial.start')}
                         </Button>
                     </div>

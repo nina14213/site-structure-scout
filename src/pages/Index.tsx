@@ -38,6 +38,7 @@ const IndexContent = () => {
           gameState={progress.gameState}
           badges={BADGES}
           onRestart={nav.handleRestart}
+          onBackToMenu={nav.handleBackToMenu}
           playBadgeUnlock={sounds.playBadgeUnlock}
         />
         {assistant}

@@ -7,7 +7,7 @@ const ResourcesSection = () => {
   const resources = [
     { name: 'Darwin Core Terms', url: 'https://dwc.tdwg.org/terms/' },
     { name: 'GBIF IPT', url: 'https://www.gbif.org/ipt' },
-    { name: 'GBIF Validator', url: 'https://www.gbif.org/tools/data-validator' },
+    { name: 'GBIF Validator', url: 'https://www.gbif.org/tool/81281/gbif-data-validator' },
   ];
 
   return (

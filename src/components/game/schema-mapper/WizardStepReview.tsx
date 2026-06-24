@@ -150,7 +150,7 @@ export default function WizardStepReview({
                     </p>
                   </div>
                 </div>
-                <Button onClick={onOpenIdGenerator} className="shrink-0">
+                <Button data-demo-id="setup-id-generators" onClick={onOpenIdGenerator} className="shrink-0">
                   <Key className="w-4 h-4 mr-2" />
                   {t("wizard.setupIdGenerators")}
                 </Button>
@@ -331,6 +331,7 @@ export default function WizardStepReview({
                     <Button
                       variant="ghost"
                       size="sm"
+                      data-demo-id={`preview-schema-${schemaId}`}
                       onClick={() => setPreviewSchemaId(isPreviewOpen ? null : schemaId)}
                       className={`h-7 px-2 text-xs ${isPreviewOpen ? 'text-cyan-400' : 'text-muted-foreground'}`}
                     >
@@ -555,6 +556,7 @@ export default function WizardStepReview({
           </CardHeader>
           <CardContent className="pt-4 space-y-2">
             <Button
+              data-demo-id="download-all"
               onClick={onDownloadAll}
               variant="outline"
               className="w-full py-5 text-base border-amber-500 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300"

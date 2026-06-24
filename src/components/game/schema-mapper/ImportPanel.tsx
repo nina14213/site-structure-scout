@@ -27,6 +27,12 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  DEMO_CSV_FILE_NAME,
+  getDemoCsvFile,
+  getDemoCsvText,
+  isPortalDemoMode,
+} from "@/demo/portalDemo";
 
 interface ImportPanelProps {
   onImportComplete: (data: any[], columns: string[], fileName: string) => void;
@@ -34,6 +40,7 @@ interface ImportPanelProps {
 
 export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const { t } = useLanguage();
+  const demoMode = isPortalDemoMode();
   const [file, setFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<"csv" | "txt" | "xlsx" | null>(null);
   const [delimiter, setDelimiter] = useState(",");
@@ -212,6 +219,21 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     [file, fileType, parseTextFile]
   );
 
+  const handleDemoFileLoad = useCallback(() => {
+    const demoFile = getDemoCsvFile();
+    const parsed = parseTextFile(getDemoCsvText(), "\\t");
+    setFile(demoFile);
+    setFileType("csv");
+    setDelimiter("\\t");
+    setCustomDelimiter("");
+    setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
+    setImportResult(null);
+    setError(null);
+    setSheetNames([]);
+    setSelectedSheet("");
+    setWorkbookCache(null);
+  }, [parseTextFile]);
+
   const handleImport = useCallback(async () => {
     if (!file || !preview) return;
     setIsLoading(true);
@@ -270,6 +292,18 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
                 {fileType === "xlsx" ? <FileSpreadsheet className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                 {file.name}
               </p>
+            )}
+            {demoMode && (
+              <Button
+                type="button"
+                data-demo-id="load-demo-csv"
+                variant="outline"
+                onClick={handleDemoFileLoad}
+                className="w-full justify-start border-cyan-500/40 text-cyan-600 hover:bg-cyan-500/10 dark:text-cyan-300"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Wczytaj plik demo: {DEMO_CSV_FILE_NAME}
+              </Button>
             )}
           </div>
 
@@ -356,6 +390,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
           )}
 
           <Button
+            data-demo-id="import-demo-data"
             onClick={handleImport}
             disabled={!preview || isLoading}
             className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white"

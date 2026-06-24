@@ -10,6 +10,8 @@ import {
 	AccessibilityProvider,
 } from "@/components/accessibility/AccessibilityProvider";
 import AccessibilityPanel from "@/components/accessibility/AccessibilityPanel";
+import PortalDemoPlayer from "@/components/demo/PortalDemoPlayer";
+import { preparePortalDemoSession } from "@/demo/portalDemo";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -34,22 +36,27 @@ const AppShell = () => {
 	);
 };
 
-const App = () => (
-	<QueryClientProvider client={queryClient}>
-		<LanguageProvider>
-			<AccessibilityProvider>
-				<AccessibilityMotionConfig>
-					<TooltipProvider>
-						<Toaster />
-						<Sonner />
-						<BrowserRouter>
-							<AppShell />
-						</BrowserRouter>
-					</TooltipProvider>
-				</AccessibilityMotionConfig>
-			</AccessibilityProvider>
-		</LanguageProvider>
-	</QueryClientProvider>
-);
+const App = () => {
+	preparePortalDemoSession();
+
+	return (
+		<QueryClientProvider client={queryClient}>
+			<LanguageProvider>
+				<AccessibilityProvider>
+					<AccessibilityMotionConfig>
+						<TooltipProvider>
+							<Toaster />
+							<Sonner />
+							<BrowserRouter>
+								<AppShell />
+								<PortalDemoPlayer />
+							</BrowserRouter>
+						</TooltipProvider>
+					</AccessibilityMotionConfig>
+				</AccessibilityProvider>
+			</LanguageProvider>
+		</QueryClientProvider>
+	);
+};
 
 export default App;

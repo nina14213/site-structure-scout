@@ -269,6 +269,7 @@ export default function AutoMatchDialog({ matches, onApply, onDismiss }: AutoMat
             {t('autoMatch.skip')}
           </Button>
           <Button
+            data-demo-id="auto-match-apply"
             onClick={handleApply}
             disabled={noneSelected}
             className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white gap-2"

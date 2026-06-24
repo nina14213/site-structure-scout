@@ -439,6 +439,7 @@ export default function SchemasPanel({
           <div data-tour="auto-map-btn" className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
             <div className="flex gap-3">
               <Button
+                data-demo-id="detect-headers"
                 onClick={onDetectHeaders}
                 variant="outline"
                 className="flex-1 border-cyan-500/40 text-cyan-500 hover:bg-cyan-500/10 hover:text-cyan-400"

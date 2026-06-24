@@ -165,6 +165,7 @@ export function useGameNavigation({
 
     completeLevel(currentLevel, score);
     updateLeaderboard();
+
     setPendingScore(score);
     setQuizLevel(currentLevel);
     setCurrentScreen('quiz');

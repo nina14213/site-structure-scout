@@ -135,6 +135,7 @@ export default function DraggableColumn({
                 onKeyDown={handleKeyDown}
                 role="button"
                 tabIndex={0}
+                data-demo-column={column}
                 aria-pressed={isSelected}
                 aria-label={columnAriaLabel}
                 aria-grabbed={isDragging}

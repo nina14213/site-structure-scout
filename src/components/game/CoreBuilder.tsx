@@ -20,6 +20,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAccessibility } from '@/components/accessibility/AccessibilityContext';
 import { calculateTimeBonus, formatCountdownTime } from './gameHelpers';
 import { useGuideSurfaceState } from './GuideSurfaceContext';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 
 // Required DwC terms for Event Core - only eventID is strictly required per DwC-DP
 const requiredTerms = ['eventID'];
@@ -40,6 +41,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
     const { validateField } = useValidator();
     const { t, language } = useLanguage();
     const { announce } = useAccessibility();
+    const demoMode = isPortalDemoMode();
     const pick = useCallback((pl: string, en: string, fr: string, de: string) => {
         if (language === 'en') return en;
         if (language === 'fr') return fr;
@@ -299,6 +301,19 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
         );
     }, [playDrop, playFail, announce, usesSampleData, coreUiCopy]);
 
+    useEffect(() => {
+        if (!demoMode) return;
+
+        const handleDemoMapping = (event: Event) => {
+            const detail = (event as CustomEvent<{ termName?: string; columnName?: string }>).detail;
+            if (!detail?.termName || !detail.columnName) return;
+            handleDrop(detail.termName, detail.columnName);
+        };
+
+        window.addEventListener('portal-demo-map-core', handleDemoMapping);
+        return () => window.removeEventListener('portal-demo-map-core', handleDemoMapping);
+    }, [demoMode, handleDrop]);
+
     const handleRemoveMapping = useCallback((termName: string) => {
         setMappings(prev => {
             const newMappings = { ...prev };
@@ -531,8 +546,8 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
 
                                 <Tabs defaultValue="required" className="w-full">
                                     <TabsList className="w-full bg-gray-100 dark:bg-slate-700/50 mb-4">
-                                        <TabsTrigger value="required" className="flex-1">{t('core.requiredTab')} ({requiredTerms.length})</TabsTrigger>
-                                        <TabsTrigger value="optional" className="flex-1">{t('core.optionalTab')} ({optionalTerms.length})</TabsTrigger>
+                                        <TabsTrigger data-demo-id="core-required-tab" value="required" className="flex-1">{t('core.requiredTab')} ({requiredTerms.length})</TabsTrigger>
+                                        <TabsTrigger data-demo-id="core-optional-tab" value="optional" className="flex-1">{t('core.optionalTab')} ({optionalTerms.length})</TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="required" className="space-y-3 mt-0">
@@ -584,6 +599,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                             </CardContent>
                             <CardFooter className="border-t border-gray-200 dark:border-slate-700 pt-4">
                                 <Button
+                                    data-demo-id="core-complete-level"
                                     onClick={handleComplete}
                                     disabled={!allRequiredMapped}
                                     className={`w-full ${
@@ -623,6 +639,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <button
                                     type="button"
+                                    data-demo-id="core-use-sample-data"
                                     onClick={handleUseSampleData}
                                     className="group flex flex-col items-center gap-3 rounded-xl border-2 border-border bg-card p-6 text-center transition-all hover:border-primary hover:bg-primary/5"
                                 >
@@ -637,6 +654,7 @@ export default function CoreBuilder({ onComplete, addScore, playSuccess, playFai
 
                                 <button
                                     type="button"
+                                    data-demo-id="core-import-own-data"
                                     onClick={() => setDataSourceDialogMode('import')}
                                     className="group flex flex-col items-center gap-3 rounded-xl border-2 border-border bg-card p-6 text-center transition-all hover:border-secondary hover:bg-secondary/5"
                                 >

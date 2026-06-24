@@ -324,6 +324,7 @@ export default function IdGeneratorDialog({
               {t('idGen.cancel')}
             </Button>
             <Button
+              data-demo-id="apply-id-generators"
               onClick={() => onApply(configs)}
               disabled={validationResults.some((v, i) => v.hasDuplicates && configs[i].mode !== 'skip')}
             >

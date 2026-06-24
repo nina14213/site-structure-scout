@@ -5,6 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import {
     Play,
     BookOpen,
@@ -23,6 +25,9 @@ import {
     HelpCircle,
     Database,
     CheckCircle2,
+    AlertTriangle,
+    Info,
+    RefreshCw,
     Hash,
     Lock,
     RotateCcw
@@ -32,6 +37,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import LanguageToggle from '@/components/LanguageToggle';
 import MascotIcon from '@/components/MascotIcon';
 import type { AssistantId } from '@/lib/assistants';
+import { PORTAL_DEMO_DURATION_MINUTES } from '@/demo/portalDemo';
 
 interface StartScreenProps {
     onStart: (playerName: string, targetLevel?: number, assistantId?: AssistantId) => void;
@@ -48,6 +54,28 @@ interface StartScreenProps {
     onDataImport?: () => void;
     onAssistantChange?: (assistantId: AssistantId) => void;
     onStartOver?: (playerName: string, assistantId?: AssistantId) => void;
+}
+
+type DarwinTermsCheckStatus = 'idle' | 'checking' | 'current' | 'changed' | 'unavailable';
+
+const DARWIN_TERMS_SNAPSHOT = {
+    url: 'https://dwc.tdwg.org/terms/',
+    hash: -30719789,
+    length: 401320,
+    checkedAt: '2026-06-24',
+    lastModified: 'Fri, 12 Jun 2026 16:23:39 GMT',
+};
+
+function normalizeTermsPage(text: string) {
+    return text.replace(/\s+/g, ' ').trim();
+}
+
+function checksumText(text: string) {
+    let hash = 0;
+    for (let index = 0; index < text.length; index += 1) {
+        hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0;
+    }
+    return hash;
 }
 
 export default function StartScreen({
@@ -69,6 +97,10 @@ export default function StartScreen({
     const { t } = useLanguage();
     const [playerName, setPlayerName] = useState(gameState?.playerName || '');
     const [showTutorial, setShowTutorial] = useState(false);
+    const [darwinTermsStatus, setDarwinTermsStatus] = useState<DarwinTermsCheckStatus>('idle');
+    const [darwinTermsMessage, setDarwinTermsMessage] = useState(
+        `Ostatni stan bazowy zapisano ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Najedź na link, aby spróbować porównać aktualną stronę TDWG.`
+    );
     const trimmedPlayerName = playerName.trim();
     const selectedAssistantId = gameState.assistantId;
     const isSavedPlayer = Boolean(gameState?.playerId && gameState.playerName === trimmedPlayerName);
@@ -104,6 +136,54 @@ export default function StartScreen({
     const handleStartOver = () => {
         if (trimmedPlayerName && isSavedPlayer) {
             onStartOver?.(trimmedPlayerName, selectedAssistantId);
+        }
+    };
+
+    const handleWatchDemo = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('demo', '1');
+        window.location.assign(url.toString());
+    };
+
+    const checkDarwinTermsFreshness = async () => {
+        if (darwinTermsStatus === 'checking') return;
+
+        setDarwinTermsStatus('checking');
+        setDarwinTermsMessage('Pobieram aktualną stronę Darwin Core Terms i porównuję z zapamiętanym stanem...');
+
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 4000);
+
+        try {
+            const response = await fetch(DARWIN_TERMS_SNAPSHOT.url, {
+                cache: 'no-store',
+                signal: controller.signal,
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const normalized = normalizeTermsPage(await response.text());
+            const currentHash = checksumText(normalized);
+            const currentLength = normalized.length;
+            const changed = currentHash !== DARWIN_TERMS_SNAPSHOT.hash || currentLength !== DARWIN_TERMS_SNAPSHOT.length;
+
+            if (changed) {
+                setDarwinTermsStatus('changed');
+                setDarwinTermsMessage(
+                    `Wykryto różnicę względem stanu z ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Warto otworzyć Darwin Core Terms i sprawdzić, co zmieniło się na stronie TDWG.`
+                );
+            } else {
+                setDarwinTermsStatus('current');
+                setDarwinTermsMessage(
+                    `Nie wykryto zmian względem zapamiętanego stanu z ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Ostatnia modyfikacja wg serwera: ${DARWIN_TERMS_SNAPSHOT.lastModified}.`
+                );
+            }
+        } catch {
+            setDarwinTermsStatus('unavailable');
+            setDarwinTermsMessage(
+                'Nie udało się pobrać strony z poziomu przeglądarki. Jeśli pracujesz publikacyjnie, otwórz Darwin Core Terms i sprawdź aktualny stan ręcznie.'
+            );
+        } finally {
+            window.clearTimeout(timeout);
         }
     };
 
@@ -145,6 +225,31 @@ export default function StartScreen({
         if (!isCurrentPlayerEntry(entry)) return;
         setPlayerName(gameState.playerName || entry.name);
     };
+
+    const learningLinks = [
+        {
+            href: DARWIN_TERMS_SNAPSHOT.url,
+            label: 'Darwin Core Terms',
+            demoId: 'resource-darwin-terms',
+            title: 'Aktualność terminów Darwin Core',
+            description: 'Portal próbuje porównać aktualną stronę TDWG z zapamiętanym stanem. Jeśli wykryje zmianę, warto sprawdzić stronę przed mapowaniem danych.',
+            onHover: checkDarwinTermsFreshness,
+        },
+        {
+            href: 'https://www.gbif.org/ipt',
+            label: 'GBIF IPT',
+            demoId: 'resource-gbif-ipt',
+            title: 'Publikacja przez GBIF IPT',
+            description: 'Jeśli chcesz przekazać dane do publikacji, możesz zrobić to przez portal GBIF IPT po przygotowaniu i sprawdzeniu pakietu danych.',
+        },
+        {
+            href: 'https://www.gbif.org/tool/81281/gbif-data-validator',
+            label: 'GBIF Validator',
+            demoId: 'resource-gbif-validator',
+            title: 'Sprawdzenie gotowego pakietu',
+            description: 'Jeśli masz już przygotowane dane, skorzystaj z GBIF Validatora, aby upewnić się, że pliki mają poprawną strukturę przed publikacją.',
+        },
+    ];
 
     return (
         <div className="min-h-screen p-4 md:p-8 bg-background dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950">
@@ -226,7 +331,7 @@ export default function StartScreen({
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Button onClick={handleStart} disabled={!trimmedPlayerName} size="lg" className={primaryActionClass}>
+                                    <Button data-demo-id="start-game" onClick={handleStart} disabled={!trimmedPlayerName} size="lg" className={primaryActionClass}>
                                         <Play className="w-6 h-6 mr-2" aria-hidden="true" />
                                         {hasSavedProgress ? t('start.continueGame') : t('start.startGame')}
                                     </Button>
@@ -309,6 +414,7 @@ export default function StartScreen({
                                 {/* Custom Data Package Option */}
                                 <motion.button
                                     type="button"
+                                    data-demo-id="open-data-package"
                                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
                                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                     onClick={onDataImport}
@@ -384,21 +490,67 @@ export default function StartScreen({
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                                {[
-                                    { href: 'https://dwc.tdwg.org/terms/', label: 'Darwin Core Terms' },
-                                    { href: 'https://www.gbif.org/ipt', label: 'GBIF IPT' },
-                                    { href: 'https://www.gbif.org/tools/data-validator', label: 'GBIF Validator' },
-                                ].map((link) => (
-                                    <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors">
-                                        <ExternalLink className="w-4 h-4" aria-hidden="true" />
-                                        <span className="text-sm">{link.label}</span>
-                                    </a>
+                                {learningLinks.map((link) => (
+                                    <HoverCard key={link.href} openDelay={120} closeDelay={120}>
+                                        <HoverCardTrigger asChild>
+                                            <a
+                                                data-demo-id={link.demoId}
+                                                href={link.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onMouseEnter={link.onHover}
+                                                onFocus={link.onHover}
+                                                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                            >
+                                                <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                                                <span className="text-sm">{link.label}</span>
+                                                {link.demoId === 'resource-darwin-terms' && darwinTermsStatus === 'changed' && (
+                                                    <Badge className="ml-auto bg-amber-500 text-white">zmiana</Badge>
+                                                )}
+                                                {link.demoId === 'resource-darwin-terms' && darwinTermsStatus === 'checking' && (
+                                                    <RefreshCw className="ml-auto h-3.5 w-3.5 animate-spin text-cyan-600" aria-hidden="true" />
+                                                )}
+                                            </a>
+                                        </HoverCardTrigger>
+                                        <HoverCardContent side="right" align="center" className="w-80 text-sm" data-demo-id={`${link.demoId}-hint`}>
+                                            <div className="space-y-3">
+                                                <div className="flex items-start gap-2">
+                                                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                                                    <div>
+                                                        <h3 className="font-semibold text-foreground">{link.title}</h3>
+                                                        <p className="mt-1 leading-relaxed text-muted-foreground">{link.description}</p>
+                                                    </div>
+                                                </div>
+                                                {link.demoId === 'resource-darwin-terms' && (
+                                                    <Alert
+                                                        className={
+                                                            darwinTermsStatus === 'changed'
+                                                                ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100'
+                                                                : darwinTermsStatus === 'current'
+                                                                    ? 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-100'
+                                                                    : 'border-cyan-300 bg-cyan-50 text-cyan-900 dark:border-cyan-500/40 dark:bg-cyan-500/10 dark:text-cyan-100'
+                                                        }
+                                                    >
+                                                        {darwinTermsStatus === 'changed' ? (
+                                                            <AlertTriangle className="h-4 w-4" />
+                                                        ) : darwinTermsStatus === 'current' ? (
+                                                            <CheckCircle2 className="h-4 w-4" />
+                                                        ) : (
+                                                            <Info className="h-4 w-4" />
+                                                        )}
+                                                        <AlertDescription>{darwinTermsMessage}</AlertDescription>
+                                                    </Alert>
+                                                )}
+                                            </div>
+                                        </HoverCardContent>
+                                    </HoverCard>
                                 ))}
                             </CardContent>
                         </Card>
 
                         {/* How to Play */}
                         <Button
+                            data-demo-id="how-to-play-toggle"
                             variant="outline"
                             className="w-full border-emerald-600/50 text-foreground hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20"
                             onClick={() => setShowTutorial(!showTutorial)}
@@ -410,7 +562,13 @@ export default function StartScreen({
                         </Button>
 
                         {showTutorial && (
-                            <motion.div id="start-tutorial-panel" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="p-4 rounded-xl bg-card/80 border border-border">
+                            <motion.div
+                                id="start-tutorial-panel"
+                                data-demo-id="how-to-play-panel"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="p-4 rounded-xl bg-card/80 border border-border"
+                            >
                                 <h4 className="font-semibold text-foreground mb-2">{t('start.tutorial.title')}</h4>
                                 <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
                                     <li>{t('start.tutorial.1')}</li>
@@ -420,6 +578,18 @@ export default function StartScreen({
                                     <li>{t('start.tutorial.5')}</li>
                                 </ol>
                                 <p className="text-xs text-muted-foreground mt-3">{t('start.tutorial.time')}</p>
+                                <Button
+                                    data-demo-id="watch-demo"
+                                    onClick={handleWatchDemo}
+                                    variant="outline"
+                                    className="mt-4 w-full border-cyan-500/50 bg-cyan-50/70 text-cyan-900 hover:border-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
+                                >
+                                    <Play className="h-4 w-4" aria-hidden="true" />
+                                    <span>{t('start.watchDemo')}</span>
+                                    <Badge variant="outline" className="ml-1 border-cyan-500/40 text-cyan-800 dark:text-cyan-100">
+                                        {t('start.watchDemoDuration', { minutes: PORTAL_DEMO_DURATION_MINUTES })}
+                                    </Badge>
+                                </Button>
                             </motion.div>
                         )}
                     </motion.div>

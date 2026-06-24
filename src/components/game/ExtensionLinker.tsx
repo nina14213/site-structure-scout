@@ -26,6 +26,7 @@ import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { calculateTimeBonus, formatCountdownTime } from "./gameHelpers";
 import { useGuideSurfaceState } from "./GuideSurfaceContext";
+import { isPortalDemoMode } from "@/demo/portalDemo";
 
 // PL: Ksztalt wiersza, ktory gracz uzupelnia w tabeli occurrence.
 // EN: Shape of the occurrence row filled in by the player.
@@ -243,6 +244,7 @@ export default function ExtensionLinker({
   startLevelTimer,
 }: ExtensionLinkerProps) {
   const { t, language } = useLanguage();
+  const demoMode = isPortalDemoMode();
   const pick = useCallback((pl: string, en: string, fr: string, de: string) => {
     if (language === "en") return en;
     if (language === "fr") return fr;
@@ -419,6 +421,30 @@ export default function ExtensionLinker({
     });
     setValidationStatus({ valid: false, errors: [] });
   }, []);
+
+  useEffect(() => {
+    if (!demoMode) return;
+
+    const setDemoCell = (event: Event) => {
+      const detail = (event as CustomEvent<{ rowIndex?: number; field?: keyof OccurrenceRow }>).detail;
+      if (typeof detail?.rowIndex !== "number" || !detail.field) return;
+      const expectedValue = expectedOccurrenceData[detail.rowIndex]?.[detail.field];
+      if (expectedValue === undefined) return;
+      updateOccurrenceCell(detail.rowIndex, detail.field, expectedValue);
+    };
+
+    const fillDemoData = () => {
+      setOccurrenceData(expectedOccurrenceData);
+      setValidationStatus({ valid: false, errors: [] });
+    };
+
+    window.addEventListener("portal-demo-set-extension-cell", setDemoCell);
+    window.addEventListener("portal-demo-fill-extension", fillDemoData);
+    return () => {
+      window.removeEventListener("portal-demo-set-extension-cell", setDemoCell);
+      window.removeEventListener("portal-demo-fill-extension", fillDemoData);
+    };
+  }, [demoMode, updateOccurrenceCell]);
 
   // PL: Wynik laczy poprawna walidacje, wypelnienie tabeli i bonus za czas.
   // EN: Score combines valid data, table completion, and the time bonus.
@@ -628,7 +654,7 @@ export default function ExtensionLinker({
         </div>
 
         {/* Occurrence Extension (editable) */}
-        <Card className="mb-6 bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
+        <Card data-demo-id="extension-table" className="mb-6 bg-white/80 border-gray-200 dark:bg-slate-800/50 dark:border-slate-700 backdrop-blur">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
               <Database className="w-5 h-5" />
@@ -659,6 +685,7 @@ export default function ExtensionLinker({
                       <td className="p-2">
                         <Select value={row.eventID} onValueChange={(val) => updateOccurrenceCell(idx, "eventID", val)}>
                           <SelectTrigger
+                            data-demo-id={`extension-cell-${idx}-eventID`}
                             className={`w-full ${!row.eventID ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-600"} bg-white dark:bg-slate-700 text-gray-900 dark:text-white`}
                           >
                             <SelectValue placeholder={noteUiCopy.selectEventId} />
@@ -678,6 +705,7 @@ export default function ExtensionLinker({
                           onValueChange={(val) => updateOccurrenceCell(idx, "scientificName", val)}
                         >
                           <SelectTrigger
+                            data-demo-id={`extension-cell-${idx}-scientificName`}
                             className={`w-full ${!row.scientificName ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-600"} bg-white dark:bg-slate-700 text-gray-900 dark:text-white`}
                           >
                             <SelectValue placeholder={noteUiCopy.selectSpecies} />
@@ -698,6 +726,7 @@ export default function ExtensionLinker({
                           onValueChange={(val) => updateOccurrenceCell(idx, "recordedBy", val)}
                         >
                           <SelectTrigger
+                            data-demo-id={`extension-cell-${idx}-recordedBy`}
                             className={`w-full ${!row.recordedBy ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-600"} bg-white dark:bg-slate-700 text-gray-900 dark:text-white`}
                           >
                             <SelectValue placeholder={noteUiCopy.selectRecorder} />
@@ -717,6 +746,7 @@ export default function ExtensionLinker({
                           onValueChange={(val) => updateOccurrenceCell(idx, "organismQuantity", val)}
                         >
                           <SelectTrigger
+                            data-demo-id={`extension-cell-${idx}-organismQuantity`}
                             className={`w-full ${!row.organismQuantity ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-600"} bg-white dark:bg-slate-700 text-gray-900 dark:text-white`}
                           >
                             <SelectValue placeholder={noteUiCopy.quantityPlaceholder} />
@@ -739,6 +769,7 @@ export default function ExtensionLinker({
                           onValueChange={(val) => updateOccurrenceCell(idx, "organismQuantityType", val)}
                         >
                           <SelectTrigger
+                            data-demo-id={`extension-cell-${idx}-organismQuantityType`}
                             className={`w-full ${!row.organismQuantityType ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-slate-600"} bg-white dark:bg-slate-700 text-gray-900 dark:text-white`}
                           >
                             <SelectValue placeholder={noteUiCopy.typePlaceholder} />
@@ -774,6 +805,7 @@ export default function ExtensionLinker({
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
+              data-demo-id="extension-validate"
               onClick={validateOccurrences}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white"
               size="lg"
@@ -820,6 +852,7 @@ export default function ExtensionLinker({
           </CardContent>
           <CardFooter>
             <Button
+              data-demo-id="extension-complete-level"
               onClick={handleComplete}
               disabled={!canComplete}
               className={`w-full ${canComplete ? "bg-green-600 hover:bg-green-700" : "bg-gray-300 dark:bg-slate-600"}`}

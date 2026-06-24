@@ -18,6 +18,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameScreen } from '@/hooks/useGameNavigation';
 import type { GameState } from '@/hooks/useGameProgress';
 import { getAssistantProfile, type AssistantId, type AssistantProfile } from '@/lib/assistants';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 import { useGuideSurface, type GuideSurface } from './GuideSurfaceContext';
 
 type Dock = 'left' | 'right' | 'center';
@@ -266,6 +267,109 @@ function getTips(
     tipKey('menu.continue'),
     tipKey('menu.boss'),
   ]);
+}
+
+function demoTip(badge: string, title: string, body: string): GuideTip {
+  return { badge, title, body };
+}
+
+function getDemoExtraTips(
+  currentScreen: GameScreen,
+  currentLevel: number | null,
+  activeSurface: GuideSurface,
+): GuideTip[] {
+  switch (activeSurface.key) {
+    case 'tutorial':
+      return [
+        demoTip('Mission', 'Scroll the mission brief', 'This modal shows the goal first, then the animation, steps, hints, and scoring rules below.'),
+      ];
+    case 'coreDataChoice':
+      return [
+        demoTip('Data', 'Choose a data source', 'You can use sample data or open the importer for your own CSV, TXT, or XLSX file. The demo imports a CSV file.'),
+      ];
+    case 'coreDataImport':
+      return [
+        demoTip('Import', 'Preview before mapping', 'After loading the file, check the separator, column names, and sample rows before importing them for mapping.'),
+      ];
+    case 'schemaMapperImportTutorial':
+      return [
+        demoTip('Builder', 'Import tutorial', 'This path is separate from the game: it goes from source file to mapping and Data Package export.'),
+      ];
+    case 'schemaMapperTutorial':
+      return [
+        demoTip('Mapping', 'DwC-DP schemas', 'File columns are on the left, Darwin Core schemas on the right. You can map manually or use suggestions.'),
+      ];
+    case 'schemaMapperAutoMatch':
+      return [
+        demoTip('Matches', 'Review before applying', 'Automatic matches show the column, Darwin Core term, schema, and sample value so you can confirm the mapping.'),
+      ];
+    case 'schemaMapperSuggest':
+      return [
+        demoTip('Suggestions', 'Pick the best matches', 'When column names resemble official terms, the portal suggests candidates that can be applied quickly.'),
+      ];
+    case 'schemaMapperIdGenerator':
+      return [
+        demoTip('IDs', 'Identifier generators', 'If the file has no stable IDs, generate them from a prefix, numbering, or existing columns.'),
+      ];
+    default:
+      break;
+  }
+
+  if (currentScreen === 'schemaMapper') {
+    return [
+      demoTip('Data Package', 'Full export path', 'Here you import data, map columns to Darwin Core terms, review tables, and export the package files.'),
+    ];
+  }
+
+  if (currentScreen === 'start') {
+    return [
+      demoTip('Menu', 'Two work paths', 'The game button starts the learning missions, while the Data Package tile opens the export workflow.'),
+    ];
+  }
+
+  if (currentScreen === 'playing' && currentLevel === 1) {
+    return [
+      demoTip('Level 1', 'Map meaning, not just names', 'Drag column tiles onto terms. If a name is unclear, sample values help identify the right term.'),
+    ];
+  }
+
+  if (currentScreen === 'playing' && currentLevel === 2) {
+    return [
+      demoTip('Level 2', 'Read the labels above the table', 'Missing occurrence values come from labels: species, recorder, quantity, quantity type, and eventID.'),
+    ];
+  }
+
+  if (currentScreen === 'playing' && currentLevel === 3) {
+    return [
+      demoTip('Level 3', 'Metadata describes the package', 'Title, description, creator, and license go into meta.xml and datapackage.json for publication.'),
+    ];
+  }
+
+  if (currentScreen === 'playing' && currentLevel === 4) {
+    return [
+      demoTip('Level 4', 'Taxonomy step by step', 'The game shows typos, synonyms, and kingdoms. The demo answers two examples and skips the rest.'),
+    ];
+  }
+
+  if (currentScreen === 'playing' && currentLevel === 5) {
+    return [
+      demoTip('Validation', 'The error list is a repair plan', 'Run validation, fix the red fields, and rerun it. Green checks mark the path to completion.'),
+    ];
+  }
+
+  if (currentScreen === 'quiz') {
+    return [
+      demoTip('Quiz', 'Short knowledge check', 'The demo answers one question and skips the rest so viewers do not see the full quiz bank.'),
+    ];
+  }
+
+  if (currentScreen === 'complete') {
+    return [
+      demoTip('Final', 'Ready to show', 'The end screen shows the score, completed missions, and the path from import to validation.'),
+    ];
+  }
+
+  return [];
 }
 
 function getSuggestedDock(currentScreen: GameScreen, currentLevel: number | null): Dock {
@@ -541,10 +645,11 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   const { settings } = useAccessibility();
   const { t } = useLanguage();
   const { activeSurface } = useGuideSurface();
+  const demoMode = isPortalDemoMode();
   const reduceMotion = settings.reduceMotion;
   const assistant = getAssistantProfile(gameState.assistantId);
   const assistantName = t(assistant.nameKey);
-  const tips = useMemo(() => getTips(currentScreen, currentLevel, gameState, assistantName, t, activeSurface), [
+  const baseTips = useMemo(() => getTips(currentScreen, currentLevel, gameState, assistantName, t, activeSurface), [
     currentScreen,
     currentLevel,
     gameState,
@@ -552,6 +657,10 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     t,
     activeSurface,
   ]);
+  const tips = useMemo(() => {
+    if (!demoMode) return baseTips;
+    return [...baseTips, ...getDemoExtraTips(currentScreen, currentLevel, activeSurface)];
+  }, [activeSurface, baseTips, currentLevel, currentScreen, demoMode]);
   const [tipIndex, setTipIndex] = useState(0);
   const [expanded, setExpanded] = useState(true);
   const [idleNudge, setIdleNudge] = useState(false);
@@ -594,10 +703,10 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
   useEffect(() => {
     setTipIndex(0);
-    setExpanded(!shouldCollapseForSurface(activeSurface));
+    setExpanded(demoMode ? currentScreen === 'start' : !shouldCollapseForSurface(activeSurface));
     setIdleNudge(false);
     setManualDock(null);
-  }, [contextKey, activeSurface]);
+  }, [contextKey, activeSurface, currentScreen, demoMode]);
 
   useEffect(() => {
     try {
@@ -677,6 +786,8 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   }, [isDragging]);
 
   useEffect(() => {
+    if (demoMode) return;
+
     const clearIdleTimer = () => {
       if (idleTimerRef.current) {
         window.clearTimeout(idleTimerRef.current);
@@ -708,7 +819,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
       clearIdleTimer();
       events.forEach((eventName) => window.removeEventListener(eventName, handleActivity));
     };
-  }, [currentScreen, currentLevel]);
+  }, [currentScreen, currentLevel, demoMode]);
 
   const startDragging = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
@@ -740,6 +851,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
   return (
     <motion.aside
       ref={assistantRef}
+      data-demo-id="guide-assistant"
       className={cn(
         'pointer-events-none fixed z-[65] h-32 w-32 max-w-[calc(100vw-1rem)]',
         !customPosition && dock === 'right' && 'top-6 right-3 md:right-5',
@@ -761,6 +873,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
         */}
         <button
           type="button"
+          data-demo-id="guide-assistant-avatar"
           onClick={() => setExpanded((isExpanded) => !isExpanded)}
           aria-label={expanded ? t('assistant.control.collapse') : t('assistant.control.expand')}
           className={cn(
@@ -807,6 +920,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
                     type="button"
                     variant="ghost"
                     size="icon"
+                    data-demo-id="guide-assistant-close"
                     onClick={() => setExpanded(false)}
                     aria-label={t('assistant.control.closeTip')}
                     className="h-8 w-8 shrink-0"
@@ -846,6 +960,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
                       <Button
                         type="button"
                         size="sm"
+                        data-demo-id="guide-assistant-finish"
                         onClick={() => {
                           setIdleNudge(false);
                           setExpanded(false);
@@ -859,6 +974,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
                       <Button
                         type="button"
                         size="sm"
+                        data-demo-id="guide-assistant-next"
                         disabled={!hasNextTip && !idleNudge}
                         onClick={() => {
                           setIdleNudge(false);

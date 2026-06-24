@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -36,6 +36,8 @@ interface SchemaMapperProps {
   onBack: () => void;
   onComplete?: (mappings: Record<string, string>, schema: string) => void;
 }
+
+const GBIF_VALIDATOR_URL = "https://www.gbif.org/tool/81281/gbif-data-validator";
 
 export default function SchemaMapper({ columns: initColumns, data: initData, fileName: initFileName, onBack, onComplete }: SchemaMapperProps) {
   const { t, language } = useLanguage();
@@ -248,6 +250,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3 mb-2">
               <Button
+                data-demo-id="schema-back-menu"
                 onClick={wizardStep === 0 || (wizardStep === 2 && hasExternalData) ? onBack : goBack}
                 variant="ghost"
                 size="sm"
@@ -329,6 +332,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                       <div className="grid gap-4 sm:grid-cols-2">
                         <button
                           type="button"
+                          data-demo-id="wizard-have-data"
                           onClick={() => setWizardStep(1)}
                           className="group relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
@@ -506,16 +510,26 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   clearColumnDefaults={state.clearColumnDefaults}
                 />
 
-                {/* Complete button */}
+                {/* Complete / external validation actions */}
                 {onComplete && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mt-4"
+                    className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,0.35fr)_1fr]"
                   >
                     <Button
-                      onClick={handleComplete}
+                      data-demo-id="schema-review-back-menu"
+                      onClick={onBack}
+                      variant="outline"
+                      className="w-full py-4 text-base border-border text-foreground hover:border-primary hover:bg-primary/10 md:py-6 md:text-lg"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                      {t("import.backToMenu")}
+                    </Button>
+                    <Button
+                      asChild
+                      data-demo-id="continue-gbif-validator"
                       disabled={!state.allRequiredMapped}
                       className={`w-full py-4 md:py-6 text-base md:text-lg ${
                         state.allRequiredMapped
@@ -523,14 +537,28 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {state.allRequiredMapped ? (
-                        <span className="flex items-center gap-2">
-                          <Check className="w-5 h-5" />
-                          {t("schema.continueValidation")}
-                        </span>
-                      ) : (
-                        <span>{t("schema.mapAllRequired")}</span>
-                      )}
+                      <a
+                        href={state.allRequiredMapped ? GBIF_VALIDATOR_URL : undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-disabled={!state.allRequiredMapped}
+                        onClick={(event) => {
+                          if (!state.allRequiredMapped) event.preventDefault();
+                          if (state.allRequiredMapped) handleComplete();
+                        }}
+                      >
+                        {state.allRequiredMapped ? (
+                          <span className="flex items-center gap-2">
+                            <ExternalLink className="w-5 h-5" />
+                            {t("schema.continueValidation")}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <Check className="w-5 h-5" />
+                            {t("schema.mapAllRequired")}
+                          </span>
+                        )}
+                      </a>
                     </Button>
                   </motion.div>
                 )}
@@ -543,15 +571,21 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
             <div className="flex justify-between items-center">
               <div>
                 {wizardStep > 0 && (
-                  <Button variant="outline" onClick={goBack} className="gap-1.5 md:gap-2 text-sm">
+                  <Button
+                    data-demo-id={wizardStep === 2 && hasExternalData ? "schema-review-back-menu" : undefined}
+                    variant="outline"
+                    onClick={goBack}
+                    className="gap-1.5 md:gap-2 text-sm"
+                  >
                     <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-                    {t("wizard.back")}
+                    {wizardStep === 2 && hasExternalData ? t("import.backToMenu") : t("wizard.back")}
                   </Button>
                 )}
               </div>
               <div>
                 {wizardStep > 0 && wizardStep < TOTAL_STEPS - 1 && (
                   <Button
+                    data-demo-id="wizard-next"
                     onClick={goNext}
                     disabled={!canGoNext}
                     className={`gap-1.5 md:gap-2 text-sm ${

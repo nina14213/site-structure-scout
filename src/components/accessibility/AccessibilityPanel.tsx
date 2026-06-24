@@ -125,6 +125,7 @@ export default function AccessibilityPanel() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          data-demo-id="wcag-trigger"
           variant="outline"
           size="sm"
           aria-label={labels.open}
@@ -135,6 +136,7 @@ export default function AccessibilityPanel() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
+        data-demo-id="wcag-panel"
         align="end"
         side="top"
         role="dialog"

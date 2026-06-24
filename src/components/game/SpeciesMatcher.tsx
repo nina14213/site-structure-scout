@@ -9,6 +9,7 @@ import { GameState } from '@/hooks/useGameProgress';
 import TutorialModal from './TutorialModal';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useGuideSurfaceState } from './GuideSurfaceContext';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 
 // --- Data ---
 
@@ -106,6 +107,7 @@ export default function SpeciesMatcher({
   onComplete, gameState, addScore, playSuccess, playFail, playLevelComplete, startLevelTimer,
 }: SpeciesMatcherProps) {
   const { t } = useLanguage();
+  const demoMode = isPortalDemoMode();
   const [showTutorial, setShowTutorial] = useState(true);
   const [round, setRound] = useState<Round>(1);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -185,6 +187,18 @@ export default function SpeciesMatcher({
     }, 800);
   }, [scanning, feedback, round, currentIdx, currentData, currentEntry, addScore, playSuccess, playFail, playLevelComplete, t]);
 
+  useEffect(() => {
+    if (!demoMode) return;
+
+    const finishSpeciesDemo = () => {
+      setFinished(true);
+      playLevelComplete?.();
+    };
+
+    window.addEventListener('portal-demo-finish-species', finishSpeciesDemo);
+    return () => window.removeEventListener('portal-demo-finish-species', finishSpeciesDemo);
+  }, [demoMode, playLevelComplete]);
+
   if (showTutorial) {
     return (
       <TutorialModal
@@ -219,6 +233,7 @@ export default function SpeciesMatcher({
                 </div>
               </div>
               <Button
+                data-demo-id="species-finish-level"
                 onClick={() => onComplete(Math.max(0, score))}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
               >
@@ -346,8 +361,13 @@ export default function SpeciesMatcher({
                 {/* Options */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {options.map((opt) => (
+                    (() => {
+                      const correctValue = round === 3 ? currentEntry.kingdom : currentEntry.correctName;
+                      const isCorrectOption = opt === correctValue;
+                      return (
                     <motion.button
                       key={`${currentEntry.id}-${opt}`}
+                      data-demo-id={isCorrectOption ? "species-correct-option" : undefined}
                       whileHover={!scanning && !feedback ? { scale: 1.03 } : {}}
                       whileTap={!scanning && !feedback ? { scale: 0.97 } : {}}
                       onClick={() => handleAnswer(opt)}
@@ -364,6 +384,8 @@ export default function SpeciesMatcher({
                     >
                       <span className={round !== 3 ? 'font-mono italic text-sm' : 'text-sm font-medium'}>{opt}</span>
                     </motion.button>
+                      );
+                    })()
                   ))}
                 </div>
               </CardContent>

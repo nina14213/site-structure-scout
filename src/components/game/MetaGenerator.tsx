@@ -24,6 +24,7 @@ import TutorialModal from './TutorialModal';
 import { GameState } from '@/hooks/useGameProgress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useGuideSurfaceState } from './GuideSurfaceContext';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 
 interface MetaGeneratorProps {
     onComplete?: (score: number, data: unknown) => void;
@@ -50,6 +51,7 @@ export default function MetaGenerator({
     previousLevelData
 }: MetaGeneratorProps) {
     const { t } = useLanguage();
+    const demoMode = isPortalDemoMode();
     const [metadata, setMetadata] = useState({
         title: '',
         description: '',
@@ -311,6 +313,7 @@ ${fieldsXml}
                                 <Label htmlFor="title" className="text-muted-foreground">{t('meta.datasetTitle')}</Label>
                                 <Input
                                     id="title"
+                                    data-demo-id="meta-title"
                                     value={metadata.title}
                                     onChange={(e) => setMetadata(prev => ({ ...prev, title: e.target.value }))}
                                     className="bg-muted/50 border-border text-foreground"
@@ -320,6 +323,7 @@ ${fieldsXml}
                                 <Label htmlFor="description" className="text-muted-foreground">{t('meta.description')}</Label>
                                 <Textarea
                                     id="description"
+                                    data-demo-id="meta-description"
                                     value={metadata.description}
                                     onChange={(e) => setMetadata(prev => ({ ...prev, description: e.target.value }))}
                                     className="bg-muted/50 border-border text-foreground"
@@ -331,6 +335,7 @@ ${fieldsXml}
                                     <Label htmlFor="creator" className="text-muted-foreground">{t('meta.organization')}</Label>
                                     <Input
                                         id="creator"
+                                        data-demo-id="meta-creator"
                                         value={metadata.creator}
                                         onChange={(e) => setMetadata(prev => ({ ...prev, creator: e.target.value }))}
                                         className="bg-muted/50 border-border text-foreground"
@@ -371,6 +376,7 @@ ${fieldsXml}
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <Button
+                                    data-demo-id="meta-generate-xml"
                                     onClick={generateMetaXml}
                                     disabled={generatedFiles.meta}
                                     className={generatedFiles.meta ? 'bg-green-600' : 'bg-indigo-600 hover:bg-indigo-700'}
@@ -389,6 +395,7 @@ ${fieldsXml}
                                     )}
                                 </Button>
                                 <Button
+                                    data-demo-id="meta-generate-json"
                                     onClick={generateDatapackageJson}
                                     disabled={generatedFiles.datapackage}
                                     className={generatedFiles.datapackage ? 'bg-green-600' : 'bg-purple-600 hover:bg-purple-700'}
@@ -504,6 +511,7 @@ ${fieldsXml}
                         </CardContent>
                         <CardFooter className="flex gap-4">
                             <Button
+                                data-demo-id="meta-complete-level"
                                 onClick={handleComplete}
                                 disabled={!canComplete}
                                 className={`flex-1 ${canComplete ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-muted text-muted-foreground'}`}

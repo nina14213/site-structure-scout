@@ -100,6 +100,7 @@ export default function DropZone({
                 onKeyDown={handleKeyDown}
                 role={hasSelectedColumn && !mappedColumn ? "button" : "group"}
                 tabIndex={hasSelectedColumn && !mappedColumn ? 0 : undefined}
+                data-demo-term={termName}
                 aria-label={zoneAriaLabel}
                 className={`
                     p-4 rounded-xl border-2 transition-all duration-200

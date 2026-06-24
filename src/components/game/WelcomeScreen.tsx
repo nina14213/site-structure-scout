@@ -22,6 +22,7 @@ import AssistantAvatarArt from '@/components/AssistantAvatarArt';
 import LanguageToggle from '@/components/LanguageToggle';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { assistantProfiles, type AssistantId } from '@/lib/assistants';
+import { PORTAL_DEMO_DURATION_MINUTES } from '@/demo/portalDemo';
 
 interface WelcomeScreenProps {
   onEnter: (playerName: string, assistantId: AssistantId) => void;
@@ -41,6 +42,7 @@ export default function WelcomeScreen({
   const { t } = useLanguage();
   const [playerName, setPlayerName] = useState('');
   const [selectedAssistantId, setSelectedAssistantId] = useState<AssistantId | null>(null);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const trimmedPlayerName = playerName.trim();
 
   const selectedAssistant = selectedAssistantId
@@ -56,6 +58,12 @@ export default function WelcomeScreen({
   const handleEnter = () => {
     if (!trimmedPlayerName || !selectedAssistantId) return;
     onEnter(trimmedPlayerName, selectedAssistantId);
+  };
+
+  const handleWatchDemo = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('demo', '1');
+    window.location.assign(url.toString());
   };
 
   return (
@@ -136,6 +144,52 @@ export default function WelcomeScreen({
                 );
               })}
             </div>
+
+            <div className="space-y-3">
+              <Button
+                data-demo-id="welcome-how-to-play-toggle"
+                variant="outline"
+                className="w-full border-emerald-600/50 text-foreground hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20"
+                onClick={() => setShowHowToPlay((isVisible) => !isVisible)}
+                aria-expanded={showHowToPlay}
+                aria-controls="welcome-how-to-play-panel"
+              >
+                <HelpCircle className="h-4 w-4" aria-hidden="true" />
+                {t('start.howToPlay')}
+              </Button>
+
+              {showHowToPlay && (
+                <motion.div
+                  id="welcome-how-to-play-panel"
+                  data-demo-id="welcome-how-to-play-panel"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="rounded-xl border border-border bg-card/80 p-4 text-left"
+                >
+                  <h2 className="mb-2 text-lg font-semibold text-foreground">{t('start.tutorial.title')}</h2>
+                  <ol className="list-inside list-decimal space-y-2 text-sm leading-relaxed text-muted-foreground">
+                    <li>{t('start.tutorial.1')}</li>
+                    <li>{t('start.tutorial.2')}</li>
+                    <li>{t('start.tutorial.3')}</li>
+                    <li>{t('start.tutorial.4')}</li>
+                    <li>{t('start.tutorial.5')}</li>
+                  </ol>
+                  <p className="mt-3 text-xs text-muted-foreground">{t('start.tutorial.time')}</p>
+                  <Button
+                    data-demo-id="welcome-watch-demo"
+                    onClick={handleWatchDemo}
+                    variant="outline"
+                    className="mt-4 w-full border-cyan-500/50 bg-cyan-50/70 text-cyan-900 hover:border-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20"
+                  >
+                    <Play className="h-4 w-4" aria-hidden="true" />
+                    <span>{t('start.watchDemo')}</span>
+                    <Badge variant="outline" className="ml-1 border-cyan-500/40 text-cyan-800 dark:text-cyan-100">
+                      {t('start.watchDemoDuration', { minutes: PORTAL_DEMO_DURATION_MINUTES })}
+                    </Badge>
+                  </Button>
+                </motion.div>
+              )}
+            </div>
           </motion.section>
 
           <motion.section
@@ -156,6 +210,7 @@ export default function WelcomeScreen({
                   </Label>
                   <Input
                     id="welcome-name"
+                    data-demo-id="welcome-name"
                     placeholder={t('start.playerNamePlaceholder')}
                     value={playerName}
                     onChange={(event) => setPlayerName(event.target.value)}
@@ -180,6 +235,7 @@ export default function WelcomeScreen({
                           role="radio"
                           aria-checked={selected}
                           aria-label={t('assistant.selection.optionAria', { name: assistantName })}
+                          data-demo-id={`assistant-${assistant.id}`}
                           onClick={() => setSelectedAssistantId(assistant.id)}
                           className={`min-h-[12rem] rounded-lg border p-3 text-left transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${selected ? `${assistant.selectedRingClass} ring-2` : `border-border bg-muted/20 ${assistant.selectionClass}`}`}
                         >
@@ -213,6 +269,7 @@ export default function WelcomeScreen({
 
                 <Button
                   size="lg"
+                  data-demo-id="welcome-enter"
                   onClick={handleEnter}
                   disabled={!canEnter}
                   className="w-full border border-emerald-700/20 bg-gradient-to-r from-emerald-200 via-teal-200 to-sky-200 py-6 text-lg text-slate-950 shadow-md shadow-emerald-950/10 hover:from-emerald-300 hover:via-teal-300 hover:to-sky-300 hover:text-slate-950 focus-visible:ring-secondary dark:border-emerald-300/40 dark:from-emerald-700 dark:to-cyan-800 dark:text-white dark:hover:from-lime-300 dark:hover:via-green-300 dark:hover:to-emerald-400 dark:hover:text-slate-950"

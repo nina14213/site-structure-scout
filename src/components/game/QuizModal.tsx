@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, HelpCircle, Trophy, ArrowRight, SkipForward } from 'lucide-react';
-import { quizQuestionsByLevel, shuffleOptions } from './quizData';
+import { getQuizQuestionsByLevel, shuffleOptions } from './quizData';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 interface QuizModalProps {
@@ -15,14 +15,15 @@ interface QuizModalProps {
 }
 
 export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: QuizModalProps) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const questions = useMemo(() => {
+        const quizQuestionsByLevel = getQuizQuestionsByLevel(language);
         const raw = quizQuestionsByLevel[levelNumber] || quizQuestionsByLevel[1];
         return raw.map(q => {
             const { options, correctIndex } = shuffleOptions(q.options, q.correctIndex);
             return { ...q, options, correctIndex };
         });
-    }, [levelNumber]);
+    }, [language, levelNumber]);
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -125,6 +126,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                         {currentQuestion + 1} / {questions.length}
                                     </span>
                                     <Button
+                                        data-demo-id="quiz-skip"
                                         variant="ghost"
                                         size="sm"
                                         aria-label={t('quiz.skip')}
@@ -172,6 +174,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                         <motion.button
                                             key={index}
                                             type="button"
+                                            data-demo-id={index === question.correctIndex ? "quiz-correct-option" : `quiz-option-${index}`}
                                             onClick={() => handleAnswer(index)}
                                             disabled={isAnswered}
                                             aria-pressed={selectedAnswer === index}
@@ -215,6 +218,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                 )}
 
                                 <Button
+                                    data-demo-id="quiz-next"
                                     onClick={handleNext}
                                     disabled={!isAnswered}
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white"
@@ -250,6 +254,7 @@ export default function QuizModal({ onClose, onComplete, levelNumber = 1 }: Quiz
                                             : t('quiz.tryAgain')}
                                 </p>
                                 <Button
+                                    data-demo-id="quiz-continue"
                                     onClick={() => onClose?.()}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                                 >
