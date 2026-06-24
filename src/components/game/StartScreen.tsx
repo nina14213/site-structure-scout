@@ -101,6 +101,11 @@ export default function StartScreen({
   const [darwinTermsMessage, setDarwinTermsMessage] = useState(
     `Ostatni stan bazowy zapisano ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Najedź na link, aby spróbować porównać aktualną stronę TDWG.`,
   );
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactQuestion, setContactQuestion] = useState("");
+
   const trimmedPlayerName = playerName.trim();
   const selectedAssistantId = gameState.assistantId;
   const isSavedPlayer = Boolean(gameState?.playerId && gameState.playerName === trimmedPlayerName);
@@ -257,6 +262,20 @@ export default function StartScreen({
   const handleLeaderboardEntryClick = (entry: LeaderboardEntry) => {
     if (!isCurrentPlayerEntry(entry)) return;
     setPlayerName(gameState.playerName || entry.name);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const subject = encodeURIComponent("Contact from DwC Data Quest");
+    const body = encodeURIComponent(`Name: ${contactName}\nEmail: ${contactEmail}\n\nQuestion:\n${contactQuestion}`);
+
+    window.location.href = `mailto:twoj.adres@amu.edu.pl?subject=${subject}&body=${body}`;
+
+    setIsContactOpen(false);
+    setContactName("");
+    setContactEmail("");
+    setContactQuestion("");
   };
 
   const learningLinks = [
@@ -654,6 +673,9 @@ export default function StartScreen({
             >
               <div className="mb-6">
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">About Us</p>
+                <h2 id="about-us-title" className="text-xl font-semibold text-foreground">
+                  Team
+                </h2>
                 <p className="mt-3 max-w-3xl text-muted-foreground">
                   We work at Adam Mickiewicz University in Poznań, Poland, on biodiversity data, natural history
                   collections, mapping, geotagging, and databases.
@@ -695,14 +717,92 @@ export default function StartScreen({
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="mailto:ENChallenge@gbif.org?subject=2026%20Ebbe%20Nielsen%20Challenge"
-                  className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                >
+                <Button type="button" onClick={() => setIsContactOpen(true)}>
                   Contact us
-                </a>
+                </Button>
               </div>
             </section>
+
+            {isContactOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="contact-dialog-title"
+              >
+                <div className="w-full max-w-lg rounded-2xl border border-border bg-background p-6 shadow-xl">
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                      <h2 id="contact-dialog-title" className="text-xl font-semibold text-foreground">
+                        Contact us
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">Send us your question.</p>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsContactOpen(false)}
+                      aria-label="Close contact form"
+                    >
+                      ×
+                    </Button>
+                  </div>
+
+                  <form className="space-y-4" onSubmit={handleContactSubmit}>
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-name" className="text-foreground">
+                        Name
+                      </Label>
+                      <Input
+                        id="contact-name"
+                        type="text"
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="Your name"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-email" className="text-foreground">
+                        Email
+                      </Label>
+                      <Input
+                        id="contact-email"
+                        type="email"
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="your.email@example.com"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-question" className="text-foreground">
+                        Question
+                      </Label>
+                      <textarea
+                        id="contact-question"
+                        value={contactQuestion}
+                        onChange={(e) => setContactQuestion(e.target.value)}
+                        placeholder="Write your question here"
+                        required
+                        className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <Button type="button" variant="outline" onClick={() => setIsContactOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">Send</Button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
 
             {/* How to Play */}
             <Button
