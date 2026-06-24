@@ -655,8 +655,8 @@ export default function StartScreen({
               <div className="mb-6">
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">About Us</p>
                 <p className="mt-3 max-w-3xl text-muted-foreground">
-                  We work at Adam Mickiewicz University on biodiversity data, natural history collections, mapping,
-                  geotagging, and databases.
+                  We work at Adam Mickiewicz University in Poznań, Poland, on biodiversity data, natural history
+                  collections, mapping, geotagging, and databases.
                 </p>
               </div>
 
@@ -672,7 +672,9 @@ export default function StartScreen({
                       Katarzyna Słupecka
                     </a>
                   </h3>
-                  <p className="text-sm leading-6 text-muted-foreground"></p>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    GIS Specialist working on biodiversity data, geotagging, collection mapping, and databases.
+                  </p>
                 </article>
 
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
@@ -686,8 +688,19 @@ export default function StartScreen({
                       Krystian Florkowski
                     </a>
                   </h3>
-                  <p className="text-sm leading-6 text-muted-foreground"></p>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Specialist in collection digitization, biodiversity data, geotagging, and database management.
+                  </p>
                 </article>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href="mailto:ENChallenge@gbif.org?subject=2026%20Ebbe%20Nielsen%20Challenge"
+                  className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  Contact us
+                </a>
               </div>
             </section>
 
