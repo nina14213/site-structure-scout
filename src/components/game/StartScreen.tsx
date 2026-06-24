@@ -270,7 +270,7 @@ export default function StartScreen({
     const subject = encodeURIComponent("Contact from DwC Data Quest");
     const body = encodeURIComponent(`Name: ${contactName}\nEmail: ${contactEmail}\n\nQuestion:\n${contactQuestion}`);
 
-    window.location.href = `mailto:twoj.adres@amu.edu.pl?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:katarzyna.slupecka@amu.edu.pl?subject=${subject}&body=${body}`;
 
     setIsContactOpen(false);
     setContactName("");
