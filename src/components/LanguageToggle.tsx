@@ -12,8 +12,6 @@ import { Check } from "lucide-react";
 const LANGUAGES: { value: Language; label: string; flag: string }[] = [
   { value: "pl", label: "Polski", flag: "🇵🇱" },
   { value: "en", label: "English", flag: "🇬🇧" },
-  { value: "fr", label: "Français", flag: "FR" },
-  { value: "de", label: "Deutsch", flag: "DE" },
 ];
 
 export default function LanguageToggle({ className = "" }: { className?: string }) {
