@@ -666,18 +666,15 @@ export default function StartScreen({
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
                   <h3 className="mb-3 text-lg font-semibold text-foreground">Katarzyna Słupecka</h3>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    Hi! I'm Katarzyna Słupecka, a GIS Specialist at the Laboratory of Biological Spatial Information,
-                    Faculty of Biology, Adam Mickiewicz University in Poznań. My work focuses on geotagging, mapping
-                    natural history collections, and creating databases.
+                    My work focuses on geotagging, mapping, natural history collections, and creating databases.
                   </p>
                 </article>
 
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
                   <h3 className="mb-3 text-lg font-semibold text-foreground">Krystian Florkowski</h3>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    Hi! I'm Krystian Florkowski, a specialist in the digitization of natural history collections at the
-                    Faculty of Biology, Adam Mickiewicz University in Poznań. I have experience in plant environmental
-                    monitoring, geotagging, and database creation and management.
+                    I have experience in plant environmental monitoring, geotagging, and database creation and
+                    management.
                   </p>
                 </article>
               </div>
