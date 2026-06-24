@@ -797,7 +797,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
     const startIdleTimer = () => {
       clearIdleTimer();
-      idleTimerRef.current = window.setTimeout(() => {
+      idleTimerRef.current = setTimeout(() => {
         setIdleNudge(true);
         setExpanded(true);
         setManualDock(null);
