@@ -675,9 +675,7 @@ export default function StartScreen({
                       Katarzyna Słupecka
                     </a>
                   </h3>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    GIS Specialist working on biodiversity data, geotagging, collection mapping, and databases.
-                  </p>
+                  <p className="text-sm leading-6 text-muted-foreground"></p>
                 </article>
 
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
@@ -691,10 +689,7 @@ export default function StartScreen({
                       Krystian Florkowski
                     </a>
                   </h3>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    Specialist in digitizing natural history collections, with experience in biodiversity data,
-                    geotagging, and database management.
-                  </p>
+                  <p className="text-sm leading-6 text-muted-foreground"></p>
                 </article>
               </div>
             </section>
