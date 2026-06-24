@@ -615,7 +615,7 @@ export default function EscapeRoom({
                       <Alert className="bg-amber-500/10 border-amber-500/30 rounded-xl">
                         <Key className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         <AlertDescription className="text-amber-800 dark:text-amber-300">
-                          {currentPuzzleData.clue}
+                          {t(`escape.puzzle.${currentPuzzleData.id}.clue`)}
                         </AlertDescription>
                       </Alert>
                     </motion.div>
