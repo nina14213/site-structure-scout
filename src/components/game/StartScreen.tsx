@@ -646,6 +646,7 @@ export default function StartScreen({
                 ))}
               </CardContent>
             </Card>
+
             <section
               id="about-us"
               className="mb-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur"
@@ -654,31 +655,50 @@ export default function StartScreen({
               <div className="mb-6">
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">About Us</p>
                 <h2 id="about-us-title" className="text-2xl font-bold text-foreground">
-                  Meet the team behind the project
+                  Team
                 </h2>
                 <p className="mt-3 max-w-3xl text-muted-foreground">
-                  We work on biodiversity data, geotagging, digitization, and database development to support natural
-                  history collections and improve access to their data.
+                  We work at Adam Mickiewicz University on biodiversity data, natural history collections, mapping,
+                  geotagging, and databases.
                 </p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
-                  <h3 className="mb-3 text-lg font-semibold text-foreground">Katarzyna Słupecka</h3>
+                  <h3 className="mb-3 text-lg font-semibold text-foreground">
+                    <a
+                      href="https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      Katarzyna Słupecka
+                    </a>
+                  </h3>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    My work focuses on geotagging, mapping, natural history collections, and creating databases.
+                    GIS Specialist working on biodiversity data, geotagging, collection mapping, and databases.
                   </p>
                 </article>
 
                 <article className="rounded-xl border border-border/60 bg-background/70 p-5">
-                  <h3 className="mb-3 text-lg font-semibold text-foreground">Krystian Florkowski</h3>
+                  <h3 className="mb-3 text-lg font-semibold text-foreground">
+                    <a
+                      href="https://www.researchgate.net/profile/Krystian-Florkowski"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      Krystian Florkowski
+                    </a>
+                  </h3>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    I have experience in plant environmental monitoring, geotagging, and database creation and
-                    management.
+                    Specialist in digitizing natural history collections, with experience in biodiversity data,
+                    geotagging, and database management.
                   </p>
                 </article>
               </div>
             </section>
+
             {/* How to Play */}
             <Button
               data-demo-id="how-to-play-toggle"
