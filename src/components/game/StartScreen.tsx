@@ -654,9 +654,6 @@ export default function StartScreen({
             >
               <div className="mb-6">
                 <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">About Us</p>
-                <h2 id="about-us-title" className="text-2xl font-bold text-foreground">
-                  Team
-                </h2>
                 <p className="mt-3 max-w-3xl text-muted-foreground">
                   We work at Adam Mickiewicz University on biodiversity data, natural history collections, mapping,
                   geotagging, and databases.
