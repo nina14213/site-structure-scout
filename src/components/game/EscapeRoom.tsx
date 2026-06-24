@@ -597,7 +597,7 @@ export default function EscapeRoom({
                       <Alert className="bg-yellow-500/10 border-yellow-500/30 rounded-xl">
                         <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                         <AlertDescription className="text-yellow-800 dark:text-yellow-300">
-                          {currentPuzzleData.hint}
+                          {t(`escape.puzzle.${currentPuzzleData.id}.hint`)}
                         </AlertDescription>
                       </Alert>
                     </motion.div>
