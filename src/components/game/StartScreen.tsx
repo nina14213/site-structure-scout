@@ -207,7 +207,7 @@ export default function StartScreen({
       } else {
         setDarwinTermsStatus("current");
         setDarwinTermsMessage(
-          `Nie wykryto zmian względem zapamiętanego stanu z ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Ostatnia modyfikacja wg serwera: ${DARWIN_TERMS_SNAPSHOT.lastModified}.`,
+          `No changes detected from the remembered state of ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Last modified by server: ${DARWIN_TERMS_SNAPSHOT.lastModified}.`,
         );
       }
     } catch {
