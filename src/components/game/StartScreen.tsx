@@ -285,7 +285,7 @@ export default function StartScreen({
       description:
         "If you already have your data prepared, use GBIF Validator to ensure your files are structured correctly before publishing.",
     },
-
+  ];
   const aboutAuthors = [
     {
       name: "Katarzyna Słupecka",
