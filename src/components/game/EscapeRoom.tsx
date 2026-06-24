@@ -558,7 +558,7 @@ export default function EscapeRoom({
                   className={`rounded-xl p-5 border ${catConfig.borderColor} ${catConfig.bgColor}`}
                 >
                   <p className="text-foreground/80 text-base leading-relaxed">
-                    {currentPuzzleData.description}
+                    {t(`escape.puzzle.${currentPuzzleData.id}.description`)}
                   </p>
                 </motion.div>
 
