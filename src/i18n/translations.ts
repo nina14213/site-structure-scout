@@ -44,7 +44,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "start.tutorial.time": "Czas na poziom: 5 minut. Zbieraj punkty i odznaki!",
     "start.watchDemo": "Obejrzyj demo",
     "start.watchDemoDuration": "ok. {minutes} min",
-    "start.footer.project": "Projekt edukacyjny AMUNATCOLL · Adam Mickiewicz University",
+    "start.footer.project": "Projekt edukacyjny · Uniwersytet im. Adama Mickiewicza w Poznaniu",
     "start.footer.learn": "Ucz się standardu GBIF Darwin Core poprzez zabawę!",
     "start.createDataPackage": "Stwórz swój Data Package",
     "start.importOwnData": "Importuj własne dane CSV/XLSX i przekształć je w Darwin Core",
@@ -771,8 +771,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "stages.5.desc": "Przejdź finałową walidację GBIF i udowodnij swoje umiejętności!",
 
     // === Footer ===
-    "footer.project": "Projekt edukacyjny AMUNATCOLL",
-    "footer.university": "Adam Mickiewicz University · Ucz się standardu GBIF Darwin Core poprzez zabawę!",
+    "footer.project": "Projekt edukacyjny",
+    "footer.university":
+      "Uniwersytet im. Adama Mickiewicza w Poznaniu · Ucz się standardu GBIF Darwin Core poprzez zabawę!",
 
     // === ResourcesSection ===
     "resources.title": "Nauka",
@@ -870,7 +871,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "start.tutorial.time": "Time per level: 5 minutes. Collect points and badges!",
     "start.watchDemo": "Watch demo",
     "start.watchDemoDuration": "approx. {minutes} min",
-    "start.footer.project": "Educational project AMUNATCOLL · Adam Mickiewicz University",
+    "start.footer.project": "Educational project · Adam Mickiewicz University, Poland",
     "start.footer.learn": "Learn the GBIF Darwin Core standard through play!",
     "start.createDataPackage": "Create Your Data Package",
     "start.importOwnData": "Import your own CSV/XLSX data and transform it to Darwin Core",
@@ -1583,8 +1584,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "stages.5.desc": "Pass the final GBIF validation and prove your skills!",
 
     // === Footer ===
-    "footer.project": "Educational project AMUNATCOLL",
-    "footer.university": "Adam Mickiewicz University · Learn the GBIF Darwin Core standard through play!",
+    "footer.project": "Educational project",
+    "footer.university": "Adam Mickiewicz University, Poland · Learn the GBIF Darwin Core standard through play!",
 
     // === ResourcesSection ===
     "resources.title": "Learning",
@@ -1683,7 +1684,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "start.tutorial.time": "Temps par niveau : 5 minutes. Collectez des points et des badges !",
     "start.watchDemo": "Voir la démo",
     "start.watchDemoDuration": "env. {minutes} min",
-    "start.footer.project": "Projet éducatif AMUNATCOLL · Adam Mickiewicz University",
+    "start.footer.project": "Projet éducatif · Adam Mickiewicz University, Poland",
     "start.footer.learn": "Apprenez le standard GBIF Darwin Core en jouant !",
     "start.createDataPackage": "Créez votre Data Package",
     "start.importOwnData": "Importez vos données CSV/XLSX et transformez-les en Darwin Core",
@@ -2401,8 +2402,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "stages.5.desc": "Passez la validation finale GBIF et prouvez vos compétences !",
 
     // === Footer ===
-    "footer.project": "Projet éducatif AMUNATCOLL",
-    "footer.university": "Adam Mickiewicz University · Apprenez le standard GBIF Darwin Core en jouant !",
+    "footer.project": "Projet éducatif ",
+    "footer.university": "Adam Mickiewicz University, Poland · Apprenez le standard GBIF Darwin Core en jouant !",
 
     // === ResourcesSection ===
     "resources.title": "Apprentissage",
@@ -2503,7 +2504,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "start.tutorial.time": "Zeit pro Level: 5 Minuten. Sammle Punkte und Abzeichen!",
     "start.watchDemo": "Demo ansehen",
     "start.watchDemoDuration": "ca. {minutes} Min.",
-    "start.footer.project": "Bildungsprojekt AMUNATCOLL · Adam Mickiewicz University",
+    "start.footer.project": "Bildungsprojekt · Adam Mickiewicz University, Poland",
     "start.footer.learn": "Lerne den GBIF Darwin Core Standard spielerisch!",
     "start.createDataPackage": "Erstelle dein Data Package",
     "start.importOwnData": "Importiere eigene CSV/XLSX-Daten und wandle sie in Darwin Core um",
@@ -3216,8 +3217,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "stages.5.desc": "Bestehe die finale GBIF-Validierung und beweise deine Fähigkeiten!",
 
     // === Footer ===
-    "footer.project": "Bildungsprojekt AMUNATCOLL",
-    "footer.university": "Adam Mickiewicz University · Lerne den GBIF Darwin Core-Standard spielerisch!",
+    "footer.project": "Bildungsprojekt ",
+    "footer.university": "Adam Mickiewicz University, Poland · Lerne den GBIF Darwin Core-Standard spielerisch!",
 
     // === ResourcesSection ===
     "resources.title": "Lernen",
