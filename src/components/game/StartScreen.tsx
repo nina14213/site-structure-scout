@@ -231,23 +231,23 @@ export default function StartScreen({
             href: DARWIN_TERMS_SNAPSHOT.url,
             label: 'Darwin Core Terms',
             demoId: 'resource-darwin-terms',
-            title: 'Aktualność terminów Darwin Core',
-            description: 'Portal próbuje porównać aktualną stronę TDWG z zapamiętanym stanem. Jeśli wykryje zmianę, warto sprawdzić stronę przed mapowaniem danych.',
+            title: 'Are Darwin Core terms up to date?',
+            description: 'The portal compares the current TDWG page with the saved state. If a change is detected, it will be updated within 24 hours.'
             onHover: checkDarwinTermsFreshness,
         },
         {
             href: 'https://www.gbif.org/ipt',
             label: 'GBIF IPT',
             demoId: 'resource-gbif-ipt',
-            title: 'Publikacja przez GBIF IPT',
-            description: 'Jeśli chcesz przekazać dane do publikacji, możesz zrobić to przez portal GBIF IPT po przygotowaniu i sprawdzeniu pakietu danych.',
+            title: 'Publishing through the GBIF IPT',
+            description: 'If you wish to submit data for publication, you can do so via the GBIF IPT portal after preparing and reviewing your data package.',
         },
         {
             href: 'https://www.gbif.org/tool/81281/gbif-data-validator',
             label: 'GBIF Validator',
             demoId: 'resource-gbif-validator',
-            title: 'Sprawdzenie gotowego pakietu',
-            description: 'Jeśli masz już przygotowane dane, skorzystaj z GBIF Validatora, aby upewnić się, że pliki mają poprawną strukturę przed publikacją.',
+            title: 'Validate your package',
+            description: 'If you already have your data prepared, use GBIF Validator to ensure your files are structured correctly before publishing.',
         },
     ];
 
