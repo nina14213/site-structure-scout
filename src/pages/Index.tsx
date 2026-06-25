@@ -47,7 +47,7 @@ const IndexContent = () => {
   }
 
   if (nav.currentScreen === 'schemaMapper') {
-    const importData = nav.levelData.customImport as { data: unknown[]; columns: string[]; fileName: string } | undefined;
+    const importData = nav.levelData.customImport;
     return (
       <>
         <SchemaMapper

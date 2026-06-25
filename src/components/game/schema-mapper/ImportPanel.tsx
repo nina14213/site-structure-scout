@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/i18n/LanguageContext";
+import type { DataRow, SheetRow } from "./types";
+import { getErrorMessage } from "./types";
 import {
   DEMO_CSV_FILE_NAME,
   getDemoCsvFile,
@@ -35,7 +37,7 @@ import {
 } from "@/demo/portalDemo";
 
 interface ImportPanelProps {
-  onImportComplete: (data: any[], columns: string[], fileName: string) => void;
+  onImportComplete: (data: DataRow[], columns: string[], fileName: string) => void;
 }
 
 export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
@@ -46,13 +48,13 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   const [delimiter, setDelimiter] = useState(",");
   const [customDelimiter, setCustomDelimiter] = useState("");
   const [decimalSign, setDecimalSign] = useState(".");
-  const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
+  const [preview, setPreview] = useState<{ columns: string[]; rows: DataRow[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ rows: number; columns: number } | null>(null);
   const [sheetNames, setSheetNames] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState<string>("");
-  const [workbookCache, setWorkbookCache] = useState<any>(null);
+  const [workbookCache, setWorkbookCache] = useState<XLSX.WorkBook | null>(null);
 
   const getActualDelimiter = (delim: string): string => {
     if (delim === "\\t") return "\t";
@@ -111,7 +113,7 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   );
 
   const parseTextFile = useCallback(
-    (text: string, delim: string): { columns: string[]; rows: any[] } => {
+    (text: string, delim: string): { columns: string[]; rows: DataRow[] } => {
       const actualDelim = getActualDelimiter(delim);
       const lines = text.split(/\r?\n/).filter((line) => line.trim());
       if (lines.length === 0) throw new Error(t("import.error.empty"));
@@ -135,13 +137,13 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
   );
 
   const loadSheetPreview = useCallback(
-    (workbook: any, sheetName: string) => {
+    (workbook: XLSX.WorkBook, sheetName: string) => {
       try {
         const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as SheetRow[];
         if (jsonData.length === 0) throw new Error(t("import.error.empty"));
         const headers = jsonData[0].map(String);
-        const rows = jsonData.slice(1).map((row: any[]) => {
+        const rows = jsonData.slice(1).map((row) => {
           const obj: Record<string, string> = {};
           headers.forEach((h, i) => { obj[h] = row[i] != null ? String(row[i]) : ""; });
           return obj;
@@ -149,8 +151,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
         const convertedRows = convertDates(rows, headers);
         setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
         setError(null);
-      } catch (err: any) {
-        setError(err.message || t("import.error.parse"));
+      } catch (err) {
+        setError(getErrorMessage(err, t("import.error.parse")));
       }
     },
     [t, convertDates]
@@ -183,8 +185,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
           const firstSheet = workbook.SheetNames[0];
           setSelectedSheet(firstSheet);
           loadSheetPreview(workbook, firstSheet);
-        } catch (err: any) {
-          setError(err.message || t("import.error.parse"));
+        } catch (err) {
+          setError(getErrorMessage(err, t("import.error.parse")));
         }
       } else if (ext === "csv" || ext === "txt") {
         setFileType(ext as "csv" | "txt");
@@ -192,8 +194,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
           const text = await selectedFile.text();
           const parsed = parseTextFile(text, delimiter);
           setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
-        } catch (err: any) {
-          setError(err.message || t("import.error.parse"));
+        } catch (err) {
+          setError(getErrorMessage(err, t("import.error.parse")));
         }
       } else {
         setError(t("import.error.format"));
@@ -211,8 +213,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
           const parsed = parseTextFile(text, newDelimiter);
           setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
           setError(null);
-        } catch (err: any) {
-          setError(err.message);
+        } catch (err) {
+          setError(getErrorMessage(err, t("import.error.parse")));
         }
       }
     },
@@ -238,12 +240,12 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
     if (!file || !preview) return;
     setIsLoading(true);
     try {
-      let allData: any[];
+      let allData: DataRow[];
       if (fileType === "xlsx") {
         const workbook = workbookCache || XLSX.read(await file.arrayBuffer(), { type: "array" });
         const sheetName = selectedSheet || workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as SheetRow[];
         const headers = jsonData[0].map(String);
         allData = jsonData.slice(1).map((row) => {
           const obj: Record<string, string> = {};
@@ -258,8 +260,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
       }
       setImportResult({ rows: allData.length, columns: preview.columns.length });
       onImportComplete(allData, preview.columns, file.name);
-    } catch (err: any) {
-      setError(err.message || t("import.error.import"));
+    } catch (err) {
+      setError(getErrorMessage(err, t("import.error.import")));
     } finally {
       setIsLoading(false);
     }
@@ -356,8 +358,8 @@ export default function ImportPanel({ onImportComplete }: ImportPanelProps) {
                           const parsed = parseTextFile(text, "__custom__");
                           setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
                           setError(null);
-                        } catch (err: any) {
-                          setError(err.message);
+                        } catch (err) {
+                          setError(getErrorMessage(err, t("import.error.parse")));
                         }
                       });
                     }

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Key, AlertTriangle, Check, SkipForward, Hash } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import type { DataRow } from './schema-mapper/types';
 
 export type IdMode = 'prefix-auto' | 'uuid' | 'from-columns' | 'skip';
 
@@ -37,7 +38,7 @@ interface IdGeneratorDialogProps {
   open: boolean;
   requiredIdTerms: string[];
   columns: string[];
-  data: any[];
+  data: DataRow[];
   existingMappings: Record<string, string>;
   existingConfigs?: IdFieldConfig[];
   onApply: (configs: IdFieldConfig[]) => void;
@@ -46,7 +47,7 @@ interface IdGeneratorDialogProps {
 
 function generatePreviewValues(
   config: IdFieldConfig,
-  data: any[],
+  data: DataRow[],
   count: number
 ): string[] {
   const rows = data.slice(0, count);
@@ -341,7 +342,7 @@ export default function IdGeneratorDialog({
 /** Utility: generate all ID values for export */
 export function generateAllIds(
   config: IdFieldConfig,
-  data: any[],
+  data: DataRow[],
 ): string[] {
   return generatePreviewValues(config, data, data.length);
 }

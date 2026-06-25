@@ -15,8 +15,21 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { GameState } from '@/hooks/useGameProgress';
 import type { AssistantId } from '@/lib/assistants';
+import type { DataRow } from '@/components/game/schema-mapper/types';
 
 export type GameScreen = 'start' | 'playing' | 'complete' | 'schemaMapper' | 'quiz';
+
+type CustomImportData = {
+  data: DataRow[];
+  columns: string[];
+  fileName: string;
+};
+
+type LevelData = Record<number | string, unknown> & {
+  customImport?: CustomImportData;
+  schemaMappings?: Record<string, string>;
+  selectedSchema?: string;
+};
 
 /** Nazwy poziomów indeksowane numerem */
 const LEVEL_NAME_KEYS: Record<number, string> = {
@@ -62,7 +75,7 @@ export function useGameNavigation({
 
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('start');
   const [currentLevel, setCurrentLevel] = useState<number | null>(null);
-  const [levelData, setLevelData] = useState<Record<number | string, unknown>>({});
+  const [levelData, setLevelData] = useState<LevelData>({});
   const [quizLevel, setQuizLevel] = useState<number | null>(null);
   const [pendingScore, setPendingScore] = useState<number>(0);
   const transitioning = useRef(false);
@@ -227,7 +240,7 @@ export function useGameNavigation({
     setCurrentScreen('schemaMapper');
   }, []);
 
-  const handleImportComplete = useCallback((data: unknown[], columns: string[], fileName: string) => {
+  const handleImportComplete = useCallback((data: DataRow[], columns: string[], fileName: string) => {
     setLevelData(prev => ({ ...prev, customImport: { data, columns, fileName } }));
     toast({
       title: t('toast.dataImported'),

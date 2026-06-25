@@ -14,6 +14,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { normalizeHeader, termAliases } from './AutoMatchDialog';
 import { OFFICIAL_DWC_TERMS, OFFICIAL_DWC_TERMS_SET } from './officialDwCTerms';
 import { dwcTerms } from './DwCTerms';
+import type { DataRow } from './schema-mapper/types';
 
 export interface SuggestionItem {
   column: string;
@@ -30,7 +31,7 @@ interface SuggestMappingDialogProps {
 /** Build suggestion list from columns + data */
 export function buildSuggestions(
   columns: string[],
-  data: any[],
+  data: DataRow[],
   getColumnMapping: (col: string) => string | null
 ): SuggestionItem[] {
   const results: SuggestionItem[] = [];
@@ -44,7 +45,7 @@ export function buildSuggestions(
     } else {
       for (const [term, aliases] of Object.entries(termAliases)) {
         if (!OFFICIAL_DWC_TERMS_SET.has(term)) continue;
-        if ((aliases as string[]).some(a => normalizeHeader(a) === colNorm)) {
+        if (aliases.some(a => normalizeHeader(a) === colNorm)) {
           match = term;
           break;
         }
@@ -72,7 +73,8 @@ export default function SuggestMappingDialog({ suggestions, onApply, onDismiss }
   const toggle = (idx: number) => {
     setSelected(prev => {
       const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
       return next;
     });
   };

@@ -21,6 +21,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
 import type { ClassifiedSchemas } from "./useSchemaMapperState";
+import type { PreviewRow } from "./types";
 
 interface DownloadPanelProps {
   schemasWithMappings: string[];
@@ -32,7 +33,7 @@ interface DownloadPanelProps {
   selectedForDownload: Set<string>;
   onToggleSchemaSelection: (schemaId: string) => void;
   generatedIdValues: Record<string, string[]>;
-  getPreviewRows: (termMappings: Record<string, string>) => Record<string, string>[];
+  getPreviewRows: (termMappings: Record<string, string>) => PreviewRow[];
   onDownloadAll: () => void;
   onDownloadSchema: (schemaId: string) => void;
   onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
@@ -160,7 +161,7 @@ export default function DownloadPanel({
                   <div className="overflow-x-auto">
                     {(() => {
                       const previewRows = getPreviewRows(groupedMappings[previewSchemaId]);
-                      const nonSeparatorRows = previewRows.filter((r: any) => !r.__separator);
+                      const nonSeparatorRows = previewRows.filter((r) => !r.__separator);
                       const allHeaders = nonSeparatorRows.length > 0
                         ? Object.keys(nonSeparatorRows[0])
                         : Object.keys(groupedMappings[previewSchemaId]);
@@ -191,7 +192,7 @@ export default function DownloadPanel({
                             </tr>
                           </thead>
                           <tbody>
-                            {previewRows.map((row: any, i: number) => {
+                            {previewRows.map((row, i) => {
                               if (row.__separator) {
                                 return (
                                   <tr key="separator" className="border-b border-border/30">

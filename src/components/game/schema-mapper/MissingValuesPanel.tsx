@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { dwcTerms } from "../DwCTerms";
+import type { DataRow } from "./types";
 
 interface MissingInfo {
   column: string;
@@ -33,7 +34,7 @@ interface MissingInfo {
 
 interface MissingValuesPanelProps {
   missingByColumn: Record<string, MissingInfo>;
-  data: any[];
+  data: DataRow[];
   defaultValues: Record<string, string>;
   setColumnDefault: (column: string, value: string) => void;
   setRowDefault: (column: string, rowIdx: number, value: string) => void;

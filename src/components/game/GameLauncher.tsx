@@ -32,7 +32,7 @@ export default function GameLauncher({
     const { t } = useLanguage();
 
     const levels: Record<number, {
-        component: React.ComponentType<any>;
+        component: React.ElementType;
     }> = {
         1: { component: CoreBuilder },
         2: { component: ExtensionLinker },

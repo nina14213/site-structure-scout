@@ -14,6 +14,7 @@ import { useCallback } from "react";
 import JSZip from "jszip";
 import { schemaTerms } from "./schemaData";
 import type { IdFieldConfig } from "../IdGeneratorDialog";
+import type { DataRow, PreviewRow } from "./types";
 
 /** Sprawdza czy term jest termem daty (wyklucza verbatim*) */
 export function isDateTerm(term: string) {
@@ -58,7 +59,7 @@ export function normalizeDate(value: string): string {
 }
 
 interface UseSchemaExportProps {
-  data: any[];
+  data: DataRow[];
   fileName: string;
   convertDatesToISO: boolean;
   generatedIdConfigs: IdFieldConfig[];
@@ -73,7 +74,7 @@ interface UseSchemaExportProps {
 
 /** Resolve a cell value, falling back to default values if empty */
 function resolveCellValue(
-  row: any,
+  row: DataRow,
   col: string,
   rowIdx: number,
   defaultValues: Record<string, string>,
@@ -131,11 +132,11 @@ export function useSchemaExport({
 
   /** Generuje wiersze podglądu (pierwsze 5 + ostatnie 5) dla danego zestawu mapowań */
   const getPreviewRows = useCallback(
-    (termMappings: Record<string, string>) => {
+    (termMappings: Record<string, string>): PreviewRow[] => {
       const dwcHeaders = Object.keys(termMappings);
       const genTerms = getGenTermsForSchema(dwcHeaders);
 
-      const buildRow = (row: any, rowIdx: number) => {
+      const buildRow = (row: DataRow, rowIdx: number): PreviewRow => {
         const previewRow: Record<string, string> = {};
         genTerms.forEach(config => {
           const vals = generatedIdValues[config.term];
@@ -166,7 +167,7 @@ export function useSchemaExport({
 
       // Filter rows that have at least one non-empty mapped value (incl. defaults)
       const mappedCols = Object.values(termMappings);
-      const rowHasData = (row: any, rowIdx: number) =>
+      const rowHasData = (row: DataRow, rowIdx: number) =>
         mappedCols.some(colSpec => {
           const cols = colSpec.includes(' | ') ? colSpec.split(' | ') : [colSpec];
           return cols.some(col => resolveCellValue(row, col, rowIdx, defaultValues).trim() !== '');
@@ -181,7 +182,7 @@ export function useSchemaExport({
 
       const firstRows = nonEmptyRows.slice(0, 5).map(r => buildRow(r.row, r.idx));
       const lastRows = nonEmptyRows.slice(-5).map(r => buildRow(r.row, r.idx));
-      return [...firstRows, { __separator: true } as any, ...lastRows];
+      return [...firstRows, { __separator: true }, ...lastRows];
     },
     [data, maybeConvertDate, convertDatesToISO, generatedIdValues, getGenTermsForSchema, defaultValues],
   );

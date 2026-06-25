@@ -28,10 +28,11 @@ import WizardStepReview from "./schema-mapper/WizardStepReview";
 import SaveProgressButton from "./schema-mapper/SaveProgressButton";
 import MappingCelebration from "./schema-mapper/MappingCelebration";
 import { Card, CardContent } from "@/components/ui/card";
+import type { DataRow } from "./schema-mapper/types";
 
 interface SchemaMapperProps {
   columns?: string[];
-  data?: any[];
+  data?: DataRow[];
   fileName?: string;
   onBack: () => void;
   onComplete?: (mappings: Record<string, string>, schema: string) => void;
@@ -43,7 +44,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const { t, language } = useLanguage();
 
   // ─── Import state (managed internally) ────────────────────────────
-  const [importedData, setImportedData] = useState<{ data: any[]; columns: string[]; fileName: string } | null>(
+  const [importedData, setImportedData] = useState<{ data: DataRow[]; columns: string[]; fileName: string } | null>(
     initColumns && initData && initFileName ? { data: initData, columns: initColumns, fileName: initFileName } : null
   );
 
@@ -78,7 +79,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const [showImportTutorial, setShowImportTutorial] = useState(false);
 
   const handleImportTutorialDismiss = useCallback(() => {
-    try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch {}
+    try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch (err) { void err; }
     setShowImportTutorial(false);
   }, []);
 
@@ -100,7 +101,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   });
 
   // ─── Import complete handler ──────────────────────────────────────
-  const handleImportComplete = useCallback((importData: any[], importColumns: string[], importFileName: string) => {
+  const handleImportComplete = useCallback((importData: DataRow[], importColumns: string[], importFileName: string) => {
     setImportedData({ data: importData, columns: importColumns, fileName: importFileName });
   }, []);
 
@@ -119,9 +120,9 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
   const handleTutorialComplete = useCallback(() => {
     if (tutorialPhase === 1) {
-      try { localStorage.setItem("dwc-mapper-tutorial-seen", "1"); } catch {}
+      try { localStorage.setItem("dwc-mapper-tutorial-seen", "1"); } catch (err) { void err; }
     } else {
-      try { localStorage.setItem("dwc-mapper-tutorial-phase2-seen", "1"); } catch {}
+      try { localStorage.setItem("dwc-mapper-tutorial-phase2-seen", "1"); } catch (err) { void err; }
     }
     setShowTutorial(false);
   }, [tutorialPhase]);

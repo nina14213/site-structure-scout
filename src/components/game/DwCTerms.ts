@@ -3623,7 +3623,7 @@ Invasive species,3431,Acer negundo,K. Słupecka,15-05-2025,1,individual,"Dębina
 Invasive species,6405,Solidago canadensis,M. Kowalski,17-06-2025,5,individual,"Marii Skłodowskiej-Curie Park, Poznań, Poland",52.3935228,16.918701,WGS84,Park`;
 
 // Organism Relationship terms
-const organismRelationshipTerms: Record<string, any> = {
+const organismRelationshipTerms: Record<string, DwCTerm> = {
   organismRelationshipID: {
     type: "coreID",
     required: true,
@@ -3724,7 +3724,7 @@ const organismRelationshipTerms: Record<string, any> = {
 };
 
 // Resource Relationship terms
-const resourceRelationshipTerms: Record<string, any> = {
+const resourceRelationshipTerms: Record<string, DwCTerm> = {
   resourceRelationshipID: {
     type: "coreID",
     required: true,
@@ -3817,7 +3817,7 @@ const resourceRelationshipTerms: Record<string, any> = {
 };
 
 // Protocol terms
-const protocolTerms: Record<string, any> = {
+const protocolTerms: Record<string, DwCTerm> = {
   protocolType: {
     type: "controlled",
     required: false,
@@ -3861,7 +3861,7 @@ const protocolTerms: Record<string, any> = {
 };
 
 // Provenance terms
-const provenanceTerms: Record<string, any> = {
+const provenanceTerms: Record<string, DwCTerm> = {
   fundingAttribution: {
     type: "text",
     required: false,
@@ -3985,7 +3985,7 @@ const provenanceTerms: Record<string, any> = {
 };
 
 // Survey terms (Humboldt Extension / eco: namespace)
-const surveyTerms: Record<string, any> = {
+const surveyTerms: Record<string, DwCTerm> = {
   surveyID: {
     type: "coreID",
     required: true,

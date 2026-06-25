@@ -66,6 +66,6 @@ describe('useSchemaExport', () => {
     const rows = result.current.getPreviewRows({ scientificName: 'name' });
     // 5 first + 1 separator + 5 last = 11
     expect(rows.length).toBe(11);
-    expect((rows[5] as any).__separator).toBe(true);
+    expect(rows[5].__separator).toBe(true);
   });
 });

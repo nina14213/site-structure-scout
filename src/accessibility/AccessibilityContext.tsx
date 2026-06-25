@@ -70,7 +70,9 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   }, [settings]);
 
   useEffect(() => {

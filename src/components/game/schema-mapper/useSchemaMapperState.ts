@@ -17,6 +17,7 @@ import { schemaTerms, schemaTypes } from "./schemaData";
 import { findAutoMatches, normalizeHeader, termAliases } from "../AutoMatchDialog";
 import { normalizeDate } from "./useSchemaExport";
 import { generateAllIds, type IdFieldConfig } from "../IdGeneratorDialog";
+import type { DataRow } from "./types";
 
 /** Wyszukuje najlepiej pasującą kolumnę dla termu DwC — dopasowanie znormalizowane lub alias */
 function findBestColumnMatch(term: string, columns: string[], usedColumns?: Set<string>): string | undefined {
@@ -57,7 +58,7 @@ export interface ClassifiedSchemas {
 
 interface UseSchemaMapperStateProps {
   columns: string[];
-  data: any[];
+  data: DataRow[];
   fileName: string;
   language: string;
 }
@@ -73,7 +74,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) return JSON.parse(saved).schema || "event";
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     return "event";
   });
 
@@ -87,7 +90,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
           return parsed.mappings || {};
         }
       }
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     return {};
   });
 
@@ -101,7 +106,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
           return parsed.idConfigs;
         }
       }
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     return [];
   });
 
@@ -129,7 +136,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
         const parsed = JSON.parse(saved);
         if (parsed.defaultValues) return parsed.defaultValues;
       }
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     return {};
   });
 
@@ -137,7 +146,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     try {
       const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
       localStorage.setItem(storageKey, JSON.stringify({ ...existing, defaultValues: next }));
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   }, [storageKey]);
 
   /** Set a single default value for a source column (bulk fill). Empty → remove. */
@@ -197,7 +208,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
             idConfigs: existing.idConfigs || generatedIdConfigs,
           }),
         );
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     },
     [storageKey, selectedSchema, columns, generatedIdConfigs],
   );
@@ -208,7 +221,9 @@ export function useSchemaMapperState({ columns, data, fileName, language }: UseS
     try {
       const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
       localStorage.setItem(storageKey, JSON.stringify({ ...existing, idConfigs: configs }));
-    } catch {}
+    } catch (err) {
+      void err;
+    }
   }, [storageKey]);
 
   /** Wrapper na setMappings z automatycznym persystowaniem i historią undo */

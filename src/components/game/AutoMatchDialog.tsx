@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, X, Sparkles, CheckSquare, Square } from 'lucide-react';
 import { dwcTerms } from './DwCTerms';
 import { useLanguage } from '@/i18n/LanguageContext';
+import type { DataRow } from './schema-mapper/types';
 
 interface AutoMatchResult {
   column: string;
@@ -79,7 +80,7 @@ export const termAliases: Record<string, string[]> = {
 
 export function findAutoMatches(
   columns: string[],
-  data: any[],
+  data: DataRow[],
   schemaTerms: Record<string, { required: string[]; optional: string[] }>,
   schemaTypes: { id: string; name: string }[],
   language: string,

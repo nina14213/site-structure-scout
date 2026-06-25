@@ -23,10 +23,12 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/i18n/LanguageContext';
+import type { DataRow, SheetRow } from './schema-mapper/types';
+import { getErrorMessage } from './schema-mapper/types';
 
 interface DataImportProps {
     onBack: () => void;
-    onImportComplete?: (data: any[], columns: string[], fileName: string) => void;
+    onImportComplete?: (data: DataRow[], columns: string[], fileName: string) => void;
 }
 
 export default function DataImport({ onBack, onImportComplete }: DataImportProps) {
@@ -39,7 +41,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
     const [delimiter, setDelimiter] = useState(',');
     const [customDelimiter, setCustomDelimiter] = useState('');
     const [decimalSign, setDecimalSign] = useState('.');
-    const [preview, setPreview] = useState<{ columns: string[]; rows: any[] } | null>(null);
+    const [preview, setPreview] = useState<{ columns: string[]; rows: DataRow[] } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -119,7 +121,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         });
     }, []);
 
-    const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: any[] } => {
+    const parseTextFile = useCallback((text: string, delim: string): { columns: string[]; rows: DataRow[] } => {
         const actualDelim = getActualDelimiter(delim);
         const lines = text.split(/\r?\n/).filter(line => line.trim());
         if (lines.length === 0) throw new Error(t('import.error.empty'));
@@ -158,7 +160,7 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 const workbook = XLSX.read(buffer, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as SheetRow[];
 
                 if (jsonData.length === 0) throw new Error(t('import.error.empty'));
 
@@ -171,8 +173,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
 
                 const convertedRows = convertDates(rows, headers);
                 setPreview({ columns: headers, rows: convertedRows.slice(0, 5) });
-            } catch (err: any) {
-                setError(err.message || t('import.error.parse'));
+            } catch (err) {
+                setError(getErrorMessage(err, t('import.error.parse')));
             }
         } else if (ext === 'csv' || ext === 'txt') {
             setFileType(ext as 'csv' | 'txt');
@@ -180,8 +182,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 const text = await selectedFile.text();
                 const parsed = parseTextFile(text, delimiter);
                 setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
-            } catch (err: any) {
-                setError(err.message || t('import.error.parse'));
+            } catch (err) {
+                setError(getErrorMessage(err, t('import.error.parse')));
             }
         } else {
             setError(t('import.error.format'));
@@ -196,8 +198,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                 const parsed = parseTextFile(text, newDelimiter);
                 setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
                 setError(null);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err) {
+                setError(getErrorMessage(err, t('import.error.parse')));
             }
         }
     }, [file, fileType, parseTextFile]);
@@ -207,14 +209,14 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
         setIsLoading(true);
 
         try {
-            let allData: any[];
+            let allData: DataRow[];
 
             if (fileType === 'xlsx') {
                 const buffer = await file.arrayBuffer();
                 const workbook = XLSX.read(buffer, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as SheetRow[];
                 const headers = jsonData[0].map(String);
                 allData = jsonData.slice(1).map(row => {
                     const obj: Record<string, string> = {};
@@ -229,15 +231,15 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
             }
 
             onImportComplete?.(allData, preview.columns, file.name);
-        } catch (err: any) {
-            setError(err.message || t('import.error.import'));
+        } catch (err) {
+            setError(getErrorMessage(err, t('import.error.import')));
         } finally {
             setIsLoading(false);
         }
     }, [file, fileType, preview, delimiter, parseTextFile, onImportComplete, t]);
 
     const dismissTutorial = useCallback(() => {
-        try { localStorage.setItem('dwc-import-tutorial-seen', '1'); } catch {}
+        try { localStorage.setItem('dwc-import-tutorial-seen', '1'); } catch (err) { void err; }
         setShowTutorial(false);
     }, []);
 
@@ -342,8 +344,8 @@ export default function DataImport({ onBack, onImportComplete }: DataImportProps
                                                                 const parsed = parseTextFile(text, '__custom__');
                                                                 setPreview({ columns: parsed.columns, rows: parsed.rows.slice(0, 5) });
                                                                 setError(null);
-                                                            } catch (err: any) {
-                                                                setError(err.message);
+                                                            } catch (err) {
+                                                                setError(getErrorMessage(err, t('import.error.parse')));
                                                             }
                                                         });
                                                     }

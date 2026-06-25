@@ -16,7 +16,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved === 'en' || saved === 'pl' || saved === 'fr' || saved === 'de') return saved;
-    } catch {}
+    } catch (err) {
+      void err;
+    }
     return 'pl';
   });
 
@@ -29,7 +31,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch (err) { void err; }
   }, []);
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {

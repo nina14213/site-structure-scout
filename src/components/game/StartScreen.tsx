@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -80,6 +80,9 @@ const DARWIN_TERMS_SNAPSHOT = {
 	lastModified: "Fri, 12 Jun 2026 16:23:39 GMT",
 };
 
+const CONTACT_FORM_URL =
+	"https://docs.google.com/forms/d/e/1FAIpQLSfS4JH25R0miP8ew-Zq5zuP3_A0dPNIxQohRM3tw-4EW4lh6g/viewform?usp=dialog"; // Wklej tutaj link do formularza kontaktowego.
+
 function normalizeTermsPage(text: string) {
 	return text.replace(/\s+/g, " ").trim();
 }
@@ -116,10 +119,7 @@ export default function StartScreen({
 	const [darwinTermsMessage, setDarwinTermsMessage] = useState(
 		`Ostatni stan bazowy zapisano ${DARWIN_TERMS_SNAPSHOT.checkedAt}. Najedź na link, aby spróbować porównać aktualną stronę TDWG.`,
 	);
-	const [isContactOpen, setIsContactOpen] = useState(false);
-	const [contactName, setContactName] = useState("");
-	const [contactEmail, setContactEmail] = useState("");
-	const [contactQuestion, setContactQuestion] = useState("");
+	const isContactFormConfigured = CONTACT_FORM_URL.trim().length > 0;
 
 	const trimmedPlayerName = playerName.trim();
 	const selectedAssistantId = gameState.assistantId;
@@ -305,20 +305,10 @@ export default function StartScreen({
 		setPlayerName(gameState.playerName || entry.name);
 	};
 
-	const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-
-		const subject = encodeURIComponent("Contact from DwC Data Quest");
-		const body = encodeURIComponent(
-			`Name: ${contactName}\nEmail: ${contactEmail}\n\nQuestion:\n${contactQuestion}`,
-		);
-
-		window.location.href = `mailto:katarzyna.slupecka@amu.edu.pl?subject=${subject}&body=${body}`;
-
-		setIsContactOpen(false);
-		setContactName("");
-		setContactEmail("");
-		setContactQuestion("");
+	const handleContactFormOpen = () => {
+		const url = CONTACT_FORM_URL.trim();
+		if (!url) return;
+		window.open(url, "_blank", "noopener,noreferrer");
 	};
 
 	const learningLinks = [
@@ -801,102 +791,27 @@ export default function StartScreen({
 								</article>
 							</div>
 
-							<div className='mt-6 flex flex-wrap gap-3'>
-								<Button type='button' onClick={() => setIsContactOpen(true)}>
-									Contact us
-								</Button>
-							</div>
-						</section>
-
-						{isContactOpen && (
-							<div
-								className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'
-								role='dialog'
-								aria-modal='true'
-								aria-labelledby='contact-dialog-title'>
-								<div className='w-full max-w-lg rounded-2xl border border-border bg-background p-6 shadow-xl'>
-									<div className='mb-4 flex items-start justify-between gap-4'>
-										<div>
-											<h2
-												id='contact-dialog-title'
-												className='text-xl font-semibold text-foreground'>
-												Contact us
-											</h2>
-											<p className='mt-1 text-sm text-muted-foreground'>
-												Send us your question.
-											</p>
-										</div>
-
-										<Button
-											type='button'
-											variant='ghost'
-											size='icon'
-											onClick={() => setIsContactOpen(false)}
-											aria-label='Close contact form'>
-											×
-										</Button>
+							<div className='mt-6 rounded-xl border border-primary/25 bg-primary/10 p-5'>
+								<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+									<div className='space-y-1'>
+										<h3 className='text-base font-semibold text-foreground'>
+											Contact us
+										</h3>
+										<p className='text-sm text-muted-foreground'>
+											You will be redirected to the contact form.
+										</p>
 									</div>
-
-									<form className='space-y-4' onSubmit={handleContactSubmit}>
-										<div className='space-y-2'>
-											<Label htmlFor='contact-name' className='text-foreground'>
-												Name
-											</Label>
-											<Input
-												id='contact-name'
-												type='text'
-												value={contactName}
-												onChange={(e) => setContactName(e.target.value)}
-												placeholder='Your name'
-												required
-											/>
-										</div>
-
-										<div className='space-y-2'>
-											<Label
-												htmlFor='contact-email'
-												className='text-foreground'>
-												Email
-											</Label>
-											<Input
-												id='contact-email'
-												type='email'
-												value={contactEmail}
-												onChange={(e) => setContactEmail(e.target.value)}
-												placeholder='your.email@example.com'
-												required
-											/>
-										</div>
-
-										<div className='space-y-2'>
-											<Label
-												htmlFor='contact-question'
-												className='text-foreground'>
-												Question
-											</Label>
-											<textarea
-												id='contact-question'
-												value={contactQuestion}
-												onChange={(e) => setContactQuestion(e.target.value)}
-												placeholder='Write your question here'
-												required
-												className='min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-											/>
-										</div>
-
-										<div className='flex justify-end gap-3 pt-2'>
-											<Button
-												type='button'
-												variant='outline'
-												onClick={() => setIsContactOpen(false)}>
-												Cancel
-											</Button>
-											<Button type='submit'>Send</Button>
-										</div>
-									</form>
+									<Button
+										type='button'
+										onClick={handleContactFormOpen}
+										disabled={!isContactFormConfigured}
+										className='w-full sm:w-auto'>
+										<ExternalLink className='w-4 h-4' aria-hidden='true' />
+										Open contact form
+									</Button>
 								</div>
 							</div>
-						)}
+						</section>
 
 						{/* How to Play */}
 						<Button

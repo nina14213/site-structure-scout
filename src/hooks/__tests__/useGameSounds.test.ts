@@ -31,7 +31,13 @@ const mockAudioContext = {
 beforeEach(() => {
   vi.useFakeTimers();
   // Must use function() constructor form for `new` to work
-  (window as any).AudioContext = function() { return mockAudioContext; };
+  Object.defineProperty(window, 'AudioContext', {
+    configurable: true,
+    writable: true,
+    value: function MockAudioContext() {
+      return mockAudioContext;
+    },
+  });
   vi.clearAllMocks();
 });
 

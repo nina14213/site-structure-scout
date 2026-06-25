@@ -18,6 +18,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
 import { isDateTerm } from "./useSchemaExport";
 import type { OptimalLayoutItem, ClassifiedSchemas } from "./useSchemaMapperState";
+import type { DataRow, PreviewRow } from "./types";
 import HelpTooltip from "./HelpTooltip";
 import MissingValuesPanel from "./MissingValuesPanel";
 
@@ -49,7 +50,7 @@ interface WizardStepReviewProps {
   // Preview
   convertDatesToISO: boolean;
   generatedIdValues: Record<string, string[]>;
-  getPreviewRows: (termMappings: Record<string, string>) => Record<string, string>[];
+  getPreviewRows: (termMappings: Record<string, string>) => PreviewRow[];
   // Download (merged from DownloadPanel)
   classifiedSchemas: ClassifiedSchemas;
   onDownloadAll: () => void;
@@ -57,7 +58,7 @@ interface WizardStepReviewProps {
   onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
   onDownloadSelected: () => void;
   // Missing values
-  data: any[];
+  data: DataRow[];
   missingByColumn: Record<string, {
     column: string;
     missingIndices: number[];
@@ -424,7 +425,7 @@ export default function WizardStepReview({
                         </div>
                         {(() => {
                           const previewRows = getPreviewRows(groupedMappings[schemaId]);
-                          const nonSeparatorRows = previewRows.filter((r: any) => !r.__separator);
+                          const nonSeparatorRows = previewRows.filter((r) => !r.__separator);
                           const allHeaders = nonSeparatorRows.length > 0
                             ? Object.keys(nonSeparatorRows[0])
                             : Object.keys(groupedMappings[schemaId]);
@@ -461,7 +462,7 @@ export default function WizardStepReview({
                                 </tr>
                               </thead>
                               <tbody>
-                                {previewRows.map((row: any, i: number) => {
+                                {previewRows.map((row, i) => {
                                   if (row.__separator) {
                                     return (
                                       <tr key="separator" className="border-b border-border/30">
