@@ -591,67 +591,67 @@ export default function StartScreen({
 								</motion.button>
 							</CardContent>
 						</Card>
-						<section
-							id='about-us'
-							className='rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
-							aria-labelledby='about-us-title'>
-							<div className='mb-6'>
-								<p
-									id='about-us-title'
-									className='mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
-									About Us
-								</p>
-								<p className='mt-3 max-w-xl text-muted-foreground'>
-									We work at Adam Mickiewicz University in Poznań, Poland, on
-									biodiversity data, natural history collections, mapping,
-									geotagging, and databases.
-								</p>
-							</div>
+					<section
+						id='about-us'
+						className='rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur space-y-6'
+						aria-labelledby='about-us-title'>
+						<div className='space-y-3'>
+							<p
+								id='about-us-title'
+								className='text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
+								About Us
+							</p>
+							<p className='text-muted-foreground'>
+								We work at Adam Mickiewicz University in Poznań, Poland, on
+								biodiversity data, natural history collections, mapping,
+								geotagging, and databases.
+							</p>
+						</div>
 
-							<div className='grid gap-4 md:grid-cols-2'>
-								<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-									<a
-										href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
-										target='_blank'
-										rel='noopener noreferrer'
-										className='hover:underline'>
-										Katarzyna Słupecka
-									</a>
-								</article>
+						<div className='grid gap-4 md:grid-cols-2'>
+							<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+								<a
+									href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='hover:underline'>
+									Katarzyna Słupecka
+								</a>
+							</article>
 
-								<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-									<a
-										href='https://www.researchgate.net/profile/Krystian-Florkowski'
-										target='_blank'
-										rel='noopener noreferrer'
-										className='hover:underline'>
-										Krystian Florkowski
-									</a>
-								</article>
-							</div>
+							<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+								<a
+									href='https://www.researchgate.net/profile/Krystian-Florkowski'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='hover:underline'>
+									Krystian Florkowski
+								</a>
+							</article>
+						</div>
 
-							<div className='mt-6 rounded-xl border border-primary/25 bg-primary/10 p-5'>
-								<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-									<div className='space-y-1'>
-										<h3 className='text-base font-semibold text-foreground'>
-											Contact us
-										</h3>
-										<p className='text-sm text-muted-foreground'>
-											You will be redirected to the contact form, which will open in
-											a new browser tab.
-										</p>
-									</div>
-									<Button
-										type='button'
-										onClick={handleContactFormOpen}
-										disabled={!isContactFormConfigured}
-										className='w-full sm:w-auto'>
-										<ExternalLink className='w-4 h-4' aria-hidden='true' />
-										Open contact form
-									</Button>
+						<div className='rounded-xl border border-primary/25 bg-primary/10 p-5'>
+							<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+								<div className='space-y-1'>
+									<h3 className='text-base font-semibold text-foreground'>
+										Contact us
+									</h3>
+									<p className='text-sm text-muted-foreground'>
+										You will be redirected to the contact form, which will open in
+										a new browser tab.
+									</p>
 								</div>
+								<Button
+									type='button'
+									onClick={handleContactFormOpen}
+									disabled={!isContactFormConfigured}
+									className='w-full sm:w-auto'>
+									<ExternalLink className='w-4 h-4' aria-hidden='true' />
+									Open contact form
+								</Button>
 							</div>
-						</section>
+						</div>
+					</section>
 					</motion.div>
 
 					{/* Side Panel */}
