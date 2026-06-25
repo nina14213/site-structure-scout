@@ -36,6 +36,7 @@ import { GameState, LeaderboardEntry } from "@/hooks/useGameProgress";
 import { useLanguage } from "@/i18n/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 import MascotIcon from "@/components/MascotIcon";
+import ContactForm from "@/components/ContactForm";
 import type { AssistantId } from "@/lib/assistants";
 import { PORTAL_DEMO_DURATION_MINUTES } from "@/demo/portalDemo";
 
@@ -94,7 +95,7 @@ export default function StartScreen({
   onAssistantChange,
   onStartOver,
 }: StartScreenProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [playerName, setPlayerName] = useState(gameState?.playerName || "");
   const [showTutorial, setShowTutorial] = useState(false);
   const [darwinTermsStatus, setDarwinTermsStatus] = useState<DarwinTermsCheckStatus>("idle");
@@ -851,6 +852,8 @@ export default function StartScreen({
           </motion.div>
         </div>
 
+        {language === "en" && <ContactForm />}
+
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -861,6 +864,7 @@ export default function StartScreen({
           <p>🎓 {t("start.footer.project")}</p>
           <p className="mt-1">{t("start.footer.learn")}</p>
         </motion.div>
+
       </div>
     </div>
   );
