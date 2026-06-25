@@ -40,7 +40,6 @@ import { GameState, LeaderboardEntry } from "@/hooks/useGameProgress";
 import { useLanguage } from "@/i18n/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 import MascotIcon from "@/components/MascotIcon";
-import ContactForm from "@/components/ContactForm";
 import type { AssistantId } from "@/lib/assistants";
 import { PORTAL_DEMO_DURATION_MINUTES } from "@/demo/portalDemo";
 
@@ -111,7 +110,7 @@ export default function StartScreen({
 	onAssistantChange,
 	onStartOver,
 }: StartScreenProps) {
-	const { t, language } = useLanguage();
+	const { t } = useLanguage();
 	const [playerName, setPlayerName] = useState(gameState?.playerName || "");
 	const [showTutorial, setShowTutorial] = useState(false);
 	const [darwinTermsStatus, setDarwinTermsStatus] =
@@ -410,13 +409,13 @@ export default function StartScreen({
 					</div>
 				</motion.div>
 
-				<div className='grid lg:grid-cols-3 gap-8'>
+				<div className='grid lg:grid-cols-3 gap-8 items-start'>
 					{/* Start Panel */}
 					<motion.div
 						initial={{ opacity: 0, x: 30 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.2 }}
-						className='lg:order-2 lg:col-span-2'>
+						className='space-y-8 lg:order-2 lg:col-span-2'>
 						<Card className='bg-card/50 border-border backdrop-blur'>
 							<CardHeader>
 								<CardTitle className='text-foreground flex items-center gap-2'>
@@ -592,6 +591,67 @@ export default function StartScreen({
 								</motion.button>
 							</CardContent>
 						</Card>
+					<section
+						id='about-us'
+						className='rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur space-y-6'
+						aria-labelledby='about-us-title'>
+						<div className='space-y-3'>
+							<p
+								id='about-us-title'
+								className='text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
+								About Us
+							</p>
+							<p className='text-muted-foreground'>
+								We work at Adam Mickiewicz University in Poznań, Poland, on
+								biodiversity data, natural history collections, mapping,
+								geotagging, and databases.
+							</p>
+						</div>
+
+						<div className='grid gap-4 md:grid-cols-2'>
+							<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+								<a
+									href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='hover:underline'>
+									Katarzyna Słupecka
+								</a>
+							</article>
+
+							<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+								<a
+									href='https://www.researchgate.net/profile/Krystian-Florkowski'
+									target='_blank'
+									rel='noopener noreferrer'
+									className='hover:underline'>
+									Krystian Florkowski
+								</a>
+							</article>
+						</div>
+
+						<div className='rounded-xl border border-primary/25 bg-primary/10 p-5'>
+							<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+								<div className='space-y-1'>
+									<h3 className='text-base font-semibold text-foreground'>
+										Contact us
+									</h3>
+									<p className='text-sm text-muted-foreground'>
+										You will be redirected to the contact form, which will open in
+										a new browser tab.
+									</p>
+								</div>
+								<Button
+									type='button'
+									onClick={handleContactFormOpen}
+									disabled={!isContactFormConfigured}
+									className='w-full sm:w-auto'>
+									<ExternalLink className='w-4 h-4' aria-hidden='true' />
+									Open contact form
+								</Button>
+							</div>
+						</div>
+					</section>
 					</motion.div>
 
 					{/* Side Panel */}
@@ -599,7 +659,7 @@ export default function StartScreen({
 						initial={{ opacity: 0, x: -30 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.3 }}
-						className='space-y-6 lg:order-1'>
+						className='space-y-8 lg:order-1'>
 						{/* How to Play */}
 						<Button
 							data-demo-id='how-to-play-toggle'
@@ -799,74 +859,6 @@ export default function StartScreen({
 					</motion.div>
 				</div>
 
-				{/* {language === "en" && <ContactForm />} */}
-
-				<section
-					id='about-us'
-					className='mb-10 mt-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
-					aria-labelledby='about-us-title'>
-					<div className='mb-6'>
-						<p className='mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
-							About Us
-						</p>
-						{/* <h2
-							id='about-us-title'
-							className='text-xl font-semibold text-foreground'>
-							Team
-						</h2> */}
-						<p className='mt-3 max-w-1xl text-muted-foreground'>
-							We work at Adam Mickiewicz University in Poznań, Poland, on
-							biodiversity data, natural history collections, mapping,
-							geotagging, and databases.
-						</p>
-					</div>
-
-					<div className='grid gap-4 md:grid-cols-2'>
-						<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-							{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
-							<a
-								href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='hover:underline'>
-								Katarzyna Słupecka
-							</a>
-						</article>
-
-						<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-							{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
-							<a
-								href='https://www.researchgate.net/profile/Krystian-Florkowski'
-								target='_blank'
-								rel='noopener noreferrer'
-								className='hover:underline'>
-								Krystian Florkowski
-							</a>
-						</article>
-					</div>
-
-					<div className='mt-6 rounded-xl border border-primary/25 bg-primary/10 p-5'>
-						<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-							<div className='space-y-1'>
-								<h3 className='text-base font-semibold text-foreground'>
-									Contact us
-								</h3>
-								<p className='text-sm text-muted-foreground'>
-									You will be redirected to the contact form, which will open in
-									a new browser tab.
-								</p>
-							</div>
-							<Button
-								type='button'
-								onClick={handleContactFormOpen}
-								disabled={!isContactFormConfigured}
-								className='w-full sm:w-auto'>
-								<ExternalLink className='w-4 h-4' aria-hidden='true' />
-								Open contact form
-							</Button>
-						</div>
-					</div>
-				</section>
 
 				{/* Footer */}
 				<motion.div
