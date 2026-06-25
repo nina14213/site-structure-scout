@@ -415,7 +415,7 @@ export default function StartScreen({
 						initial={{ opacity: 0, x: 30 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.2 }}
-						className='space-y-6 lg:order-2 lg:col-span-2'>
+						className='space-y-8 lg:order-2 lg:col-span-2'>
 						<Card className='bg-card/50 border-border backdrop-blur'>
 							<CardHeader>
 								<CardTitle className='text-foreground flex items-center gap-2'>
