@@ -659,7 +659,7 @@ export default function StartScreen({
 						initial={{ opacity: 0, x: -30 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.3 }}
-						className='space-y-6 lg:order-1'>
+						className='space-y-8 lg:order-1'>
 						{/* How to Play */}
 						<Button
 							data-demo-id='how-to-play-toggle'
