@@ -803,18 +803,18 @@ export default function StartScreen({
 
 				<section
 					id='about-us'
-					className='mb-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
+					className='mb-10 mt-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
 					aria-labelledby='about-us-title'>
 					<div className='mb-6'>
 						<p className='mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
 							About Us
 						</p>
-						<h2
+						{/* <h2
 							id='about-us-title'
 							className='text-xl font-semibold text-foreground'>
 							Team
-						</h2>
-						<p className='mt-3 max-w-3xl text-muted-foreground'>
+						</h2> */}
+						<p className='mt-3 max-w-1xl text-muted-foreground'>
 							We work at Adam Mickiewicz University in Poznań, Poland, on
 							biodiversity data, natural history collections, mapping,
 							geotagging, and databases.
