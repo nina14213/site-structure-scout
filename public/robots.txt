@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://color-layout-explorer.lovable.app/sitemap.xml
+Sitemap: https://dwc-data-quest.lovable.app/sitemap.xml
