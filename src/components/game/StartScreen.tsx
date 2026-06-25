@@ -851,6 +851,8 @@ export default function StartScreen({
           </motion.div>
         </div>
 
+        {language === "en" && <ContactForm />}
+
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -861,6 +863,7 @@ export default function StartScreen({
           <p>🎓 {t("start.footer.project")}</p>
           <p className="mt-1">{t("start.footer.learn")}</p>
         </motion.div>
+
       </div>
     </div>
   );
