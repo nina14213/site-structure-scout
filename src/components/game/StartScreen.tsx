@@ -40,7 +40,6 @@ import { GameState, LeaderboardEntry } from "@/hooks/useGameProgress";
 import { useLanguage } from "@/i18n/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 import MascotIcon from "@/components/MascotIcon";
-import ContactForm from "@/components/ContactForm";
 import type { AssistantId } from "@/lib/assistants";
 import { PORTAL_DEMO_DURATION_MINUTES } from "@/demo/portalDemo";
 
@@ -111,7 +110,7 @@ export default function StartScreen({
 	onAssistantChange,
 	onStartOver,
 }: StartScreenProps) {
-	const { t, language } = useLanguage();
+	const { t } = useLanguage();
 	const [playerName, setPlayerName] = useState(gameState?.playerName || "");
 	const [showTutorial, setShowTutorial] = useState(false);
 	const [darwinTermsStatus, setDarwinTermsStatus] =
@@ -410,13 +409,13 @@ export default function StartScreen({
 					</div>
 				</motion.div>
 
-				<div className='grid lg:grid-cols-3 gap-8'>
+				<div className='grid lg:grid-cols-3 gap-8 items-start'>
 					{/* Start Panel */}
 					<motion.div
 						initial={{ opacity: 0, x: 30 }}
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.2 }}
-						className='lg:order-2 lg:col-span-2'>
+						className='space-y-6 lg:order-2 lg:col-span-2'>
 						<Card className='bg-card/50 border-border backdrop-blur'>
 							<CardHeader>
 								<CardTitle className='text-foreground flex items-center gap-2'>
