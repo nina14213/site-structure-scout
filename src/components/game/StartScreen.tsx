@@ -600,6 +600,56 @@ export default function StartScreen({
 						animate={{ opacity: 1, x: 0 }}
 						transition={{ delay: 0.3 }}
 						className='space-y-6 lg:order-1'>
+						{/* How to Play */}
+						<Button
+							data-demo-id='how-to-play-toggle'
+							variant='outline'
+							className='w-full border-emerald-600/50 text-foreground hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20'
+							onClick={() => setShowTutorial(!showTutorial)}
+							aria-expanded={showTutorial}
+							aria-controls='start-tutorial-panel'>
+							<HelpCircle className='w-4 h-4 mr-2' aria-hidden='true' />
+							{t("start.howToPlay")}
+						</Button>
+
+						{showTutorial && (
+							<motion.div
+								id='start-tutorial-panel'
+								data-demo-id='how-to-play-panel'
+								initial={{ opacity: 0, height: 0 }}
+								animate={{ opacity: 1, height: "auto" }}
+								className='p-4 rounded-xl bg-card/80 border border-border'>
+								<h4 className='font-semibold text-foreground mb-2'>
+									{t("start.tutorial.title")}
+								</h4>
+								<ol className='text-sm text-muted-foreground space-y-2 list-decimal list-inside'>
+									<li>{t("start.tutorial.1")}</li>
+									<li>{t("start.tutorial.2")}</li>
+									<li>{t("start.tutorial.3")}</li>
+									<li>{t("start.tutorial.4")}</li>
+									<li>{t("start.tutorial.5")}</li>
+								</ol>
+								<p className='text-xs text-muted-foreground mt-3'>
+									{t("start.tutorial.time")}
+								</p>
+								<Button
+									data-demo-id='watch-demo'
+									onClick={handleWatchDemo}
+									variant='outline'
+									className='mt-4 w-full border-cyan-500/50 bg-cyan-50/70 text-cyan-900 hover:border-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20'>
+									<Play className='h-4 w-4' aria-hidden='true' />
+									<span>{t("start.watchDemo")}</span>
+									<Badge
+										variant='outline'
+										className='ml-1 border-cyan-500/40 text-cyan-800 dark:text-cyan-100'>
+										{t("start.watchDemoDuration", {
+											minutes: PORTAL_DEMO_DURATION_MINUTES,
+										})}
+									</Badge>
+								</Button>
+							</motion.div>
+						)}
+
 						{/* Leaderboard */}
 						<Card className='border-primary/25 bg-card/85 shadow-lg shadow-primary/10 backdrop-blur dark:border-border dark:bg-card/50'>
 							<CardHeader className='pb-3'>
@@ -746,126 +796,77 @@ export default function StartScreen({
 								))}
 							</CardContent>
 						</Card>
-
-						<section
-							id='about-us'
-							className='mb-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
-							aria-labelledby='about-us-title'>
-							<div className='mb-6'>
-								<p className='mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
-									About Us
-								</p>
-								<h2
-									id='about-us-title'
-									className='text-xl font-semibold text-foreground'>
-									Team
-								</h2>
-								<p className='mt-3 max-w-3xl text-muted-foreground'>
-									We work at Adam Mickiewicz University in Poznań, Poland, on
-									biodiversity data, natural history collections, mapping,
-									geotagging, and databases.
-								</p>
-							</div>
-
-							<div className='grid gap-4 md:grid-cols-2'>
-								<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-									{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
-									<a
-										href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
-										target='_blank'
-										rel='noopener noreferrer'
-										className='hover:underline'>
-										Katarzyna Słupecka
-									</a>
-								</article>
-
-								<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
-									{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
-									<a
-										href='https://www.researchgate.net/profile/Krystian-Florkowski'
-										target='_blank'
-										rel='noopener noreferrer'
-										className='hover:underline'>
-										Krystian Florkowski
-									</a>
-								</article>
-							</div>
-
-							<div className='mt-6 rounded-xl border border-primary/25 bg-primary/10 p-5'>
-								<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-									<div className='space-y-1'>
-										<h3 className='text-base font-semibold text-foreground'>
-											Contact us
-										</h3>
-										<p className='text-sm text-muted-foreground'>
-											You will be redirected to the contact form.
-										</p>
-									</div>
-									<Button
-										type='button'
-										onClick={handleContactFormOpen}
-										disabled={!isContactFormConfigured}
-										className='w-full sm:w-auto'>
-										<ExternalLink className='w-4 h-4' aria-hidden='true' />
-										Open contact form
-									</Button>
-								</div>
-							</div>
-						</section>
-
-						{/* How to Play */}
-						<Button
-							data-demo-id='how-to-play-toggle'
-							variant='outline'
-							className='w-full border-emerald-600/50 text-foreground hover:border-emerald-500 hover:bg-gradient-to-r hover:from-lime-300 hover:via-green-300 hover:to-emerald-400 hover:text-slate-950 hover:shadow-lg hover:shadow-emerald-950/20'
-							onClick={() => setShowTutorial(!showTutorial)}
-							aria-expanded={showTutorial}
-							aria-controls='start-tutorial-panel'>
-							<HelpCircle className='w-4 h-4 mr-2' aria-hidden='true' />
-							{t("start.howToPlay")}
-						</Button>
-
-						{showTutorial && (
-							<motion.div
-								id='start-tutorial-panel'
-								data-demo-id='how-to-play-panel'
-								initial={{ opacity: 0, height: 0 }}
-								animate={{ opacity: 1, height: "auto" }}
-								className='p-4 rounded-xl bg-card/80 border border-border'>
-								<h4 className='font-semibold text-foreground mb-2'>
-									{t("start.tutorial.title")}
-								</h4>
-								<ol className='text-sm text-muted-foreground space-y-2 list-decimal list-inside'>
-									<li>{t("start.tutorial.1")}</li>
-									<li>{t("start.tutorial.2")}</li>
-									<li>{t("start.tutorial.3")}</li>
-									<li>{t("start.tutorial.4")}</li>
-									<li>{t("start.tutorial.5")}</li>
-								</ol>
-								<p className='text-xs text-muted-foreground mt-3'>
-									{t("start.tutorial.time")}
-								</p>
-								<Button
-									data-demo-id='watch-demo'
-									onClick={handleWatchDemo}
-									variant='outline'
-									className='mt-4 w-full border-cyan-500/50 bg-cyan-50/70 text-cyan-900 hover:border-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500/10 dark:text-cyan-100 dark:hover:bg-cyan-500/20'>
-									<Play className='h-4 w-4' aria-hidden='true' />
-									<span>{t("start.watchDemo")}</span>
-									<Badge
-										variant='outline'
-										className='ml-1 border-cyan-500/40 text-cyan-800 dark:text-cyan-100'>
-										{t("start.watchDemoDuration", {
-											minutes: PORTAL_DEMO_DURATION_MINUTES,
-										})}
-									</Badge>
-								</Button>
-							</motion.div>
-						)}
 					</motion.div>
 				</div>
 
-				{language === "en" && <ContactForm />}
+				{/* {language === "en" && <ContactForm />} */}
+
+				<section
+					id='about-us'
+					className='mb-10 rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur'
+					aria-labelledby='about-us-title'>
+					<div className='mb-6'>
+						<p className='mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground'>
+							About Us
+						</p>
+						<h2
+							id='about-us-title'
+							className='text-xl font-semibold text-foreground'>
+							Team
+						</h2>
+						<p className='mt-3 max-w-3xl text-muted-foreground'>
+							We work at Adam Mickiewicz University in Poznań, Poland, on
+							biodiversity data, natural history collections, mapping,
+							geotagging, and databases.
+						</p>
+					</div>
+
+					<div className='grid gap-4 md:grid-cols-2'>
+						<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+							{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
+							<a
+								href='https://www.researchgate.net/profile/Katarzyna-Slupecka?ev=hdr_xprf'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='hover:underline'>
+								Katarzyna Słupecka
+							</a>
+						</article>
+
+						<article className='rounded-xl border border-border/60 bg-background/70 p-5'>
+							{/* <h3 className='mb-3 text-lg font-semibold text-foreground'></h3> */}
+							<a
+								href='https://www.researchgate.net/profile/Krystian-Florkowski'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='hover:underline'>
+								Krystian Florkowski
+							</a>
+						</article>
+					</div>
+
+					<div className='mt-6 rounded-xl border border-primary/25 bg-primary/10 p-5'>
+						<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+							<div className='space-y-1'>
+								<h3 className='text-base font-semibold text-foreground'>
+									Contact us
+								</h3>
+								<p className='text-sm text-muted-foreground'>
+									You will be redirected to the contact form, which will open in
+									a new browser tab.
+								</p>
+							</div>
+							<Button
+								type='button'
+								onClick={handleContactFormOpen}
+								disabled={!isContactFormConfigured}
+								className='w-full sm:w-auto'>
+								<ExternalLink className='w-4 h-4' aria-hidden='true' />
+								Open contact form
+							</Button>
+						</div>
+					</div>
+				</section>
 
 				{/* Footer */}
 				<motion.div
