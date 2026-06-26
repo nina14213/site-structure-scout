@@ -1,74 +1,34 @@
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Bun installed - [install Bun](https://bun.sh/docs/installation)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-bun install
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-bun run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Bun 1.3.4
-- Vite 7.2.7
-- TypeScript
-- React 19.2.1
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+DwC Data Quest v1.0 – Release Notes
+________________________________________
+Project Overview & Main Aim
+DwC Data Quest is an interactive web application designed to bridge the "data mobilization gap" in biodiversity informatics. Its primary aim is to transform the technical hurdle of data standardization into a guided, hands-on journey, helping users learn, practice, and apply the workflows needed to prepare publishable, standards-compliant datasets for GBIF.
+The project specifically supports the DwC Data Package (DwC-DP) standard, ratified by GBIF on 23 June 2026, making it a timely and relevant tool for the global community.
+________________________________
+Key Features: The Learning Quest
+The application is organized as a sequence of practical missions, each representing a critical step in biodiversity data preparation.
+Column Mapping: An interactive drag-and-drop module where users match raw source columns to Darwin Core terms.
+Extension Network: A module teaching users how to link core records with extensions (e.g., event-to-occurrence relationships) while checking referential integrity. It features both a Classic learning mode and a gamified Arcade escape-room style.
+Data Packaging: A mission focused on metadata generation (descriptions, creators, and licenses) leading to the creation of meta.xml and datapackage.json.
+Species Hunter: A taxonomic module where users practice resolving typos and synonyms against the GBIF Backbone concepts.
+BOSS: Validation: A final challenge that simulates real publication blockers, such as broken identifiers, malformed dates, and coordinate problems, to build good data habits.
+_________________________________
+Production Utility: "Create Your Data Package"
+Beyond education, the tool serves as a practical utility for researchers and scientific teams.
+Multi-format Import: Supports CSV, TXT, and XLSX files with a live data preview.
+Automated Assistance: Includes automatic header detection, suggested mappings for similar terms, and automatic unique identifier generation to ensure data integrity.
+Standardization Tools: Allows for the transformation of dates into ISO format while preserving the original data for user convenience.
+Customization: Users can include custom columns not compatible with DwC terms in their final tables, ensuring the tool fits their specific research needs.
+__________________________________
+Technical & Accessibility Specifications
+Accessibility: Designed to meet WCAG 2.1/2.2 AA standards, featuring a panel for text size adjustment and Light/Dark mode toggles.
+No Installation Required: A fully responsive, web-based solution accessible via any modern browser on laptops, desktops, or mobile devices.
+Real-time Accuracy: Every time the app launches, it verifies terms against the official GBIF GitHub repository, ensuring definitions are always synchronized with the latest standards.
+Privacy & Persistence: User data is not collected; settings and mission progress are stored locally in browser cookies, allowing users to resume work seamlessly.
+Multilingual Support: Currently available in English and Polish, with French and German versions in development.
+___________________________________
+Impact and Open Science Commitment
+DwC Data Quest is a newly assembled solution tailored to improve data literacy and readiness. It is built with a commitment to Open Science and will be released under a clear open-source license, allowing institutions worldwide to adapt, translate, or extend the tool for local training.
+__________________________________
+Developed by:
+Katarzyna Słupecka (Biological Spatial Information Laboratory, Adam Mickiewicz University)
+Krystian Mateusz Florkowski (Biodiversity Digitization Laboratory, Adam Mickiewicz University)
