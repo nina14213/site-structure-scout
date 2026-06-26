@@ -16,6 +16,7 @@ const gameState: GameState = {
   startTime: Date.now(),
   levelScores: {},
   levelProgress: { 1: 100, 2: 100, 4: 100 },
+  isDemoSession: false,
 };
 
 describe('useGameNavigation', () => {
@@ -44,5 +45,36 @@ describe('useGameNavigation', () => {
     expect(result.current.currentScreen).toBe('start');
     expect(result.current.currentLevel).toBeNull();
     expect(startLevel).not.toHaveBeenCalledWith(5);
+  });
+
+  it('po wybraniu startu od nowa wraca do ekranu wyboru asystenta zamiast uruchamiać poziom', () => {
+    const resetProgress = vi.fn();
+    const startLevel = vi.fn();
+    const startLevelTimer = vi.fn();
+    const { result } = renderHook(() => useGameNavigation({
+      startNewGame: vi.fn(),
+      startFreshGame: vi.fn(),
+      setAssistantId: vi.fn(),
+      startLevel,
+      completeLevel: vi.fn(),
+      updateLeaderboard: vi.fn(),
+      saveQuizScore: vi.fn(),
+      startLevelTimer,
+      resetProgress,
+      isLevelUnlocked: () => true,
+      gameState,
+    }));
+
+    act(() => result.current.handleLevelClick(2));
+    expect(result.current.currentScreen).toBe('playing');
+    expect(result.current.currentLevel).toBe(2);
+
+    act(() => result.current.handleStartOver('Krystian', 'octavia'));
+
+    expect(resetProgress).toHaveBeenCalledOnce();
+    expect(result.current.currentScreen).toBe('start');
+    expect(result.current.currentLevel).toBeNull();
+    expect(startLevel).not.toHaveBeenCalledWith(1);
+    expect(startLevelTimer).toHaveBeenCalledTimes(1);
   });
 });

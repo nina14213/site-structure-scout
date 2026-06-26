@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { isPortalDemoMode } from '@/demo/portalDemo';
 import { DEFAULT_ASSISTANT_ID, isAssistantId, type AssistantId } from '@/lib/assistants';
 
 const STORAGE_KEY = 'dwc-data-quest-progress';
@@ -19,6 +20,7 @@ export interface GameState {
     startTime: number | null;
     levelScores: Record<number, number>;
     levelProgress: Record<number, number>;
+    isDemoSession: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -50,7 +52,8 @@ const initialState: GameState = {
     timePlayed: 0,
     startTime: null,
     levelScores: {},
-    levelProgress: {}
+    levelProgress: {},
+    isDemoSession: false
 };
 
 const generatePlayerId = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -65,8 +68,11 @@ const createNewGameState = (playerName: string, assistantId: AssistantId = DEFAU
     levelProgress: {},
     levelScores: {},
     currentLevel: 1,
-    startTime: Date.now()
+    startTime: Date.now(),
+    isDemoSession: isPortalDemoMode()
 });
+
+const shouldRecordLeaderboard = (state: GameState) => Boolean(state.playerName) && !state.isDemoSession && !isPortalDemoMode();
 
 const createLeaderboardEntry = (state: GameState): LeaderboardEntry => ({
     name: state.playerName,
@@ -108,7 +114,8 @@ const normalizeGameState = (saved: Partial<GameState>): GameState => {
         levelsCompleted,
         quizScores: saved.quizScores ?? {},
         levelScores: saved.levelScores ?? {},
-        levelProgress
+        levelProgress,
+        isDemoSession: Boolean(saved.isDemoSession)
     };
 };
 
@@ -197,7 +204,7 @@ export function useGameProgress() {
 
     // Keep leaderboard in sync with the current player's live score.
     useEffect(() => {
-        if (!gameState.playerName) return;
+        if (!shouldRecordLeaderboard(gameState)) return;
 
         setLeaderboard(prev => {
             const newLeaderboard = upsertLeaderboardEntry(prev, gameState);
@@ -228,6 +235,12 @@ export function useGameProgress() {
                 if (previousPlayerId) return entry.playerId !== previousPlayerId;
                 return entry.name !== previousPlayerName;
             });
+
+            if (!shouldRecordLeaderboard(newState)) {
+                localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(filtered));
+                return filtered;
+            }
+
             const newLeaderboard = upsertLeaderboardEntry(filtered, newState);
             localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
             return newLeaderboard;
@@ -359,7 +372,7 @@ export function useGameProgress() {
 
     // Update leaderboard
     const updateLeaderboard = useCallback(() => {
-        if (!gameState.playerName) return;
+        if (!shouldRecordLeaderboard(gameState)) return;
 
         setLeaderboard(prev => {
             const newLeaderboard = upsertLeaderboardEntry(prev, gameState);
@@ -370,9 +383,23 @@ export function useGameProgress() {
 
     // Reset progress
     const resetProgress = useCallback(() => {
+        const previousPlayerId = gameState.playerId;
+        const previousPlayerName = gameState.playerName;
+
         setGameState(initialState);
         localStorage.removeItem(STORAGE_KEY);
-    }, []);
+
+        if (!previousPlayerId && !previousPlayerName) return;
+
+        setLeaderboard(prev => {
+            const filtered = prev.filter(entry => {
+                if (previousPlayerId) return entry.playerId !== previousPlayerId;
+                return entry.name !== previousPlayerName;
+            });
+            localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(filtered));
+            return filtered;
+        });
+    }, [gameState.playerId, gameState.playerName]);
 
     // Get badge info
     const getBadgeInfo = useCallback((badgeId: string) => {

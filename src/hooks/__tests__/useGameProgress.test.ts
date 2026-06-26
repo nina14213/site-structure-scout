@@ -9,6 +9,7 @@ import { useGameProgress } from '@/hooks/useGameProgress';
 
 beforeEach(() => {
   localStorage.clear();
+  window.history.replaceState({}, '', '/');
   vi.clearAllMocks();
 });
 
@@ -75,6 +76,22 @@ describe('useGameProgress', () => {
     expect(savedLeaderboard[0].score).toBe(125);
   });
 
+  it('does not write demo session scores to leaderboard', async () => {
+    window.history.replaceState({}, '', '/?demo=1');
+    const { result } = renderHook(() => useGameProgress());
+
+    act(() => result.current.startNewGame('Demo GBIF'));
+    expect(result.current.gameState.isDemoSession).toBe(true);
+
+    act(() => result.current.addScore(125));
+    act(() => result.current.updateLeaderboard());
+
+    await waitFor(() => {
+      expect(result.current.leaderboard).toEqual([]);
+    });
+    expect(localStorage.getItem('dwc-data-quest-leaderboard')).toBeNull();
+  });
+
   it('completeLevel dodaje poziom do ukończonych', () => {
     const { result } = renderHook(() => useGameProgress());
     act(() => result.current.startNewGame('Gracz'));
@@ -103,13 +120,23 @@ describe('useGameProgress', () => {
     expect(result.current.gameState.quizScores[1]).toBe(100);
   });
 
-  it('resetProgress czyści stan gry', () => {
+  it('resetProgress czyści stan gry i bieżący wpis rankingu', async () => {
     const { result } = renderHook(() => useGameProgress());
     act(() => result.current.startNewGame('Gracz'));
+    const playerId = result.current.gameState.playerId;
     act(() => result.current.addScore(500));
+
+    await waitFor(() => {
+      expect(result.current.leaderboard.find(item => item.playerId === playerId)?.score).toBe(500);
+    });
+
     act(() => result.current.resetProgress());
     expect(result.current.gameState.playerName).toBe('');
     expect(result.current.gameState.totalScore).toBe(0);
+
+    await waitFor(() => {
+      expect(result.current.leaderboard.find(item => item.playerId === playerId)).toBeUndefined();
+    });
   });
 
   it('startFreshGame zeruje wynik aktualnego gracza i odświeża leaderboard', async () => {

@@ -142,20 +142,18 @@ export function useGameNavigation({
     if (!cleanName) return;
 
     transitioning.current = false;
-    startFreshGame(cleanName, assistantId);
-    startLevel(1);
-    setCurrentLevel(1);
-    setCurrentScreen('playing');
+    resetProgress();
+    setCurrentLevel(null);
+    setCurrentScreen('start');
     setLevelData({});
     setQuizLevel(null);
     setPendingScore(0);
-    startLevelTimer();
 
     toast({
       title: t('toast.startOver', { name: cleanName }),
       description: t('toast.startOverDesc'),
     });
-  }, [startFreshGame, startLevel, startLevelTimer, toast, t]);
+  }, [resetProgress, toast, t]);
 
   // ─── Level selection ──────────────────────────────────────────────
   const handleLevelClick = useCallback((levelId: number) => {

@@ -47,6 +47,7 @@ type MagicNote = {
 const STEP_DELAY = 560;
 const TYPING_DELAY = 30;
 const DRAG_STEP_DELAY = 48;
+const READABLE_PAUSE_SCALE = 1.45;
 
 const source = (title: string, body: string): SourceNoteText => ({ title, body });
 
@@ -166,8 +167,10 @@ const demoSteps: DemoStep[] = [
 ];
 
 function sleep(ms: number, signal: AbortSignal) {
+  const readableDelay = ms > 180 ? Math.round(ms * READABLE_PAUSE_SCALE) : ms;
+
   return new Promise<void>((resolve, reject) => {
-    const timeout = window.setTimeout(resolve, ms);
+    const timeout = window.setTimeout(resolve, readableDelay);
     signal.addEventListener(
       "abort",
       () => {
