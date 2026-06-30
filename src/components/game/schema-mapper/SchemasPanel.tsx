@@ -17,9 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Layers, Search as SearchIcon, X, ChevronDown, Sparkles, Lightbulb,
-} from "lucide-react";
+import { Layers, Search as SearchIcon, X, ChevronDown, Sparkles, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { dwcTerms } from "../DwCTerms";
 import { schemaTerms, schemaTypes } from "./schemaData";
@@ -94,10 +92,10 @@ export default function SchemasPanel({
     const q = searchTerm.toLowerCase().trim();
     const results: { schemaId: string; schemaName: string; required: string[]; optional: string[] }[] = [];
     for (const [schemaId, schema] of Object.entries(schemaTerms)) {
-      const schemaInfo = schemaTypes.find(s => s.id === schemaId);
+      const schemaInfo = schemaTypes.find((s) => s.id === schemaId);
       const schemaName = schemaInfo?.name || schemaId;
-      const filteredReq = q ? schema.required.filter(t => matchesTermSearch(t, q)) : schema.required;
-      const filteredOpt = q ? schema.optional.filter(t => matchesTermSearch(t, q)) : schema.optional;
+      const filteredReq = q ? schema.required.filter((t) => matchesTermSearch(t, q)) : schema.required;
+      const filteredOpt = q ? schema.optional.filter((t) => matchesTermSearch(t, q)) : schema.optional;
       if (filteredReq.length > 0 || filteredOpt.length > 0) {
         results.push({ schemaId, schemaName, required: filteredReq, optional: filteredOpt });
       }
@@ -105,7 +103,7 @@ export default function SchemasPanel({
     return results;
   }, [searchTerm]);
 
-  const optimalIds = new Set(optimalLayout.map(o => o.schemaId));
+  const optimalIds = new Set(optimalLayout.map((o) => o.schemaId));
   const mappedIds = new Set(schemasWithMappings);
   const optimalSet = new Set(classifiedSchemas.optimal);
   const optionalSet = new Set(classifiedSchemas.optional);
@@ -127,26 +125,26 @@ export default function SchemasPanel({
       // Tier 3: has any mappings
       if (aHasMappings !== bHasMappings) return aHasMappings ? -1 : 1;
       // Tier 4: by mapped count
-      const aMapped = [...a.required, ...a.optional].filter(t => mappings[t]).length;
-      const bMapped = [...b.required, ...b.optional].filter(t => mappings[t]).length;
+      const aMapped = [...a.required, ...a.optional].filter((t) => mappings[t]).length;
+      const bMapped = [...b.required, ...b.optional].filter((t) => mappings[t]).length;
       return bMapped - aMapped;
     });
   }, [allSchemasFiltered, mappings, mappedIds, optimalSet, optionalSet]);
 
-  const dismissed = sorted.filter(s => dismissedSchemas.has(s.schemaId));
-  const visible = sorted.filter(s => !dismissedSchemas.has(s.schemaId));
+  const dismissed = sorted.filter((s) => dismissedSchemas.has(s.schemaId));
+  const visible = sorted.filter((s) => !dismissedSchemas.has(s.schemaId));
 
   /** Sprawdza czy istnieją schematy opcjonalne z brakującymi polami wymaganymi */
   const hasOptionalSchemas = allSchemasFiltered.some(({ schemaId }) => {
     const fullSchema = schemaTerms[schemaId];
     if (!fullSchema) return false;
-    const missing = fullSchema.required.filter(t => !mappings[t]);
+    const missing = fullSchema.required.filter((t) => !mappings[t]);
     if (missing.length === 0) return false;
-    return missing.every(reqTerm =>
+    return missing.every((reqTerm) =>
       Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
         if (otherId === schemaId) return false;
         return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && mappings[reqTerm];
-      })
+      }),
     );
   });
 
@@ -156,7 +154,7 @@ export default function SchemasPanel({
         <CardHeader className="border-b border-border">
           <CardTitle className="text-card-foreground flex items-center gap-2">
             <Layers className="w-5 h-5 text-purple-400" />
-            Wszystkie schematy DwC-DP
+            DwC-DP All DwC-DP tables
             <Badge variant="secondary" className="ml-auto text-xs">
               {Object.keys(schemaTerms).length} schematów
             </Badge>
@@ -165,7 +163,10 @@ export default function SchemasPanel({
         <CardContent className="pt-4 flex-1 flex flex-col">
           {/* Search */}
           <div className="relative mb-4">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+            <SearchIcon
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               aria-label={t("schema.searchFields")}
               placeholder={`${t("schema.searchFields")} (${t("schema.allSchemas") || "all schemas"})…`}
@@ -196,13 +197,16 @@ export default function SchemasPanel({
                 updateMappings((prev) => {
                   const newMappings = { ...prev };
                   for (const [schemaId, schema] of Object.entries(schemaTerms)) {
-                    const missing = schema.required.filter(t => !newMappings[t]);
+                    const missing = schema.required.filter((t) => !newMappings[t]);
                     if (missing.length === 0) continue;
-                    const isOpt = missing.every(reqTerm =>
+                    const isOpt = missing.every((reqTerm) =>
                       Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
                         if (otherId === schemaId) return false;
-                        return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && newMappings[reqTerm];
-                      })
+                        return (
+                          (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) &&
+                          newMappings[reqTerm]
+                        );
+                      }),
                     );
                     if (!isOpt) continue;
                     [...schema.required, ...schema.optional].forEach((term) => {
@@ -225,35 +229,49 @@ export default function SchemasPanel({
             {allSchemasFiltered.length > 0 ? (
               <>
                 {visible.map(({ schemaId, schemaName, required: req, optional: opt }) => {
-                  const info = schemaTypes.find(s => s.id === schemaId);
+                  const info = schemaTypes.find((s) => s.id === schemaId);
                   const isOptimal = optimalIds.has(schemaId);
                   const hasMappings = mappedIds.has(schemaId);
-                  const mappedCount = [...req, ...opt].filter(t => mappings[t]).length;
+                  const mappedCount = [...req, ...opt].filter((t) => mappings[t]).length;
                   const totalVisible = req.length + opt.length;
                   const fullSchema = schemaTerms[schemaId];
-                  const missingRequired = fullSchema?.required.filter(t => !mappings[t]) || [];
+                  const missingRequired = fullSchema?.required.filter((t) => !mappings[t]) || [];
                   const allRequiredSatisfied = missingRequired.length === 0;
-                  const isOptionalSchema = !allRequiredSatisfied && missingRequired.length > 0 && missingRequired.every(reqTerm =>
-                    Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
-                      if (otherId === schemaId) return false;
-                      return (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) && mappings[reqTerm];
-                    })
-                  );
-                  const shouldBeOpen = !hasMappings && (searchTerm.length > 0 && totalVisible <= 15);
+                  const isOptionalSchema =
+                    !allRequiredSatisfied &&
+                    missingRequired.length > 0 &&
+                    missingRequired.every((reqTerm) =>
+                      Object.entries(schemaTerms).some(([otherId, otherSchema]) => {
+                        if (otherId === schemaId) return false;
+                        return (
+                          (otherSchema.required.includes(reqTerm) || otherSchema.optional.includes(reqTerm)) &&
+                          mappings[reqTerm]
+                        );
+                      }),
+                    );
+                  const shouldBeOpen = !hasMappings && searchTerm.length > 0 && totalVisible <= 15;
                   const isForced = forcedSchemas.has(schemaId);
-                  const hasOnlyIdMappings = mappedCount > 0 && [...req, ...opt].filter(t => mappings[t]).every(t => t.toLowerCase().endsWith('id'));
-                  const hasMissingIdTerms = fullSchema?.required.some(t => t.toLowerCase().endsWith('id') && !mappings[t]);
+                  const hasOnlyIdMappings =
+                    mappedCount > 0 &&
+                    [...req, ...opt].filter((t) => mappings[t]).every((t) => t.toLowerCase().endsWith("id"));
+                  const hasMissingIdTerms = fullSchema?.required.some(
+                    (t) => t.toLowerCase().endsWith("id") && !mappings[t],
+                  );
 
                   return (
                     <details
                       key={schemaId}
                       open={shouldBeOpen}
                       className={`rounded-xl border transition-colors ${
-                        isForced ? 'border-primary/50 bg-primary/5' :
-                        isOptimal ? 'border-emerald-500/50 bg-emerald-500/5' :
-                        hasMappings ? 'border-green-500/30 bg-green-500/5' :
-                        isOptionalSchema ? 'border-amber-500/30 bg-amber-500/5' :
-                        'border-border bg-muted/20'
+                        isForced
+                          ? "border-primary/50 bg-primary/5"
+                          : isOptimal
+                            ? "border-emerald-500/50 bg-emerald-500/5"
+                            : hasMappings
+                              ? "border-green-500/30 bg-green-500/5"
+                              : isOptionalSchema
+                                ? "border-amber-500/30 bg-amber-500/5"
+                                : "border-border bg-muted/20"
                       }`}
                     >
                       <summary className="flex items-center gap-2 p-3 cursor-pointer select-none hover:bg-muted/30 rounded-xl">
@@ -263,7 +281,7 @@ export default function SchemasPanel({
                           </div>
                         )}
                         <span
-                          className={`font-semibold text-sm flex-1 ${isForced ? 'text-primary' : 'text-foreground'}`}
+                          className={`font-semibold text-sm flex-1 ${isForced ? "text-primary" : "text-foreground"}`}
                           onClick={(e) => {
                             if (hasMissingIdTerms) {
                               e.preventDefault();
@@ -271,10 +289,16 @@ export default function SchemasPanel({
                               onToggleForceSchema(schemaId);
                             }
                           }}
-                          title={hasMissingIdTerms ? (isForced ? 'Kliknij aby wyłączyć z eksportu ID' : 'Kliknij aby włączyć do eksportu ID') : undefined}
+                          title={
+                            hasMissingIdTerms
+                              ? isForced
+                                ? "Kliknij aby wyłączyć z eksportu ID"
+                                : "Kliknij aby włączyć do eksportu ID"
+                              : undefined
+                          }
                         >
                           {schemaName}
-                          {isForced && ' 📌'}
+                          {isForced && " 📌"}
                         </span>
                         {isOptionalSchema && (
                           <>
@@ -305,35 +329,40 @@ export default function SchemasPanel({
                             </button>
                           </>
                         )}
-                        {mappedCount > 0 && !isOptionalSchema && (
+                        {mappedCount > 0 &&
+                          !isOptionalSchema &&
                           (() => {
                             const hasReqFields = fullSchema && fullSchema.required.length > 0;
-                            const allReqMapped = !hasReqFields || fullSchema.required.every(t => mappings[t]);
+                            const allReqMapped = !hasReqFields || fullSchema.required.every((t) => mappings[t]);
                             const showOptimal = isOptimal && allReqMapped;
                             return (
                               <Badge
-                                className={`${showOptimal
-                                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                                  : 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                                className={`${
+                                  showOptimal
+                                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                                    : "bg-orange-500/20 text-orange-400 border-orange-500/30"
                                 } text-[10px] h-4 px-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors`}
-                                title={t('schema.dismissSchema')}
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDismissSchema(prev => new Set([...prev, schemaId])); }}
+                                title={t("schema.dismissSchema")}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  onDismissSchema((prev) => new Set([...prev, schemaId]));
+                                }}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
+                                  if (e.key === "Enter" || e.key === " ") {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onDismissSchema(prev => new Set([...prev, schemaId]));
+                                    onDismissSchema((prev) => new Set([...prev, schemaId]));
                                   }
                                 }}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={`${t('schema.dismissSchema')}: ${schemaName}`}
+                                aria-label={`${t("schema.dismissSchema")}: ${schemaName}`}
                               >
-                                {showOptimal ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')} ✕
+                                {showOptimal ? `✓ ${t("schema.optimal")}` : t("schema.optionalTable")} ✕
                               </Badge>
                             );
-                          })()
-                        )}
+                          })()}
                         {mappedCount > 0 && (
                           <Badge variant="secondary" className="text-[10px] h-4 px-1">
                             {mappedCount} zmapowanych
@@ -349,13 +378,16 @@ export default function SchemasPanel({
                       <div className="px-3 pb-3 space-y-2">
                         {isOptionalSchema && (
                           <p className="text-[10px] text-amber-400 mb-1">
-                            ℹ Wymagane pola ({missingRequired.join(', ')}) są już zmapowane w innych tabelach. Kliknij „⚡ Mapuj" aby automapować.
+                            ℹ Wymagane pola ({missingRequired.join(", ")}) są już zmapowane w innych tabelach. Kliknij
+                            „⚡ Mapuj" aby automapować.
                           </p>
                         )}
                         {req.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-orange-400 font-semibold mb-1 uppercase tracking-wider">Wymagane</p>
-                            {req.map(term => (
+                            <p className="text-[10px] text-orange-400 font-semibold mb-1 uppercase tracking-wider">
+                              Wymagane
+                            </p>
+                            {req.map((term) => (
                               <TermDropZone
                                 key={`${schemaId}-${term}`}
                                 termName={term}
@@ -365,31 +397,35 @@ export default function SchemasPanel({
                                 onRemove={onRemoveMapping}
                                 onTapAssign={onTapAssignTerm}
                                 hasSelectedColumn={!!selectedColumn}
-                                onUpdateMapping={(term, val) => updateMappings(prev => ({ ...prev, [term]: val }))}
+                                onUpdateMapping={(term, val) => updateMappings((prev) => ({ ...prev, [term]: val }))}
                               />
                             ))}
                           </div>
                         )}
                         {opt.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-muted-foreground font-semibold mb-1 uppercase tracking-wider">Opcjonalne ({opt.length})</p>
-                            {[...opt].sort((a, b) => {
-                              const aMapped = mappings[a] ? 0 : 1;
-                              const bMapped = mappings[b] ? 0 : 1;
-                              return aMapped - bMapped;
-                            }).map(term => (
-                              <TermDropZone
-                                key={`${schemaId}-${term}`}
-                                termName={term}
-                                mappedColumn={mappings[term]}
-                                isRequired={false}
-                                onDrop={onDrop}
-                                onRemove={onRemoveMapping}
-                                onTapAssign={onTapAssignTerm}
-                                hasSelectedColumn={!!selectedColumn}
-                                onUpdateMapping={(term, val) => updateMappings(prev => ({ ...prev, [term]: val }))}
-                              />
-                            ))}
+                            <p className="text-[10px] text-muted-foreground font-semibold mb-1 uppercase tracking-wider">
+                              Opcjonalne ({opt.length})
+                            </p>
+                            {[...opt]
+                              .sort((a, b) => {
+                                const aMapped = mappings[a] ? 0 : 1;
+                                const bMapped = mappings[b] ? 0 : 1;
+                                return aMapped - bMapped;
+                              })
+                              .map((term) => (
+                                <TermDropZone
+                                  key={`${schemaId}-${term}`}
+                                  termName={term}
+                                  mappedColumn={mappings[term]}
+                                  isRequired={false}
+                                  onDrop={onDrop}
+                                  onRemove={onRemoveMapping}
+                                  onTapAssign={onTapAssignTerm}
+                                  hasSelectedColumn={!!selectedColumn}
+                                  onUpdateMapping={(term, val) => updateMappings((prev) => ({ ...prev, [term]: val }))}
+                                />
+                              ))}
                           </div>
                         )}
                       </div>
@@ -398,18 +434,30 @@ export default function SchemasPanel({
                 })}
                 {dismissed.length > 0 && (
                   <div className="pt-2 border-t border-border/50">
-                    <p className="text-[10px] text-muted-foreground mb-1">{t('schema.dismissed')} ({dismissed.length}):</p>
+                    <p className="text-[10px] text-muted-foreground mb-1">
+                      {t("schema.dismissed")} ({dismissed.length}):
+                    </p>
                     <div className="flex flex-wrap gap-1">
                       {dismissed.map(({ schemaId, schemaName }) => (
                         <Badge
                           key={schemaId}
                           variant="outline"
                           className="text-[10px] h-5 px-1.5 cursor-pointer text-muted-foreground hover:text-foreground hover:border-emerald-500/50 transition-colors"
-                          onClick={() => onDismissSchema(prev => { const next = new Set(prev); next.delete(schemaId); return next; })}
+                          onClick={() =>
+                            onDismissSchema((prev) => {
+                              const next = new Set(prev);
+                              next.delete(schemaId);
+                              return next;
+                            })
+                          }
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
+                            if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
-                              onDismissSchema(prev => { const next = new Set(prev); next.delete(schemaId); return next; });
+                              onDismissSchema((prev) => {
+                                const next = new Set(prev);
+                                next.delete(schemaId);
+                                return next;
+                              });
                             }
                           }}
                           role="button"
@@ -424,7 +472,8 @@ export default function SchemasPanel({
                 )}
                 {searchTerm && (
                   <p className="text-xs text-muted-foreground text-center pt-2">
-                    {allSchemasFiltered.reduce((sum, s) => sum + s.required.length + s.optional.length, 0)} wyników w {allSchemasFiltered.length} schematach
+                    {allSchemasFiltered.reduce((sum, s) => sum + s.required.length + s.optional.length, 0)} wyników w{" "}
+                    {allSchemasFiltered.length} schematach
                   </p>
                 )}
               </>
@@ -458,7 +507,7 @@ export default function SchemasPanel({
                 variant="outline"
                 size="sm"
                 onClick={onSuggestMapping}
-                className={`w-full gap-2 ${suggestionsCount > 0 ? 'text-amber-500 border-amber-500/50 hover:bg-amber-500/10' : 'text-muted-foreground border-border hover:bg-muted/50'}`}
+                className={`w-full gap-2 ${suggestionsCount > 0 ? "text-amber-500 border-amber-500/50 hover:bg-amber-500/10" : "text-muted-foreground border-border hover:bg-muted/50"}`}
               >
                 <Lightbulb className="w-4 h-4" aria-hidden="true" />
                 {t("schema.suggestMapping")} ({suggestionsCount})
