@@ -154,7 +154,7 @@ export default function SchemasPanel({
         <CardHeader className="border-b border-border">
           <CardTitle className="text-card-foreground flex items-center gap-2">
             <Layers className="w-5 h-5 text-purple-400" />
-            DwC-DP All DwC-DP tables
+            All DwC-DP tables
             <Badge variant="secondary" className="ml-auto text-xs">
               {Object.keys(schemaTerms).length} schematów
             </Badge>
