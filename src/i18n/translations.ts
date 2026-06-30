@@ -831,10 +831,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "a11y.skipToContent": "Skip to main content",
     "a11y.mainLabel": "Main content",
     // === WelcomeScreen ===
-    "welcome.kicker": "Darwin Core learning portal",
+    "welcome.kicker": "Darwin Core Data Package learning portal",
     "welcome.title": "Welcome to DwC Data Quest",
     "welcome.description":
-      "This interactive portal teaches the Darwin Core standard and helps prepare biodiversity data for publication. You will practice field mapping, table linking, data packaging and GBIF validation.",
+      "This interactive portal teaches the Darwin Core Data Package standard and helps prepare biodiversity data for publication. You will practice field mapping, table linking, data packaging and GBIF validation.",
     "welcome.feature.mapping": "Data mapping",
     "welcome.feature.package": "DwC-DP packaging",
     "welcome.feature.validation": "GBIF validation",
