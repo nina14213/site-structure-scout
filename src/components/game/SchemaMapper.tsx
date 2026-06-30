@@ -10,7 +10,22 @@ import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Sparkles,
+  Check,
+  Upload,
+  Layers,
+  Download,
+  ChevronLeft,
+  HelpCircle,
+  FileText,
+  Database,
+  BookOpen,
+  Undo2,
+  ExternalLink,
+} from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import AutoMatchDialog from "./AutoMatchDialog";
 import IdGeneratorDialog from "./IdGeneratorDialog";
@@ -39,12 +54,18 @@ interface SchemaMapperProps {
 
 const GBIF_VALIDATOR_URL = "https://www.gbif.org/tool/81281/gbif-data-validator";
 
-export default function SchemaMapper({ columns: initColumns, data: initData, fileName: initFileName, onBack, onComplete }: SchemaMapperProps) {
+export default function SchemaMapper({
+  columns: initColumns,
+  data: initData,
+  fileName: initFileName,
+  onBack,
+  onComplete,
+}: SchemaMapperProps) {
   const { t, language } = useLanguage();
 
   // ─── Import state (managed internally) ────────────────────────────
   const [importedData, setImportedData] = useState<{ data: DataRow[]; columns: string[]; fileName: string } | null>(
-    initColumns && initData && initFileName ? { data: initData, columns: initColumns, fileName: initFileName } : null
+    initColumns && initData && initFileName ? { data: initData, columns: initColumns, fileName: initFileName } : null,
   );
 
   const hasExternalData = !!(initColumns && initData && initFileName);
@@ -56,18 +77,25 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const TOTAL_STEPS = 4;
   const [wizardStep, setWizardStep] = useState(hasExternalData ? 2 : 0);
 
-  const wizardSteps = useMemo(() => [
-    { label: t("wizard.step0"), icon: <BookOpen className="w-4 h-4" /> },
-    { label: t("wizard.step1"), icon: <Upload className="w-4 h-4" /> },
-    { label: t("wizard.step2"), icon: <Layers className="w-4 h-4" /> },
-    { label: t("wizard.step3"), icon: <Download className="w-4 h-4" /> },
-  ], [t]);
+  const wizardSteps = useMemo(
+    () => [
+      { label: t("wizard.step0"), icon: <BookOpen className="w-4 h-4" /> },
+      { label: t("wizard.step1"), icon: <Upload className="w-4 h-4" /> },
+      { label: t("wizard.step2"), icon: <Layers className="w-4 h-4" /> },
+      { label: t("wizard.step3"), icon: <Download className="w-4 h-4" /> },
+    ],
+    [t],
+  );
 
   // ─── Import tutorial state ────────────────────────────────────────
   const [showImportTutorial, setShowImportTutorial] = useState(false);
 
   const handleImportTutorialDismiss = useCallback(() => {
-    try { localStorage.setItem("dwc-import-tutorial-seen", "1"); } catch (err) { void err; }
+    try {
+      localStorage.setItem("dwc-import-tutorial-seen", "1");
+    } catch (err) {
+      void err;
+    }
     setShowImportTutorial(false);
   }, []);
 
@@ -124,23 +152,27 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
     if (items.length > 0) setSuggestDialogItems(items);
   }, [columns, data, state.getColumnMapping]);
 
-  const handleSuggestApply = useCallback((selected: SuggestionItem[]) => {
-    state.updateMappings(prev => {
-      const next = { ...prev };
-      for (const item of selected) {
-        if (!next[item.term]) next[item.term] = item.column;
-      }
-      return next;
-    });
-    setSuggestDialogItems(null);
-  }, [state.updateMappings]);
+  const handleSuggestApply = useCallback(
+    (selected: SuggestionItem[]) => {
+      state.updateMappings((prev) => {
+        const next = { ...prev };
+        for (const item of selected) {
+          if (!next[item.term]) next[item.term] = item.column;
+        }
+        return next;
+      });
+      setSuggestDialogItems(null);
+    },
+    [state.updateMappings],
+  );
 
   // ─── Wizard navigation ───────────────────────────────────────────
   const hasMappings = Object.keys(state.mappings).length > 0;
   const canGoNext = wizardStep === 0 ? true : wizardStep === 1 ? !!importedData : wizardStep === 2 ? hasMappings : true;
 
   // Auto-skip review part logic (review is now merged with download in step 2)
-  const hasReviewItems = state.unmappedRequiredIdTerms.length > 0 || !!state.eventDateIsoSuggestion || state.optimalLayout.length > 0;
+  const hasReviewItems =
+    state.unmappedRequiredIdTerms.length > 0 || !!state.eventDateIsoSuggestion || state.optimalLayout.length > 0;
 
   const goNext = useCallback(() => {
     if (wizardStep < TOTAL_STEPS - 1) {
@@ -218,7 +250,9 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
               </Button>
               <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-400 flex-shrink-0" aria-hidden="true" />
               <div className="flex-1 min-w-0">
-                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">{t("schema.title")}</h1>
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-foreground truncate">
+                  {t("schema.title")}
+                </h1>
                 <p className="text-muted-foreground text-xs md:text-sm hidden sm:block">{t("schema.subtitle")}</p>
               </div>
               {wizardStep >= 2 && (
@@ -231,7 +265,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                       onClick={state.handleUndo}
                       aria-label="Cofnij ostatnia zmiane"
                       className="text-[10px] md:text-xs border-border text-muted-foreground hover:text-foreground gap-1 px-2 md:px-3"
-                      title="Cofnij ostatnią zmianę"
+                      title="Undo last change"
                     >
                       <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
                       <span className="hidden sm:inline">Cofnij</span>
@@ -269,7 +303,9 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                           <Sparkles className="w-8 h-8 text-primary" aria-hidden="true" />
                         </div>
                         <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">{t("wizard.introTitle")}</h2>
-                        <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{t("wizard.introDesc")}</p>
+                        <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+                          {t("wizard.introDesc")}
+                        </p>
                       </div>
 
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -283,8 +319,12 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                             <Database className="w-6 h-6 text-primary" aria-hidden="true" />
                           </div>
                           <div className="text-center">
-                            <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introHaveData")}</p>
-                            <p className="text-muted-foreground text-xs md:text-sm mt-1">{t("wizard.introHaveDataDesc")}</p>
+                            <p className="font-semibold text-foreground text-sm md:text-base">
+                              {t("wizard.introHaveData")}
+                            </p>
+                            <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                              {t("wizard.introHaveDataDesc")}
+                            </p>
                           </div>
                         </button>
 
@@ -300,8 +340,12 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                             <BookOpen className="w-6 h-6 text-secondary" aria-hidden="true" />
                           </div>
                           <div className="text-center">
-                            <p className="font-semibold text-foreground text-sm md:text-base">{t("wizard.introNoData")}</p>
-                            <p className="text-muted-foreground text-xs md:text-sm mt-1">{t("wizard.introNoDataDesc")}</p>
+                            <p className="font-semibold text-foreground text-sm md:text-base">
+                              {t("wizard.introNoData")}
+                            </p>
+                            <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                              {t("wizard.introNoDataDesc")}
+                            </p>
                           </div>
                         </button>
                       </div>
@@ -320,10 +364,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                 exit={{ opacity: 0, x: -40 }}
               >
                 {showImportTutorial ? (
-                  <DataImportTutorial
-                    onComplete={handleImportTutorialDismiss}
-                    onSkip={handleImportTutorialDismiss}
-                  />
+                  <DataImportTutorial onComplete={handleImportTutorialDismiss} onSkip={handleImportTutorialDismiss} />
                 ) : (
                   <>
                     <div className="flex justify-end mb-3">
@@ -356,7 +397,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                   <ColumnsPanel
                     columns={columns}
                     dataRowCount={data.length}
-                    mappedColumnsCount={columns.filter(c => state.getColumnMapping(c) !== null).length}
+                    mappedColumnsCount={columns.filter((c) => state.getColumnMapping(c) !== null).length}
                     selectedColumn={state.selectedColumn}
                     draggedColumn={state.draggedColumn}
                     onTapSelectColumn={state.handleTapSelectColumn}
@@ -372,7 +413,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     onRemoveMapping={state.handleRemoveMapping}
                     columnSuggestions={state.columnSuggestions}
                     onApplySuggestion={(col, term) => {
-                      state.updateMappings(prev => ({ ...prev, [term]: col }));
+                      state.updateMappings((prev) => ({ ...prev, [term]: col }));
                     }}
                   />
 
@@ -532,9 +573,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
                     onClick={goNext}
                     disabled={!canGoNext}
                     className={`gap-1.5 md:gap-2 text-sm ${
-                      canGoNext
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : ""
+                      canGoNext ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
                     }`}
                   >
                     {t("wizard.next")}
@@ -546,9 +585,7 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
             {/* Hint when no mappings */}
             {wizardStep === 2 && !hasMappings && (
-              <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">
-                {t("wizard.noMappingsYet")}
-              </p>
+              <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">{t("wizard.noMappingsYet")}</p>
             )}
           </div>
         </div>
