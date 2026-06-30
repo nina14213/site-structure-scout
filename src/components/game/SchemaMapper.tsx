@@ -268,7 +268,7 @@ export default function SchemaMapper({
                       title="Undo last change"
                     >
                       <Undo2 className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span className="hidden sm:inline">Cofnij</span>
+                      <span className="hidden sm:inline">Undo</span>
                     </Button>
                   )}
                   {/* Save progress */}
