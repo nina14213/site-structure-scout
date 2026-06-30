@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 const LANGUAGES: { value: Language; label: string; flag: string }[] = [
-  { value: "pl", label: "Polski", flag: "🇵🇱" },
   { value: "en", label: "English", flag: "🇬🇧" },
+  { value: "pl", label: "Polski", flag: "🇵🇱" },
   //{ value: 'fr', label: 'Français', flag: '🇫🇷' },//
   //{ value: 'de', label: 'Deutsch', flag: '🇩🇪' },///
 ];
