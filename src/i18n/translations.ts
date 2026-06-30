@@ -516,8 +516,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "wizard.reviewTitle": "Przegląd konfiguracji",
     "wizard.setupIdGenerators": "Ustaw generatory ID",
     "wizard.allGood": "Wszystko gotowe — możesz przejść do pobierania!",
-    "wizard.validation": "Walidacja danych",
-    "wizard.validationInactive": "Moduł jeszcze nie aktywny — walidacja będzie dostępna wkrótce.",
     "missing.title": "Uzupełnianie braków danych",
     "missing.desc":
       "Lista zmapowanych kolumn, w których są puste komórki. Wypełnij je jedną wartością dla całej kolumny lub edytuj wiersz po wierszu.",
@@ -1342,6 +1340,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "wizard.reviewTitle": "Configuration Review",
     "wizard.setupIdGenerators": "Set up ID generators",
     "wizard.allGood": "All set — proceed to download!",
+    "wizard.validation": "Data Validation",
+    "wizard.validationInactive": "Module not yet active — validation will be available soon.",
     "missing.title": "Fill missing values",
     "missing.desc":
       "List of mapped columns that contain empty cells. Fill them with one value for the whole column or edit row by row.",
