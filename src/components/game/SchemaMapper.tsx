@@ -6,9 +6,8 @@
  * the wizard starts at step 1 (Map). Otherwise it starts at step 0 (Import).
  */
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import SchemaMapperTutorial from "./SchemaMapperTutorial";
 import DataImportTutorial from "./DataImportTutorial";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Sparkles, Check, Upload, Layers, Download, ChevronLeft, HelpCircle, FileText, Database, BookOpen, Undo2, ExternalLink } from "lucide-react";
@@ -64,17 +63,6 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
     { label: t("wizard.step3"), icon: <Download className="w-4 h-4" /> },
   ], [t]);
 
-  // ─── Tutorial state ────────────────────────────────────────────────
-  const [showTutorial, setShowTutorial] = useState(() => {
-    try {
-      return !localStorage.getItem("dwc-mapper-tutorial-seen");
-    } catch {
-      return true;
-    }
-  });
-  const [tutorialPhase, setTutorialPhase] = useState<1 | 2>(1);
-  const phase2ShownRef = useRef(false);
-
   // ─── Import tutorial state ────────────────────────────────────────
   const [showImportTutorial, setShowImportTutorial] = useState(false);
 
@@ -105,28 +93,6 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
     setImportedData({ data: importData, columns: importColumns, fileName: importFileName });
   }, []);
 
-  // ─── Tutorial phase 2 trigger ─────────────────────────────────────
-  useEffect(() => {
-    if (phase2ShownRef.current) return;
-    const hasMappings = Object.keys(state.mappings).length > 0;
-    const phase1Done = localStorage.getItem("dwc-mapper-tutorial-seen") === "1";
-    const phase2Done = localStorage.getItem("dwc-mapper-tutorial-phase2-seen");
-    if (hasMappings && phase1Done && !phase2Done && !showTutorial) {
-      phase2ShownRef.current = true;
-      setTutorialPhase(2);
-      setShowTutorial(true);
-    }
-  }, [state.mappings, showTutorial]);
-
-  const handleTutorialComplete = useCallback(() => {
-    if (tutorialPhase === 1) {
-      try { localStorage.setItem("dwc-mapper-tutorial-seen", "1"); } catch (err) { void err; }
-    } else {
-      try { localStorage.setItem("dwc-mapper-tutorial-phase2-seen", "1"); } catch (err) { void err; }
-    }
-    setShowTutorial(false);
-  }, [tutorialPhase]);
-
   const handleComplete = useCallback(() => {
     if (state.allRequiredMapped) {
       onComplete?.(state.mappings, state.selectedSchema);
@@ -149,7 +115,6 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
   const [suggestDialogItems, setSuggestDialogItems] = useState<SuggestionItem[] | null>(null);
 
   useGuideSurfaceState({ key: "schemaMapperImportTutorial" }, showImportTutorial && wizardStep === 1);
-  useGuideSurfaceState({ key: "schemaMapperTutorial", phase: tutorialPhase }, showTutorial && wizardStep >= 2);
   useGuideSurfaceState({ key: "schemaMapperAutoMatch" }, state.showAutoMatch && state.autoMatchResults.length > 0);
   useGuideSurfaceState({ key: "schemaMapperSuggest" }, !!suggestDialogItems?.length);
   useGuideSurfaceState({ key: "schemaMapperIdGenerator" }, state.showIdGenerator);
@@ -195,15 +160,6 @@ export default function SchemaMapper({ columns: initColumns, data: initData, fil
 
   return (
     <>
-      {/* Tutorial overlay */}
-      {showTutorial && wizardStep >= 2 && (
-        <SchemaMapperTutorial
-          phase={tutorialPhase}
-          onComplete={handleTutorialComplete}
-          onSkip={handleTutorialComplete}
-        />
-      )}
-
       {/* Celebration tracker */}
       <MappingCelebration mappingsCount={Object.keys(state.mappings).length} />
 
