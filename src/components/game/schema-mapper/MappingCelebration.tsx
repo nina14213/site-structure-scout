@@ -25,10 +25,10 @@ export default function MappingCelebration({ mappingsCount }: MappingCelebration
     }
     // Celebrate milestones
     if (mappingsCount === 5 && prevCountRef.current < 5) {
-      toast("⭐ Super! Już 5 pól zmapowanych!", { duration: 3000 });
+      toast("⭐ Great! Already 5 terms mapped!", { duration: 3000 });
     }
     if (mappingsCount === 10 && prevCountRef.current < 10) {
-      toast("🚀 Wow, 10 pól! Jesteś mistrzem mapowania!", { duration: 3000 });
+      toast("🚀 Wow, 10 terms! Ypu are mapping master!", { duration: 3000 });
     }
     prevCountRef.current = mappingsCount;
   }, [mappingsCount]);
