@@ -62,7 +62,7 @@ export default function MetaGenerator({
     const [metaXml, setMetaXml] = useState('');
     const [datapackageJson, setDatapackageJson] = useState('');
     const [showPreview, setShowPreview] = useState(false);
-    const [showTutorial, setShowTutorial] = useState(true);
+    const [showTutorial, setShowTutorial] = useState(false);
     const [levelScore, setLevelScore] = useState(0);
     const [timeLeft, setTimeLeft] = useState(300);
     const [isTimerRunning, setIsTimerRunning] = useState(true);
