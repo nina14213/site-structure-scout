@@ -75,7 +75,8 @@ export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: 
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [showHelp, setShowHelp] = useState(false);
-
+       if (shouldHideTutorial) {
+        return null
   const allSteps: TutorialStep[] = [
     {
       titleKey: 'mapperTutorial.step0.title',
