@@ -919,13 +919,14 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     data-demo-id="guide-assistant-close"
                     onClick={() => setExpanded(false)}
-                    aria-label={t('assistant.control.closeTip')}
-                    className="h-8 w-8 shrink-0"
+                    aria-label={t('assistant.control.hide')}
+                    className="h-8 shrink-0 gap-1 px-2 text-xs font-medium"
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
+                    <span>{t('assistant.control.hide')}</span>
                   </Button>
                 </div>
 
