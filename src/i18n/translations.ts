@@ -1342,8 +1342,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "wizard.reviewTitle": "Configuration Review",
     "wizard.setupIdGenerators": "Set up ID generators",
     "wizard.allGood": "All set — proceed to download!",
-    "wizard.validation": "Data Validation",
-    "wizard.validationInactive": "Module not yet active — validation will be available soon.",
     "missing.title": "Fill missing values",
     "missing.desc":
       "List of mapped columns that contain empty cells. Fill them with one value for the whole column or edit row by row.",
@@ -2354,7 +2352,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "toast.welcome": "Bienvenue, {name} ! 🐙",
     "toast.welcomeDesc": "Votre mission de Data Ranger vient de commencer !",
     "toast.startOver": "{name}, vous recommencez",
-    "toast.startOverDesc": "Votre score et votre progression ont été réinitialisés. Choisissez à nouveau votre nom et votre assistant.",
+    "toast.startOverDesc":
+      "Votre score et votre progression ont été réinitialisés. Choisissez à nouveau votre nom et votre assistant.",
     "toast.levelComplete": "{level} terminé ! 🎉",
     "toast.allComplete": "{level} terminé ! 🏆",
     "toast.allCompleteDesc": "Toutes les missions terminées !",
@@ -3169,7 +3168,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "toast.welcome": "Willkommen, {name}! 🐙",
     "toast.welcomeDesc": "Deine Data Ranger-Mission hat begonnen!",
     "toast.startOver": "{name}, du fangst neu an",
-    "toast.startOverDesc": "Dein Ergebnis und Fortschritt wurden zurückgesetzt. Wähle deinen Namen und Assistenten erneut.",
+    "toast.startOverDesc":
+      "Dein Ergebnis und Fortschritt wurden zurückgesetzt. Wähle deinen Namen und Assistenten erneut.",
     "toast.levelComplete": "{level} abgeschlossen! 🎉",
     "toast.allComplete": "{level} abgeschlossen! 🏆",
     "toast.allCompleteDesc": "Alle Missionen abgeschlossen!",
