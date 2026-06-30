@@ -130,7 +130,7 @@ export default function AccessibilityPanel() {
           variant="outline"
           size="sm"
           aria-label={labels.open}
-          className="gap-1.5 border-2 border-yellow-500 bg-yellow-300 px-3 font-bold text-slate-950 shadow-sm shadow-black/30 hover:border-yellow-400 hover:bg-yellow-200 hover:text-slate-950 focus-visible:ring-yellow-200 dark:border-yellow-300 dark:bg-yellow-300 dark:text-slate-950 dark:hover:bg-yellow-200"
+          className="fixed top-4 right-4 gap-1.5 border-2 border-yellow-500 bg-yellow-300 px-3 font-bold text-slate-950 shadow-sm shadow-black/30 hover:border-yellow-400 hover:bg-yellow-200 hover:text-slate-950 focus-visible:ring-yellow-200 dark:border-yellow-300 dark:bg-yellow-300 dark:text-slate-950 dark:hover:bg-yellow-200"
         >
           <Accessibility className="h-4 w-4" aria-hidden="true" />
           <span className="text-xs font-bold uppercase">WCAG</span>
@@ -138,7 +138,7 @@ export default function AccessibilityPanel() {
       </PopoverTrigger>
       <PopoverContent
         data-demo-id="wcag-panel"
-        align="top"
+        align="end"
         side="top"
         role="dialog"
         aria-label={labels.intro}
