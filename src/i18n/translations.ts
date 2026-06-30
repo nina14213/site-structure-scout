@@ -7,8 +7,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "a11y.mainLabel": "Treść główna",
     // === WelcomeScreen ===
     "welcome.kicker": "Portal edukacyjny Darwin Core",
-    "welcome.title": "Witaj w 
-      DwC Data Quest",
+    "welcome.title": "Witaj w DwC Data Quest",
     "welcome.description":
       "To interaktywny portal do nauki standardu Darwin Core i przygotowania danych przyrodniczych do publikacji. Przejdziesz przez mapowanie pól, łączenie tabel, pakowanie danych i walidację GBIF.",
     "welcome.feature.mapping": "Mapowanie danych",
