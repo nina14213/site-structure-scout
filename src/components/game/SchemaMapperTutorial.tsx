@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, FileSpreadsheet, Sparkles, Download, X, Star, HelpCircle } from 'lucide-react';
-import { useLanguage } from '@/i18n/LanguageContext';
-import TutorialAnimation from './tutorial/TutorialAnimation';
-import GlossaryTerm from './tutorial/GlossaryTerm';
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, ArrowLeft, FileSpreadsheet, Sparkles, Download, X, Star, HelpCircle } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
+import TutorialAnimation from "./tutorial/TutorialAnimation";
+import GlossaryTerm from "./tutorial/GlossaryTerm";
 
 interface SchemaMapperTutorialProps {
   onComplete: () => void;
@@ -26,7 +26,7 @@ interface TutorialStep {
   titleKey: string;
   descKey: string;
   icon: React.ReactNode;
-  position: 'center' | 'left' | 'right' | 'bottom';
+  position: "center" | "left" | "right" | "bottom";
   animation?: React.ReactNode;
   proTip?: boolean;
   whyKey?: string;
@@ -34,26 +34,27 @@ interface TutorialStep {
 }
 
 const GLOSSARY: Record<string, string> = {
-  'mapowanie': 'Przypisywanie kolumn z Twojego pliku do standardowych pól Darwin Core — żeby inne systemy rozumiały Twoje dane.',
-  'Darwin Core': 'Międzynarodowy standard nazewnictwa pól w bazach danych przyrodniczych. Skrót: DwC.',
-  'DwC': 'Darwin Core — standard nazewnictwa pól w bazach danych przyrodniczych (np. "decimalLatitude" zamiast "szer_geo").',
-  'schemat': 'Gotowy zestaw pól (kolumn) opisujący określony typ danych, np. "Event" = zdarzenia terenowe.',
-  'tabela': 'Gotowy zestaw pól (kolumn) opisujący określony typ danych, np. "Event" = zdarzenia terenowe.',
-  'pole': 'Pojedyncza kolumna w standardzie Darwin Core, np. "eventDate" (data obserwacji) albo "decimalLatitude" (szerokość geograficzna).',
-  'ID': 'Unikalny identyfikator — numer lub kod przypisany do każdego wiersza, żeby odróżnić rekordy.',
-  'CSV': 'Plik tekstowy z danymi w formie tabeli, gdzie kolumny oddzielone są przecinkami.',
-  'kolumna': 'Pojedyncza „szpalta" w Twoim pliku, np. „gatunek", „data", „lat".',
+  mapowanie:
+    "Przypisywanie kolumn z Twojego pliku do standardowych pól Darwin Core — żeby inne systemy rozumiały Twoje dane.",
+  "Darwin Core": "Międzynarodowy standard nazewnictwa pól w bazach danych przyrodniczych. Skrót: DwC.",
+  DwC: 'Darwin Core — standard nazewnictwa pól w bazach danych przyrodniczych (np. "decimalLatitude" zamiast "szer_geo").',
+  schemat: 'Gotowy zestaw pól (kolumn) opisujący określony typ danych, np. "Event" = zdarzenia terenowe.',
+  tabela: 'Gotowy zestaw pól (kolumn) opisujący określony typ danych, np. "Event" = zdarzenia terenowe.',
+  pole: 'Pojedyncza kolumna w standardzie Darwin Core, np. "eventDate" (data obserwacji) albo "decimalLatitude" (szerokość geograficzna).',
+  ID: "Unikalny identyfikator — numer lub kod przypisany do każdego wiersza, żeby odróżnić rekordy.",
+  CSV: "Plik tekstowy z danymi w formie tabeli, gdzie kolumny oddzielone są przecinkami.",
+  kolumna: 'Pojedyncza „szpalta" w Twoim pliku, np. „gatunek", „data", „lat".',
 };
 
 function renderWithGlossary(text: string): React.ReactNode {
   const terms = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
-  const pattern = new RegExp(`(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+  const pattern = new RegExp(`(${terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
   const parts = text.split(pattern);
   const usedTerms = new Set<string>();
 
   return parts.map((part, i) => {
     const lowerPart = part.toLowerCase();
-    const matchedTerm = terms.find(t => t.toLowerCase() === lowerPart);
+    const matchedTerm = terms.find((t) => t.toLowerCase() === lowerPart);
     if (matchedTerm && !usedTerms.has(matchedTerm.toLowerCase())) {
       usedTerms.add(matchedTerm.toLowerCase());
       return (
@@ -66,15 +67,11 @@ function renderWithGlossary(text: string): React.ReactNode {
   });
 }
 
-export default function SchemaMapperTutorial({
-  onComplete,
-  onSkip,
-  phase = 1,
-}: SchemaMapperTutorialProps) {
+export default function SchemaMapperTutorial({ onComplete, onSkip, phase = 1 }: SchemaMapperTutorialProps) {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
   const [showHelp, setShowHelp] = useState(false);
 
   const shouldHideTutorial = true;
@@ -85,64 +82,64 @@ export default function SchemaMapperTutorial({
 
   const allSteps: TutorialStep[] = [
     {
-      titleKey: 'mapperTutorial.step0.title',
-      descKey: 'mapperTutorial.step0.desc',
+      titleKey: "mapperTutorial.step0.title",
+      descKey: "mapperTutorial.step0.desc",
       icon: <span className="text-4xl">🐙</span>,
-      position: 'center',
+      position: "center",
       animation: <TutorialAnimation type="file-to-table" />,
-      helpKey: 'mapperTutorial.step0.help',
+      helpKey: "mapperTutorial.step0.help",
     },
     {
-      titleKey: 'mapperTutorial.step1.title',
-      descKey: 'mapperTutorial.step1.desc',
-      whyKey: 'mapperTutorial.step1.why',
+      titleKey: "mapperTutorial.step1.title",
+      descKey: "mapperTutorial.step1.desc",
+      whyKey: "mapperTutorial.step1.why",
       icon: <FileSpreadsheet className="w-7 h-7" />,
-      position: 'right',
+      position: "right",
       animation: <TutorialAnimation type="drag-drop" />,
-      helpKey: 'mapperTutorial.step1.help',
+      helpKey: "mapperTutorial.step1.help",
     },
     {
-      titleKey: 'mapperTutorial.step2.title',
-      descKey: 'mapperTutorial.step2.desc',
-      whyKey: 'mapperTutorial.step2.why',
+      titleKey: "mapperTutorial.step2.title",
+      descKey: "mapperTutorial.step2.desc",
+      whyKey: "mapperTutorial.step2.why",
       icon: <Sparkles className="w-7 h-7" />,
-      position: 'right',
+      position: "right",
       animation: <TutorialAnimation type="auto-map" />,
-      helpKey: 'mapperTutorial.step2.help',
+      helpKey: "mapperTutorial.step2.help",
     },
     {
-      titleKey: 'mapperTutorial.step3.title',
-      descKey: 'mapperTutorial.step3.desc',
+      titleKey: "mapperTutorial.step3.title",
+      descKey: "mapperTutorial.step3.desc",
       icon: <Star className="w-7 h-7" />,
-      position: 'left',
+      position: "left",
       proTip: true,
-      helpKey: 'mapperTutorial.step3.help',
+      helpKey: "mapperTutorial.step3.help",
     },
     {
-      titleKey: 'mapperTutorial.step4.title',
-      descKey: 'mapperTutorial.step4.desc',
-      whyKey: 'mapperTutorial.step4.why',
+      titleKey: "mapperTutorial.step4.title",
+      descKey: "mapperTutorial.step4.desc",
+      whyKey: "mapperTutorial.step4.why",
       icon: <span className="text-4xl">🐙</span>,
-      position: 'center',
+      position: "center",
       animation: <TutorialAnimation type="checkmark" />,
-      helpKey: 'mapperTutorial.step4.help',
+      helpKey: "mapperTutorial.step4.help",
     },
     {
-      titleKey: 'mapperTutorial.step5.title',
-      descKey: 'mapperTutorial.step5.desc',
+      titleKey: "mapperTutorial.step5.title",
+      descKey: "mapperTutorial.step5.desc",
       icon: <Star className="w-7 h-7" />,
-      position: 'left',
+      position: "left",
       proTip: true,
-      helpKey: 'mapperTutorial.step5.help',
+      helpKey: "mapperTutorial.step5.help",
     },
     {
-      titleKey: 'mapperTutorial.step6.title',
-      descKey: 'mapperTutorial.step6.desc',
-      whyKey: 'mapperTutorial.step6.why',
+      titleKey: "mapperTutorial.step6.title",
+      descKey: "mapperTutorial.step6.desc",
+      whyKey: "mapperTutorial.step6.why",
       icon: <Download className="w-7 h-7" />,
-      position: 'center',
+      position: "center",
       animation: <TutorialAnimation type="download" />,
-      helpKey: 'mapperTutorial.step6.help',
+      helpKey: "mapperTutorial.step6.help",
     },
   ];
 
@@ -158,7 +155,7 @@ export default function SchemaMapperTutorial({
     const el = document.querySelector(selector);
     if (el) {
       setHighlightRect(el.getBoundingClientRect());
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } else {
       setHighlightRect(null);
     }
@@ -174,11 +171,11 @@ export default function SchemaMapperTutorial({
       updateHighlight();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [currentStep, phase, updateHighlight]);
 
@@ -189,12 +186,12 @@ export default function SchemaMapperTutorial({
   const isMobile = windowWidth < 768;
 
   const getTooltipStyle = (): React.CSSProperties => {
-    if (isMobile || !highlightRect || step.position === 'center') {
+    if (isMobile || !highlightRect || step.position === "center") {
       return {
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
         zIndex: 10002,
       };
     }
@@ -204,12 +201,12 @@ export default function SchemaMapperTutorial({
     const tooltipHeight = showHelp ? window.innerHeight - padding * 2 : 360;
     const maxTop = window.innerHeight - tooltipHeight - padding;
 
-    if (step.position === 'right') {
+    if (step.position === "right") {
       const leftPos = highlightRect.right + padding;
 
       if (leftPos + tooltipWidth > window.innerWidth - padding) {
         return {
-          position: 'fixed',
+          position: "fixed",
           top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
           left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
           zIndex: 10002,
@@ -217,19 +214,19 @@ export default function SchemaMapperTutorial({
       }
 
       return {
-        position: 'fixed',
+        position: "fixed",
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
         left: leftPos,
         zIndex: 10002,
       };
     }
 
-    if (step.position === 'left') {
+    if (step.position === "left") {
       const leftPos = highlightRect.left - tooltipWidth - padding;
 
       if (leftPos < padding) {
         return {
-          position: 'fixed',
+          position: "fixed",
           top: Math.min(Math.max(padding, highlightRect.bottom + padding), maxTop),
           left: Math.max(padding, (window.innerWidth - tooltipWidth) / 2),
           zIndex: 10002,
@@ -237,7 +234,7 @@ export default function SchemaMapperTutorial({
       }
 
       return {
-        position: 'fixed',
+        position: "fixed",
         top: Math.min(Math.max(padding, highlightRect.top), maxTop),
         left: leftPos,
         zIndex: 10002,
@@ -245,7 +242,7 @@ export default function SchemaMapperTutorial({
     }
 
     return {
-      position: 'fixed',
+      position: "fixed",
       top: Math.min(highlightRect.bottom + padding, maxTop),
       left: Math.max(padding, Math.min(highlightRect.left, window.innerWidth - tooltipWidth - padding)),
       zIndex: 10002,
@@ -299,7 +296,10 @@ export default function SchemaMapperTutorial({
           className="w-[380px] max-w-[calc(100vw-2rem)]"
         >
           <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 md:p-5 relative max-h-[calc(100dvh-2rem)] flex flex-col">
-            <div className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block" style={{ animationDuration: '2s' }}>
+            <div
+              className="absolute -top-8 -right-4 text-4xl animate-bounce hidden md:block"
+              style={{ animationDuration: "2s" }}
+            >
               🐙
             </div>
 
@@ -309,13 +309,13 @@ export default function SchemaMapperTutorial({
                   <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider border border-amber-500/20">
                     ⭐ Pro tip
                   </span>
-                  <span className="text-[10px] text-muted-foreground">{t('mapperTutorial.proTipNote')}</span>
+                  <span className="text-[10px] text-muted-foreground">{t("mapperTutorial.proTipNote")}</span>
                 </div>
               )}
 
               {phase === 2 && currentStep === 0 && (
                 <div className="mb-3 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-center">
-                  <p className="text-xs font-semibold text-primary">🎉 {t('mapperTutorial.phaseTransition')}</p>
+                  <p className="text-xs font-semibold text-primary">🎉 {t("mapperTutorial.phaseTransition")}</p>
                 </div>
               )}
 
@@ -326,10 +326,10 @@ export default function SchemaMapperTutorial({
                     onClick={() => setCurrentStep(i)}
                     className={`relative h-6 flex items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
                       i === currentStep
-                        ? 'w-8 bg-primary text-primary-foreground'
+                        ? "w-8 bg-primary text-primary-foreground"
                         : i < currentStep
-                        ? 'w-6 bg-primary/30 text-primary-foreground'
-                        : 'w-6 bg-muted text-muted-foreground'
+                          ? "w-6 bg-primary/30 text-primary-foreground"
+                          : "w-6 bg-muted text-muted-foreground"
                     }`}
                   >
                     {i + 1}
@@ -362,14 +362,14 @@ export default function SchemaMapperTutorial({
                     className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
                   >
                     <HelpCircle className="w-3.5 h-3.5" />
-                    {showHelp ? 'Ukryj pomoc' : '🤔 Nie rozumiem — wyjaśnij prościej'}
+                    {showHelp ? "Ukryj pomoc" : "🤔 Nie rozumiem — wyjaśnij prościej"}
                   </button>
 
                   <AnimatePresence>
                     {showHelp && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
+                        animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
@@ -388,4 +388,58 @@ export default function SchemaMapperTutorial({
 
             <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border flex-shrink-0">
               <div className="flex gap-2">
-                {!isFirst 
+                {!isFirst && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentStep((s) => s - 1)}
+                    className="text-muted-foreground text-xs md:text-sm"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
+                    {t("mapperTutorial.prev")}
+                  </Button>
+                )}
+
+                {isFirst && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onSkip}
+                    className="text-muted-foreground text-xs border-border"
+                  >
+                    {t("mapperTutorial.skip")}
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {!isFirst && (
+                  <span className="text-[9px] text-muted-foreground hidden md:inline">
+                    {t("mapperTutorial.canReplay")}
+                  </span>
+                )}
+
+                <Button
+                  size="sm"
+                  onClick={() => (isLast ? onComplete() : setCurrentStep((s) => s + 1))}
+                  className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white text-xs md:text-sm"
+                >
+                  {isLast ? t("mapperTutorial.finish") : t("mapperTutorial.next")}
+                  {!isLast && <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1" />}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <button
+        onClick={onSkip}
+        className="fixed top-4 right-4 z-[10003] flex items-center gap-1.5 px-3 py-2 rounded-full bg-card/90 border border-border text-muted-foreground hover:text-foreground transition-colors text-xs font-medium"
+      >
+        <X className="w-4 h-4" />
+        <span className="hidden sm:inline">{t("mapperTutorial.close")}</span>
+      </button>
+    </div>
+  );
+}
