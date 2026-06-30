@@ -11,8 +11,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  AlertTriangle, Key, CalendarClock, CheckCircle, Layers, Download,
-  Eye, X, Plus, ChevronDown, ChevronUp, ShieldCheck,
+  AlertTriangle,
+  Key,
+  CalendarClock,
+  CheckCircle,
+  Layers,
+  Download,
+  Eye,
+  X,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { schemaTypes, schemaTerms } from "./schemaData";
@@ -55,17 +65,20 @@ interface WizardStepReviewProps {
   classifiedSchemas: ClassifiedSchemas;
   onDownloadAll: () => void;
   onDownloadSchema: (schemaId: string) => void;
-  onDownloadFiltered: (filter: 'optimal' | 'optional') => void;
+  onDownloadFiltered: (filter: "optimal" | "optional") => void;
   onDownloadSelected: () => void;
   // Missing values
   data: DataRow[];
-  missingByColumn: Record<string, {
-    column: string;
-    missingIndices: number[];
-    totalRows: number;
-    topValues: { value: string; count: number }[];
-    mappedTerms: string[];
-  }>;
+  missingByColumn: Record<
+    string,
+    {
+      column: string;
+      missingIndices: number[];
+      totalRows: number;
+      topValues: { value: string; count: number }[];
+      mappedTerms: string[];
+    }
+  >;
   defaultValues: Record<string, string>;
   setColumnDefault: (column: string, value: string) => void;
   setRowDefault: (column: string, rowIdx: number, value: string) => void;
@@ -200,9 +213,7 @@ export default function WizardStepReview({
                           {t("wizard.dateOriginal")}
                         </th>
                         <th className="px-2 py-1.5 text-center text-muted-foreground w-8">→</th>
-                        <th className="px-3 py-1.5 text-left font-medium text-cyan-500">
-                          ISO 8601
-                        </th>
+                        <th className="px-3 py-1.5 text-left font-medium text-cyan-500">ISO 8601</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -210,19 +221,31 @@ export default function WizardStepReview({
                         if (s.idx === -1) {
                           return (
                             <tr key="sep" className="border-b border-border/30">
-                              <td colSpan={4} className="px-3 py-1 text-center text-muted-foreground italic text-[11px]">⋯</td>
+                              <td
+                                colSpan={4}
+                                className="px-3 py-1 text-center text-muted-foreground italic text-[11px]"
+                              >
+                                ⋯
+                              </td>
                             </tr>
                           );
                         }
                         return (
-                          <tr key={i} className={`border-b border-border/30 last:border-0 ${s.wasConverted ? 'bg-cyan-500/5' : ''}`}>
+                          <tr
+                            key={i}
+                            className={`border-b border-border/30 last:border-0 ${s.wasConverted ? "bg-cyan-500/5" : ""}`}
+                          >
                             <td className="px-2 py-1.5 text-right text-muted-foreground font-mono">{s.idx}</td>
                             <td className="px-3 py-1.5 text-muted-foreground font-mono">{s.original}</td>
-                            <td className="px-2 py-1.5 text-center text-muted-foreground">{s.wasConverted ? '→' : ''}</td>
-                            <td className={`px-3 py-1.5 font-mono font-medium ${
-                              s.wasConverted ? 'text-cyan-500' : 'text-muted-foreground'
-                            }`}>
-                              {s.wasConverted ? s.converted : '—'}
+                            <td className="px-2 py-1.5 text-center text-muted-foreground">
+                              {s.wasConverted ? "→" : ""}
+                            </td>
+                            <td
+                              className={`px-3 py-1.5 font-mono font-medium ${
+                                s.wasConverted ? "text-cyan-500" : "text-muted-foreground"
+                              }`}
+                            >
+                              {s.wasConverted ? s.converted : "—"}
                             </td>
                           </tr>
                         );
@@ -249,9 +272,7 @@ export default function WizardStepReview({
           {allGood && !convertDatesToISO && (
             <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-500" />
-              <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">
-                {t("wizard.allGood")}
-              </p>
+              <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">{t("wizard.allGood")}</p>
             </div>
           )}
         </CardContent>
@@ -302,10 +323,14 @@ export default function WizardStepReview({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold text-sm text-foreground">{info?.name || schemaId}</span>
-                      <Badge className={`text-[10px] h-4 px-1 ${hasReqFields ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-orange-500/20 text-orange-400 border-orange-500/30'}`}>
-                        {hasReqFields ? `✓ ${t('schema.optimal')}` : t('schema.optionalTable')}
+                      <Badge
+                        className={`text-[10px] h-4 px-1 ${hasReqFields ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-orange-500/20 text-orange-400 border-orange-500/30"}`}
+                      >
+                        {hasReqFields ? `✓ ${t("schema.optimal")}` : t("schema.optionalTable")}
                       </Badge>
-                      <Badge variant="secondary" className="text-[10px] h-4 px-1">{termCount} {t('schema.fieldsCount')}</Badge>
+                      <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                        {termCount} {t("schema.fieldsCount")}
+                      </Badge>
                       {extras.length > 0 && (
                         <Badge variant="outline" className="text-[10px] h-4 px-1 border-cyan-500/30 text-cyan-400">
                           +{extras.length} {t("wizard.extraCols")}
@@ -314,11 +339,17 @@ export default function WizardStepReview({
                     </div>
                     {/* Show mapped terms */}
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {Object.keys(groupedMappings[schemaId] || {}).slice(0, 6).map(term => (
-                        <Badge key={term} variant="outline" className="text-[10px] text-muted-foreground border-border">
-                          {term}
-                        </Badge>
-                      ))}
+                      {Object.keys(groupedMappings[schemaId] || {})
+                        .slice(0, 6)
+                        .map((term) => (
+                          <Badge
+                            key={term}
+                            variant="outline"
+                            className="text-[10px] text-muted-foreground border-border"
+                          >
+                            {term}
+                          </Badge>
+                        ))}
                       {termCount > 6 && (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground border-border">
                           +{termCount - 6}
@@ -334,7 +365,7 @@ export default function WizardStepReview({
                       size="sm"
                       data-demo-id={`preview-schema-${schemaId}`}
                       onClick={() => setPreviewSchemaId(isPreviewOpen ? null : schemaId)}
-                      className={`h-7 px-2 text-xs ${isPreviewOpen ? 'text-cyan-400' : 'text-muted-foreground'}`}
+                      className={`h-7 px-2 text-xs ${isPreviewOpen ? "text-cyan-400" : "text-muted-foreground"}`}
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </Button>
@@ -343,7 +374,7 @@ export default function WizardStepReview({
                       size="sm"
                       data-tour="extra-columns-btn"
                       onClick={() => setExpandedExtraSchema(isExtraOpen ? null : schemaId)}
-                      className={`h-7 px-2 text-xs ${isExtraOpen ? 'text-cyan-400' : 'text-muted-foreground'}`}
+                      className={`h-7 px-2 text-xs ${isExtraOpen ? "text-cyan-400" : "text-muted-foreground"}`}
                       disabled={unmappedColumns.length === 0}
                       title={t("wizard.addUnmappedCols")}
                     >
@@ -364,9 +395,7 @@ export default function WizardStepReview({
                     >
                       <div className="p-3 bg-muted/20">
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-medium text-muted-foreground">
-                            {t("wizard.addUnmappedCols")}
-                          </p>
+                          <p className="text-xs font-medium text-muted-foreground">{t("wizard.addUnmappedCols")}</p>
                           <button
                             onClick={() => onSelectAllExtraColumns(schemaId)}
                             className="text-[10px] px-2 py-0.5 rounded border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors"
@@ -377,7 +406,7 @@ export default function WizardStepReview({
                           </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {unmappedColumns.map(col => {
+                          {unmappedColumns.map((col) => {
                             const isAdded = extras.includes(col);
                             return (
                               <button
@@ -426,32 +455,36 @@ export default function WizardStepReview({
                         {(() => {
                           const previewRows = getPreviewRows(groupedMappings[schemaId]);
                           const nonSeparatorRows = previewRows.filter((r) => !r.__separator);
-                          const allHeaders = nonSeparatorRows.length > 0
-                            ? Object.keys(nonSeparatorRows[0])
-                            : Object.keys(groupedMappings[schemaId]);
+                          const allHeaders =
+                            nonSeparatorRows.length > 0
+                              ? Object.keys(nonSeparatorRows[0])
+                              : Object.keys(groupedMappings[schemaId]);
                           // Add extra columns to headers
                           const extraCols = extraColumnsPerSchema[schemaId] || [];
-                          const finalHeaders = [...allHeaders, ...extraCols.filter(c => !allHeaders.includes(c))];
+                          const finalHeaders = [...allHeaders, ...extraCols.filter((c) => !allHeaders.includes(c))];
 
                           return (
                             <table className="w-full text-xs">
                               <thead>
                                 <tr className="border-b border-border">
                                   {finalHeaders.map((term) => {
-                                    const isISO = term.endsWith('_ISO');
+                                    const isISO = term.endsWith("_ISO");
                                     const isGenerated = generatedIdValues[term] !== undefined;
                                     const isExtra = extraCols.includes(term);
                                     return (
                                       <th
                                         key={term}
                                         className={`px-3 py-2 text-left font-mono font-semibold whitespace-nowrap ${
-                                          isExtra ? 'text-cyan-400/70 italic' :
-                                          isISO ? 'text-cyan-400/70 italic' :
-                                          isGenerated ? 'text-amber-400' :
-                                          'text-foreground'
+                                          isExtra
+                                            ? "text-cyan-400/70 italic"
+                                            : isISO
+                                              ? "text-cyan-400/70 italic"
+                                              : isGenerated
+                                                ? "text-amber-400"
+                                                : "text-foreground"
                                         }`}
                                       >
-                                        {isExtra ? `⊕ ${term}` : isISO ? term.replace('_ISO', ' (ISO)') : term}
+                                        {isExtra ? `⊕ ${term}` : isISO ? term.replace("_ISO", " (ISO)") : term}
                                         {isGenerated && <Key className="inline w-3 h-3 ml-1 text-amber-400" />}
                                         {isDateTerm(term) && convertDatesToISO && !isISO && (
                                           <CalendarClock className="inline w-3 h-3 ml-1 text-cyan-400" />
@@ -478,17 +511,22 @@ export default function WizardStepReview({
                                   return (
                                     <tr key={i} className="border-b border-border/30">
                                       {finalHeaders.map((term, j) => {
-                                        const isISO = term.endsWith('_ISO');
+                                        const isISO = term.endsWith("_ISO");
                                         const isGenerated = generatedIdValues[term] !== undefined;
                                         const isExtra = extraCols.includes(term);
                                         return (
                                           <td
                                             key={j}
                                             className={`px-3 py-1.5 whitespace-nowrap max-w-[180px] truncate ${
-                                              isExtra ? 'text-cyan-500 italic' :
-                                              isISO ? 'text-cyan-500 font-medium italic' :
-                                              isGenerated ? 'text-amber-400 font-mono' :
-                                              isDateTerm(term) && convertDatesToISO ? 'text-cyan-500 font-medium' : 'text-muted-foreground'
+                                              isExtra
+                                                ? "text-cyan-500 italic"
+                                                : isISO
+                                                  ? "text-cyan-500 font-medium italic"
+                                                  : isGenerated
+                                                    ? "text-amber-400 font-mono"
+                                                    : isDateTerm(term) && convertDatesToISO
+                                                      ? "text-cyan-500 font-medium"
+                                                      : "text-muted-foreground"
                                             }`}
                                           >
                                             {row[term] || "—"}
@@ -514,9 +552,7 @@ export default function WizardStepReview({
           {allGood && (
             <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-500" />
-              <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">
-                {t("wizard.allGood")}
-              </p>
+              <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">{t("wizard.allGood")}</p>
             </div>
           )}
         </CardContent>
@@ -532,7 +568,7 @@ export default function WizardStepReview({
         clearColumnDefaults={clearColumnDefaults}
       />
 
-      {/* Validation section (inactive) */}
+      {/* Validation section (inactive)
       <Card className="bg-card/90 border-border backdrop-blur opacity-60">
         <CardHeader className="border-b border-border pb-3">
           <CardTitle className="text-card-foreground flex items-center gap-2 text-lg">
@@ -543,7 +579,7 @@ export default function WizardStepReview({
             {t("wizard.validationInactive")}
           </p>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Download section */}
       {schemasWithMappings.length > 0 && (
@@ -567,7 +603,7 @@ export default function WizardStepReview({
             </Button>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Button
-                onClick={() => onDownloadFiltered('optimal')}
+                onClick={() => onDownloadFiltered("optimal")}
                 variant="outline"
                 disabled={classifiedSchemas.optimal.length === 0}
                 className="py-3 text-sm border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 disabled:opacity-40"
@@ -576,7 +612,7 @@ export default function WizardStepReview({
                 {t("schema.downloadOptimal")} ({classifiedSchemas.optimal.length})
               </Button>
               <Button
-                onClick={() => onDownloadFiltered('optional')}
+                onClick={() => onDownloadFiltered("optional")}
                 variant="outline"
                 disabled={classifiedSchemas.optional.length === 0}
                 className="py-3 text-sm border-orange-500/50 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 disabled:opacity-40"
