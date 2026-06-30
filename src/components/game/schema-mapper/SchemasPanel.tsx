@@ -156,7 +156,7 @@ export default function SchemasPanel({
             <Layers className="w-5 h-5 text-purple-400" />
             All DwC-DP tables
             <Badge variant="secondary" className="ml-auto text-xs">
-              {Object.keys(schemaTerms).length} schematów
+              {Object.keys(schemaTerms).length} tables
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -365,7 +365,7 @@ export default function SchemasPanel({
                           })()}
                         {mappedCount > 0 && (
                           <Badge variant="secondary" className="text-[10px] h-4 px-1">
-                            {mappedCount} zmapowanych
+                            {mappedCount} mapped
                           </Badge>
                         )}
                         {hasMappings && (
