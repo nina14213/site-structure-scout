@@ -263,7 +263,7 @@ export default function SchemaMapper({
                       variant="outline"
                       size="sm"
                       onClick={state.handleUndo}
-                      aria-label="Cofnij ostatnia zmiane"
+                      aria-label="Undo last change"
                       className="text-[10px] md:text-xs border-border text-muted-foreground hover:text-foreground gap-1 px-2 md:px-3"
                       title="Undo last change"
                     >
