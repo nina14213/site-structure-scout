@@ -867,6 +867,10 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
   const handleClickCapture = (event: ReactMouseEvent<HTMLElement>) => {
     if (!suppressClickRef.current) return;
+    const target = event.target as HTMLElement;
+    // Clicks on the avatar always toggle the panel so the assistant can be
+    // brought back after being hidden. Drag suppression is kept for other areas.
+    if (target.closest('[data-demo-id="guide-assistant-avatar"]')) return;
     event.preventDefault();
     event.stopPropagation();
   };
