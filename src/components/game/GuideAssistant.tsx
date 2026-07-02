@@ -913,6 +913,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
               setHidden(false);
               setStoredHidden(false);
             }
+            pendingManualToggleRef.current = true;
             setExpanded((isExpanded) => !isExpanded);
           }}
           aria-label={expanded ? t('assistant.control.collapse') : t('assistant.control.expand')}
