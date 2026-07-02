@@ -723,9 +723,16 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     clampAssistantPosition(position, getDockFromPosition(position), getAssistantLayoutSize(), reservePanel)
   );
 
+  const pendingManualToggleRef = useRef(false);
+
   useEffect(() => {
     setTipIndex(0);
-    setExpanded(demoMode ? currentScreen === 'start' && !hidden : !hidden && !shouldCollapseForSurface(activeSurface));
+    if (pendingManualToggleRef.current) {
+      // Keep the user-initiated expanded state from the avatar click.
+      pendingManualToggleRef.current = false;
+    } else {
+      setExpanded(demoMode ? currentScreen === 'start' && !hidden : !hidden && !shouldCollapseForSurface(activeSurface));
+    }
     setIdleNudge(false);
     setManualDock(null);
   }, [contextKey, activeSurface, currentScreen, demoMode, hidden]);
