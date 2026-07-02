@@ -24,6 +24,7 @@ import { useGuideSurface, type GuideSurface } from './GuideSurfaceContext';
 type Dock = 'left' | 'right' | 'center';
 const IDLE_HELP_DELAY_MS = 120000;
 const ASSISTANT_POSITION_KEY = 'dwc-data-quest-assistant-position';
+const ASSISTANT_HIDDEN_KEY = 'dwc-data-quest-assistant-hidden';
 const ASSISTANT_VIEWPORT_MARGIN = 8;
 const ASSISTANT_AVATAR_SIZE = 128;
 const ASSISTANT_PANEL_TOP_OFFSET = 80;
@@ -89,6 +90,26 @@ function readStoredAssistantPosition(): AssistantPosition | null {
     return isAssistantPosition(parsed) ? clampAssistantPosition(parsed, getDockFromPosition(parsed), {}, false) : null;
   } catch {
     return null;
+  }
+}
+
+function readStoredHidden(): boolean {
+  try {
+    return localStorage.getItem(ASSISTANT_HIDDEN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setStoredHidden(value: boolean) {
+  try {
+    if (value) {
+      localStorage.setItem(ASSISTANT_HIDDEN_KEY, 'true');
+    } else {
+      localStorage.removeItem(ASSISTANT_HIDDEN_KEY);
+    }
+  } catch {
+    // Persistence is optional; UI state should still work without storage.
   }
 }
 
@@ -662,7 +683,8 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     return [...baseTips, ...getDemoExtraTips(currentScreen, currentLevel, activeSurface)];
   }, [activeSurface, baseTips, currentLevel, currentScreen, demoMode]);
   const [tipIndex, setTipIndex] = useState(0);
-  const [expanded, setExpanded] = useState(true);
+  const [hidden, setHidden] = useState(() => readStoredHidden());
+  const [expanded, setExpanded] = useState(() => !readStoredHidden());
   const [idleNudge, setIdleNudge] = useState(false);
   const [manualDock, setManualDock] = useState<Dock | null>(null);
   const [customPosition, setCustomPosition] = useState<AssistantPosition | null>(readStoredAssistantPosition);
@@ -701,12 +723,19 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     clampAssistantPosition(position, getDockFromPosition(position), getAssistantLayoutSize(), reservePanel)
   );
 
+  const pendingManualToggleRef = useRef(false);
+
   useEffect(() => {
     setTipIndex(0);
-    setExpanded(demoMode ? currentScreen === 'start' : !shouldCollapseForSurface(activeSurface));
+    if (pendingManualToggleRef.current) {
+      // Keep the user-initiated expanded state from the avatar click.
+      pendingManualToggleRef.current = false;
+    } else {
+      setExpanded(demoMode ? currentScreen === 'start' && !hidden : !hidden && !shouldCollapseForSurface(activeSurface));
+    }
     setIdleNudge(false);
     setManualDock(null);
-  }, [contextKey, activeSurface, currentScreen, demoMode]);
+  }, [contextKey, activeSurface, currentScreen, demoMode, hidden]);
 
   useEffect(() => {
     try {
@@ -798,6 +827,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
     const startIdleTimer = () => {
       clearIdleTimer();
       idleTimerRef.current = setTimeout(() => {
+        if (hidden) return;
         setIdleNudge(true);
         setExpanded(true);
         setManualDock(null);
@@ -819,7 +849,7 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
       clearIdleTimer();
       events.forEach((eventName) => window.removeEventListener(eventName, handleActivity));
     };
-  }, [currentScreen, currentLevel, demoMode]);
+  }, [currentScreen, currentLevel, demoMode, hidden]);
 
   const startDragging = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
@@ -844,6 +874,10 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
 
   const handleClickCapture = (event: ReactMouseEvent<HTMLElement>) => {
     if (!suppressClickRef.current) return;
+    const target = event.target as HTMLElement;
+    // Clicks on the avatar always toggle the panel so the assistant can be
+    // brought back after being hidden. Drag suppression is kept for other areas.
+    if (target.closest('[data-demo-id="guide-assistant-avatar"]')) return;
     event.preventDefault();
     event.stopPropagation();
   };
@@ -874,7 +908,14 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
         <button
           type="button"
           data-demo-id="guide-assistant-avatar"
-          onClick={() => setExpanded((isExpanded) => !isExpanded)}
+          onClick={() => {
+            if (hidden) {
+              setHidden(false);
+              setStoredHidden(false);
+            }
+            pendingManualToggleRef.current = true;
+            setExpanded((isExpanded) => !isExpanded);
+          }}
           aria-label={expanded ? t('assistant.control.collapse') : t('assistant.control.expand')}
           className={cn(
             'pointer-events-auto absolute inset-0 z-20 cursor-grab touch-none rounded-full focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:cursor-grabbing',
@@ -921,7 +962,11 @@ export default function GuideAssistant({ currentScreen, currentLevel, gameState 
                     variant="ghost"
                     size="sm"
                     data-demo-id="guide-assistant-close"
-                    onClick={() => setExpanded(false)}
+                    onClick={() => {
+                      setHidden(true);
+                      setStoredHidden(true);
+                      setExpanded(false);
+                    }}
                     aria-label={t('assistant.control.hide')}
                     className="h-8 shrink-0 gap-1 px-2 text-xs font-medium"
                   >
